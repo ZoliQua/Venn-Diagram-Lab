@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by Zoltan Dul in 2026 - free to use with MIT license. Part of React Venn Diagram Analyzer - https://github.com/ZoliQua/React-Venn-Diagram-Analyser - SVG Version: 3.0.0 -->
+<svg xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink"
+	 version="1.1"
+	 x="0px"
+	 y="0px"
+	 style="enable-background:new 0 0 700 700;"
+	 xml:space="preserve" viewBox="0 0 700 700">
+<g id="Shapes">
+	<path id="ShapeA" style="opacity:0.2;fill:#FFF200;stroke:#010101;stroke-width:3;" d="M653.2,674.5H362.8c-6.6,0-12-5.4-12-12V122.9  c0-6.6,5.4-12,12-12h290.3c6.6,0,12,5.4,12,12v539.6C665.2,669.1,659.8,674.5,653.2,674.5z"/>
+	<path id="ShapeB" style="opacity:0.2;fill:#2E3192;stroke:#010101;stroke-width:3;" d="M653.8,674.5h-606c-6.6,0-12-5.4-12-12V419.4  c0-6.6,5.4-12,12-12h606c6.6,0,12,5.4,12,12v243.1C665.8,669.1,660.4,674.5,653.8,674.5z"/>
+</g>
+<g id="Texts">
+	<g id="Header">
+		<text id="Title" transform="matrix(1 0 0 1 77.9 127.3)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">Edwards-Venn 2-set diagram</text>
+	</g>
+	<g id="Group_Names">
+		<text id="NameA" transform="matrix(1 0 0 1 70.8 165.8)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameA</text>
+		<text id="NameB" transform="matrix(1 0 0 1 70.9 185.3)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameB</text>
+	</g>
+	<g id="Group_Values">
+		<text id="Count_A" transform="matrix(1 0 0 1 514 263.5)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:48;text-anchor:middle;">A</text>
+		<text id="Count_B" transform="matrix(1 0 0 1 175.9 569)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:48;text-anchor:middle;">B</text>
+		<text id="Count_AB" transform="matrix(1 0 0 1 514 569)" style="fill:#FFFFFF;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:52;text-anchor:middle;">AB</text>
+	</g>
+	<g id="Group_CountSums">
+		<text id="CountSUM_A" transform="matrix(1 0 0 1 231.7 165.8)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_A</text>
+		<text id="CountSUM_B" transform="matrix(1 0 0 1 231.9 185.3)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_B</text>
+	</g>
+</g>
+<g id="Group_Bullets">
+	<circle id="BulletA" style="opacity:0.2;fill:#FFF200;stroke:#010101;stroke-width:2;" cx="59.2" cy="161.5" r="6.9"/>
+	<circle id="BulletB" style="opacity:0.2;fill:#2E3192;stroke:#010101;stroke-width:2;" cx="59.2" cy="180.2" r="6.9"/>
+</g>
+</svg>
