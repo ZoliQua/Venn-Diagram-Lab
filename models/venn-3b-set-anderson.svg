@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by Zoltan Dul in 2026 - free to use with MIT license. Part of React Venn Diagram Analyzer - https://github.com/ZoliQua/React-Venn-Diagram-Analyser - SVG Version: 3.0.0 -->
+<svg xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink"
+	 version="1.1"
+	 x="0px"
+	 y="0px"
+	 style="enable-background:new 0 0 700 700;"
+	 xml:space="preserve" viewBox="0 0 700 700">
+<g id="Shapes">
+	<rect id="ShapeA" style="opacity:0.2;fill:#FFF200;stroke:#000000;stroke-width:3;stroke-miterlimit:10;" x="385.6" y="131.8" width="251.7" height="503.3" rx="15.2" ry="15.2"/>
+	<rect id="ShapeB" style="opacity:0.2;fill:#2E3192;stroke:#000000;stroke-width:3;stroke-miterlimit:10;" x="133.9" y="383.4" width="503.3" height="251.7" rx="15.2" ry="15.2"/>
+	<rect id="ShapeC" style="opacity:0.2;fill:#ED1C24;stroke:#000000;stroke-width:3;stroke-miterlimit:10;" x="270" y="215.6" width="240" height="335.6" rx="15.2" ry="15.2"/>
+</g>
+<g id="Texts">
+	<g id="Header">
+		<text id="Title" transform="matrix(1 0 0 1 253.7 41.2)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:14;">Anderson-Venn 3-set diagram</text>
+	</g>
+	<g id="Group_Names">
+		<text id="NameA" transform="matrix(1 0 0 1 478.6 89.5)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:24;">NameA</text>
+		<text id="NameB" transform="matrix(1 0 0 1 102.4 338.8)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:24;">NameB</text>
+		<text id="NameC" transform="matrix(1 0 0 1 230.7 159.7)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:24;">NameC</text>
+	</g>
+	<g id="Group_Values">
+		<text id="Count_A" transform="matrix(1 0 0 1 561 193.2)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:36;text-anchor:middle;">A</text>
+		<text id="Count_B" transform="matrix(1 0 0 1 195.6 598)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:36;text-anchor:middle;">B</text>
+		<text id="Count_C" transform="matrix(1 0 0 1 328.9 319.9)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:36;text-anchor:middle;">C</text>
+		<text id="Count_AB" transform="matrix(1 0 0 1 561.2 598)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:36;text-anchor:middle;">AB</text>
+		<text id="Count_AC" transform="matrix(1 0 0 1 443.9 320.1)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:36;text-anchor:middle">AC</text>
+		<text id="Count_BC" transform="matrix(1 0 0 1 330.7 476.6)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:36;text-anchor:middle">BC</text>
+		<text id="Count_ABC" transform="matrix(1 0 0 1 450.7 477.9)" style="fill:#FFFFFF;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:40;text-anchor:middle">ABC</text>
+	</g>
+	<g id="Group_CountSums">
+		<text id="CountSUM_A" transform="matrix(1 0 0 1 519.9 112.8)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:18;text-anchor:middle;">CountSUM_A</text>
+		<text id="CountSUM_B" transform="matrix(1 0 0 1 145.8 364.5)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:18;text-anchor:middle;">CountSUM_B</text>
+		<text id="CountSUM_C" transform="matrix(1 0 0 1 272.1 183.5)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:18;text-anchor:middle;">CountSUM_C</text>
+	</g>
+</g>
+<g id="Group_Bullets" style="display:none;">
+	<circle id="BulletA" style="opacity:0.2;fill:#FFF200;stroke:#010101;stroke-width:2;" cx="59.2" cy="120" r="6.9"/>
+	<circle id="BulletB" style="opacity:0.2;fill:#2E3192;stroke:#010101;stroke-width:2;" cx="59.2" cy="138.7" r="6.9"/>
+	<circle id="BulletC" style="opacity:0.2;fill:#ED1C24;stroke:#010101;stroke-width:2;" cx="59.2" cy="157.4" r="6.9"/>
+</g>
+</svg>
