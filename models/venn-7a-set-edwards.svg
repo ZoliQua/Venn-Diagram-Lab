@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by Zoltan Dul in 2026 - free to use with MIT license. Part of React Venn Diagram Analyzer - https://github.com/ZoliQua/React-Venn-Diagram-Analyser - SVG Version: 3.0.0 -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 700 700" style="enable-background:new 0 0 700 700;" xml:space="preserve">
+<g id="Shapes">
+	<path id="ShapeA" style="opacity:0.2;fill:#FFF200;stroke:#010101;stroke-width:3;" d="M651.8,673.5H359.2c-6.6,0-12-5.4-12-12V121.9
+			c0-6.6,5.4-12,12-12h292.6c6.6,0,12,5.4,12,12v539.6C663.8,668.1,658.4,673.5,651.8,673.5z"/>
+	<path id="ShapeB" style="opacity:0.2;fill:#2E3192;stroke:#010101;stroke-width:3;" d="M651.8,674.5h-606c-6.6,0-12-5.4-12-12V419.4
+			c0-6.6,5.4-12,12-12h606c6.6,0,12,5.4,12,12v243.1C663.8,669.1,658.4,674.5,651.8,674.5z"/>
+	<path id="ShapeC" style="opacity:0.2;fill:#ED1C24;stroke:#0D9747;stroke-width:3;" d="M135.8,548C86.6,536.6,45.6,492.2,34,440
+			c-0.8-32.5-6-68,10.5-97.4c28.7-64.1,105.2-97,167.1-70.3c38.2,15.7,62,57.1,103.1,66.7c46.5,15.9,97.4-5.8,130.5-41.7
+			c47.9-45.4,126.1-45.2,173.5,0.8c25.1,24.5,46.9,59,43.5,97c1.1,32.8-0.6,68.1-21.5,94.3c-34.8,56.4-109.7,77.3-166,46.8
+			c-35.7-17.5-59.4-58.5-100.7-63.5c-29.1-9.1-60.7-1.1-87.2,12.9c-22.2,14.1-38,37.1-62,48.4C198.4,550.7,165.4,552.2,135.8,548z"/>
+	<path id="ShapeD" style="opacity:0.2;fill:#58595B;stroke:#3A53A4;stroke-width:3;" d="M316.7,649.3c-32.5-14-44.1-53.6-35.3-85.8
+			c4.7-24.6,7.1-53.7-9.2-74.1c-19.8-20.8-46.2-28.9-71.4-15.8c-32.8,9.9-74.6,1.2-90.8-31.8c-18.7-36.1-2.8-89.4,38.9-100.5
+			c26.5-8.3,53.2,3.2,79.2,6.4c24.2-7.2,54.1-22.1,54.7-51.2c1.9-31.8-5.6-64.2,0.5-95.7c13.4-29.6,47.9-45.4,79.4-38.1
+			c29.6,4.1,55.8,32,51.9,62.9c1.5,22.9-5.9,45.4-4.4,68.1c5.8,38.5,52.5,65.5,88.2,47.5c38.6-15.2,91.5,11.6,93.5,55.2
+			c5.4,34.4-14.3,74.2-50.9,80.3c-32.4,8.3-67.9-15.6-100.6-1.8c-23.7,10-28.8,32.1-30.8,54.9c1.4,29.4,13.6,61.3,0.1,89.3
+			c-12.8,24.7-40.5,37.4-67.7,34.7C333.5,653.3,324.7,652.6,316.7,649.3z"/>
+	<path id="ShapeE" style="opacity:0.2;fill:#3C2415;stroke:#B9539F;stroke-width:3;" d="M334.7,620.7c-13.4-5.4-19.6-18.3-19.6-40.7
+			c0-43.8-49-53.1-80-18.8c-9,9.9-31.8,8.2-42.5-4.3c-12.1-14.2-9.1-32,8.9-52.5c16-18.2,17.6-36.2,4.7-52.6
+			c-7.1-9.1-14.1-11.8-34.3-13.5c-30.1-2.5-40.3-10.9-40.3-33.1c0-22.2,10.2-30.6,40.3-33.1c20.2-1.7,27.1-4.4,34.3-13.5
+			c15-19,11.2-39.3-11.6-62.1c-18.2-18.2-13.6-39.1,11.5-52.6c10.6-5.7,25.3-0.3,42.2,15.4c28.1,26.2,66.7,8.5,66.7-30.6
+			c0-34.8,27.2-53.6,50.7-35.1c9.5,7.5,12.1,14.1,13.9,35.1c2.5,30.5,13.5,42.5,39,42.5c12.2,0,20.1-3.7,31.1-14.4
+			c18.3-17.7,38.1-19.2,51.4-3.8c11.3,13.1,11.7,29.3,0.9,40.1c-26.2,26.2-30.4,48.9-12.4,66.9c8.6,8.6,15.9,11.1,32,11.1
+			c37.6,0,56.1,34.8,32,58.9c-8.4,8.4-16,11.1-30.8,11.1c-25.1,0-38,7.2-41.8,27.9c-3.2,17,2.1,29.3,20.6,47.9
+			c6.2,6.2,8.2,14,7.8,25.3c-0.3,9.3-6.7,18-15.8,22.5c-16.8,8.3-35.2,0.3-44.7-12.1c-15.1-19.7-39.2-19.3-55-6.6
+			c-10.1,8-12.6,14.4-14.4,35.6c-1.7,20.8-4.4,27.7-13.5,34.8C353.7,626.1,349.5,626.7,334.7,620.7z"/>
+	<path id="ShapeF" style="opacity:0.2;fill:#9E1F63;stroke:#010101;stroke-width:3;" d="M524.3,407.4c0,97.3-78.9,176.2-176.2,176.2
+			c-97.3,0-176.2-78.9-176.2-176.2c0,0,0,0,0,0c0-97.3,78.9-176.2,176.2-176.2S524.3,310.1,524.3,407.4
+			C524.3,407.4,524.3,407.4,524.3,407.4z"/>
+	<path id="ShapeG" style="opacity:0.2;fill:#F7941E;stroke:#B9539F;stroke-width:3;" d="M411.1,346.2c0.3,0.3,0.9,0.3,1.1-0.1l53.5-83.9
+			c2.3-3.5,9.3-3.2,15.6,0.9l1.3,0.8c6.3,4,9.6,10.2,7.4,13.8l-54.9,86.1c-0.5,0.8-0.4,1.8,0.2,2.5l0.4,0.4c0.7,0.8,1.9,0.9,2.7,0.3
+			l51.2-45.1c2.3-1.6,12.2,7.7,16.6,13.9l0.9,1.3c4.3,6.1,6,12.5,3.6,14.1l-57.2,40.4l1.6,0.3c0.1,0,0.2,0,0.4,0h166.5
+			c6.8,0,12.3,6.1,12.3,13.6v1.6c0,7.5-5.5,13.6-12.3,13.6H455.2l0.5,0.8l53.9,37.4c2.2,1.5,0.5,7.8-3.8,14l-0.9,1.3
+			c-4.3,6.2-10.1,12.9-12.3,11.4l-52.6-39.9c-0.4-0.3-1-0.4-1.5-0.3l-0.6,0.1l53.4,83.8c2.2,3.4-1.2,9.5-7.6,13.5l-1.3,0.8
+			c-6.3,4-19.7,10-21.9,6.6l-46-87.8c-0.5-0.8-1.6-1.2-2.5-0.8l-3.9,1.6c-1,0.4-1.5,1.4-1.2,2.4l23.5,83.5c1,3.5-4.1,8-11.4,10
+			l-1.5,0.4c-7.2,2-13.9,0.9-14.9-2.6l-23.5-83.7c-0.3-0.9-1.1-1.6-2.1-1.5l-12.1,0.8c-1.1,0.1-1.9,1-1.9,2l-0.2,186.9
+			c0,7.7-6.1,13.9-13.6,13.9l-1.6,0c-7.5,0-13.6-6.3-13.6-14l0.2-187c0-1.1-0.8-1.9-1.8-2l-5.9-0.6c-1-0.1-1.9,0.5-2.2,1.5L300.5,558
+			c-1,3.5-7.7,4.7-14.9,2.7l-1.5-0.4c-7.2-2-15.9-6.5-14.9-10l27.2-84.2c0.3-1.1-0.4-2.3-1.5-2.5l-5-1.2c-0.8-0.2-1.7,0.2-2.2,0.9
+			l-51.2,87c-2.2,3.5-12.2,1.2-18.6-2.9l-1.3-0.8c-6.3-4-9.7-10.2-7.4-13.7l53.3-83.6c0.8-1.3,0-2.9-1.4-3.1l-3.5-0.5
+			c-0.5-0.1-1,0.1-1.4,0.3l-49.6,38c-2.1,1.4-8.2-5.3-12.5-11.4l-0.9-1.3c-4.3-6.2-6.1-12.4-4-13.8l50-34.7c0.7-0.5,1.1-1.5,0.8-2.3
+			l0,0c-0.3-0.8-1.1-1.4-1.9-1.4l-169-0.3c-6.9,0-12.6-6.2-12.6-13.7l0-1.6c0-7.5,5.7-13.6,12.6-13.6l168.8,0.3c1,0,1.8-0.7,2-1.6
+			l0.6-2.6c0.2-0.8-0.1-1.6-0.8-2.1l-49.3-34.8c-2-1.4-0.2-7.6,4.1-13.8l0.9-1.3c4.3-6.1,9.5-10,11.6-8.5l50.1,35.4
+			c0.2,0.1,0.4,0.2,0.6,0.3l0.7,0.2c1.8,0.6,3.4-1.4,2.3-3.1l-54.4-85.4c-2.3-3.7,0.9-10,7.3-14l1.3-0.8c6.3-4,13.4-4.3,15.7-0.7
+			l56.8,89.1c0.4,0.6,1.1,1,1.9,0.9l3.8-0.3c1.2-0.1,2.1-1.3,1.8-2.5l-22.9-86.5c-0.8-3.6,7.5-7.5,14.8-9.2l1.5-0.4
+			c7.3-1.7,14-0.1,14.8,3.5c5,21.3,17.2,73.9,18.2,78.3c0,0.2,0.2,0.4,0.4,0.5c0.4,0.2,1.3,0.6,2.3,1c3.1,1.2,6.6,0.8,9.1-1.4
+			c0.5-0.5,0.9-0.9,1.2-1.5c0.1-0.1,0.1-0.2,0.1-0.3l-0.1-187.1c0-8,6.1-14.6,13.6-14.6l1.6,0c7.5,0,13.6,6.5,13.6,14.5
+			c0,59.1,0,118.3,0.1,177.4c0,11.4,16.4,13.3,18.9,2.2c5.1-22.2,10.3-44.4,15.4-66.6c0.8-3.4,7.4-4.8,14.7-3.2l1.5,0.4
+			c7.3,1.7,12.6,5.9,11.8,9.3l-19.4,83.7c0,0-1.5,3.8,2.6,1.9C410,346,410.7,346,411.1,346.2z"/>
+</g>
+<g id="Texts">
+	<g id="Header">
+		<text id="Title" transform="matrix(1 0 0 1 87.875 92.2716)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">Edwards-Venn 7-set diagram</text>
+	</g>
+
+	<g id="Group_Names">	
+		<text id="NameA" transform="matrix(1 0 0 1 70.8683 127.8092)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameA</text>	
+		<text id="NameB" transform="matrix(1 0 0 1 70.8684 147.8092)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameB</text>	
+		<text id="NameC" transform="matrix(1 0 0 1 70.8681 167.2626)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameC</text>	
+		<text id="NameD" transform="matrix(1 0 0 1 70.8685 185.8458)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameD</text>	
+		<text id="NameE" transform="matrix(1 0 0 1 70.868 204.7002)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameE</text>	
+		<text id="NameF" transform="matrix(1 0 0 1 70.8679 224.0713)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameF</text>
+		<text id="NameG" transform="matrix(1 0 0 1 70.423 241.9919)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameG</text>
+	</g>
+
+	<g id="Group_Values">
+		<text id="Count_A" transform="matrix(1 0 0 1 616.8 204.3211)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:48;text-anchor:middle;">A</text>	
+		<text id="Count_B" transform="matrix(1 0 0 1 114.8 650.9199)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:48;text-anchor:middle;">B</text>		
+		<text id="Count_C" transform="matrix(1 0 0 1 122.7 322.0494)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:24;text-anchor:middle;">C</text>	
+		<text id="Count_D" transform="matrix(1 0 0 1 306.0 199.6785)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:18;text-anchor:middle;">D</text>	
+		<text id="Count_E" transform="matrix(1 0 0 1 206.5 257.2755)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">E</text>	
+		<text id="Count_F" transform="matrix(1 0 0 1 265.1 264.2461)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">F</text>	
+		<text id="Count_G" transform="matrix(1 0 0 1 341.1 142.9276)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">G</text>	
+		<text id="Count_AB" transform="matrix(1 0 0 1 619.7 650.9196)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:36;text-anchor:middle;">AB</text>	
+		<text id="Count_AC" transform="matrix(1 0 0 1 581.3 322.0495)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:24;text-anchor:middle;">AC</text>	
+		<text id="Count_AD" transform="matrix(1 0 0 1 388.9 199.6788)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:18;text-anchor:middle;">AD</text>
+		<text id="Count_AE" transform="matrix(1 0 0 1 480.6 258.2715)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">AE</text>	
+		<text id="Count_AF" transform="matrix(1 0 0 1 432.2 263.2462)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">AF</text>	
+		<text id="Count_AG" transform="matrix(1 0 0 1 354.2 142.9274)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">AG</text>	
+		<text id="Count_BC" transform="matrix(1 0 0 1 127.2 500.0045)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:24;text-anchor:middle;">BC</text>	
+		<text id="Count_BD" transform="matrix(1 0 0 1 306.1 624.577)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:16;text-anchor:middle;">BD</text>	
+		<text id="Count_BE" transform="matrix(1 0 0 1 211.2 560.4291)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">BE</text>	
+		<text id="Count_BF" transform="matrix(1 0 0 1 262.0 554.0307)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BF</text>	
+		<text id="Count_BG" transform="matrix(1 3.030624e-03 -3.030624e-03 1 340.0 663.3528)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BG</text>	
+		<text id="Count_CD" transform="matrix(1 0 0 1 151.8 363.6448)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:18;text-anchor:middle;">CD</text>	
+		<text id="Count_CE" transform="matrix(1 0 0 1 196.3 284.8784)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">CE</text>	
+		<text id="Count_CF" transform="matrix(1 0 0 1 203.5 323.0497)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">CF</text>	
+		<text id="Count_CG" transform="matrix(1 0 0 1 82.0 402.2812)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">CG</text>	
+		<text id="Count_DE" transform="matrix(1 0 0 1 324.9 221.2473)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">DE</text>	
+		<text id="Count_DF" transform="matrix(1 0 0 1 303.8 246.9209)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">DF</text>	
+		<text id="Count_DG" transform="matrix(1 0 0 1 339.8 178.1351)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">DG</text>	
+		<text id="Count_EF" transform="matrix(1 0 0 1 263.4 288.9649)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">EF</text>	
+		<text id="Count_EG" transform="matrix(1 0 0 1 222.6 267.2462)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">EG</text>	
+		<text id="Count_FG" transform="matrix(1 0 0 1 277.2 261.2717)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">FG</text>	
+		<text id="Count_ABC" transform="matrix(1 0 0 1 579.2 500.0046)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:24;text-anchor:middle;">ABC</text>	
+		<text id="Count_ABD" transform="matrix(1 0 0 1 388.9 624.5766)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:16;text-anchor:middle;">ABD</text>	
+		<text id="Count_ABE" transform="matrix(1 0 0 1 479.3 560.4291)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">ABE</text>	
+		<text id="Count_ABF" transform="matrix(1 0 0 1 437.4 553.0305)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABF</text>	
+		<text id="Count_ABG" transform="matrix(1 3.030624e-03 -3.030624e-03 1 355.2 663.3472)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABG</text>	
+		<text id="Count_ACD" transform="matrix(1 0 0 1 541.7 363.6452)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:18;text-anchor:middle;">ACD</text>	
+		<text id="Count_ACE" transform="matrix(1 0 0 1 497.7 284.8784)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ACE</text>	
+		<text id="Count_ACF" transform="matrix(1 0 0 1 490.6 319.0497)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ACF</text>	
+		<text id="Count_ACG" transform="matrix(1 0 0 1 610.1 403.2814)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ACG</text>	
+		<text id="Count_ADE" transform="matrix(1 0 0 1 370.2 219.2473)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ADE</text>	
+		<text id="Count_ADF" transform="matrix(1 0 0 1 393.2 247.9208)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">ADF</text>	
+		<text id="Count_ADG" transform="matrix(1 0 0 1 354.9 178.135)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ADG</text>	
+		<text id="Count_AEF" transform="matrix(1 0 0 1 438.5 284.8784)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">AEF</text>	
+		<text id="Count_AEG" transform="matrix(1 0 0 1 471.0 270.675)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">AEG</text>	
+		<text id="Count_AFG" transform="matrix(1 0 0 1 418.1 265.9567)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">AFG</text>	
+		<text id="Count_BCD" transform="matrix(1 0 0 1 151.7 458.1218)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:18;text-anchor:middle;">BCD</text>	
+		<text id="Count_BCE" transform="matrix(1 0 0 1 195.5 537.9849)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">BCE</text>	
+		<text id="Count_BCF" transform="matrix(1 0 0 1 201.4 492.7162)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BCF</text>	
+		<text id="Count_BCG" transform="matrix(1 0 0 1 81.9 416.8765)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">BCG</text>	
+		<text id="Count_BDE" transform="matrix(1 3.030624e-03 -3.030624e-03 1 324.8 600.7184)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BDE</text>	
+		<text id="Count_BDF" transform="matrix(1 0 0 1 302.7 571.2796)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">BDF</text>	
+		<text id="Count_BDG" transform="matrix(1 3.030624e-03 -3.030624e-03 1 339.9 633.2198)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:4;text-anchor:middle;">BDG</text>	
+		<text id="Count_BEF" transform="matrix(1 0 0 1 264.2 528.6783)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">BEF</text>	
+		<text id="Count_BEG" transform="matrix(1 0 0 1 224.7 546.0807)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BEG</text>	
+		<text id="Count_BFG" transform="matrix(1 0 0 1 276.4 552.0309)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BFG</text>	
+		<text id="Count_CDE" transform="matrix(1 0 0 1 155.8 387.7473)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">CDE</text>	
+		<text id="Count_CDF" transform="matrix(1 0 0 1 188.8 362.6699)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">CDF</text>	
+		<text id="Count_CDG" transform="matrix(1 0 0 1 115.6 402.2812)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">CDG</text>	
+		<text id="Count_CEF" transform="matrix(1 0 0 1 215.7 307.6522)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">CEF</text>	
+		<text id="Count_CEG" transform="matrix(1 0 0 1 216.3 280.8783)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">CEG</text>	
+		<text id="Count_CFG" transform="matrix(1 0 0 1 204.2 338.5997)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">CFG</text>	
+		<text id="Count_DEF" transform="matrix(1 0 0 1 319.7 272.6751)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">DEF</text>	
+		<text id="Count_DEG" transform="matrix(1 0 0 1 339.8 228.0026)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">DEG</text>	
+		<text id="Count_DFG" transform="matrix(1 0 0 1 291.4 258.2715)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">DFG</text>	
+		<text id="Count_EFG" transform="matrix(1 0 0 1 237.3 281.8785)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">EFG</text>	
+		<text id="Count_ABCD" transform="matrix(1 0 0 1 543.9 459.1212)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:18;text-anchor:middle;">ABCD</text>	
+		<text id="Count_ABCE" transform="matrix(1 0 0 1 498.6 541.9645)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">ABCE</text>	
+		<text id="Count_ABCF" transform="matrix(1 0 0 1 493.6 492.7167)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABCF</text>	
+		<text id="Count_ABCG" transform="matrix(1 0 0 1 610.0 417.8763)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ABCG</text>	
+		<text id="Count_ABDE" transform="matrix(1 0 0 1 369.1 600.7351)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABDE</text>	
+		<text id="Count_ABDF" transform="matrix(1 0 0 1 396.4 571.2795)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ABDF</text>	
+		<text id="Count_ABDG" transform="matrix(1 3.030624e-03 -3.030624e-03 1 354.1 633.2164)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:4;text-anchor:middle;">ABDG</text>	
+		<text id="Count_ABEF" transform="matrix(1 0 0 1 435.0 525.6781)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ABEF</text>	
+		<text id="Count_ABEG" transform="matrix(1 0 0 1 472.2 544.0809)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABEG</text>	
+		<text id="Count_ABFG" transform="matrix(1 0 0 1 420.3 547.225)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABFG</text>	
+		<text id="Count_ACDE" transform="matrix(1 0 0 1 537.7 388.7473)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ACDE</text>	
+		<text id="Count_ACDF" transform="matrix(1 0 0 1 507.9 364.6453)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ACDF</text>	
+		<text id="Count_ACDG" transform="matrix(1 0 0 1 576.9 402.2812)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">ACDG</text>	
+		<text id="Count_ACEF" transform="matrix(1 0 0 1 481.5 307.6521)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ACEF</text>	
+		<text id="Count_ACEG" transform="matrix(1 0 0 1 480.0 280.8783)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ACEG</text>	
+		<text id="Count_ACFG" transform="matrix(1 0 0 1 491.6 336.5997)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ACFG</text>	
+		<text id="Count_ADEF" transform="matrix(1 0 0 1 377.6 272.6753)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">ADEF</text>	
+		<text id="Count_ADEG" transform="matrix(1 0 0 1 355.0 228.0026)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ADEG</text>	
+		<text id="Count_ADFG" transform="matrix(1 0 0 1 404.9 259.2717)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ADFG</text>	
+		<text id="Count_AEFG" transform="matrix(1 0 0 1 460.4 281.8785)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">AEFG</text>	
+		<text id="Count_BCDE" transform="matrix(1 0 0 1 155.8 429.754)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">BCDE</text>	
+		<text id="Count_BCDF" transform="matrix(1 0 0 1 187.7 452.122)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BCDF</text>	
+		<text id="Count_BCDG" transform="matrix(1 0 0 1 115.9 416.8767)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">BCDG</text>	
+		<text id="Count_BCEF" transform="matrix(1 0 0 1 215.7 507.979)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BCEF</text>	
+		<text id="Count_BCEG" transform="matrix(1 0 0 1 215.3 536.2512)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BCEG</text>	
+		<text id="Count_BCFG" transform="matrix(1 0 0 1 206.2 478.472)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BCFG</text>	
+		<text id="Count_BDEF" transform="matrix(1 0 0 1 319.9 543.3318)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">BDEF</text>	
+		<text id="Count_BDEG" transform="matrix(1 3.030624e-03 -3.030624e-03 1 340.0 589.8657)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:4;text-anchor:middle;">BDEG</text>	
+		<text id="Count_BDFG" transform="matrix(1 0 0 1 291.4 555.2628)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BDFG</text>	
+		<text id="Count_BEFG" transform="matrix(1 0 0 1 279.2 534.6718)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BEFG</text>	
+		<text id="Count_CDEF" transform="matrix(1 0 0 1 193.3 385.748)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">CDEF</text>	
+		<text id="Count_CDEG" transform="matrix(1 0 0 1 151.9 402.2812)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">CDEG</text>	
+		<text id="Count_CDFG" transform="matrix(1 0 0 1 200.8 350.4895)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">CDFG</text>	
+		<text id="Count_CEFG" transform="matrix(1 0 0 1 232.5 296.3719)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">CEFG</text>	
+		<text id="Count_DEFG" transform="matrix(1 0 0 1 299.5 308.652)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">DEFG</text>	
+		<text id="Count_ABCDE" transform="matrix(1 0 0 1 536.8 431.9427)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">ABCDE</text>	
+		<text id="Count_ABCDF" transform="matrix(1 0 0 1 507.9 452.1218)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABCDF</text>	
+		<text id="Count_ABCDG" transform="matrix(1 0 0 1 577.8 416.877)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">ABCDG</text>	
+		<text id="Count_ABCEF" transform="matrix(1 0 0 1 480.2 505.9788)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABCEF</text>	
+		<text id="Count_ABCEG" transform="matrix(1 0 0 1 483.0 534.6718)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABCEG</text>	
+		<text id="Count_ABCFG" transform="matrix(1 0 0 1 493.3 481.3644)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABCFG</text>	
+		<text id="Count_ABDEF" transform="matrix(1 0 0 1 377.1 543.3319)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ABDEF</text>	
+		<text id="Count_ABDEG" transform="matrix(1 0 0 1 355.1 589.8805)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:4;text-anchor:middle;">ABDEG</text>	
+		<text id="Count_ABDFG" transform="matrix(1 0 0 1 407.3 555.263)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABDFG</text>	
+		<text id="Count_ABEFG" transform="matrix(1 0 0 1 418.1 533.6786)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABEFG</text>	
+		<text id="Count_ACDEF" transform="matrix(1 0 0 1 495.4 385.7477)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">ACDEF</text>	
+		<text id="Count_ACDEG" transform="matrix(1 0 0 1 541.9 403.2813)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ACDEG</text>	
+		<text id="Count_ACDFG" transform="matrix(1 0 0 1 498.3 350.4896)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ACDFG</text>	
+		<text id="Count_ACEFG" transform="matrix(1 0 0 1 462.2 296.372)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ACEFG</text>	
+		<text id="Count_ADEFG" transform="matrix(1 0 0 1 399.2 308.652)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">ADEFG</text>	
+		<text id="Count_BCDEF" transform="matrix(1 0 0 1 197.2 433.9422)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">BCDEF</text>	
+		<text id="Count_BCDEG" transform="matrix(1 0 0 1 151.9 416.8766)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">BCDEG</text>	
+		<text id="Count_BCDFG" transform="matrix(1 0 0 1 199.9 463.7608)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">BCDFG</text>	
+		<text id="Count_BCEFG" transform="matrix(1 0 0 1 237.2 516.9058)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">BCEFG</text>	
+		<text id="Count_BDEFG" transform="matrix(1 0 0 1 302.5 501.0046)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">BDEFG</text>	
+		<text id="Count_CDEFG" transform="matrix(1 0 0 1 190.3 402.2809)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">CDEFG</text>	
+		<text id="Count_ABCDEF" transform="matrix(1 0 0 1 498.3 434.1018)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">ABCDEF</text>	
+		<text id="Count_ABCDEG" transform="matrix(1 0 0 1 544.2 417.8767)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">ABCDEG</text>	
+		<text id="Count_ABCDFG" transform="matrix(1 0 0 1 496.2 464.7605)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:6;text-anchor:middle;">ABCDFG</text>	
+		<text id="Count_ABCEFG" transform="matrix(1 0 0 1 463.0 516.9054)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">ABCEFG</text>	
+		<text id="Count_ABDEFG" transform="matrix(1 0 0 1 399.2 501.0048)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:8;text-anchor:middle;">ABDEFG</text>	
+		<text id="Count_ACDEFG" transform="matrix(1 0 0 1 496.9 403.2809)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:12;text-anchor:middle;">ACDEFG</text>	
+		<text id="Count_BCDEFG" transform="matrix(1 0 0 1 192.8 416.8766)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:10;text-anchor:middle;">BCDEFG</text>	
+		<text id="Count_ABCDEFG" transform="matrix(1 0 0 1 400.4 433.0495)" style="fill:#FFFFFF;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:24;text-anchor:middle;">ABCDEFG</text>
+	</g>
+	<g id="Group_CountSums">
+		<text id="CountSUM_A" transform="matrix(1 0 0 1 230 127.8092)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle;">CountSUM_A</text>
+		<text id="CountSUM_B" transform="matrix(1 0 0 1 230 147.8092)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle;">CountSUM_B</text>
+		<text id="CountSUM_C" transform="matrix(1 0 0 1 230 167.2626)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle;">CountSUM_C</text>
+		<text id="CountSUM_D" transform="matrix(1 0 0 1 230 185.8458)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle;">CountSUM_D</text>
+		<text id="CountSUM_E" transform="matrix(1 0 0 1 230 204.7002)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle;">CountSUM_E</text>
+		<text id="CountSUM_F" transform="matrix(1 0 0 1 230 224.0713)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle;">CountSUM_F</text>
+		<text id="CountSUM_G" transform="matrix(1 0 0 1 230 241.9919)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle;">CountSUM_G</text>
+	</g>
+</g>
+<g id="Group_Bullets">
+	<circle id="BulletA" style="opacity:0.2;fill:#FFF200;stroke:#010101;stroke-width:2;" cx="59.2" cy="122.5" r="6.9"/>
+	<circle id="BulletB" style="opacity:0.2;fill:#2E3192;stroke:#010101;stroke-width:2;" cx="59.2" cy="143.5" r="6.9"/>
+	<circle id="BulletC" style="opacity:0.2;fill:#ED1C24;stroke:#010101;stroke-width:2;" cx="59.2" cy="162.2" r="6.9"/>
+	<circle id="BulletD" style="opacity:0.2;fill:#58595B;stroke:#010101;stroke-width:2;" cx="59.2" cy="180.9" r="6.9"/>
+	<circle id="BulletE" style="opacity:0.2;fill:#3C2415;stroke:#010101;stroke-width:2;" cx="59.2" cy="199.7" r="6.9"/>
+	<circle id="BulletF" style="opacity:0.2;fill:#9E1F63;stroke:#010101;stroke-width:2;" cx="59.2" cy="219.1" r="6.9"/>
+	<circle id="BulletG" style="opacity:0.2;fill:#F7941E;stroke:#010101;stroke-width:2;" cx="58.7" cy="237.8" r="6.9"/>
+</g>
+</svg>
