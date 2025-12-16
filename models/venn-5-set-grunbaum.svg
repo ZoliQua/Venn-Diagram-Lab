@@ -11,7 +11,7 @@
 	<ellipse id="ShapeA" style="opacity:0.2;fill:#FFF200;stroke:#231F20;stroke-width:3;stroke-miterlimit:10;" transform="matrix(1 2.726655e-03 -2.726655e-03 1 0.9056 -0.9843)" cx="361.4" cy="331.6" rx="142.4" ry="276.6"/>
 	<ellipse id="ShapeB" style="opacity:0.2;fill:#2E3192;stroke:#231F20;stroke-width:3;stroke-miterlimit:10;" transform="matrix(0.3064 0.9519 -0.9519 0.3064 643.1213 -109.806)" cx="396.9" cy="386.4" rx="142.4" ry="276.6"/>
 	<ellipse id="ShapeC" style="opacity:0.2;fill:#ED1C24;stroke:#231F20;stroke-width:3;stroke-miterlimit:10;" transform="matrix(-0.8106 0.5856 -0.5856 -0.8106 869.1332 585.2136)" cx="339.9" cy="433.2" rx="142.4" ry="276.6"/>
-	<ellipse id="ShapeD" style="opacity:0.2;fill:#58595B;stroke:#231F20;stroke-width:3;stroke-miterlimit:10;" transform="matrix(-0.8074 -0.59 0.59 -0.8074 263.6938 881.0757)" cx="275.7" cy="397.5" rx="142.4" ry="276.6"/>
+	<ellipse id="ShapeD" style="opacity:0.2;fill:#808285;stroke:#231F20;stroke-width:3;stroke-miterlimit:10;" transform="matrix(-0.8074 -0.59 0.59 -0.8074 263.6938 881.0757)" cx="275.7" cy="397.5" rx="142.4" ry="276.6"/>
 	<ellipse id="ShapeE" style="opacity:0.2;fill:#3C2415;stroke:#231F20;stroke-width:3;stroke-miterlimit:10;" transform="matrix(0.3116 -0.9502 0.9502 0.3116 -109.5119 525.6476)" cx="308" cy="338.4" rx="142.4" ry="276.6"/>
 </g>
 <g id="Texts">
@@ -70,7 +70,7 @@
 	<circle id="BulletA" style="opacity:0.2;fill:#FFF200;stroke:#010101;stroke-width:2;" cx="59.2" cy="37.7" r="6.9"/>
 	<circle id="BulletB" style="opacity:0.2;fill:#2E3192;stroke:#010101;stroke-width:2;" cx="59.2" cy="56.4" r="6.9"/>
 	<circle id="BulletC" style="opacity:0.2;fill:#ED1C24;stroke:#010101;stroke-width:2;" cx="59.2" cy="75.1" r="6.9"/>
-	<circle id="BulletD" style="opacity:0.2;fill:#58595B;stroke:#010101;stroke-width:2;" cx="59.2" cy="93.8" r="6.9"/>
+	<circle id="BulletD" style="opacity:0.2;fill:#808285;stroke:#010101;stroke-width:2;" cx="59.2" cy="93.8" r="6.9"/>
 	<circle id="BulletE" style="opacity:0.2;fill:#3C2415;stroke:#010101;stroke-width:2;" cx="59.2" cy="112.5" r="6.9"/>
 </g>
 </svg>
