@@ -25,8 +25,8 @@
 		<text id="Count_AB" transform="matrix(1 0 0 1 514 569)" style="fill:#FFFFFF;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:52;text-anchor:middle;">AB</text>
 	</g>
 	<g id="Group_CountSums">
-		<text id="CountSUM_A" transform="matrix(1 0 0 1 231.7 165.8)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_A</text>
-		<text id="CountSUM_B" transform="matrix(1 0 0 1 231.9 185.3)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_B</text>
+		<text id="CountSUM_A" transform="matrix(1 0 0 1 231.7 165.8)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle">CountSUM_A</text>
+		<text id="CountSUM_B" transform="matrix(1 0 0 1 231.9 185.3)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle">CountSUM_B</text>
 	</g>
 </g>
 <g id="Group_Bullets">

@@ -31,9 +31,9 @@
 		<text id="Count_ABC" transform="matrix(1 0 0 1 348.8 339.2)" style="fill:#FFFFFF;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:48;text-anchor:middle;">ABC</text>
 	</g>
 	<g id="Group_CountSums">
-		<text id="CountSUM_A" transform="matrix(1 0 0 1 241.9 88)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:18;text-anchor:middle;">CountSUM_A</text>
-		<text id="CountSUM_B" transform="matrix(1 0 0 1 459.5 87.9)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:18;text-anchor:middle;">CountSUM_B</text>
-		<text id="CountSUM_C" transform="matrix(1 0 0 1 346.1 663.8)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:18;text-anchor:middle;">CountSUM_C</text>
+		<text id="CountSUM_A" transform="matrix(1 0 0 1 241.9 88)" style="fill:#262262;font-family:'Tahoma';font-size:18;text-anchor:middle;">CountSUM_A</text>
+		<text id="CountSUM_B" transform="matrix(1 0 0 1 459.5 87.9)" style="fill:#262262;font-family:'Tahoma';font-size:18;text-anchor:middle;">CountSUM_B</text>
+		<text id="CountSUM_C" transform="matrix(1 0 0 1 346.1 663.8)" style="fill:#262262;font-family:'Tahoma';font-size:18;text-anchor:middle;">CountSUM_C</text>
 	</g>
 </g>
 <g id="Group_Bullets" style="display:none;">

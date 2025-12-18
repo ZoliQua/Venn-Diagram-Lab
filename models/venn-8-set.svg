@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Created by Zoltan Dul in 2026 - free to use with MIT license. Part of React Venn Diagram Analyzer - https://github.com/ZoliQua/React-Venn-Diagram-Analyser - SVG Version: 3.0.0 -->
 <svg xmlns="http://www.w3.org/2000/svg"
 	 id="Layer_1"
 	 version="1.1" viewBox="0 0 1400 1400">
@@ -14,36 +15,36 @@
 </g>
 <g id="Texts">
 	<g id="Header">
-		<text id="Title" transform="matrix(1 0 0 1 600.2 149.1)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 24.6px;">Venn 8-set diagram</text>
+		<text id="Title" transform="matrix(1 0 0 1 600.2 149.1)" style="fill: #262262; font-family:'Tahoma'; font-size: 24.6px;">Venn 8-set diagram</text>
 	</g>
 	<g id="Group_Names">
-		<text id="NameA" transform="matrix(1 0 0 1 955.6 189.2)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:Tahoma, Tahoma;font-size:28px">NameA</text>
-		<text id="NameB" transform="matrix(1 0 0 1 1204.4 413.5)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:Tahoma, Tahoma;font-size:28px">NameB</text>
-		<text id="NameC" transform="matrix(1 0 0 1 1270.8 897.7)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:Tahoma, Tahoma;font-size:28px">NameC</text>
-		<text id="NameD" transform="matrix(1 0 0 1 1021.1 1209.7)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:Tahoma, Tahoma;font-size:28px">NameD</text>
-		<text id="NameE" transform="matrix(1 0 0 1 302.9 1254.3)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:Tahoma, Tahoma;font-size:28px">NameE</text>
-		<text id="NameF" transform="matrix(1 0 0 1 47.3 958.9)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:Tahoma, Tahoma;font-size:28px">NameF</text>
-		<text id="NameG" transform="matrix(1 0 0 1 45.9 535.8)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:Tahoma, Tahoma;font-size:28px">NameG</text>
-		<text id="NameH" transform="matrix(1 0 0 1 343.6 209.3)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:Tahoma, Tahoma;font-size:28px">NameH</text>
+		<text id="NameA" transform="matrix(1 0 0 1 955.6 189.2)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:28">NameA</text>
+		<text id="NameB" transform="matrix(1 0 0 1 1204.4 413.5)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:28">NameB</text>
+		<text id="NameC" transform="matrix(1 0 0 1 1270.8 897.7)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:28">NameC</text>
+		<text id="NameD" transform="matrix(1 0 0 1 1021.1 1209.7)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:28">NameD</text>
+		<text id="NameE" transform="matrix(1 0 0 1 302.9 1254.3)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:28">NameE</text>
+		<text id="NameF" transform="matrix(1 0 0 1 47.3 958.9)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:28">NameF</text>
+		<text id="NameG" transform="matrix(1 0 0 1 45.9 535.8)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:28">NameG</text>
+		<text id="NameH" transform="matrix(1 0 0 1 343.6 209.3)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:28">NameH</text>
 	</g>
 	<g id="Group_Values">
-		<text id="Count_A" transform="matrix(1 0 0 1 779 277.4)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 30px;">A</text>
-		<text id="Count_B" transform="matrix(1 0 0 1 1084.8 464.9)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 30px;">B</text>
-		<text id="Count_C" transform="matrix(1 0 0 1 1172.7 825.3)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 30px;">C</text>
-		<text id="Count_D" transform="matrix(1 0 0 1 976 1146)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 30px;">D</text>
-		<text id="Count_E" transform="matrix(1 0 0 1 614.3 1241.4)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 30px;">E</text>
-		<text id="Count_F" transform="matrix(1 0 0 1 296.9 1034.7)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 30px;">F</text>
-		<text id="Count_G" transform="matrix(1 0 0 1 213.2 671.1)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 30px;">G</text>
-		<text id="Count_H" transform="matrix(1 0 0 1 426.5 351)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 30px;">H</text>
-		<text id="Count_ABCDEFG" transform="matrix(1 0 0 1 594.7 945.8)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 16.4px;">ABCDEFG</text>
-		<text id="Count_ABCDEFH" transform="matrix(1 0 0 1 760.2 945.8)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 16.4px;">ABCDEFH</text>
-		<text id="Count_ABCDEGH" transform="matrix(1 0 0 1 880.2 815.7)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 16.4px;">ABCDEGH</text>
-		<text id="Count_ABCDFGH" transform="matrix(1 0 0 1 862.6 653.2)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 16.4px;">ABCDFGH</text>
-		<text id="Count_ABCEFGH" transform="matrix(1 0 0 1 729.4 545.5)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 16.4px;">ABCEFGH</text>
-		<text id="Count_ABDEFGH" transform="matrix(1 0 0 1 571.5 550.9)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 16.4px;">ABDEFGH</text>
-		<text id="Count_ACDEFGH" transform="matrix(1 0 0 1 452 679.6)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 16.4px;">ACDEFGH</text>
-		<text id="Count_BCDEFGH" transform="matrix(1 0 0 1 468 849.5)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 16.4px;">BCDEFGH</text>
-		<text id="Count_ABCDEFGH" transform="matrix(1 0 0 1 610.2 747.3)" style="fill: #fff; font-family: Tahoma, Tahoma; font-size: 41px;">ABCDEFGH</text>
+		<text id="Count_A" transform="matrix(1 0 0 1 779 277.4)" style="fill: #262262; font-family:'Tahoma'; font-size: 30px;">A</text>
+		<text id="Count_B" transform="matrix(1 0 0 1 1084.8 464.9)" style="fill: #262262; font-family:'Tahoma'; font-size: 30px;">B</text>
+		<text id="Count_C" transform="matrix(1 0 0 1 1172.7 825.3)" style="fill: #262262; font-family:'Tahoma'; font-size: 30px;">C</text>
+		<text id="Count_D" transform="matrix(1 0 0 1 976 1146)" style="fill: #262262; font-family:'Tahoma'; font-size: 30px;">D</text>
+		<text id="Count_E" transform="matrix(1 0 0 1 614.3 1241.4)" style="fill: #262262; font-family:'Tahoma'; font-size: 30px;">E</text>
+		<text id="Count_F" transform="matrix(1 0 0 1 296.9 1034.7)" style="fill: #262262; font-family:'Tahoma'; font-size: 30px;">F</text>
+		<text id="Count_G" transform="matrix(1 0 0 1 213.2 671.1)" style="fill: #262262; font-family:'Tahoma'; font-size: 30px;">G</text>
+		<text id="Count_H" transform="matrix(1 0 0 1 426.5 351)" style="fill: #262262; font-family:'Tahoma'; font-size: 30px;">H</text>
+		<text id="Count_ABCDEFG" transform="matrix(1 0 0 1 594.7 945.8)" style="fill: #262262; font-family:'Tahoma'; font-size: 16.4px;">ABCDEFG</text>
+		<text id="Count_ABCDEFH" transform="matrix(1 0 0 1 760.2 945.8)" style="fill: #262262; font-family:'Tahoma'; font-size: 16.4px;">ABCDEFH</text>
+		<text id="Count_ABCDEGH" transform="matrix(1 0 0 1 880.2 815.7)" style="fill: #262262; font-family:'Tahoma'; font-size: 16.4px;">ABCDEGH</text>
+		<text id="Count_ABCDFGH" transform="matrix(1 0 0 1 862.6 653.2)" style="fill: #262262; font-family:'Tahoma'; font-size: 16.4px;">ABCDFGH</text>
+		<text id="Count_ABCEFGH" transform="matrix(1 0 0 1 729.4 545.5)" style="fill: #262262; font-family:'Tahoma'; font-size: 16.4px;">ABCEFGH</text>
+		<text id="Count_ABDEFGH" transform="matrix(1 0 0 1 571.5 550.9)" style="fill: #262262; font-family:'Tahoma'; font-size: 16.4px;">ABDEFGH</text>
+		<text id="Count_ACDEFGH" transform="matrix(1 0 0 1 452 679.6)" style="fill: #262262; font-family:'Tahoma'; font-size: 16.4px;">ACDEFGH</text>
+		<text id="Count_BCDEFGH" transform="matrix(1 0 0 1 468 849.5)" style="fill: #262262; font-family:'Tahoma'; font-size: 16.4px;">BCDEFGH</text>
+		<text id="Count_ABCDEFGH" transform="matrix(1 0 0 1 610.2 747.3)" style="fill: #fff; font-family:'Tahoma'; font-size: 41px;">ABCDEFGH</text>
 		<text id="Count_AB" transform="matrix(1 0 0 1 773.1 330.6)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:14">AB</text>
 		<text id="Count_AC" transform="matrix(1 0 0 1 1065.3 980.9)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:14">AC</text>
 		<text id="Count_AD" transform="matrix(1 0 0 1 991.1 1077.9)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:14">AD</text>
@@ -284,14 +285,14 @@
 		<text id="Count_EFGH" transform="matrix(1 0 0 1 609.3 382.3)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:6">EFGH</text>
 	</g>
 	<g id="Group_CountSums">
-		<text id="CountSUM_A" transform="matrix(1 0 0 1 939.5 219)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 21.8px;">CountSUM_A</text>
-		<text id="CountSUM_B" transform="matrix(1 0 0 1 1184.7 442.7)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 21.8px;">CountSUM_B</text>
-		<text id="CountSUM_C" transform="matrix(1 0 0 1 1257.4 922.6)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 21.8px;">CountSUM_C</text>
-		<text id="CountSUM_D" transform="matrix(1 0 0 1 996.4 1235.1)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 21.8px;">CountSUM_D</text>
-		<text id="CountSUM_E" transform="matrix(1 0 0 1 290.8 1280.5)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 21.8px;">CountSUM_E</text>
-		<text id="CountSUM_F" transform="matrix(1 0 0 1 37 988.2)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 21.8px;">CountSUM_F</text>
-		<text id="CountSUM_G" transform="matrix(1 0 0 1 27.3 561.3)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 21.8px;">CountSUM_G</text>
-		<text id="CountSUM_H" transform="matrix(1 0 0 1 323 237)" style="fill: #262262; font-family: Tahoma, Tahoma; font-size: 21.8px;">CountSUM_H</text>
+		<text id="CountSUM_A" transform="matrix(1 0 0 1 939.5 219)" style="fill: #262262; font-family:'Tahoma'; font-size: 21.8px;">CountSUM_A</text>
+		<text id="CountSUM_B" transform="matrix(1 0 0 1 1184.7 442.7)" style="fill: #262262; font-family:'Tahoma'; font-size: 21.8px;">CountSUM_B</text>
+		<text id="CountSUM_C" transform="matrix(1 0 0 1 1257.4 922.6)" style="fill: #262262; font-family:'Tahoma'; font-size: 21.8px;">CountSUM_C</text>
+		<text id="CountSUM_D" transform="matrix(1 0 0 1 996.4 1235.1)" style="fill: #262262; font-family:'Tahoma'; font-size: 21.8px;">CountSUM_D</text>
+		<text id="CountSUM_E" transform="matrix(1 0 0 1 290.8 1280.5)" style="fill: #262262; font-family:'Tahoma'; font-size: 21.8px;">CountSUM_E</text>
+		<text id="CountSUM_F" transform="matrix(1 0 0 1 37 988.2)" style="fill: #262262; font-family:'Tahoma'; font-size: 21.8px;">CountSUM_F</text>
+		<text id="CountSUM_G" transform="matrix(1 0 0 1 27.3 561.3)" style="fill: #262262; font-family:'Tahoma'; font-size: 21.8px;">CountSUM_G</text>
+		<text id="CountSUM_H" transform="matrix(1 0 0 1 323 237)" style="fill: #262262; font-family:'Tahoma'; font-size: 21.8px;">CountSUM_H</text>
 	</g>
 </g>
 <g id="Group_Bullets" style="display:none;">

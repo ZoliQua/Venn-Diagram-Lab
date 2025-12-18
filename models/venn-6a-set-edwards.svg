@@ -108,12 +108,12 @@
 		<text id="Count_ABCDEF" transform="matrix(1 0 0 1 417.5 442.4265)" style="fill:#FFFFFF;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:36;text-anchor:middle;">ABCDEF</text>
 	</g>
 	<g id="Group_CountSums">		
-		<text id="CountSUM_A" transform="matrix(1 0 0 1 231.9 138.8092)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_A</text>
-		<text id="CountSUM_B" transform="matrix(1 0 0 1 231.7 156.8092)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_B</text>
-		<text id="CountSUM_C" transform="matrix(1 0 0 1 231.9 176.2626)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_C</text>
-		<text id="CountSUM_D" transform="matrix(1 0 0 1 231.9 194.8458)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_D</text>
-		<text id="CountSUM_E" transform="matrix(1 0 0 1 231.9 213.7002)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_E</text>
-		<text id="CountSUM_F" transform="matrix(1 0 0 1 231.9 233.0713)" style="fill:#262262;font-family:Tahoma, Tahoma;font-size:14;text-anchor:middle">CountSUM_F</text>
+		<text id="CountSUM_A" transform="matrix(1 0 0 1 231.9 138.8092)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle">CountSUM_A</text>
+		<text id="CountSUM_B" transform="matrix(1 0 0 1 231.7 156.8092)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle">CountSUM_B</text>
+		<text id="CountSUM_C" transform="matrix(1 0 0 1 231.9 176.2626)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle">CountSUM_C</text>
+		<text id="CountSUM_D" transform="matrix(1 0 0 1 231.9 194.8458)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle">CountSUM_D</text>
+		<text id="CountSUM_E" transform="matrix(1 0 0 1 231.9 213.7002)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle">CountSUM_E</text>
+		<text id="CountSUM_F" transform="matrix(1 0 0 1 231.9 233.0713)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle">CountSUM_F</text>
 	</g>
 </g>
 <g id="Group_Bullets">
