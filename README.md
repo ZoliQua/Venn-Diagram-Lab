@@ -59,11 +59,11 @@ All models use a standardized SVG structure with consistent element IDs (`ShapeA
 
 | File | Type | Source |
 |------|------|--------|
-| `venn-4-set.svg` | Standard ellipse-based | — |
+| `venn-4-set.svg` | Classic overlapping ellipses | Venn, 1880 |
 | `venn-4a-set-edwards.svg` | Edwards construction | Edwards, 1996 |
 | `venn-4b-set-anderson.svg` | Anderson construction | Anderson, 1988 |
 | `venn-4e-set-euler.svg` | Euler diagram variant | Euler |
-| `venn-4f-set.svg` | Alternative construction | — |
+| `venn-4f-set.svg` | Original Venn construction | Venn, 1880 |
 
 ### 5-Set Diagrams (31 regions)
 
@@ -74,13 +74,13 @@ All models use a standardized SVG structure with consistent element IDs (`ShapeA
 | `venn-5b-set-anderson.svg` | Anderson construction | Anderson, 1988 |
 | `venn-5d-set-bannier.svg` | Bannier–Bodin variant | Bannier & Bodin, 2017 |
 | `venn-5e-set.svg` | Organic/freeform | — |
-| `venn-5f-set.svg` | Circle + path hybrid | — |
+| `venn-5f-set.svg` | Original Venn construction | Venn, 1880 |
 
 ### 6-Set Diagrams (63 regions)
 
 | File | Type | Source |
 |------|------|--------|
-| `venn-6-set.svg` | Standard construction | — |
+| `venn-6-set.svg` | SUMO-Venn construction | [SUMO-Venn](https://angiogenesis.dkfz.de/oncoexpress/software/sumo/venn.htm) |
 | `venn-6a-set-edwards.svg` | Edwards construction | Edwards, 1996 |
 | `venn-6b-set-anderson.svg` | Anderson construction | Anderson, 1988 |
 | `venn-6d-set-bannier.svg` | Bannier–Bodin variant | Bannier & Bodin, 2017 |
@@ -104,7 +104,7 @@ All models use a standardized SVG structure with consistent element IDs (`ShapeA
 
 | File | Type | Source |
 |------|------|--------|
-| `venn-8-set.svg` | Standard construction | — |
+| `venn-8-set.svg` | SUMO-Venn construction | [SUMO-Venn](https://angiogenesis.dkfz.de/oncoexpress/software/sumo/venn.htm) |
 | `venn-8d-set-bannier.svg` | Bannier–Bodin variant | Bannier & Bodin, 2017 |
 
 ## 📚 Publications (`publications/`)
