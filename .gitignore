@@ -13,8 +13,12 @@ env/
 # Node
 node_modules/
 dist/
+dist-ssr/
 .env
 .env.local
+*.local
+*.log
+logs
 
 # IDE
 .idea/
