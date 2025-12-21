@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { VennDocument } from '../types.ts';
 import type { RegionInfo } from '../hooks/useRegionDetection.ts';
 import type { Region } from '../utils/regions.ts';
+import type { ViewStyle } from '../App.tsx';
 import { getAllRegions } from '../utils/regions.ts';
 import { getModelsBySetCount } from '../models.ts';
 
@@ -15,6 +16,8 @@ interface ViewerSidebarProps {
   onSelectRegion: (region: Region) => void;
   onEditThis: () => void;
   isLoading: boolean;
+  viewStyle: ViewStyle;
+  onSetViewStyle: (style: ViewStyle) => void;
 }
 
 const SHAPE_COLORS: Record<string, string> = {
@@ -27,6 +30,7 @@ export function ViewerSidebar({
   hoveredRegion, selectedRegion,
   onHoverRegion, onSelectRegion,
   onEditThis, isLoading,
+  viewStyle, onSetViewStyle,
 }: ViewerSidebarProps) {
   const modelsBySet = useMemo(() => getModelsBySetCount(), []);
   const regions = useMemo(() => doc ? getAllRegions(doc) : [], [doc]);
@@ -66,9 +70,25 @@ export function ViewerSidebar({
           }
         </select>
         {doc && (
-          <button className="btn btn-sm" style={{ marginTop: 6, width: '100%' }} onClick={onEditThis}>
-            ✏️ Edit this diagram
-          </button>
+          <>
+            <div className="view-style-switcher">
+              <button
+                className={`btn btn-sm btn-view-style ${viewStyle === 'layer' ? 'btn-mode-active' : ''}`}
+                onClick={() => onSetViewStyle('layer')}
+              >
+                Layer
+              </button>
+              <button
+                className={`btn btn-sm btn-view-style ${viewStyle === 'cut' ? 'btn-mode-active' : ''}`}
+                onClick={() => onSetViewStyle('cut')}
+              >
+                Cut
+              </button>
+            </div>
+            <button className="btn btn-sm" style={{ marginTop: 4, width: '100%' }} onClick={onEditThis}>
+              Edit this diagram
+            </button>
+          </>
         )}
       </div>
 

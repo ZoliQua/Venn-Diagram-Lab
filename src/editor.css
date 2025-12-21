@@ -1328,6 +1328,28 @@ html, body, #root {
   color: #fff !important;
 }
 
+/* ---- View Style Switcher ---- */
+.view-style-switcher {
+  display: flex;
+  gap: 0;
+  margin-top: 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.btn-view-style {
+  flex: 1;
+  border-radius: 0 !important;
+  border: none !important;
+  text-align: center;
+}
+
+/* ---- Cut View ---- */
+.cut-view-container {
+  display: inline-block;
+}
+
 /* ---- Viewer Sidebar ---- */
 .viewer-sidebar {
   display: flex;

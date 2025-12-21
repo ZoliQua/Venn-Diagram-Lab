@@ -13,13 +13,17 @@ import { TextEditDialog } from './components/TextEditDialog.tsx';
 import { ReportDialog } from './components/ReportDialog.tsx';
 import { ViewerSidebar } from './components/ViewerSidebar.tsx';
 import { ViewerInfoPanel } from './components/ViewerInfoPanel.tsx';
+import { CutViewCanvas } from './components/CutViewCanvas.tsx';
 import { fetchModel } from './models.ts';
 import type { Region } from './utils/regions.ts';
+
+export type ViewStyle = 'layer' | 'cut';
 
 export default function App() {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [currentModel, setCurrentModel] = useState<string | null>(null);
   const [isLoadingModel, setIsLoadingModel] = useState(false);
+  const [viewStyle, setViewStyle] = useState<ViewStyle>('layer');
 
   const svgDoc = useSvgDocument();
   const { doc } = svgDoc;
@@ -206,6 +210,26 @@ export default function App() {
     }
   }, [doc, regionDetection]);
 
+  // CutView: region detection via label (no SVG coordinates needed)
+  const handleCutViewHover = useCallback((label: string | null) => {
+    if (!label || !doc) {
+      regionDetection.clearHover();
+      return;
+    }
+    const countText = doc.texts.values.find(t => t.id === `Count_${label}`);
+    if (countText) {
+      regionDetection.onHover(countText.x, countText.y);
+    }
+  }, [doc, regionDetection]);
+
+  const handleCutViewClick = useCallback((label: string) => {
+    if (!doc) return;
+    const countText = doc.texts.values.find(t => t.id === `Count_${label}`);
+    if (countText) {
+      regionDetection.onClick(countText.x, countText.y);
+    }
+  }, [doc, regionDetection]);
+
   // Determine active region label for sidebar highlighting
   const activeRegion = regionDetection.selectedRegion ?? regionDetection.hoveredRegion;
 
@@ -244,6 +268,8 @@ export default function App() {
             onSelectRegion={handleSidebarSelectRegion}
             onEditThis={handleEditThis}
             isLoading={isLoadingModel}
+            viewStyle={viewStyle}
+            onSetViewStyle={setViewStyle}
           />
         ) : (
           <Sidebar
@@ -264,29 +290,43 @@ export default function App() {
 
         <div className="canvas-area">
           {doc ? (
-            <Canvas
-              doc={doc}
-              zoomPan={zoomPan.state}
-              selected={selected}
-              showGrid={mode === 'edit' && showGrid}
-              showValidation={mode === 'edit' && showValidation}
-              containerRef={zoomPan.setContainerRef}
-              onSelect={selectById}
-              onClearSelection={clearSelection}
-              onZoomWheel={zoomPan.onWheel}
-              onPanPointerDown={zoomPan.onPointerDown}
-              onPanPointerMove={zoomPan.onPointerMove}
-              onPanPointerUp={zoomPan.onPointerUp}
-              onDragTextStart={drag.onPointerDown}
-              onDragPointerMove={drag.onPointerMove}
-              onDragPointerUp={drag.onPointerUp}
-              onDoubleClickText={handleDoubleClickText}
-              readOnly={mode === 'view'}
-              hoveredRegion={activeRegion}
-              onRegionHover={regionDetection.onHover}
-              onRegionClick={regionDetection.onClick}
-              onRegionLeave={regionDetection.clearHover}
-            />
+            mode === 'view' && viewStyle === 'cut' ? (
+              <div className="canvas-container" ref={zoomPan.setContainerRef} onWheel={zoomPan.onWheel}>
+                <div className="canvas-inner">
+                  <CutViewCanvas
+                    doc={doc}
+                    scale={zoomPan.state.scale}
+                    hoveredRegion={activeRegion}
+                    onRegionHover={handleCutViewHover}
+                    onRegionClick={handleCutViewClick}
+                  />
+                </div>
+              </div>
+            ) : (
+              <Canvas
+                doc={doc}
+                zoomPan={zoomPan.state}
+                selected={selected}
+                showGrid={mode === 'edit' && showGrid}
+                showValidation={mode === 'edit' && showValidation}
+                containerRef={zoomPan.setContainerRef}
+                onSelect={selectById}
+                onClearSelection={clearSelection}
+                onZoomWheel={zoomPan.onWheel}
+                onPanPointerDown={zoomPan.onPointerDown}
+                onPanPointerMove={zoomPan.onPointerMove}
+                onPanPointerUp={zoomPan.onPointerUp}
+                onDragTextStart={drag.onPointerDown}
+                onDragPointerMove={drag.onPointerMove}
+                onDragPointerUp={drag.onPointerUp}
+                onDoubleClickText={handleDoubleClickText}
+                readOnly={mode === 'view'}
+                hoveredRegion={activeRegion}
+                onRegionHover={regionDetection.onHover}
+                onRegionClick={regionDetection.onClick}
+                onRegionLeave={regionDetection.clearHover}
+              />
+            )
           ) : (
             <div className="canvas-empty">
               <div className="canvas-empty-text">
