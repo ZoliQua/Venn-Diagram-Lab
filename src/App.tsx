@@ -292,15 +292,12 @@ export default function App() {
           {doc ? (
             mode === 'view' && viewStyle === 'cut' ? (
               <div className="canvas-container" ref={zoomPan.setContainerRef} onWheel={zoomPan.onWheel}>
-                <div className="canvas-inner">
-                  <CutViewCanvas
-                    doc={doc}
-                    scale={zoomPan.state.scale}
-                    hoveredRegion={activeRegion}
-                    onRegionHover={handleCutViewHover}
-                    onRegionClick={handleCutViewClick}
-                  />
-                </div>
+                <CutViewCanvas
+                  doc={doc}
+                  scale={zoomPan.state.scale}
+                  onRegionHover={handleCutViewHover}
+                  onRegionClick={handleCutViewClick}
+                />
               </div>
             ) : (
               <Canvas

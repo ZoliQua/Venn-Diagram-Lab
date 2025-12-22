@@ -7,7 +7,9 @@ interface ToolbarProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onZoomReset: () => void;
+  showValidation: boolean;
   onToggleGrid: () => void;
+  onToggleValidation: () => void;
   onUndo: () => void;
   onRedo: () => void;
   onReport: () => void;
@@ -21,8 +23,10 @@ export function Toolbar({
   onSave,
   onZoomIn,
   onZoomOut,
+  showValidation,
   onZoomReset,
   onToggleGrid,
+  onToggleValidation,
   onUndo,
   onRedo,
   onReport,
@@ -55,6 +59,10 @@ export function Toolbar({
         <label className="toolbar-grid-toggle">
           <input type="checkbox" checked={showGrid} onChange={onToggleGrid} />
           Grid
+        </label>
+        <label className={`toolbar-grid-toggle ${showValidation ? 'toolbar-validate-active' : ''}`}>
+          <input type="checkbox" checked={showValidation} onChange={onToggleValidation} />
+          Validate
         </label>
         <span className="toolbar-sep" />
         <button className="btn btn-toolbar btn-sm" onClick={onZoomOut} title="Zoom out">

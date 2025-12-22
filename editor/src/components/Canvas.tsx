@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import type { VennDocument, VennText, SelectableElement } from '../types.ts';
 import type { ZoomPanState } from '../hooks/useZoomPan.ts';
 
@@ -7,6 +7,7 @@ interface CanvasProps {
   zoomPan: ZoomPanState;
   selected: SelectableElement | null;
   showGrid: boolean;
+  showValidation: boolean;
   containerRef: (el: HTMLDivElement | null) => void;
   onSelect: (id: string) => void;
   onClearSelection: () => void;
@@ -114,12 +115,14 @@ function renderShapeElement(
 function TextElement({
   t,
   isSelected,
+  errorHighlight,
   onPointerDown,
   onClick,
   onDoubleClick,
 }: {
   t: VennText;
   isSelected: boolean;
+  errorHighlight: boolean;
   onPointerDown: (e: React.PointerEvent) => void;
   onClick: () => void;
   onDoubleClick: () => void;
@@ -135,12 +138,14 @@ function TextElement({
         id={t.id}
         transform={transformStr}
         style={{
-          fill: styleObj['fill'],
-          stroke: styleObj['stroke'],
+          fill: errorHighlight ? '#ff0000' : styleObj['fill'],
+          stroke: errorHighlight ? '#ff0000' : styleObj['stroke'],
           strokeWidth: styleObj['stroke-width'],
           strokeMiterlimit: styleObj['stroke-miterlimit'] ? Number(styleObj['stroke-miterlimit']) : undefined,
           fontFamily: styleObj['font-family']?.replace(/'/g, ''),
           fontSize: styleObj['font-size'],
+          fontWeight: styleObj['font-weight'],
+          fontStyle: styleObj['font-style'],
           textAnchor: (styleObj['text-anchor'] as 'start' | 'middle' | 'end') || undefined,
           cursor: 'move',
         }}
@@ -192,6 +197,7 @@ export function Canvas({
   zoomPan,
   selected,
   showGrid,
+  showValidation,
   containerRef,
   onSelect,
   onClearSelection,
@@ -206,6 +212,53 @@ export function Canvas({
 }: CanvasProps) {
   const selectedId = getSelectedId(selected);
 
+  // Validation: compute which Count texts are in wrong position
+  const [invalidIds, setInvalidIds] = useState<Set<string>>(new Set());
+  const shapeIds = useMemo(() => doc.shapes.map(s => s.id), [doc.shapes]);
+
+  useEffect(() => {
+    if (!showValidation) {
+      setInvalidIds(new Set());
+      return;
+    }
+
+    // Run after paint
+    const timer = requestAnimationFrame(() => {
+      const svgRoot = document.querySelector('.canvas-svg') as SVGSVGElement | null;
+      if (!svgRoot) return;
+      const rootCTM = svgRoot.getScreenCTM();
+      if (!rootCTM) return;
+
+      const shapeIdSet = new Set(shapeIds);
+      const errors = new Set<string>();
+
+      for (const t of doc.texts.values) {
+        if (!t.id.startsWith('Count_')) continue;
+
+        const screenPt = new DOMPoint(t.x, t.y).matrixTransform(rootCTM);
+        const inViewport = screenPt.x >= 0 && screenPt.y >= 0 &&
+          screenPt.x <= window.innerWidth && screenPt.y <= window.innerHeight;
+
+        let suggested = '';
+        if (inViewport) {
+          const els = document.elementsFromPoint(screenPt.x, screenPt.y);
+          suggested = els
+            .filter(el => shapeIdSet.has(el.id))
+            .map(el => el.id.replace('Shape', ''))
+            .sort()
+            .join('');
+        }
+
+        if (suggested && suggested !== t.content) {
+          errors.add(t.id);
+        }
+      }
+
+      setInvalidIds(errors);
+    });
+    return () => cancelAnimationFrame(timer);
+  }, [showValidation, doc.texts.values, shapeIds, doc.viewBox, zoomPan.scale]);
+
   const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClearSelection();
@@ -217,6 +270,7 @@ export function Canvas({
       key={t.id}
       t={t}
       isSelected={selectedId === t.id}
+      errorHighlight={showValidation && invalidIds.has(t.id)}
       onPointerDown={(e) => onDragTextStart(e, t.id, t.x, t.y)}
       onClick={() => onSelect(t.id)}
       onDoubleClick={() => onDoubleClickText(t.id)}

@@ -17,6 +17,7 @@ export default function App() {
   const { selected, selectById, clearSelection } = useSelection(doc);
   const zoomPan = useZoomPan();
   const [showGrid, setShowGrid] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -214,7 +215,9 @@ export default function App() {
         onZoomIn={zoomPan.zoomIn}
         onZoomOut={zoomPan.zoomOut}
         onZoomReset={zoomPan.resetZoom}
+        showValidation={showValidation}
         onToggleGrid={() => setShowGrid(g => !g)}
+        onToggleValidation={() => setShowValidation(v => !v)}
         onUndo={svgDoc.undo}
         onRedo={svgDoc.redo}
         onReport={() => setReportOpen(true)}
@@ -243,6 +246,7 @@ export default function App() {
               zoomPan={zoomPan.state}
               selected={selected}
               showGrid={showGrid}
+              showValidation={showValidation}
               containerRef={zoomPan.setContainerRef}
               onSelect={selectById}
               onClearSelection={clearSelection}

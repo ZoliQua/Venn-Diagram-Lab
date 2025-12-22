@@ -598,6 +598,10 @@ html, body, #root {
   text-align: center;
 }
 
+.toolbar-validate-active {
+  color: #f44336 !important;
+}
+
 .prop-fontstyle-group {
   display: flex;
   gap: 4px;
