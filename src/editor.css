@@ -1346,6 +1346,36 @@ html, body, #root {
 }
 
 /* ---- Cut View ---- */
+.cut-view-svg .cut-region {
+  cursor: pointer;
+}
+
+.cut-view-svg .cut-region-fill {
+  transition: opacity 0.1s;
+}
+
+/* When hovering anywhere in the region group, dim all regions */
+.cut-regions-group:hover .cut-region .cut-region-fill {
+  opacity: 0.25;
+}
+
+/* The hovered region stays bright */
+.cut-regions-group .cut-region:hover .cut-region-fill {
+  opacity: 1 !important;
+  filter: brightness(1.3);
+}
+
+/* Dim labels on hover */
+.cut-regions-group:hover ~ .cut-labels .cut-label {
+  opacity: 0.2;
+}
+
+/* Region outline on hover */
+.cut-region::after {
+  stroke: white;
+  stroke-width: 2;
+}
+
 .cut-view-container {
   display: inline-block;
 }

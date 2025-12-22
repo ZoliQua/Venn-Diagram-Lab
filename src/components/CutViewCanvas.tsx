@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useRef } from 'react';
 import type { VennDocument } from '../types.ts';
 
 interface CutViewCanvasProps {
@@ -10,11 +10,10 @@ interface CutViewCanvasProps {
 
 /**
  * Pure SVG region view using clip-path + mask for Boolean operations.
- * Each region (exclusive intersection) is a real SVG element.
- * Inspired by nhthn/venn7: vector regions, subtle colors, hover outlines.
+ * Hover effects are CSS-only — no React state on mousemove.
  */
 export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutViewCanvasProps) {
-  const [hoveredMask, setHoveredMask] = useState<number | null>(null);
+  const hoverLabelRef = useRef<string | null>(null);
 
   const shapes = useMemo(() =>
     doc.shapes
@@ -27,18 +26,6 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
   const n = shapes.length;
   const vb = doc.viewBox;
 
-  // Color scheme: subtle, desaturated, depth-based
-  // Background → depth 1 → ... → depth n (brightest)
-  const regionColor = useCallback((mask: number): string => {
-    let depth = 0;
-    for (let i = 0; i < n; i++) if (mask & (1 << i)) depth++;
-    // HSL: hue rotates by mask, saturation and lightness by depth
-    const hue = (mask * 137.5) % 360;
-    const saturation = 15 + depth * 6;
-    const lightness = 20 + depth * 6;
-    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-  }, [n]);
-
   const bitmaskToLabel = useCallback((mask: number): string => {
     let label = '';
     for (let i = 0; i < n; i++) {
@@ -47,13 +34,15 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
     return label;
   }, [n, shapeLetters]);
 
+  // Use ref + raw callback to avoid re-renders on hover
   const handleMouseEnter = useCallback((mask: number) => {
-    setHoveredMask(mask);
-    onRegionHover(bitmaskToLabel(mask));
+    const label = bitmaskToLabel(mask);
+    hoverLabelRef.current = label;
+    onRegionHover(label);
   }, [onRegionHover, bitmaskToLabel]);
 
   const handleMouseLeave = useCallback(() => {
-    setHoveredMask(null);
+    hoverLabelRef.current = null;
     onRegionHover(null);
   }, [onRegionHover]);
 
@@ -61,161 +50,54 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
     onRegionClick(bitmaskToLabel(mask));
   }, [onRegionClick, bitmaskToLabel]);
 
-  // Parse shape style to extract fill color for curve rendering
-  const shapeColors = useMemo(() => {
-    return shapes.map(s => {
+  const shapeColors = useMemo(() =>
+    shapes.map(s => {
       const match = s.style.match(/fill:\s*([^;]+)/);
       return match?.[1] ?? '#666';
-    });
-  }, [shapes]);
+    }),
+    [shapes]
+  );
 
-  // Render a shape element (path, circle, ellipse) into a <clipPath> or <mask>
-  const renderShapeGeometry = useCallback((shape: typeof shapes[0], props?: Record<string, string>) => {
+  const renderShapeGeometry = useCallback((shape: typeof shapes[0], extraProps?: Record<string, string>) => {
     const attrs = shape.attributes;
-    const extraProps = props ?? {};
+    const p = extraProps ?? {};
     switch (shape.tagName) {
-      case 'path':
-        return <path d={attrs['d']} {...extraProps} />;
-      case 'circle':
-        return <circle cx={attrs['cx']} cy={attrs['cy']} r={attrs['r']} {...extraProps} />;
-      case 'ellipse':
-        return <ellipse cx={attrs['cx']} cy={attrs['cy']} rx={attrs['rx']} ry={attrs['ry']} {...extraProps} />;
-      default:
-        return <path d={attrs['d'] ?? ''} {...extraProps} />;
+      case 'path': return <path d={attrs['d']} {...p} />;
+      case 'circle': return <circle cx={attrs['cx']} cy={attrs['cy']} r={attrs['r']} {...p} />;
+      case 'ellipse': return <ellipse cx={attrs['cx']} cy={attrs['cy']} rx={attrs['rx']} ry={attrs['ry']} {...p} />;
+      default: return <path d={attrs['d'] ?? ''} {...p} />;
     }
   }, []);
 
-  // Build all regions (2^n - 1)
-  const regions = useMemo(() => {
-    const result: number[] = [];
-    for (let mask = 1; mask < (1 << n); mask++) {
-      result.push(mask);
-    }
-    // Sort: deeper regions first (rendered below), shallower on top
-    result.sort((a, b) => {
-      const depthA = a.toString(2).split('1').length - 1;
-      const depthB = b.toString(2).split('1').length - 1;
-      return depthB - depthA;
-    });
-    return result;
+  // Color: subtle, depth-based
+  const regionColor = useCallback((mask: number): string => {
+    let depth = 0;
+    for (let i = 0; i < n; i++) if (mask & (1 << i)) depth++;
+    const hue = (mask * 137.5) % 360;
+    const sat = 12 + depth * 5;
+    const lit = 18 + depth * 5;
+    return `hsl(${hue}, ${sat}%, ${lit}%)`;
   }, [n]);
 
-  const displayWidth = vb.w * scale;
-  const displayHeight = vb.h * scale;
-
-  // Build the region element for a given bitmask
-  // Uses nested clip-paths (for "in" shapes) and masks (for "out" shapes)
-  const buildRegion = useCallback((mask: number) => {
-    const inIndices: number[] = [];
-    const outIndices: number[] = [];
-    for (let i = 0; i < n; i++) {
-      if (mask & (1 << i)) inIndices.push(i);
-      else outIndices.push(i);
-    }
-
-    const isHovered = hoveredMask === mask;
-    const hasSomeHover = hoveredMask !== null;
-    const fillColor = regionColor(mask);
-    const opacity = hasSomeHover ? (isHovered ? 1 : 0.3) : 1;
-
-    // Build from inside out: start with a filled rect, wrap in masks then clips
-    let element: React.ReactElement = (
-      <rect
-        x={vb.x - 10} y={vb.y - 10}
-        width={vb.w + 20} height={vb.h + 20}
-        fill={fillColor}
-        opacity={opacity}
-        style={{ cursor: 'pointer', transition: 'opacity 0.15s' }}
-        onMouseEnter={() => handleMouseEnter(mask)}
-        onMouseLeave={handleMouseLeave}
-        onClick={() => handleClick(mask)}
-      />
-    );
-
-    // Wrap in "not" masks for excluded shapes
-    for (const idx of outIndices) {
-      element = (
-        <g mask={`url(#mask-not-${shapes[idx].id})`}>
-          {element}
-        </g>
-      );
-    }
-
-    // Wrap in clip-paths for included shapes
-    for (const idx of inIndices) {
-      element = (
-        <g clipPath={`url(#clip-${shapes[idx].id})`}>
-          {element}
-        </g>
-      );
-    }
+  // Build defs + regions (memoized — no hover state dependency)
+  const svgContent = useMemo(() => {
+    const allRegions: number[] = [];
+    for (let mask = 1; mask < (1 << n); mask++) allRegions.push(mask);
+    // Deeper regions first (behind), shallower on top
+    allRegions.sort((a, b) => {
+      const dA = a.toString(2).split('1').length - 1;
+      const dB = b.toString(2).split('1').length - 1;
+      return dB - dA;
+    });
 
     return (
-      <g key={`region-${mask}`}>
-        {element}
-        {/* Hover outline */}
-        {isHovered && inIndices.map(idx => {
-          const clipChain = inIndices.filter(i => i !== idx);
-          let outlineEl: React.ReactElement = renderShapeGeometry(shapes[idx], {
-            fill: 'none',
-            stroke: '#ffffff',
-            strokeWidth: '2.5',
-            style: 'pointer-events:none',
-          } as Record<string, string>);
-
-          // Clip outline to the other "in" shapes
-          for (const ci of clipChain) {
-            outlineEl = (
-              <g clipPath={`url(#clip-${shapes[ci].id})`}>
-                {outlineEl}
-              </g>
-            );
-          }
-          // Mask out excluded shapes
-          for (const oi of outIndices) {
-            outlineEl = (
-              <g mask={`url(#mask-not-${shapes[oi].id})`}>
-                {outlineEl}
-              </g>
-            );
-          }
-          return <g key={`outline-${mask}-${idx}`}>{outlineEl}</g>;
-        })}
-      </g>
-    );
-  }, [n, shapes, vb, hoveredMask, regionColor, handleMouseEnter, handleMouseLeave, handleClick, renderShapeGeometry]);
-
-  // Text labels
-  const parseStyle = (style: string) => {
-    const map: Record<string, string> = {};
-    for (const part of style.split(';')) {
-      const colon = part.indexOf(':');
-      if (colon === -1) continue;
-      map[part.slice(0, colon).trim()] = part.slice(colon + 1).trim();
-    }
-    return map;
-  };
-
-  const hoveredLabel = hoveredMask !== null ? bitmaskToLabel(hoveredMask) : null;
-
-  return (
-    <div className="canvas-inner">
-      <svg
-        viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
-        width={displayWidth}
-        height={displayHeight}
-        xmlns="http://www.w3.org/2000/svg"
-        className="canvas-svg"
-        style={{ background: '#111' }}
-      >
+      <>
         <defs>
-          {/* Clip-paths for each shape */}
           {shapes.map(s => (
             <clipPath key={`clip-${s.id}`} id={`clip-${s.id}`}>
               {renderShapeGeometry(s)}
             </clipPath>
           ))}
-          {/* Masks for complement of each shape (¬Shape) */}
           {shapes.map(s => (
             <mask key={`mask-not-${s.id}`} id={`mask-not-${s.id}`}>
               <rect x={vb.x - 100} y={vb.y - 100} width={vb.w + 200} height={vb.h + 200} fill="white" />
@@ -224,13 +106,50 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
           ))}
         </defs>
 
-        {/* Background */}
         <rect x={vb.x} y={vb.y} width={vb.w} height={vb.h} fill="#111" />
 
-        {/* Regions */}
-        {regions.map(mask => buildRegion(mask))}
+        <g className="cut-regions-group">
+          {allRegions.map(mask => {
+            const inIdx: number[] = [];
+            const outIdx: number[] = [];
+            for (let i = 0; i < n; i++) {
+              if (mask & (1 << i)) inIdx.push(i);
+              else outIdx.push(i);
+            }
 
-        {/* Shape curves (borders) — subtle, shown on hover */}
+            // Build nested clip/mask structure
+            let el: React.ReactElement = (
+              <rect
+                x={vb.x - 10} y={vb.y - 10}
+                width={vb.w + 20} height={vb.h + 20}
+                fill={regionColor(mask)}
+                className="cut-region-fill"
+              />
+            );
+
+            for (const idx of outIdx) {
+              el = <g mask={`url(#mask-not-${shapes[idx].id})`}>{el}</g>;
+            }
+            for (const idx of inIdx) {
+              el = <g clipPath={`url(#clip-${shapes[idx].id})`}>{el}</g>;
+            }
+
+            return (
+              <g
+                key={`region-${mask}`}
+                className="cut-region"
+                data-mask={mask}
+                onMouseEnter={() => handleMouseEnter(mask)}
+                onMouseLeave={handleMouseLeave}
+                onClick={() => handleClick(mask)}
+              >
+                {el}
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Shape curves */}
         <g style={{ pointerEvents: 'none' }}>
           {shapes.map((s, i) => (
             <g key={`curve-${s.id}`}>
@@ -238,39 +157,69 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
                 fill: 'none',
                 stroke: shapeColors[i],
                 strokeWidth: '1.5',
-                opacity: '0.4',
+                opacity: '0.35',
               } as Record<string, string>)}
             </g>
           ))}
         </g>
+      </>
+    );
+  }, [n, shapes, vb, regionColor, renderShapeGeometry, shapeColors, handleMouseEnter, handleMouseLeave, handleClick]);
 
-        {/* Text labels */}
-        <g style={{ pointerEvents: 'none' }}>
-          {doc.texts.values.map(t => {
-            const s = parseStyle(t.style);
-            const isHighlighted = hoveredLabel === t.id.replace('Count_', '');
-            return (
-              <text
-                key={t.id}
-                transform={t.transformExtra
-                  ? `matrix(${t.transformExtra} ${t.x} ${t.y})`
-                  : `translate(${t.x}, ${t.y})`}
-                style={{
-                  fill: isHighlighted ? '#fff' : '#ccc',
-                  stroke: 'none',
-                  fontFamily: s['font-family']?.replace(/'/g, '') ?? 'Tahoma',
-                  fontSize: s['font-size'] ?? '12',
-                  fontWeight: isHighlighted ? 'bold' : 'normal',
-                  textAnchor: (s['text-anchor'] as 'start' | 'middle' | 'end') ?? undefined,
-                  opacity: hoveredMask !== null && !isHighlighted ? 0.3 : 1,
-                  transition: 'opacity 0.15s',
-                }}
-              >
-                {t.content}
-              </text>
-            );
-          })}
-        </g>
+  // Text labels (separate — also memoized)
+  const textLabels = useMemo(() => {
+    const parseStyle = (style: string) => {
+      const map: Record<string, string> = {};
+      for (const part of style.split(';')) {
+        const colon = part.indexOf(':');
+        if (colon === -1) continue;
+        map[part.slice(0, colon).trim()] = part.slice(colon + 1).trim();
+      }
+      return map;
+    };
+
+    return (
+      <g className="cut-labels" style={{ pointerEvents: 'none' }}>
+        {doc.texts.values.map(t => {
+          const s = parseStyle(t.style);
+          return (
+            <text
+              key={t.id}
+              transform={t.transformExtra
+                ? `matrix(${t.transformExtra} ${t.x} ${t.y})`
+                : `translate(${t.x}, ${t.y})`}
+              style={{
+                fill: s['fill'] === '#FFFFFF' ? '#fff' : '#ccc',
+                stroke: 'none',
+                fontFamily: s['font-family']?.replace(/'/g, '') ?? 'Tahoma',
+                fontSize: s['font-size'] ?? '12',
+                textAnchor: (s['text-anchor'] as 'start' | 'middle' | 'end') ?? undefined,
+              }}
+              className="cut-label"
+            >
+              {t.content}
+            </text>
+          );
+        })}
+      </g>
+    );
+  }, [doc.texts.values]);
+
+  const displayWidth = vb.w * scale;
+  const displayHeight = vb.h * scale;
+
+  return (
+    <div className="canvas-inner">
+      <svg
+        viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
+        width={displayWidth}
+        height={displayHeight}
+        xmlns="http://www.w3.org/2000/svg"
+        className="canvas-svg cut-view-svg"
+        style={{ background: '#111' }}
+      >
+        {svgContent}
+        {textLabels}
       </svg>
     </div>
   );
