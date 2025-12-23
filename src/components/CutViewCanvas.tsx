@@ -80,13 +80,12 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
     }
   }, []);
 
-  // Depth-based color: subtle, muted
+  // Uniform pale red, darker for shallow, brighter for deep
   const regionColor = useCallback((mask: number): string => {
     const depth = bitCount(mask);
-    const hue = (mask * 137.5) % 360;
-    const sat = 10 + depth * 4;
-    const lit = 15 + depth * 5;
-    return `hsl(${hue}, ${sat}%, ${lit}%)`;
+    const lit = 12 + depth * 4;
+    const sat = 20 + depth * 5;
+    return `hsl(0, ${sat}%, ${lit}%)`;
   }, []);
 
   // Build regions sorted by depth: shallowest (bottom) → deepest (top)
@@ -147,15 +146,15 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
         })}
       </g>
 
-      {/* Shape curves — subtle colored borders */}
+      {/* Shape curves — very subtle borders */}
       <g style={{ pointerEvents: 'none' }}>
         {shapes.map((s, i) => (
           <g key={`curve-${s.id}`}>
             {renderGeo(s, {
               fill: 'none',
               stroke: shapeColors[i],
-              strokeWidth: '1.5',
-              opacity: '0.4',
+              strokeWidth: '0.8',
+              opacity: '0.15',
             } as Record<string, string>)}
           </g>
         ))}
@@ -184,10 +183,11 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
                 ? `matrix(${t.transformExtra} ${t.x} ${t.y})`
                 : `translate(${t.x}, ${t.y})`}
               style={{
-                fill: s['fill'] === '#FFFFFF' ? '#fff' : '#bbb',
+                fill: '#ffffff',
                 stroke: 'none',
                 fontFamily: s['font-family']?.replace(/'/g, '') ?? 'Tahoma',
                 fontSize: s['font-size'] ?? '12',
+                fontWeight: 'bold',
                 textAnchor: (s['text-anchor'] as 'start' | 'middle' | 'end') ?? undefined,
               }}
               className="cut-label"
