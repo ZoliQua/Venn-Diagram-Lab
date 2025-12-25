@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo, useRef, useEffect, useCallback } from 'react';
 import type { VennDocument } from '../types.ts';
 
 interface CutViewCanvasProps {
@@ -8,18 +8,12 @@ interface CutViewCanvasProps {
   onRegionClick: (label: string) => void;
 }
 
-// Standard shape colors (matching VENN_PROJECT.md)
-const SHAPE_FILL: Record<string, string> = {
-  A: '#3a3200', B: '#0a0c2e', C: '#2e0608', D: '#1a1a1c',
-  E: '#120a05', F: '#1e0812', G: '#2a1020', H: '#082428',
-};
-
 /**
- * SVG region view — like nhthn/venn7.
- * Clip-path only, z-ordering for exclusivity. Stable refs prevent re-renders.
+ * Cut View: renders the ORIGINAL shapes exactly as Layer view,
+ * then overlays interactive intersection regions on top.
+ * Shape geometry is never modified — only colored overlays are added.
  */
 export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutViewCanvasProps) {
-  // Stable refs — prevent useMemo invalidation on parent re-render
   const onHoverRef = useRef(onRegionHover);
   const onClickRef = useRef(onRegionClick);
   useEffect(() => { onHoverRef.current = onRegionHover; }, [onRegionHover]);
@@ -38,68 +32,103 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
 
   const bitCount = (v: number) => { let c = 0; for (let i = 0; i < n; i++) if (v & (1 << i)) c++; return c; };
 
-  const bitmaskToLabel = (mask: number): string => {
+  const bitmaskToLabel = useCallback((mask: number): string => {
     let label = '';
     for (let i = 0; i < n; i++) if (mask & (1 << i)) label += shapeLetters[i];
     return label;
-  };
+  }, [n, shapeLetters]);
 
-  // Region color: single-set → dark tinted shape color, intersection → pale red
-  const regionColor = (mask: number): string => {
-    const depth = bitCount(mask);
-    if (depth === 1) {
-      // Use shape's own dark color
-      for (let i = 0; i < n; i++) {
-        if (mask & (1 << i)) return SHAPE_FILL[shapeLetters[i]] ?? '#1a1a1a';
-      }
-      return '#1a1a1a';
+  // Parse a CSS style string to an object
+  const parseStyleToObj = (style: string): Record<string, string> => {
+    const map: Record<string, string> = {};
+    for (const part of style.split(';')) {
+      const colon = part.indexOf(':');
+      if (colon !== -1) map[part.slice(0, colon).trim()] = part.slice(colon + 1).trim();
     }
-    // Intersection: pale red, brighter with depth
-    const lit = 14 + depth * 4;
-    const sat = 25 + depth * 4;
-    return `hsl(0, ${sat}%, ${lit}%)`;
+    return map;
   };
 
-  const renderGeo = (shape: typeof shapes[0], extra?: Record<string, string>) => {
-    const a = shape.attributes;
-    const p = extra ?? {};
+  // Render shape with its ORIGINAL style (identical to Layer view Canvas.tsx)
+  const renderShapeOriginal = (shape: typeof shapes[0]) => {
+    const styleObj = parseStyleToObj(shape.style);
+    const reactStyle: React.CSSProperties = {
+      opacity: styleObj['opacity'] ? Number(styleObj['opacity']) : undefined,
+      fill: styleObj['fill'],
+      stroke: styleObj['stroke'],
+      strokeWidth: styleObj['stroke-width'],
+      strokeMiterlimit: styleObj['stroke-miterlimit'] ? Number(styleObj['stroke-miterlimit']) : undefined,
+      strokeLinecap: styleObj['stroke-linecap'] as React.CSSProperties['strokeLinecap'],
+      strokeLinejoin: styleObj['stroke-linejoin'] as React.CSSProperties['strokeLinejoin'],
+      pointerEvents: 'none',
+    };
+    const attrs = shape.attributes;
+    const common = { id: shape.id, style: reactStyle };
+
     switch (shape.tagName) {
-      case 'path': return <path d={a['d']} {...p} />;
-      case 'circle': return <circle cx={a['cx']} cy={a['cy']} r={a['r']} {...p} />;
-      case 'ellipse': return <ellipse cx={a['cx']} cy={a['cy']} rx={a['rx']} ry={a['ry']} {...p} />;
-      default: return <path d={a['d'] ?? ''} {...p} />;
+      case 'path': return <path {...common} d={attrs['d']} />;
+      case 'circle': return <circle {...common} cx={attrs['cx']} cy={attrs['cy']} r={attrs['r']} />;
+      case 'ellipse': return <ellipse {...common} cx={attrs['cx']} cy={attrs['cy']} rx={attrs['rx']} ry={attrs['ry']} />;
+      default: return <path {...common} d={attrs['d'] ?? ''} />;
     }
   };
 
-  const sortedRegions = useMemo(() => {
+  // Render shape geometry for clip-path (no style, just shape)
+  const renderGeoForClip = (shape: typeof shapes[0]) => {
+    const attrs = shape.attributes;
+    switch (shape.tagName) {
+      case 'path': return <path d={attrs['d']} />;
+      case 'circle': return <circle cx={attrs['cx']} cy={attrs['cy']} r={attrs['r']} />;
+      case 'ellipse': return <ellipse cx={attrs['cx']} cy={attrs['cy']} rx={attrs['rx']} ry={attrs['ry']} />;
+      default: return <path d={attrs['d'] ?? ''} />;
+    }
+  };
+
+  // Only intersection regions (depth >= 2), sorted shallowest to deepest
+  const intersectionRegions = useMemo(() => {
     const all: number[] = [];
-    for (let mask = 1; mask < (1 << n); mask++) all.push(mask);
+    for (let mask = 1; mask < (1 << n); mask++) {
+      if (bitCount(mask) >= 2) all.push(mask);
+    }
     all.sort((a, b) => bitCount(a) - bitCount(b) || a - b);
     return all;
   }, [n]);
 
-  // Entire SVG internals — stable, only depends on doc structure
+  // SVG internals — stable
   const svgInternals = useMemo(() => {
+    // Clip-path defs for each shape
     const clipDefs = shapes.map(s => (
       <clipPath key={`clip-${s.id}`} id={`clip-${s.id}`}>
-        {renderGeo(s)}
+        {renderGeoForClip(s)}
       </clipPath>
     ));
 
-    const regionEls = sortedRegions.map(mask => {
+    // Original shapes (identical to Layer view)
+    const originalShapes = shapes.map(s => (
+      <g key={s.id}>{renderShapeOriginal(s)}</g>
+    ));
+
+    // Intersection overlays (depth >= 2 only)
+    const overlays = intersectionRegions.map(mask => {
+      const depth = bitCount(mask);
       const inIdx: number[] = [];
       for (let i = 0; i < n; i++) if (mask & (1 << i)) inIdx.push(i);
+
+      // Pale red overlay, more opaque for deeper intersections
+      const overlayOpacity = 0.08 + depth * 0.04;
 
       let el: React.ReactElement = (
         <rect
           x={vb.x} y={vb.y} width={vb.w} height={vb.h}
-          fill={regionColor(mask)}
+          fill="#cc2222"
+          opacity={overlayOpacity}
           className="cut-region-fill"
           onMouseEnter={() => onHoverRef.current(bitmaskToLabel(mask))}
           onClick={() => onClickRef.current(bitmaskToLabel(mask))}
+          style={{ cursor: 'pointer' }}
         />
       );
 
+      // Clip to all shapes in this intersection
       for (const idx of inIdx) {
         el = <g key={`c-${idx}`} clipPath={`url(#clip-${shapes[idx].id})`}>{el}</g>;
       }
@@ -107,34 +136,25 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
       return <g key={mask} className="cut-region">{el}</g>;
     });
 
-    const shapeColors = shapes.map(s => {
-      const m = s.style.match(/fill:\s*([^;]+)/);
-      return m?.[1] ?? '#666';
+    // Single-set region hit areas (invisible, for mouse events only)
+    const singleHitAreas = shapes.map((s, i) => {
+      const mask = 1 << i;
+      let el: React.ReactElement = (
+        <rect
+          x={vb.x} y={vb.y} width={vb.w} height={vb.h}
+          fill="transparent"
+          onMouseEnter={() => onHoverRef.current(bitmaskToLabel(mask))}
+          onClick={() => onClickRef.current(bitmaskToLabel(mask))}
+          style={{ cursor: 'pointer' }}
+        />
+      );
+      el = <g clipPath={`url(#clip-${s.id})`}>{el}</g>;
+      return <g key={`single-${i}`}>{el}</g>;
     });
 
-    const curves = shapes.map((s, i) => (
-      <g key={`curve-${s.id}`}>
-        {renderGeo(s, {
-          fill: 'none',
-          stroke: shapeColors[i],
-          strokeWidth: '0.8',
-          opacity: '0.15',
-        } as Record<string, string>)}
-      </g>
-    ));
-
     // Text labels — white bold
-    const parseStyle = (style: string) => {
-      const m: Record<string, string> = {};
-      for (const p of style.split(';')) {
-        const c = p.indexOf(':');
-        if (c !== -1) m[p.slice(0, c).trim()] = p.slice(c + 1).trim();
-      }
-      return m;
-    };
-
     const labels = doc.texts.values.map(t => {
-      const s = parseStyle(t.style);
+      const s = parseStyleToObj(t.style);
       return (
         <text
           key={t.id}
@@ -147,15 +167,14 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
           fontWeight="bold"
           textAnchor={(s['text-anchor'] as 'start' | 'middle' | 'end') ?? undefined}
           stroke="none"
-          className="cut-label"
+          style={{ pointerEvents: 'none' }}
         >
           {t.content}
         </text>
       );
     });
 
-    return { clipDefs, regionEls, curves, labels };
-  // Only rebuild when doc structure changes — NOT on callback changes
+    return { clipDefs, originalShapes, singleHitAreas, overlays, labels };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc.shapes, doc.texts.values, doc.viewBox, n]);
 
@@ -167,15 +186,22 @@ export function CutViewCanvas({ doc, scale, onRegionHover, onRegionClick }: CutV
         height={vb.h * scale}
         xmlns="http://www.w3.org/2000/svg"
         className="canvas-svg cut-view-svg"
-        style={{ background: '#111' }}
       >
         <defs>{svgInternals.clipDefs}</defs>
-        <rect x={vb.x} y={vb.y} width={vb.w} height={vb.h} fill="#111" />
+
+        {/* 1. Original shapes — IDENTICAL to Layer view */}
+        <g id="Shapes">{svgInternals.originalShapes}</g>
+
+        {/* 2. Single-set hit areas (transparent, bottom) */}
         <g className="cut-regions-group" onMouseLeave={() => onHoverRef.current(null)}>
-          {svgInternals.regionEls}
+          {svgInternals.singleHitAreas}
+
+          {/* 3. Intersection overlays — pale red, deeper on top */}
+          {svgInternals.overlays}
         </g>
-        <g style={{ pointerEvents: 'none' }}>{svgInternals.curves}</g>
-        <g style={{ pointerEvents: 'none' }}>{svgInternals.labels}</g>
+
+        {/* 4. Text labels */}
+        <g>{svgInternals.labels}</g>
       </svg>
     </div>
   );
