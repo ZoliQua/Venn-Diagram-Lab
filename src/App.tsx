@@ -13,7 +13,6 @@ import { TextEditDialog } from './components/TextEditDialog.tsx';
 import { ReportDialog } from './components/ReportDialog.tsx';
 import { ViewerSidebar } from './components/ViewerSidebar.tsx';
 import { ViewerInfoPanel } from './components/ViewerInfoPanel.tsx';
-import { CutViewCanvas } from './components/CutViewCanvas.tsx';
 import { fetchModel } from './models.ts';
 import type { Region } from './utils/regions.ts';
 
@@ -210,26 +209,6 @@ export default function App() {
     }
   }, [doc, regionDetection]);
 
-  // CutView: region detection via label (no SVG coordinates needed)
-  const handleCutViewHover = useCallback((label: string | null) => {
-    if (!label || !doc) {
-      regionDetection.clearHover();
-      return;
-    }
-    const countText = doc.texts.values.find(t => t.id === `Count_${label}`);
-    if (countText) {
-      regionDetection.onHover(countText.x, countText.y);
-    }
-  }, [doc, regionDetection]);
-
-  const handleCutViewClick = useCallback((label: string) => {
-    if (!doc) return;
-    const countText = doc.texts.values.find(t => t.id === `Count_${label}`);
-    if (countText) {
-      regionDetection.onClick(countText.x, countText.y);
-    }
-  }, [doc, regionDetection]);
-
   // Determine active region label for sidebar highlighting
   const activeRegion = regionDetection.selectedRegion ?? regionDetection.hoveredRegion;
 
@@ -290,16 +269,6 @@ export default function App() {
 
         <div className="canvas-area">
           {doc ? (
-            mode === 'view' && viewStyle === 'cut' ? (
-              <div className="canvas-container" ref={zoomPan.setContainerRef} onWheel={zoomPan.onWheel}>
-                <CutViewCanvas
-                  doc={doc}
-                  scale={zoomPan.state.scale}
-                  onRegionHover={handleCutViewHover}
-                  onRegionClick={handleCutViewClick}
-                />
-              </div>
-            ) : (
               <Canvas
                 doc={doc}
                 zoomPan={zoomPan.state}
@@ -318,12 +287,12 @@ export default function App() {
                 onDragPointerUp={drag.onPointerUp}
                 onDoubleClickText={handleDoubleClickText}
                 readOnly={mode === 'view'}
+                viewStyle={mode === 'view' ? viewStyle : 'layer'}
                 hoveredRegion={activeRegion}
                 onRegionHover={regionDetection.onHover}
                 onRegionClick={regionDetection.onClick}
                 onRegionLeave={regionDetection.clearHover}
               />
-            )
           ) : (
             <div className="canvas-empty">
               <div className="canvas-empty-text">

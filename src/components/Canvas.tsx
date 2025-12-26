@@ -21,6 +21,7 @@ interface CanvasProps {
   onDragPointerUp: (e: React.PointerEvent) => void;
   onDoubleClickText: (id: string) => void;
   readOnly?: boolean;
+  viewStyle?: 'layer' | 'cut';
   hoveredRegion?: RegionInfo | null;
   onRegionHover?: (svgX: number, svgY: number) => void;
   onRegionClick?: (svgX: number, svgY: number) => void;
@@ -124,6 +125,7 @@ function TextElement({
   errorHighlight,
   viewerHighlight,
   readOnly,
+  isCutView,
   onPointerDown,
   onClick,
   onDoubleClick,
@@ -133,6 +135,7 @@ function TextElement({
   errorHighlight: boolean;
   viewerHighlight?: boolean;
   readOnly?: boolean;
+  isCutView?: boolean;
   onPointerDown: (e: React.PointerEvent) => void;
   onClick: () => void;
   onDoubleClick: () => void;
@@ -142,8 +145,9 @@ function TextElement({
     ? `matrix(${t.transformExtra} ${t.x} ${t.y})`
     : `translate(${t.x}, ${t.y})`;
 
-  const fillColor = errorHighlight ? '#ff0000' : viewerHighlight ? '#00ff88' : styleObj['fill'];
-  const strokeColor = errorHighlight ? '#ff0000' : viewerHighlight ? '#00ff88' : styleObj['stroke'];
+  const isCut = isCutView && !errorHighlight;
+  const fillColor = errorHighlight ? '#ff0000' : viewerHighlight ? '#00ff88' : isCut ? '#ffffff' : styleObj['fill'];
+  const strokeColor = errorHighlight ? '#ff0000' : viewerHighlight ? '#00ff88' : isCut ? 'none' : styleObj['stroke'];
 
   return (
     <g>
@@ -160,7 +164,7 @@ function TextElement({
           strokeMiterlimit: styleObj['stroke-miterlimit'] ? Number(styleObj['stroke-miterlimit']) : undefined,
           fontFamily: styleObj['font-family']?.replace(/'/g, ''),
           fontSize: styleObj['font-size'],
-          fontWeight: viewerHighlight ? 'bold' : styleObj['font-weight'],
+          fontWeight: viewerHighlight ? 'bold' : isCut ? 'bold' : styleObj['font-weight'],
           fontStyle: styleObj['font-style'],
           textAnchor: (styleObj['text-anchor'] as 'start' | 'middle' | 'end') || undefined,
           cursor: readOnly ? 'default' : 'move',
@@ -252,11 +256,13 @@ export function Canvas({
   onDragPointerUp,
   onDoubleClickText,
   readOnly,
+  viewStyle,
   hoveredRegion,
   onRegionHover,
   onRegionClick,
   onRegionLeave,
 }: CanvasProps) {
+  const isCutView = readOnly && viewStyle === 'cut';
   const svgElRef = useRef<SVGSVGElement>(null);
 
   const svgPointFromEvent = useCallback((e: React.MouseEvent) => {
@@ -352,11 +358,12 @@ export function Canvas({
       errorHighlight={!readOnly && showValidation && invalidIds.has(t.id)}
       viewerHighlight={readOnly === true && highlightedCountId === t.id}
       readOnly={readOnly}
+      isCutView={isCutView}
       onPointerDown={readOnly ? () => {} : (e) => onDragTextStart(e, t.id, t.x, t.y)}
       onClick={readOnly ? () => {} : () => onSelect(t.id)}
       onDoubleClick={readOnly ? () => {} : () => onDoubleClickText(t.id)}
     />
-  ), [selectedId, onDragTextStart, onSelect, onDoubleClickText, readOnly, highlightedCountId]);
+  ), [selectedId, onDragTextStart, onSelect, onDoubleClickText, readOnly, isCutView, highlightedCountId]);
 
   return (
     <div
@@ -411,14 +418,19 @@ export function Canvas({
               const hasAnyHighlight = highlightedShapeIds.size > 0;
               let finalOpacity = baseOpacity;
               if (readOnly && hasAnyHighlight) {
-                finalOpacity = isHighlighted ? 0.5 : (baseOpacity ?? 0.2) * 0.3;
+                if (isCutView) {
+                  // Cut view: highlighted shapes get strong fill, others very dim
+                  finalOpacity = isHighlighted ? 0.45 : (baseOpacity ?? 0.2) * 0.15;
+                } else {
+                  finalOpacity = isHighlighted ? 0.5 : (baseOpacity ?? 0.2) * 0.3;
+                }
               }
 
               const commonStyle: React.CSSProperties = {
                 opacity: finalOpacity,
                 fill: styleObj['fill'],
-                stroke: isHighlighted ? '#0078d4' : styleObj['stroke'],
-                strokeWidth: isHighlighted ? '3' : styleObj['stroke-width'],
+                stroke: isHighlighted && isCutView ? '#ff4444' : isHighlighted ? '#0078d4' : styleObj['stroke'],
+                strokeWidth: isHighlighted && isCutView ? '4' : isHighlighted ? '3' : styleObj['stroke-width'],
                 strokeMiterlimit: styleObj['stroke-miterlimit'] ? Number(styleObj['stroke-miterlimit']) : undefined,
                 strokeLinecap: styleObj['stroke-linecap'] as React.CSSProperties['strokeLinecap'],
                 strokeLinejoin: styleObj['stroke-linejoin'] as React.CSSProperties['strokeLinejoin'],
