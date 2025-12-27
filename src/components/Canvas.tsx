@@ -480,20 +480,41 @@ export function Canvas({
             </defs>
           )}
           {isCutView && hoveredRegion && hoveredRegion.depth >= 2 && (() => {
-            // Single overlay rect, clipped through all shapes in the hovered region
-            let overlay: React.ReactElement = (
+            // Bright overlay + white dashed border, clipped to intersection
+            let fill: React.ReactElement = (
               <rect
-                x={doc.viewBox.x} y={doc.viewBox.y}
-                width={doc.viewBox.w} height={doc.viewBox.h}
-                fill="#ff3333" opacity="0.25"
-                stroke="#ff4444" strokeWidth="3"
+                x={doc.viewBox.x - 10} y={doc.viewBox.y - 10}
+                width={doc.viewBox.w + 20} height={doc.viewBox.h + 20}
+                fill="#ff2222" opacity="0.5"
                 pointerEvents="none"
               />
             );
+            // Clip fill to intersection
             for (const shapeId of hoveredRegion.shapeIds) {
-              overlay = <g clipPath={`url(#cut-clip-${shapeId})`}>{overlay}</g>;
+              fill = <g clipPath={`url(#cut-clip-${shapeId})`}>{fill}</g>;
             }
-            return overlay;
+
+            // White dashed border for each shape edge within the intersection
+            const borders = hoveredRegion.shapeIds.map(shapeId => {
+              const shape = doc.shapes.find(s => s.id === shapeId);
+              if (!shape) return null;
+              const a = shape.attributes;
+              // Clip this shape's outline by all OTHER shapes in the region
+              const otherIds = hoveredRegion!.shapeIds.filter(id => id !== shapeId);
+              let border: React.ReactElement;
+              switch (shape.tagName) {
+                case 'path': border = <path d={a['d']} fill="none" stroke="#ffffff" strokeWidth="3" strokeDasharray="8 4" />; break;
+                case 'circle': border = <circle cx={a['cx']} cy={a['cy']} r={a['r']} fill="none" stroke="#ffffff" strokeWidth="3" strokeDasharray="8 4" />; break;
+                case 'ellipse': border = <ellipse cx={a['cx']} cy={a['cy']} rx={a['rx']} ry={a['ry']} fill="none" stroke="#ffffff" strokeWidth="3" strokeDasharray="8 4" />; break;
+                default: border = <path d={a['d'] ?? ''} fill="none" stroke="#ffffff" strokeWidth="3" strokeDasharray="8 4" />; break;
+              }
+              for (const otherId of otherIds) {
+                border = <g clipPath={`url(#cut-clip-${otherId})`}>{border}</g>;
+              }
+              return <g key={`border-${shapeId}`} style={{ pointerEvents: 'none' }}>{border}</g>;
+            });
+
+            return <g>{fill}{borders}</g>;
           })()}
 
           {/* Texts */}
