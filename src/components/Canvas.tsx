@@ -419,18 +419,23 @@ export function Canvas({
               let finalOpacity = baseOpacity;
               if (readOnly && hasAnyHighlight) {
                 if (isCutView) {
-                  // Cut view: highlighted shapes get strong fill, others very dim
-                  finalOpacity = isHighlighted ? 0.45 : (baseOpacity ?? 0.2) * 0.15;
+                  finalOpacity = isHighlighted ? 0.35 : (baseOpacity ?? 0.2) * 0.12;
                 } else {
                   finalOpacity = isHighlighted ? 0.5 : (baseOpacity ?? 0.2) * 0.3;
                 }
+              } else if (isCutView && !hasAnyHighlight) {
+                // Cut view default: slightly reduced opacity, bolder borders
+                finalOpacity = (baseOpacity ?? 0.2) * 0.8;
               }
+
+              const cutStroke = isCutView ? (styleObj['stroke'] ?? '#000') : styleObj['stroke'];
+              const cutStrokeWidth = isCutView ? '2.5' : styleObj['stroke-width'];
 
               const commonStyle: React.CSSProperties = {
                 opacity: finalOpacity,
                 fill: styleObj['fill'],
-                stroke: isHighlighted && isCutView ? '#ff4444' : isHighlighted ? '#0078d4' : styleObj['stroke'],
-                strokeWidth: isHighlighted && isCutView ? '4' : isHighlighted ? '3' : styleObj['stroke-width'],
+                stroke: isHighlighted ? '#0078d4' : cutStroke,
+                strokeWidth: isHighlighted ? '3' : cutStrokeWidth,
                 strokeMiterlimit: styleObj['stroke-miterlimit'] ? Number(styleObj['stroke-miterlimit']) : undefined,
                 strokeLinecap: styleObj['stroke-linecap'] as React.CSSProperties['strokeLinecap'],
                 strokeLinejoin: styleObj['stroke-linejoin'] as React.CSSProperties['strokeLinejoin'],
@@ -457,6 +462,39 @@ export function Canvas({
               );
             })}
           </g>
+
+          {/* Cut View: clip-path defs + hover overlay */}
+          {isCutView && (
+            <defs>
+              {doc.shapes.filter(s => /^Shape[A-H]$/.test(s.id)).map(s => {
+                const a = s.attributes;
+                return (
+                  <clipPath key={`cut-clip-${s.id}`} id={`cut-clip-${s.id}`}>
+                    {s.tagName === 'path' && <path d={a['d']} />}
+                    {s.tagName === 'circle' && <circle cx={a['cx']} cy={a['cy']} r={a['r']} />}
+                    {s.tagName === 'ellipse' && <ellipse cx={a['cx']} cy={a['cy']} rx={a['rx']} ry={a['ry']} />}
+                    {!['path', 'circle', 'ellipse'].includes(s.tagName) && <path d={a['d'] ?? ''} />}
+                  </clipPath>
+                );
+              })}
+            </defs>
+          )}
+          {isCutView && hoveredRegion && hoveredRegion.depth >= 2 && (() => {
+            // Single overlay rect, clipped through all shapes in the hovered region
+            let overlay: React.ReactElement = (
+              <rect
+                x={doc.viewBox.x} y={doc.viewBox.y}
+                width={doc.viewBox.w} height={doc.viewBox.h}
+                fill="#ff3333" opacity="0.25"
+                stroke="#ff4444" strokeWidth="3"
+                pointerEvents="none"
+              />
+            );
+            for (const shapeId of hoveredRegion.shapeIds) {
+              overlay = <g clipPath={`url(#cut-clip-${shapeId})`}>{overlay}</g>;
+            }
+            return overlay;
+          })()}
 
           {/* Texts */}
           <g id="Texts">
