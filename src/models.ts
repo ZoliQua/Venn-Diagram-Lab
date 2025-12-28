@@ -49,7 +49,25 @@ export function getModelsBySetCount(): Map<number, ModelEntry[]> {
 }
 
 export async function fetchModel(filename: string): Promise<string> {
-  const resp = await fetch(`./models/${filename}`);
+  const resp = await fetch(`./models/svg/${filename}`);
   if (!resp.ok) throw new Error(`Failed to load ${filename}: ${resp.status}`);
   return resp.text();
+}
+
+export interface RegionData {
+  name: string;
+  n: number;
+  sets: string[];
+  curves: string[];
+  regions: string[];
+  colors: Record<string, string>;
+  region_labels: Record<string, [number, number]>;
+  set_names: Record<string, string>;
+}
+
+export async function fetchRegionData(filename: string): Promise<RegionData> {
+  const jsonName = filename.replace('.svg', '.json');
+  const resp = await fetch(`./models/json/${jsonName}`);
+  if (!resp.ok) throw new Error(`Failed to load region data ${jsonName}: ${resp.status}`);
+  return resp.json();
 }

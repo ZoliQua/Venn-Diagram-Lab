@@ -13,7 +13,9 @@ import { TextEditDialog } from './components/TextEditDialog.tsx';
 import { ReportDialog } from './components/ReportDialog.tsx';
 import { ViewerSidebar } from './components/ViewerSidebar.tsx';
 import { ViewerInfoPanel } from './components/ViewerInfoPanel.tsx';
-import { fetchModel } from './models.ts';
+import { fetchModel, fetchRegionData } from './models.ts';
+import type { RegionData } from './models.ts';
+import { CutViewCanvas } from './components/CutViewCanvas.tsx';
 import type { Region } from './utils/regions.ts';
 
 export type ViewStyle = 'layer' | 'cut';
@@ -23,6 +25,7 @@ export default function App() {
   const [currentModel, setCurrentModel] = useState<string | null>(null);
   const [isLoadingModel, setIsLoadingModel] = useState(false);
   const [viewStyle, setViewStyle] = useState<ViewStyle>('layer');
+  const [regionData, setRegionData] = useState<RegionData | null>(null);
 
   const svgDoc = useSvgDocument();
   const { doc } = svgDoc;
@@ -181,9 +184,13 @@ export default function App() {
   const handleLoadModel = useCallback(async (filename: string) => {
     setIsLoadingModel(true);
     try {
-      const svgString = await fetchModel(filename);
+      const [svgString, regData] = await Promise.all([
+        fetchModel(filename),
+        fetchRegionData(filename).catch(() => null),
+      ]);
       svgDoc.loadFromString(filename, svgString);
       setCurrentModel(filename);
+      setRegionData(regData);
       zoomPan.resetZoom();
       regionDetection.clearSelection();
     } finally {
@@ -269,6 +276,24 @@ export default function App() {
 
         <div className="canvas-area">
           {doc ? (
+            mode === 'view' && viewStyle === 'cut' && regionData ? (
+              <div className="canvas-container" ref={zoomPan.setContainerRef} onWheel={zoomPan.onWheel}>
+                <CutViewCanvas
+                  regionData={regionData}
+                  scale={zoomPan.state.scale}
+                  onRegionHover={(label) => {
+                    if (!label) { regionDetection.clearHover(); return; }
+                    // Find count text position for the label to drive info panel
+                    const ct = doc.texts.values.find(t => t.id === `Count_${label}`);
+                    if (ct) regionDetection.onHover(ct.x, ct.y);
+                  }}
+                  onRegionClick={(label) => {
+                    const ct = doc.texts.values.find(t => t.id === `Count_${label}`);
+                    if (ct) regionDetection.onClick(ct.x, ct.y);
+                  }}
+                />
+              </div>
+            ) :
               <Canvas
                 doc={doc}
                 zoomPan={zoomPan.state}
