@@ -7,12 +7,22 @@ function copyModelsPlugin() {
   return {
     name: 'copy-models',
     writeBundle() {
-      const srcDir = resolve(__dirname, 'models')
-      const destDir = resolve(__dirname, 'dist/models')
-      mkdirSync(destDir, { recursive: true })
-      for (const file of readdirSync(srcDir)) {
+      // Copy models/svg/*.svg
+      const svgSrc = resolve(__dirname, 'models/svg')
+      const svgDst = resolve(__dirname, 'dist/models/svg')
+      mkdirSync(svgDst, { recursive: true })
+      for (const file of readdirSync(svgSrc)) {
         if (file.endsWith('.svg')) {
-          copyFileSync(resolve(srcDir, file), resolve(destDir, file))
+          copyFileSync(resolve(svgSrc, file), resolve(svgDst, file))
+        }
+      }
+      // Copy models/json/*.json
+      const jsonSrc = resolve(__dirname, 'models/json')
+      const jsonDst = resolve(__dirname, 'dist/models/json')
+      mkdirSync(jsonDst, { recursive: true })
+      for (const file of readdirSync(jsonSrc)) {
+        if (file.endsWith('.json')) {
+          copyFileSync(resolve(jsonSrc, file), resolve(jsonDst, file))
         }
       }
     }
