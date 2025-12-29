@@ -281,16 +281,8 @@ export default function App() {
                 <CutViewCanvas
                   regionData={regionData}
                   scale={zoomPan.state.scale}
-                  onRegionHover={(label) => {
-                    if (!label) { regionDetection.clearHover(); return; }
-                    // Find count text position for the label to drive info panel
-                    const ct = doc.texts.values.find(t => t.id === `Count_${label}`);
-                    if (ct) regionDetection.onHover(ct.x, ct.y);
-                  }}
-                  onRegionClick={(label) => {
-                    const ct = doc.texts.values.find(t => t.id === `Count_${label}`);
-                    if (ct) regionDetection.onClick(ct.x, ct.y);
-                  }}
+                  onRegionHover={regionDetection.setHoverByLabel}
+                  onRegionClick={regionDetection.setSelectByLabel}
                 />
               </div>
             ) :

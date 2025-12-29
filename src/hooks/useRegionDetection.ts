@@ -58,6 +58,30 @@ export function useRegionDetection(doc: VennDocument | null) {
     setSelectedRegion(null);
   }, []);
 
+  // Direct label-based setters (for CutView where hit-testing is not needed)
+  const buildRegionFromLabel = useCallback((label: string): RegionInfo | null => {
+    if (!doc || !label) return null;
+    const shapeIds = label.split('').map(l => `Shape${l}`);
+    const countTextId = `Count_${label}`;
+    const countText = doc.texts.values.find(t => t.id === countTextId);
+    return {
+      shapeIds,
+      label,
+      depth: label.length,
+      countTextId,
+      countValue: countText?.content ?? null,
+    };
+  }, [doc]);
+
+  const setHoverByLabel = useCallback((label: string | null) => {
+    if (!label) { setHoveredRegion(null); return; }
+    setHoveredRegion(buildRegionFromLabel(label));
+  }, [buildRegionFromLabel]);
+
+  const setSelectByLabel = useCallback((label: string) => {
+    setSelectedRegion(buildRegionFromLabel(label));
+  }, [buildRegionFromLabel]);
+
   return {
     hoveredRegion,
     selectedRegion,
@@ -65,5 +89,7 @@ export function useRegionDetection(doc: VennDocument | null) {
     onClick,
     clearHover,
     clearSelection,
+    setHoverByLabel,
+    setSelectByLabel,
   };
 }
