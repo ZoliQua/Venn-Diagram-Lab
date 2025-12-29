@@ -173,35 +173,35 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick 
           />
         ))}
 
-        {/* Region labels */}
-        {regionData.region_labels && Object.entries(regionData.region_labels).map(([label, pos]) => {
-          // Find bitmask for this label
-          let mask = 0;
-          for (const ch of label) {
-            const idx = sets.indexOf(ch);
-            if (idx >= 0) mask |= (1 << idx);
+        {/* Hovered region label — centered on the region's bounding box */}
+        {hoveredIndex !== null && regions[hoveredIndex] && (() => {
+          const d = regions[hoveredIndex];
+          const nums = d.match(/-?\d+\.?\d*/g);
+          if (!nums || nums.length < 2) return null;
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+          for (let i = 0; i < nums.length - 1; i += 2) {
+            const x = parseFloat(nums[i]), y = parseFloat(nums[i + 1]);
+            if (x < minX) minX = x; if (y < minY) minY = y;
+            if (x > maxX) maxX = x; if (y > maxY) maxY = y;
           }
-          const isHovered = hoveredIndex === mask;
-          const hasHover = hoveredIndex !== null;
-
+          const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+          const label = indexToLabel(hoveredIndex, sets);
+          const fontSize = label.length <= 2 ? 5 : label.length <= 4 ? 3.5 : 2.5;
           return (
             <text
-              key={`label-${label}`}
-              x={(pos[0] - 400) / 7}
-              y={(pos[1] - 400) / 7}
+              x={cx} y={cy}
               fill="#ffffff"
-              fontSize={label.length <= 2 ? 4 : 3}
+              fontSize={fontSize}
               fontWeight="bold"
               fontFamily="Tahoma, sans-serif"
               textAnchor="middle"
               dominantBaseline="central"
-              opacity={hasHover ? (isHovered ? 1 : 0.15) : 0.85}
-              style={{ pointerEvents: 'none', transition: 'opacity 0.12s' }}
+              style={{ pointerEvents: 'none' }}
             >
               {label}
             </text>
           );
-        })}
+        })()}
       </svg>
     </div>
   );
