@@ -16,6 +16,7 @@ import { ViewerInfoPanel } from './components/ViewerInfoPanel.tsx';
 import { fetchModel, fetchRegionData } from './models.ts';
 import type { RegionData } from './models.ts';
 import { CutViewCanvas } from './components/CutViewCanvas.tsx';
+import { SummaryDialog } from './components/SummaryDialog.tsx';
 import type { Region } from './utils/regions.ts';
 
 export type ViewStyle = 'layer' | 'cut';
@@ -26,6 +27,7 @@ export default function App() {
   const [isLoadingModel, setIsLoadingModel] = useState(false);
   const [viewStyle, setViewStyle] = useState<ViewStyle>('layer');
   const [regionData, setRegionData] = useState<RegionData | null>(null);
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
   const svgDoc = useSvgDocument();
   const { doc } = svgDoc;
@@ -226,6 +228,7 @@ export default function App() {
       <Toolbar
         mode={mode}
         onSetMode={setMode}
+        onSummary={() => setSummaryOpen(true)}
         filename={doc?.filename ?? null}
         zoom={zoomPan.state.scale}
         showGrid={showGrid}
@@ -349,6 +352,15 @@ export default function App() {
         doc={doc}
         onClose={() => setReportOpen(false)}
         onSelect={(id) => { selectById(id); setReportOpen(false); }}
+      />
+
+      <SummaryDialog
+        isOpen={summaryOpen}
+        onClose={() => setSummaryOpen(false)}
+        onSelectModel={(filename) => {
+          handleLoadModel(filename);
+          setMode('view');
+        }}
       />
 
       <TextEditDialog

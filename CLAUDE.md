@@ -2,38 +2,55 @@
 
 ## Projekt célja
 
-Venn diagramok készítése, szerkesztése és adatokkal való vizuális bemutatása. Ez a mappa a Venn diagram kutatási publikációkat, SVG modelleket, Python feldolgozó szkripteket és egy React+TypeScript editort tartalmaz.
+React Venn Diagram Modifier — Venn diagramok megtekintése, szerkesztése és adatokkal való vizuális bemutatása. 32 SVG modell (2–8 set), interaktív viewer régió detektálással, és SVG editor.
 
 ## Strict Rules
 
 ### 1. Tudományos alaposság
-- **NEM hallucinálok adatokat.** Nem találok ki adatokat, fájlneveket, struktúrákat vagy bármilyen információt. Ha nem vagyok biztos → jelzem és visszakérdezek.
-- **Mindig visszakérdezek** ha bizonytalan vagyok egy döntésben, megközelítésben vagy ha a kérés nem egyértelmű.
-- **Először terv, aztán végrehajtás.** Minden nem-triviális módosítás előtt tervet írok és jóváhagyást kérek.
-- **Mindent ellenőrzök.** Mielőtt hivatkoznék egy fájlra, struktúrára vagy adatra, beolvasom és ellenőrzöm.
-- **Teszteket írok és futtatom.** Minden módosítást tesztelek mielőtt átadom. Ami DONE az tesztelt és működik.
-- **Nem írok placeholder/stub kódot.** Ha valamit nem tudok befejezni, jelzem az okkal együtt.
+- **NEM hallucinálok adatokat.** Ha nem vagyok biztos → jelzem és visszakérdezek.
+- **Mindig visszakérdezek** ha bizonytalan vagyok egy döntésben.
+- **Először terv, aztán végrehajtás.** Nem-triviális módosítás előtt tervet írok.
+- **Mindent ellenőrzök.** Mielőtt hivatkoznék egy fájlra, beolvasom.
+- **Teszteket írok és futtatom.** Ami DONE az tesztelt és működik.
+- **Nem írok placeholder/stub kódot.**
 
 ### 2. Commit szabályok
 - Minden commit kizárólag a felhasználó (Zoltán Dul) nevében megy.
 - Claude NEM szerepel co-author-ként a commitokban.
 - Csak kérésre commitolok.
 
-### 3. Kód minőség
+### 3. Verzió követés
+- **Szigorú szemantikus verzionálás (SemVer).**
+- Nagyobb módosítás (új funkció, UI változás): **+0.1** verzió ugrás (pl. 1.0.0 → 1.1.0)
+- Minimál módosítás (bugfix, szöveg javítás): **+0.0.1** verzió ugrás (pl. 1.0.0 → 1.0.1)
+- A verzió a `src/version.ts` fájlban van, minden commit előtt frissíteni kell.
+- A `CHANGELOG.md` fájlba be kell jegyezni a változásokat.
+
+### 4. Kód minőség
 - Nem "javítok" kódot amit nem olvastam el.
-- Nem terjeszkedem ok nélkül — nem adok hozzá funkciókat indoklás nélkül.
+- Nem terjeszkedem ok nélkül.
 
 ## Mappa struktúra
 
 ```
 2-venn-diagram/
-├── publications/          Venn diagram kutatási publikációk (R package tarballs)
-├── models/                SVG Venn diagram modellek
-│   └── archive/           Archivált SVG modellek (7-set variációk)
-├── samples/               Minta SVG/PNG diagramok (4-8 set)
-├── test/                  Generált teszt SVG fájlok (edwards és standard Venn, 2-7 set)
-├── editor/                React + TypeScript + Vite SVG Venn diagram szerkesztő
-├── *.py                   Python szkriptek (SVG normalizálás, transzformáció, teszt generálás)
-├── VENN-INFO.md           Referencia linkek és inspiráció források
-└── .gitignore
+├── src/                   React + TypeScript forrás
+│   ├── App.tsx            Fő komponens (View/Edit/Summary módok)
+│   ├── components/        UI komponensek
+│   ├── hooks/             React hookok
+│   ├── parser/            SVG parser/serializer
+│   ├── utils/             Segéd modulok
+│   ├── models.ts          Modell katalógus + fetch
+│   └── version.ts         Verzió szám
+├── models/
+│   ├── svg/               32 SVG Venn diagram modell
+│   └── json/              32 JSON régió adat (pre-computed paths)
+├── publications/          Kutatási publikációk (PDF)
+├── public/                Statikus fájlok
+├── *.py                   Python szkriptek
+├── CHANGELOG.md           Verzió történet
+├── VENN_PROJECT.md        Standard szín mapping
+├── package.json           Node projekt
+├── vite.config.ts         Vite konfiguráció
+└── index.html             HTML belépési pont
 ```
