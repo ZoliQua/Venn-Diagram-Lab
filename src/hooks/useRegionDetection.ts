@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import type { VennDocument } from '../types.ts';
 import { getContainingShapeIds, shapeIdToLetter } from '../utils/hitTest.ts';
 
@@ -15,9 +15,10 @@ export function useRegionDetection(doc: VennDocument | null) {
   const [selectedRegion, setSelectedRegion] = useState<RegionInfo | null>(null);
   const rafRef = useRef(0);
 
-  const allShapeIds = doc?.shapes
-    .map(s => s.id)
-    .filter(id => /^Shape[A-H]$/.test(id)) ?? [];
+  const allShapeIds = useMemo(() =>
+    doc?.shapes.map(s => s.id).filter(id => /^Shape[A-H]$/.test(id)) ?? [],
+    [doc?.shapes]
+  );
 
   const buildRegionInfo = useCallback((svgX: number, svgY: number): RegionInfo | null => {
     if (!doc || allShapeIds.length === 0) return null;
