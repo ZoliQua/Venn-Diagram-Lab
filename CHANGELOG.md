@@ -2,6 +2,17 @@
 
 All notable changes to the React Venn Diagram Modifier project.
 
+## [1.0.1] — 2025-12-30
+
+### Added
+- Test suite: 342 tests across 4 suites (regions, hitTest, models, SVG format)
+- `VENN-DIAGRAM-SVG.md` — SVG format specification document
+- Vitest as test runner (`npm test`)
+- Comprehensive README with all features, models, tests, and installation
+
+### Changed
+- CLAUDE.md updated with versioning rules
+
 ## [1.0.0] — 2025-12-30
 
 ### Added
