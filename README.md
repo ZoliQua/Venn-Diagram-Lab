@@ -2,7 +2,7 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 8-set, covering all known construction methods. Built with React, TypeScript, and Vite.
 
-**Version:** 1.0.0 | **Models:** 32 SVG diagrams | **License:** MIT
+**Version:** 1.0.2 | **Models:** 32 SVG diagrams | **License:** MIT
 
 ## ✨ Features
 
@@ -201,7 +201,7 @@ All 32 models use a standardized SVG structure. See [VENN-DIAGRAM-SVG.md](VENN-D
 ### Installation
 
 ```bash
-git clone https://github.com/ZoliQua/React-Venn-Diagram-Analyser.git
+git clone https://github.com/ZoliQua/React-Venn-Diagram-Modul.git
 cd React-Venn-Diagram-Analyser/2-venn-diagram
 npm install
 ```

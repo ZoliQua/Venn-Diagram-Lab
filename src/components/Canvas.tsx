@@ -363,7 +363,7 @@ export function Canvas({
       onClick={readOnly ? () => {} : () => onSelect(t.id)}
       onDoubleClick={readOnly ? () => {} : () => onDoubleClickText(t.id)}
     />
-  ), [selectedId, onDragTextStart, onSelect, onDoubleClickText, readOnly, isCutView, highlightedCountId]);
+  ), [selectedId, onDragTextStart, onSelect, onDoubleClickText, readOnly, isCutView, highlightedCountId, showValidation, invalidIds]);
 
   return (
     <div

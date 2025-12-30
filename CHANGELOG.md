@@ -2,6 +2,15 @@
 
 All notable changes to the React Venn Diagram Modifier project.
 
+## [1.0.2] — 2025-12-30
+
+### Fixed
+- Bug: `renderText` useCallback missing deps (`showValidation`, `invalidIds`)
+- Bug: CSS `--bg-hover` variable missing from `:root` — region hover bg was broken
+- Bug: `expectedLettersFromId` in PropertyPanel used `[A-G]` instead of `[A-H]` (8-set broken)
+- Perf: `allShapeIds` in `useRegionDetection` now `useMemo`'d (was recreated every render)
+- Repo URL updated to React-Venn-Diagram-Modul
+
 ## [1.0.1] — 2025-12-30
 
 ### Added
