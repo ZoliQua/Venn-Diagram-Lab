@@ -31,3 +31,4 @@ logs
 test/
 samples/
 models/svg/archive/
+.vercel
