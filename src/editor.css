@@ -40,12 +40,15 @@ html, body, #root {
   flex-direction: column;
   width: 100%;
   height: 100%;
+  padding: 0 10px 10px;
 }
 
 .main-layout {
   display: flex;
   flex: 1;
   overflow: hidden;
+  gap: 0;
+  margin-top: 0;
 }
 
 /* ---- Toolbar ---- */
@@ -53,11 +56,13 @@ html, body, #root {
 .toolbar {
   display: flex;
   align-items: center;
-  height: 36px;
-  padding: 0 8px;
+  height: 54px;
+  padding: 0 10px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  margin: 0 -10px;
+  position: relative;
 }
 
 .toolbar-left,
@@ -65,7 +70,7 @@ html, body, #root {
 .toolbar-right {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .toolbar-left {
@@ -83,7 +88,7 @@ html, body, #root {
 
 .toolbar-filename {
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 13px;
   max-width: 300px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -92,13 +97,13 @@ html, body, #root {
 
 .toolbar-sep {
   width: 1px;
-  height: 20px;
+  height: 28px;
   background: var(--border);
-  margin: 0 4px;
+  margin: 0 6px;
 }
 
 .toolbar-zoom {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
   min-width: 44px;
   text-align: center;
@@ -107,9 +112,9 @@ html, body, #root {
 .toolbar-grid-toggle {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
@@ -120,13 +125,13 @@ html, body, #root {
 /* ---- Buttons ---- */
 
 .btn {
-  padding: 4px 10px;
+  padding: 6px 14px;
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -144,8 +149,8 @@ html, body, #root {
 }
 
 .btn-toolbar {
-  padding: 2px 8px;
-  font-size: 12px;
+  padding: 5px 12px;
+  font-size: 13px;
 }
 
 .btn-sm {
@@ -163,13 +168,17 @@ html, body, #root {
 /* ---- Sidebar ---- */
 
 .sidebar {
-  width: 220px;
+  width: 260px;
+  min-width: 200px;
+  max-width: 450px;
   flex-shrink: 0;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  resize: horizontal;
+  padding: 8px;
 }
 
 .sidebar-file-section {
@@ -478,22 +487,30 @@ html, body, #root {
 }
 
 .property-panel {
-  width: 280px;
-  min-width: 200px;
+  width: 300px;
+  min-width: 220px;
   max-width: 500px;
   flex-shrink: 0;
   background: var(--bg-secondary);
   border-left: 1px solid var(--border);
   overflow-y: auto;
-  padding: 10px;
+  padding: 14px 16px;
+  resize: horizontal;
+  direction: rtl;
+}
+
+.property-panel > * {
+  direction: ltr;
 }
 
 .prop-title {
   font-size: 11px;
   text-transform: uppercase;
   color: var(--text-muted);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
 }
 
 .prop-empty {
@@ -1311,23 +1328,27 @@ html, body, #root {
 /* ---- App Title ---- */
 .toolbar-app-title {
   font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
   color: #e0e0e0;
   letter-spacing: 0.5px;
   white-space: nowrap;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .toolbar-mode-label {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
   margin-right: 4px;
 }
 
 .toolbar-version {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-secondary);
-  margin-left: 8px;
+  margin-left: 10px;
   opacity: 0.6;
 }
 
@@ -1502,8 +1523,8 @@ html, body, #root {
 .btn-mode {
   border-radius: 0 !important;
   border: none !important;
-  padding: 2px 12px !important;
-  font-size: 12px !important;
+  padding: 5px 14px !important;
+  font-size: 13px !important;
 }
 
 .btn-mode-active {
@@ -1664,40 +1685,67 @@ html, body, #root {
 /* ---- Viewer Info Panel ---- */
 .viewer-info-panel .panel-empty {
   color: var(--text-secondary);
-  font-size: 12px;
-  padding: 8px 0;
+  font-size: 13px;
+  padding: 12px 0;
+}
+
+.viewer-info-panel .panel-section {
+  margin-bottom: 16px;
+}
+
+.viewer-info-panel .panel-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.locked-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  background: #c24040;
+  color: #000;
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-radius: 3px;
+  border: 1px solid #a33;
+  text-transform: uppercase;
 }
 
 .viewer-region-label {
   font-family: monospace;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: bold;
   color: #00ff88;
-  padding: 4px 0;
+  padding: 6px 0;
 }
 
 .viewer-region-depth {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .viewer-set-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .viewer-set-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 8px;
+  font-size: 13px;
 }
 
 .viewer-set-dot {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   border: 1px solid rgba(255,255,255,0.3);
   flex-shrink: 0;
@@ -1706,24 +1754,25 @@ html, body, #root {
 .viewer-set-letter {
   font-family: monospace;
   font-weight: bold;
-  min-width: 14px;
+  font-size: 14px;
+  min-width: 16px;
 }
 
 .viewer-set-name {
   color: var(--text-secondary);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .viewer-set-color {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
 .viewer-expression {
   font-family: monospace;
-  font-size: 16px;
-  padding: 4px 0;
+  font-size: 18px;
+  padding: 6px 0;
 }
 
 .viewer-op {
@@ -1732,8 +1781,130 @@ html, body, #root {
 
 .viewer-count-value {
   font-family: monospace;
-  font-size: 18px;
+  font-size: 22px;
   color: var(--text-primary);
+}
+
+.viewer-items-list {
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+
+.viewer-item {
+  padding: 3px 0;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.viewer-item-more {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ---- Bottom Toolbar ---- */
+.bottom-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding: 0 12px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  margin: 0 -10px -10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.bottom-toolbar-filename {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bottom-toolbar-cursor {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 120px;
+  text-align: right;
+}
+
+/* ---- Test View Toggles ---- */
+.test-view-toggles {
+  display: flex;
+  gap: 0;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.btn-toggle {
+  flex: 1;
+  border-radius: 0 !important;
+  border: none !important;
+  border-right: 1px solid var(--border) !important;
+  text-align: center;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+}
+
+.btn-toggle:last-child {
+  border-right: none !important;
+}
+
+.btn-toggle-active {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+/* ---- Test Data Buttons ---- */
+.test-data-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.test-data-buttons .btn {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+}
+
+.test-font-size {
+  margin-top: 8px;
+}
+
+.test-font-size label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.test-font-size input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+}
+
+/* ---- Sidebar sections (shared) ---- */
+.sidebar-section {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-section:last-child {
+  border-bottom: none;
+}
+
+.sidebar-section-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
 }
 
 /* ---- Test Sidebar ---- */

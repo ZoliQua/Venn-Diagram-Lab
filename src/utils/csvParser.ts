@@ -3,11 +3,38 @@ export interface CsvData {
   rows: string[][];
 }
 
+/** Split a CSV line respecting quoted fields (handles commas inside quotes) */
+function splitCsvLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++; // skip escaped quote
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === ',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
 export function parseCsv(text: string): CsvData {
-  const lines = text.trim().split('\n');
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim().split('\n');
   if (lines.length < 2) throw new Error('CSV must have at least a header and one data row');
-  const headers = lines[0].split(',').map(h => h.trim());
-  const rows = lines.slice(1).map(line => line.split(',').map(cell => cell.trim()));
+  const headers = splitCsvLine(lines[0]);
+  const rows = lines.slice(1)
+    .filter(line => line.trim() !== '')
+    .map(line => splitCsvLine(line));
   return { headers, rows };
 }
 
@@ -17,23 +44,39 @@ export function parseCsv(text: string): CsvData {
  * Returns a Map: region label (e.g., "AB") → count of rows where exactly those columns are 1.
  * Also returns intersection counts (rows where ALL specified columns are 1, regardless of others).
  */
+export interface VennResult {
+  /** Inclusive counts: rows where ALL sets in the label are 1 (regardless of others) */
+  inclusive: Map<string, number>;
+  /** Exclusive counts: rows where EXACTLY these sets are 1, no others */
+  exclusive: Map<string, number>;
+  /** Items per inclusive region (for Name/CountSUM clicks) */
+  inclusiveItems: Map<string, string[]>;
+  /** Items per exclusive region (for Count value display) */
+  exclusiveItems: Map<string, string[]>;
+}
+
 export function calculateVennCounts(
   csv: CsvData,
   selectedColumns: number[],
-): Map<string, number> {
+): VennResult {
   const n = selectedColumns.length;
   const letters = 'ABCDEFGH'.slice(0, n).split('');
-  const counts = new Map<string, number>();
+
+  const inclusive = new Map<string, number>();
+  const exclusive = new Map<string, number>();
+  const inclusiveItems = new Map<string, string[]>();
+  const exclusiveItems = new Map<string, string[]>();
 
   // Initialize all 2^n - 1 regions
   for (let mask = 1; mask < (1 << n); mask++) {
     const label = letters.filter((_, i) => mask & (1 << i)).join('');
-    counts.set(label, 0);
+    inclusive.set(label, 0);
+    exclusive.set(label, 0);
+    inclusiveItems.set(label, []);
+    exclusiveItems.set(label, []);
   }
 
-  // Count rows for each intersection (inclusive — rows where ALL bits in mask are 1)
   for (const row of csv.rows) {
-    // Build bitmask for this row
     let rowMask = 0;
     for (let i = 0; i < n; i++) {
       const val = row[selectedColumns[i]];
@@ -41,19 +84,26 @@ export function calculateVennCounts(
         rowMask |= (1 << i);
       }
     }
-
-    // This row contributes to every subset of its active sets
-    // For inclusive intersection counting: mask is a subset of rowMask
     if (rowMask === 0) continue;
+
+    const title = row[0] ?? '';
+
+    // Exclusive: only the exact mask
+    const exLabel = letters.filter((_, i) => rowMask & (1 << i)).join('');
+    exclusive.set(exLabel, (exclusive.get(exLabel) ?? 0) + 1);
+    exclusiveItems.get(exLabel)?.push(title);
+
+    // Inclusive: every subset of rowMask
     for (let mask = 1; mask < (1 << n); mask++) {
       if ((rowMask & mask) === mask) {
         const label = letters.filter((_, i) => mask & (1 << i)).join('');
-        counts.set(label, (counts.get(label) ?? 0) + 1);
+        inclusive.set(label, (inclusive.get(label) ?? 0) + 1);
+        inclusiveItems.get(label)?.push(title);
       }
     }
   }
 
-  return counts;
+  return { inclusive, exclusive, inclusiveItems, exclusiveItems };
 }
 
 /**

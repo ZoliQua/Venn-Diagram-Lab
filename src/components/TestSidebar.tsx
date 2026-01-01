@@ -10,7 +10,7 @@ interface TestSidebarProps {
   onLoadCsv: (source: 'file' | 'sample') => void;
   onFileUpload: (file: File) => void;
   selectedModel: string | null;
-  onSelectModel: (filename: string) => void;
+  onSelectModel: (filename: string, setCount: number) => void;
   columnMapping: number[];  // indices into csv headers for A, B, C, ...
   onSetColumnMapping: (mapping: number[]) => void;
   onCalculate: () => void;
@@ -18,6 +18,14 @@ interface TestSidebarProps {
   viewStyle: ViewStyle;
   onSetViewStyle: (style: ViewStyle) => void;
   error: string | null;
+  showTitle: boolean;
+  showNames: boolean;
+  showSums: boolean;
+  onToggleTitle: () => void;
+  onToggleNames: () => void;
+  onToggleSums: () => void;
+  nameFontSize: number;
+  onNameFontSizeChange: (size: number) => void;
 }
 
 export function TestSidebar({
@@ -28,6 +36,9 @@ export function TestSidebar({
   onCalculate, isCalculated,
   viewStyle, onSetViewStyle,
   error,
+  showTitle, showNames, showSums,
+  onToggleTitle, onToggleNames, onToggleSums,
+  nameFontSize, onNameFontSizeChange,
 }: TestSidebarProps) {
   useMemo(() => getModelsBySetCount(), []);
   const [fileInputKey, setFileInputKey] = useState(0);
@@ -52,12 +63,20 @@ export function TestSidebar({
   }, [columnMapping, onSetColumnMapping]);
 
   const n = columnMapping.length;
+  const maxSets = Math.min(binaryColumns.length, 8);
   const letters = 'ABCDEFGH'.slice(0, n).split('');
 
-  // Filter models to show only those matching column count
-  const compatibleModels = useMemo(() => {
-    if (n < 2) return [];
-    return MODEL_LIST.filter(m => m.setCount === n);
+  // Show all models from 2-set up to max available binary columns
+  const compatibleModelsBySet = useMemo(() => {
+    if (maxSets < 2) return new Map<number, typeof MODEL_LIST>();
+    const groups = new Map<number, typeof MODEL_LIST>();
+    for (const m of MODEL_LIST) {
+      if (m.setCount >= 2 && m.setCount <= maxSets) {
+        if (!groups.has(m.setCount)) groups.set(m.setCount, []);
+        groups.get(m.setCount)!.push(m);
+      }
+    }
+    return groups;
   }, [n]);
 
   return (
@@ -65,12 +84,10 @@ export function TestSidebar({
       {/* Data Source */}
       <div className="sidebar-section">
         <div className="sidebar-section-title">1. Data Source</div>
-        <button className="btn btn-sm" style={{ width: '100%', marginBottom: 4 }} onClick={() => onLoadCsv('sample')}>
-          Load Sample Dataset
-        </button>
-        <div className="test-file-upload">
-          <label className="btn btn-sm" style={{ width: '100%', textAlign: 'center', cursor: 'pointer' }}>
-            Upload CSV File
+        <div className="test-data-buttons">
+          <button className="btn btn-sm" onClick={() => onLoadCsv('sample')}>Load Sample</button>
+          <label className="btn btn-sm" style={{ cursor: 'pointer' }}>
+            Upload Custom
             <input key={fileInputKey} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileChange} />
           </label>
         </div>
@@ -86,17 +103,28 @@ export function TestSidebar({
       {/* Model Selection */}
       {csvData && (
         <div className="sidebar-section">
-          <div className="sidebar-section-title">2. Diagram Model</div>
+          <div className="sidebar-section-title">2. Venn Diagram Model</div>
           {n >= 2 ? (
             <select
               className="model-selector"
               value={selectedModel ?? ''}
-              onChange={e => onSelectModel(e.target.value)}
+              onChange={e => {
+                const fn = e.target.value;
+                const model = MODEL_LIST.find(m => m.filename === fn);
+                if (model) onSelectModel(fn, model.setCount);
+              }}
             >
-              <option value="">— Select {n}-set model —</option>
-              {compatibleModels.map(m => (
-                <option key={m.filename} value={m.filename}>{m.label}</option>
-              ))}
+              <option value="">— Select model (2–{maxSets} sets) —</option>
+              {Array.from(compatibleModelsBySet.entries())
+                .sort(([a], [b]) => a - b)
+                .map(([setCount, models]) => (
+                  <optgroup key={setCount} label={`${setCount}-set (${models.length})`}>
+                    {models.map(m => (
+                      <option key={m.filename} value={m.filename}>{m.label}</option>
+                    ))}
+                  </optgroup>
+                ))
+              }
             </select>
           ) : (
             <div className="test-error">Need at least 2 binary columns</div>
@@ -130,7 +158,7 @@ export function TestSidebar({
             onClick={onCalculate}
             disabled={!selectedModel || n < 2}
           >
-            Calculate Venn Diagram
+            Calculate
           </button>
         </div>
       )}
@@ -143,6 +171,19 @@ export function TestSidebar({
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'layer' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('layer')}>Layer</button>
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'cut' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('cut')}>Cut</button>
           </div>
+          {viewStyle === 'layer' && (
+            <>
+              <div className="test-view-toggles">
+                <button className={`btn btn-sm btn-toggle ${showTitle ? 'btn-toggle-active' : ''}`} onClick={onToggleTitle}>Title</button>
+                <button className={`btn btn-sm btn-toggle ${showNames ? 'btn-toggle-active' : ''}`} onClick={onToggleNames}>Names</button>
+                <button className={`btn btn-sm btn-toggle ${showSums ? 'btn-toggle-active' : ''}`} onClick={onToggleSums}>Numbers</button>
+              </div>
+              <div className="test-font-size">
+                <label>Name size: {nameFontSize}px</label>
+                <input type="range" min="8" max="48" value={nameFontSize} onChange={e => onNameFontSizeChange(parseInt(e.target.value))} />
+              </div>
+            </>
+          )}
         </div>
       )}
 

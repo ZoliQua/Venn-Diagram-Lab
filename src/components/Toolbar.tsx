@@ -33,9 +33,8 @@ export function Toolbar({
 }: ToolbarProps) {
   return (
     <div className="toolbar">
+      <span className="toolbar-app-title">{APP_NAME}</span>
       <div className="toolbar-left">
-        <span className="toolbar-app-title">{APP_NAME}</span>
-        <span className="toolbar-sep" />
         <span className="toolbar-mode-label">Mode:</span>
         <div className="toolbar-mode-switcher">
           <button className={`btn btn-toolbar btn-mode ${mode === 'view' ? 'btn-mode-active' : ''}`} onClick={() => onSetMode('view')}>View</button>
@@ -56,20 +55,12 @@ export function Toolbar({
           </>
         )}
       </div>
-      <div className="toolbar-center">
-        {filename && <span className="toolbar-filename">{filename}</span>}
-      </div>
+      <div className="toolbar-center" />
       <div className="toolbar-right">
         {mode === 'edit' && (
           <>
-            <label className="toolbar-grid-toggle">
-              <input type="checkbox" checked={showGrid} onChange={onToggleGrid} />
-              Grid
-            </label>
-            <label className={`toolbar-grid-toggle ${showValidation ? 'toolbar-validate-active' : ''}`}>
-              <input type="checkbox" checked={showValidation} onChange={onToggleValidation} />
-              Validate
-            </label>
+            <button className={`btn btn-toolbar ${showGrid ? 'btn-mode-active' : ''}`} onClick={onToggleGrid}>Grid</button>
+            <button className={`btn btn-toolbar ${showValidation ? 'btn-mode-active' : ''}`} onClick={onToggleValidation}>Validate</button>
             <span className="toolbar-sep" />
           </>
         )}

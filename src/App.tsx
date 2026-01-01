@@ -32,6 +32,7 @@ export default function App() {
   const [viewStyle, setViewStyle] = useState<ViewStyle>('layer');
   const [regionData, setRegionData] = useState<RegionData | null>(null);
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [hasUnsavedEdits, setHasUnsavedEdits] = useState(false);
 
   // Test mode state
   const [testCsvData, setTestCsvData] = useState<CsvData | null>(null);
@@ -40,7 +41,13 @@ export default function App() {
   const [testColumnMapping, setTestColumnMapping] = useState<number[]>([]);
   const [testCalculated, setTestCalculated] = useState(false);
   const [, setTestVennCounts] = useState<Map<string, number> | null>(null);
+  const [testExclusiveItems, setTestExclusiveItems] = useState<Map<string, string[]> | null>(null);
+  const [testInclusiveItems, setTestInclusiveItems] = useState<Map<string, string[]> | null>(null);
   const [testError, setTestError] = useState<string | null>(null);
+  const [testShowTitle, setTestShowTitle] = useState(true);
+  const [testShowNames, setTestShowNames] = useState(true);
+  const [testShowSums, setTestShowSums] = useState(true);
+  const [testNameFontSize, setTestNameFontSize] = useState(24);
 
   const svgDoc = useSvgDocument();
   const { doc } = svgDoc;
@@ -92,6 +99,7 @@ export default function App() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    setHasUnsavedEdits(false);
   }, [doc, svgDoc]);
 
   // Stable refs for keyboard shortcuts
@@ -141,6 +149,7 @@ export default function App() {
   const handleLoadFile = useCallback((filename: string, content: string) => {
     svgDoc.loadFromString(filename, content);
     clearSelection();
+    setHasUnsavedEdits(false);
   }, [svgDoc, clearSelection]);
 
   const handleOpen = useCallback(() => { fileInputRef.current?.click(); }, []);
@@ -206,7 +215,11 @@ export default function App() {
       svgDoc.loadFromString(filename, svgString);
       setCurrentModel(filename);
       setRegionData(regData);
-      zoomPan.resetZoom();
+      if (filename.includes('venn-8-set')) {
+        zoomPan.setZoom(0.6);
+      } else {
+        zoomPan.resetZoom();
+      }
       regionDetection.clearSelection();
     } finally {
       setIsLoadingModel(false);
@@ -273,30 +286,39 @@ export default function App() {
       svgDoc.loadFromString(testModel, svgString);
       setRegionData(regData);
       setCurrentModel(testModel);
-      zoomPan.resetZoom();
-
-      // Calculate Venn counts
-      const counts = calculateVennCounts(testCsvData, testColumnMapping);
-      setTestVennCounts(counts);
-
-      // Update text content in the loaded SVG
-      const letters = 'ABCDEFGH'.slice(0, testColumnMapping.length).split('');
-
-      // Update Count texts with calculated values
-      for (const [label, count] of counts) {
-        svgDoc.updateTextContent(`Count_${label}`, String(count));
+      // Large diagrams (8-set SUMO: 1400x1400) → 60% zoom
+      if (testModel.includes('venn-8-set')) {
+        zoomPan.setZoom(0.6);
+      } else {
+        zoomPan.resetZoom();
       }
 
-      // Update Name labels with column names
+      // Calculate Venn counts
+      const result = calculateVennCounts(testCsvData, testColumnMapping);
+      setTestVennCounts(result.exclusive);
+      setTestExclusiveItems(result.exclusiveItems);
+      setTestInclusiveItems(result.inclusiveItems);
+
+      const letters = 'ABCDEFGH'.slice(0, testColumnMapping.length).split('');
+
+      // Count_X texts = exclusive counts (only in exactly these sets)
+      for (const [label, count] of result.exclusive) {
+        svgDoc.updateTextContent(`Count_${label}`, String(count));
+        // Ensure text-anchor:middle for proper centering
+        svgDoc.updateTextStyle(`Count_${label}`, 'text-anchor', 'middle');
+      }
+
+      // Name labels = column names (keep original text-anchor)
       for (let i = 0; i < testColumnMapping.length; i++) {
         const colName = testCsvData.headers[testColumnMapping[i]];
         svgDoc.updateTextContent(`Name${letters[i]}`, colName);
       }
 
-      // Update CountSUM with per-set totals
+      // CountSUM_X = inclusive total (all rows containing set X, ensure centered)
       for (let i = 0; i < testColumnMapping.length; i++) {
-        const total = counts.get(letters[i]) ?? 0;
+        const total = result.inclusive.get(letters[i]) ?? 0;
         svgDoc.updateTextContent(`CountSUM_${letters[i]}`, String(total));
+        svgDoc.updateTextStyle(`CountSUM_${letters[i]}`, 'text-anchor', 'middle');
       }
 
       setTestCalculated(true);
@@ -330,7 +352,13 @@ export default function App() {
 
       <Toolbar
         mode={mode}
-        onSetMode={setMode}
+        onSetMode={(newMode) => {
+          if (mode === 'edit' && hasUnsavedEdits && newMode !== 'edit') {
+            if (!confirm('You have unsaved changes. Discard and switch mode?')) return;
+            setHasUnsavedEdits(false);
+          }
+          setMode(newMode);
+        }}
         onSummary={() => setSummaryOpen(true)}
         filename={doc?.filename ?? null}
         zoom={zoomPan.state.scale}
@@ -370,7 +398,16 @@ export default function App() {
             onLoadCsv={handleTestLoadCsv}
             onFileUpload={handleTestFileUpload}
             selectedModel={testModel}
-            onSelectModel={setTestModel}
+            onSelectModel={(filename, setCount) => {
+              setTestModel(filename);
+              setTestCalculated(false);
+              // Resize column mapping to match model's set count
+              if (testCsvData) {
+                const binCols = getBinaryColumns(testCsvData);
+                const needed = Math.min(setCount, binCols.length);
+                setTestColumnMapping(binCols.slice(0, needed));
+              }
+            }}
             columnMapping={testColumnMapping}
             onSetColumnMapping={setTestColumnMapping}
             onCalculate={handleTestCalculate}
@@ -378,6 +415,21 @@ export default function App() {
             viewStyle={viewStyle}
             onSetViewStyle={setViewStyle}
             error={testError}
+            showTitle={testShowTitle}
+            showNames={testShowNames}
+            showSums={testShowSums}
+            onToggleTitle={() => { setTestShowTitle(v => !v); if (doc) svgDoc.toggleMeta('headerHidden'); }}
+            onToggleNames={() => { setTestShowNames(v => !v); if (doc) svgDoc.toggleGroupVisibility('names'); }}
+            onToggleSums={() => { setTestShowSums(v => !v); if (doc) svgDoc.toggleGroupVisibility('sums'); }}
+            nameFontSize={testNameFontSize}
+            onNameFontSizeChange={(size) => {
+              setTestNameFontSize(size);
+              if (!doc) return;
+              const letters = 'ABCDEFGH';
+              for (let i = 0; i < doc.shapes.length && i < 8; i++) {
+                svgDoc.updateTextStyle(`Name${letters[i]}`, 'font-size', String(size));
+              }
+            }}
           />
         ) : (
           <Sidebar
@@ -405,6 +457,14 @@ export default function App() {
                   scale={zoomPan.state.scale}
                   onRegionHover={regionDetection.setHoverByLabel}
                   onRegionClick={regionDetection.setSelectByLabel}
+                  countOverrides={mode === 'test' && doc ? (() => {
+                    const m = new Map<string, string>();
+                    for (const t of doc.texts.values) {
+                      const label = t.id.replace('Count_', '');
+                      if (label !== t.id) m.set(label, t.content);
+                    }
+                    return m;
+                  })() : null}
                 />
               </div>
             ) :
@@ -429,8 +489,9 @@ export default function App() {
                 viewStyle={(mode === 'view' || mode === 'test') ? viewStyle : 'layer'}
                 hoveredRegion={activeRegion}
                 onRegionHover={regionDetection.onHover}
-                onRegionClick={regionDetection.onClick}
+                onRegionClick={regionDetection.lockHover}
                 onRegionLeave={regionDetection.clearHover}
+                onReadOnlyTextClick={(letter) => regionDetection.setSelectByLabel(letter, true)}
               />
           ) : (
             <div className="canvas-empty">
@@ -452,6 +513,11 @@ export default function App() {
             doc={doc}
             hoveredRegion={regionDetection.hoveredRegion}
             selectedRegion={regionDetection.selectedRegion}
+            regionExclusiveItems={mode === 'test' ? testExclusiveItems : null}
+            regionInclusiveItems={mode === 'test' ? testInclusiveItems : null}
+            canSave={mode === 'test' && testCalculated && viewStyle === 'layer'}
+            onSave={handleSave}
+            onClearSelection={regionDetection.clearSelection}
           />
         ) : (
           <PropertyPanel
@@ -464,6 +530,12 @@ export default function App() {
             onUpdateShapeStyle={svgDoc.updateShapeStyle}
           />
         )}
+      </div>
+
+      {/* Bottom toolbar */}
+      <div className="bottom-toolbar">
+        <span className="bottom-toolbar-filename">{doc?.filename ?? ''}</span>
+        <span className="bottom-toolbar-cursor" id="cursor-position"></span>
       </div>
 
       <ReportDialog

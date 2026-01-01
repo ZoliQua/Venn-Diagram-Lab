@@ -8,6 +8,7 @@ export interface RegionInfo {
   depth: number;
   countTextId: string;
   countValue: string | null;
+  isInclusive?: boolean;  // true when selected via Name/CountSUM click
 }
 
 export function useRegionDetection(doc: VennDocument | null) {
@@ -59,6 +60,16 @@ export function useRegionDetection(doc: VennDocument | null) {
     setSelectedRegion(null);
   }, []);
 
+  /** Lock the current hover as the selection (no re-computation) */
+  const hoveredRef = useRef<RegionInfo | null>(null);
+  hoveredRef.current = hoveredRegion;
+
+  const lockHover = useCallback(() => {
+    if (hoveredRef.current) {
+      setSelectedRegion({ ...hoveredRef.current });
+    }
+  }, []);
+
   // Direct label-based setters (for CutView where hit-testing is not needed)
   const buildRegionFromLabel = useCallback((label: string): RegionInfo | null => {
     if (!doc || !label) return null;
@@ -79,8 +90,12 @@ export function useRegionDetection(doc: VennDocument | null) {
     setHoveredRegion(buildRegionFromLabel(label));
   }, [buildRegionFromLabel]);
 
-  const setSelectByLabel = useCallback((label: string) => {
-    setSelectedRegion(buildRegionFromLabel(label));
+  const setSelectByLabel = useCallback((label: string, inclusive?: boolean) => {
+    const info = buildRegionFromLabel(label);
+    if (info && inclusive) {
+      info.isInclusive = true;
+    }
+    setSelectedRegion(info);
   }, [buildRegionFromLabel]);
 
   return {
@@ -92,5 +107,6 @@ export function useRegionDetection(doc: VennDocument | null) {
     clearSelection,
     setHoverByLabel,
     setSelectByLabel,
+    lockHover,
   };
 }

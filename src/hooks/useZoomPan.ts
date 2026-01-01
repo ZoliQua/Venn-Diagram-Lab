@@ -82,6 +82,14 @@ export function useZoomPan() {
     }
   }, []);
 
+  const setZoom = useCallback((scale: number) => {
+    setState({ scale: Math.max(0.1, Math.min(5, scale)) });
+    if (containerRef.current) {
+      containerRef.current.scrollLeft = 0;
+      containerRef.current.scrollTop = 0;
+    }
+  }, []);
+
   return {
     state,
     setContainerRef,
@@ -94,5 +102,6 @@ export function useZoomPan() {
     zoomIn,
     zoomOut,
     resetZoom,
+    setZoom,
   };
 }

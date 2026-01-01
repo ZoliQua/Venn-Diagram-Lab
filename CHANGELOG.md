@@ -2,6 +2,43 @@
 
 All notable changes to the React Venn Diagram Modifier project.
 
+## [1.2.0] — 2026-01-01
+
+### Added
+- Region lock/unlock: click to lock panel, Unlock button to release
+- LOCKED badge on selected region panel
+- Name/CountSUM click: locks panel with inclusive data (total + all items)
+- Name font-size slider in Test mode (8–48px)
+- Save SVG button in right panel (Test + Layer view)
+- Bottom toolbar: filename + cursor position (x, y)
+- Title/Names/Numbers toggle buttons (checkbox-free)
+- Grid/Validate as toggle buttons (checkbox-free)
+- Unsaved changes confirm dialog when switching from Edit mode
+
+### Fixed
+- CSV parser handles quoted fields (commas in titles)
+- CSV parser handles \r\n line endings (Peacock column detection)
+- Region click lock: uses ref to avoid stale closures
+- Shape/text click propagation in readOnly mode
+- Items list: exclusive items match Count values
+- Name/CountSUM click shows inclusive Value (CountSUM)
+- Validation uses ID-based comparison (works with numeric content)
+- PropertyPanel expectedLettersFromId: A-G → A-H
+- Model selector shows all models 2–N sets (not just exact match)
+- 8-set diagrams start at 60% zoom
+- CSS --bg-hover variable defined
+- renderText useCallback missing deps fixed
+- allShapeIds wrapped in useMemo
+
+### Changed
+- Data source buttons: "Load Sample" / "Upload Custom" in one row
+- "Diagram Model" → "Venn Diagram Model"
+- "Calculate Venn Diagram" → "Calculate"
+- Bigger toolbar (54px), buttons, panels, dots, fonts
+- App padding (10px margins)
+- Resizable sidebar (260px, horizontal resize)
+- Centered canvas in View/Test mode
+
 ## [1.1.0] — 2025-12-31
 
 ### Added

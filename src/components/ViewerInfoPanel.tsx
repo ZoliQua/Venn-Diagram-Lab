@@ -6,6 +6,11 @@ interface ViewerInfoPanelProps {
   doc: VennDocument | null;
   hoveredRegion: RegionInfo | null;
   selectedRegion: RegionInfo | null;
+  regionExclusiveItems?: Map<string, string[]> | null;
+  regionInclusiveItems?: Map<string, string[]> | null;
+  onSave?: () => void;
+  canSave?: boolean;
+  onClearSelection?: () => void;
 }
 
 const SHAPE_COLORS: Record<string, string> = {
@@ -18,8 +23,10 @@ const SHAPE_COLOR_NAMES: Record<string, string> = {
   E: 'Brown', F: 'Magenta', G: 'Pink', H: 'Cyan',
 };
 
-export function ViewerInfoPanel({ doc, hoveredRegion, selectedRegion }: ViewerInfoPanelProps) {
-  const region = selectedRegion ?? hoveredRegion;
+export function ViewerInfoPanel({ doc, hoveredRegion, selectedRegion, regionExclusiveItems, regionInclusiveItems, onSave, canSave, onClearSelection }: ViewerInfoPanelProps) {
+  // If a region is selected (clicked), lock to it. Otherwise show hover.
+  const isLocked = selectedRegion !== null;
+  const region = isLocked ? selectedRegion : hoveredRegion;
 
   if (!doc) {
     return (
@@ -46,8 +53,9 @@ export function ViewerInfoPanel({ doc, hoveredRegion, selectedRegion }: ViewerIn
   return (
     <div className="property-panel viewer-info-panel">
       <div className="panel-section">
-        <div className="panel-section-title">
-          {selectedRegion ? 'Selected Region' : 'Hovered Region'}
+        <div className="panel-section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span>{isLocked ? 'Selected Region' : 'Hovered Region'}</span>
+          {isLocked && <span className="locked-badge">LOCKED</span>}
         </div>
 
         <div className="viewer-region-label">{region.label}</div>
@@ -90,12 +98,94 @@ export function ViewerInfoPanel({ doc, hoveredRegion, selectedRegion }: ViewerIn
         </div>
       </div>
 
-      {region.countValue && region.countValue !== region.label && (
-        <div className="panel-section">
-          <div className="panel-section-title">Value</div>
-          <div className="viewer-count-value">{region.countValue}</div>
+      {(() => {
+        if (region.isInclusive && region.label.length === 1) {
+          // Inclusive mode (Name/CountSUM click): show CountSUM value
+          const sumText = doc.texts.sums.find(t => t.id === `CountSUM_${region.label}`);
+          const sumVal = sumText?.content;
+          return sumVal ? (
+            <div className="panel-section">
+              <div className="panel-section-title">Total (inclusive)</div>
+              <div className="viewer-count-value">{sumVal}</div>
+            </div>
+          ) : null;
+        }
+        // Normal mode: show Count value
+        return region.countValue && region.countValue !== region.label ? (
+          <div className="panel-section">
+            <div className="panel-section-title">Value</div>
+            <div className="viewer-count-value">{region.countValue}</div>
+          </div>
+        ) : null;
+      })()}
+
+      {regionExclusiveItems && (() => {
+        const exItems = regionExclusiveItems.get(region.label) ?? [];
+        const inItems = regionInclusiveItems?.get(region.label) ?? [];
+        const isSingle = region.label.length === 1;
+
+        if (region.isInclusive) {
+          // Name/CountSUM click: show only inclusive items
+          return inItems.length > 0 ? (
+            <div className="panel-section">
+              <div className="panel-section-title">All Items ({inItems.length})</div>
+              <div className="viewer-items-list">
+                {inItems.slice(0, 50).map((item, i) => (
+                  <div key={i} className="viewer-item">{item}</div>
+                ))}
+                {inItems.length > 50 && (
+                  <div className="viewer-item viewer-item-more">...and {inItems.length - 50} more</div>
+                )}
+              </div>
+            </div>
+          ) : null;
+        }
+
+        return (
+          <>
+            {exItems.length > 0 && (
+              <div className="panel-section">
+                <div className="panel-section-title">
+                  {isSingle ? 'Exclusive Items' : 'Items'} ({exItems.length})
+                </div>
+                <div className="viewer-items-list">
+                  {exItems.slice(0, 50).map((item, i) => (
+                    <div key={i} className="viewer-item">{item}</div>
+                  ))}
+                  {exItems.length > 50 && (
+                    <div className="viewer-item viewer-item-more">...and {exItems.length - 50} more</div>
+                  )}
+                </div>
+              </div>
+            )}
+            {isSingle && inItems.length > 0 && (
+              <div className="panel-section">
+                <div className="panel-section-title">All Items incl. intersections ({inItems.length})</div>
+                <div className="viewer-items-list">
+                  {inItems.slice(0, 50).map((item, i) => (
+                    <div key={`in-${i}`} className="viewer-item">{item}</div>
+                  ))}
+                  {inItems.length > 50 && (
+                    <div className="viewer-item viewer-item-more">...and {inItems.length - 50} more</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        );
+      })()}
+
+      {/* Action buttons */}
+      <div className="panel-section" style={{ marginTop: 'auto', paddingTop: 16 }}>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {canSave && onSave && (
+            <button className="btn btn-accent" style={{ flex: 1 }} onClick={onSave}>Save SVG</button>
+          )}
+          {isLocked && onClearSelection && (
+            <button className="btn" style={{ flex: canSave ? 0 : 1 }} onClick={onClearSelection}>Unlock</button>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

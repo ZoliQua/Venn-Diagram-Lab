@@ -6,6 +6,7 @@ interface CutViewCanvasProps {
   scale: number;
   onRegionHover: (label: string | null) => void;
   onRegionClick: (label: string) => void;
+  countOverrides?: Map<string, string> | null;  // label → display value (numbers)
 }
 
 /** Convert bitmask index to set label, e.g. 5 with sets [A,B,C] → "AC" */
@@ -36,7 +37,7 @@ function interpolateColor(bg: [number, number, number], fg: [number, number, num
  * Cut View: renders pre-computed region SVG paths from JSON data.
  * Each region is a real SVG path with direct mouse events — like venn7.
  */
-export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick }: CutViewCanvasProps) {
+export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick, countOverrides }: CutViewCanvasProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const onHoverRef = useRef(onRegionHover);
   const onClickRef = useRef(onRegionClick);
@@ -186,6 +187,7 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick 
           }
           const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
           const label = indexToLabel(hoveredIndex, sets);
+          const displayText = countOverrides?.get(label) ?? label;
           const fontSize = label.length <= 2 ? 5 : label.length <= 4 ? 3.5 : 2.5;
           return (
             <text
@@ -198,7 +200,7 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick 
               dominantBaseline="central"
               style={{ pointerEvents: 'none' }}
             >
-              {label}
+              {displayText}
             </text>
           );
         })()}

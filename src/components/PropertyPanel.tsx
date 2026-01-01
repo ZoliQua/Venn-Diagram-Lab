@@ -249,7 +249,6 @@ function TextProperties({
       </div>
       <LayersInfo
         textId={t.id}
-        textContent={t.content}
         textX={t.x}
         textY={t.y}
         shapes={shapes}
@@ -258,9 +257,8 @@ function TextProperties({
   );
 }
 
-function LayersInfo({ textId, textContent, textX, textY, shapes }: {
+function LayersInfo({ textId, textX, textY, shapes }: {
   textId: string;
-  textContent: string;
   textX: number;
   textY: number;
   shapes: VennShape[];
@@ -301,7 +299,8 @@ function LayersInfo({ textId, textContent, textX, textY, shapes }: {
   const expectedText = expectedLetters.join('');
   const isCountText = textId.startsWith('Count_');
   const isMatch = isCountText && suggestedLetters === expectedText;
-  const contentMatchesSuggested = suggestedLetters === textContent;
+  // Compare against ID-based expected letters, not text content (content may be numbers in Test mode)
+  const idMatchesSuggested = suggestedLetters === expectedText;
 
   return (
     <div className="prop-layers-section">
@@ -327,8 +326,8 @@ function LayersInfo({ textId, textContent, textX, textY, shapes }: {
           <span className={`prop-layers-suggested-value ${isMatch ? 'prop-layers-ok' : 'prop-layers-warn'}`}>
             {suggestedLetters || '—'}
             {suggestedLetters && (
-              <span className={contentMatchesSuggested ? 'prop-layers-check-ok' : 'prop-layers-check-fail'}>
-                {contentMatchesSuggested ? ' \u2714' : ' \u2718'}
+              <span className={idMatchesSuggested ? 'prop-layers-check-ok' : 'prop-layers-check-fail'}>
+                {idMatchesSuggested ? ' \u2714' : ' \u2718'}
               </span>
             )}
           </span>

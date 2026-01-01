@@ -24,8 +24,9 @@ interface CanvasProps {
   viewStyle?: 'layer' | 'cut';
   hoveredRegion?: RegionInfo | null;
   onRegionHover?: (svgX: number, svgY: number) => void;
-  onRegionClick?: (svgX: number, svgY: number) => void;
+  onRegionClick?: () => void;
   onRegionLeave?: () => void;
+  onReadOnlyTextClick?: (id: string) => void;
 }
 
 function getSelectedId(sel: SelectableElement | null): string | null {
@@ -170,8 +171,14 @@ function TextElement({
           cursor: readOnly ? 'default' : 'move',
         }}
         onPointerDown={onPointerDown}
-        onClick={(e) => { e.stopPropagation(); onClick(); }}
-        onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
+        onClick={(e) => {
+          // In readOnly mode: Name/CountSUM clicks are handled by onClick (stopProp),
+          // Count texts let bubble up to SVG for lockHover
+          if (readOnly && !t.id.startsWith('Name') && !t.id.startsWith('CountSUM_')) return;
+          e.stopPropagation();
+          onClick();
+        }}
+        onDoubleClick={(e) => { if (!readOnly) { e.stopPropagation(); onDoubleClick(); } }}
       >
         {t.content}
       </text>
@@ -261,6 +268,7 @@ export function Canvas({
   onRegionHover,
   onRegionClick,
   onRegionLeave,
+  onReadOnlyTextClick,
 }: CanvasProps) {
   const isCutView = readOnly && viewStyle === 'cut';
   const svgElRef = useRef<SVGSVGElement>(null);
@@ -274,16 +282,19 @@ export function Canvas({
   }, []);
 
   const handleViewerMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!readOnly || !onRegionHover) return;
     const pt = svgPointFromEvent(e);
-    if (pt) onRegionHover(pt.x, pt.y);
+    // Update cursor position display
+    const el = document.getElementById('cursor-position');
+    if (el && pt) el.textContent = `x: ${Math.round(pt.x)}  y: ${Math.round(pt.y)}`;
+    if (!readOnly || !onRegionHover || !pt) return;
+    onRegionHover(pt.x, pt.y);
   }, [readOnly, onRegionHover, svgPointFromEvent]);
 
-  const handleViewerClick = useCallback((e: React.MouseEvent) => {
+  const handleViewerClick = useCallback(() => {
     if (!readOnly || !onRegionClick) return;
-    const pt = svgPointFromEvent(e);
-    if (pt) onRegionClick(pt.x, pt.y);
-  }, [readOnly, onRegionClick, svgPointFromEvent]);
+    // Lock current hover as selection
+    onRegionClick();
+  }, [readOnly, onRegionClick]);
 
   const handleViewerLeave = useCallback(() => {
     if (readOnly && onRegionLeave) onRegionLeave();
@@ -334,7 +345,9 @@ export function Canvas({
             .join('');
         }
 
-        if (suggested && suggested !== t.content) {
+        // Compare against ID-based expected letters (not content, which may be numbers)
+        const expectedFromId = t.id.replace('Count_', '');
+        if (suggested && suggested !== expectedFromId) {
           errors.add(t.id);
         }
       }
@@ -350,20 +363,36 @@ export function Canvas({
     }
   }, [onClearSelection]);
 
-  const renderText = useCallback((t: VennText) => (
-    <TextElement
-      key={t.id}
-      t={t}
-      isSelected={!readOnly && selectedId === t.id}
-      errorHighlight={!readOnly && showValidation && invalidIds.has(t.id)}
-      viewerHighlight={readOnly === true && highlightedCountId === t.id}
-      readOnly={readOnly}
-      isCutView={isCutView}
-      onPointerDown={readOnly ? () => {} : (e) => onDragTextStart(e, t.id, t.x, t.y)}
-      onClick={readOnly ? () => {} : () => onSelect(t.id)}
-      onDoubleClick={readOnly ? () => {} : () => onDoubleClickText(t.id)}
-    />
-  ), [selectedId, onDragTextStart, onSelect, onDoubleClickText, readOnly, isCutView, highlightedCountId, showValidation, invalidIds]);
+  const renderText = useCallback((t: VennText) => {
+    const handleTextClick = () => {
+      if (readOnly) {
+        // Name/CountSUM click → select the single-set region
+        if (t.id.startsWith('Name') || t.id.startsWith('CountSUM_')) {
+          const letter = t.id.replace('Name', '').replace('CountSUM_', '');
+          if (letter && /^[A-H]$/.test(letter) && onReadOnlyTextClick) {
+            onReadOnlyTextClick(letter);
+          }
+        }
+      } else {
+        onSelect(t.id);
+      }
+    };
+
+    return (
+      <TextElement
+        key={t.id}
+        t={t}
+        isSelected={!readOnly && selectedId === t.id}
+        errorHighlight={!readOnly && showValidation && invalidIds.has(t.id)}
+        viewerHighlight={readOnly === true && highlightedCountId === t.id}
+        readOnly={readOnly}
+        isCutView={isCutView}
+        onPointerDown={readOnly ? () => {} : (e) => onDragTextStart(e, t.id, t.x, t.y)}
+        onClick={handleTextClick}
+        onDoubleClick={readOnly ? () => {} : () => onDoubleClickText(t.id)}
+      />
+    );
+  }, [selectedId, onDragTextStart, onSelect, onDoubleClickText, readOnly, isCutView, highlightedCountId, showValidation, invalidIds, onReadOnlyTextClick]);
 
   return (
     <div
@@ -387,7 +416,7 @@ export function Canvas({
           className="canvas-svg"
           ref={svgElRef}
           onClick={readOnly ? handleViewerClick : handleBackgroundClick}
-          onMouseMove={readOnly ? handleViewerMouseMove : undefined}
+          onMouseMove={handleViewerMouseMove}
           style={readOnly ? { cursor: 'crosshair' } : undefined}
         >
           {/* Grid */}
@@ -444,6 +473,10 @@ export function Canvas({
 
               const isSelected = selectedId === s.id;
               const handleClick = (e: React.MouseEvent) => {
+                if (readOnly) {
+                  // In readOnly mode, let click bubble up to SVG → lockHover
+                  return;
+                }
                 e.stopPropagation();
                 onSelect(s.id);
               };

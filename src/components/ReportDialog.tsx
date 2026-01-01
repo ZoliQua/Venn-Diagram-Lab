@@ -82,11 +82,13 @@ export function ReportDialog({ isOpen, doc, onClose, onSelect }: ReportDialogPro
         const containingIds = getContainingShapesForReport(t.x, t.y, shapeIds);
         const expected = containingIds.map(id => shapeIdToLetter(id)).sort().join('');
 
+        // Compare against ID-based expected letters (not content, which may be numbers)
+        const expectedFromId = t.id.startsWith('Count_') ? t.id.replace('Count_', '') : '';
         newRows.push({
           id: t.id,
           content: t.content,
           expected,
-          match: t.content === expected,
+          match: expectedFromId ? expectedFromId === expected : t.content === expected,
         });
       }
 
