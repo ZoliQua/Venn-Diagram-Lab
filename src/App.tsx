@@ -39,6 +39,7 @@ export default function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(true);
   const [helpOpen, setHelpOpen] = useState(false);
   const [hasUnsavedEdits, setHasUnsavedEdits] = useState(false);
+  const [modeSwitchTarget, setModeSwitchTarget] = useState<AppMode | null>(null);
   const [validationDialog, setValidationDialog] = useState<{ filename: string; content: string } | null>(null);
   const [originalSvgContent, setOriginalSvgContent] = useState<string | null>(null);
 
@@ -82,6 +83,7 @@ export default function App() {
   };
   dragCallbacksRef.current.onDragEnd = (id: string, x: number, y: number) => {
     svgDoc.updateTextPosition(id, x, y);
+    setHasUnsavedEdits(true);
   };
 
   const stableDragCallbacks = useRef({
@@ -165,7 +167,6 @@ export default function App() {
 
   const handleRestore = useCallback(() => {
     if (!doc || !originalSvgContent) return;
-    if (!confirm('Restore to original? All changes will be lost.')) return;
     svgDoc.loadFromString(doc.filename, originalSvgContent);
     clearSelection();
     setHasUnsavedEdits(false);
@@ -234,6 +235,7 @@ export default function App() {
   const handleEditDialogConfirm = useCallback((id: string, newContent: string) => {
     svgDoc.updateTextContent(id, newContent);
     setEditDialog(null);
+    setHasUnsavedEdits(true);
   }, [svgDoc]);
 
   const handleEditDialogCancel = useCallback(() => { setEditDialog(null); }, []);
@@ -388,8 +390,8 @@ export default function App() {
         mode={mode}
         onSetMode={(newMode) => {
           if (mode === 'edit' && hasUnsavedEdits && newMode !== 'edit') {
-            if (!confirm('You have unsaved changes. Discard and switch mode?')) return;
-            setHasUnsavedEdits(false);
+            setModeSwitchTarget(newMode);
+            return;
           }
           setMode(newMode);
         }}
@@ -618,6 +620,21 @@ export default function App() {
         mode={mode}
         onClose={() => setHelpOpen(false)}
       />
+
+      {/* Unsaved changes confirm */}
+      {modeSwitchTarget !== null && (
+        <div className="dialog-overlay" onClick={() => setModeSwitchTarget(null)}>
+          <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
+            <h3 className="confirm-title">Unsaved Changes</h3>
+            <p className="confirm-text">You have unsaved changes. Save before switching?</p>
+            <div className="confirm-actions">
+              <button className="btn btn-accent" onClick={() => { handleSave(); setHasUnsavedEdits(false); setMode(modeSwitchTarget); setModeSwitchTarget(null); }}>Save & Switch</button>
+              <button className="btn" onClick={() => { setHasUnsavedEdits(false); setMode(modeSwitchTarget); setModeSwitchTarget(null); }}>Discard</button>
+              <button className="btn" onClick={() => setModeSwitchTarget(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SvgValidationDialog
         isOpen={validationDialog !== null}
