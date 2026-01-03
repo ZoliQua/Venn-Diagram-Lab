@@ -92,7 +92,7 @@ export function ViewerInfoPanel({ doc, hoveredRegion, selectedRegion, regionExcl
           {letters.map((l, i) => (
             <span key={l}>
               {i > 0 && <span className="viewer-op"> ∩ </span>}
-              <span style={{ color: SHAPE_COLORS[l] }}>{l}</span>
+              <span style={{ color: '#ffffff' }}>{l}</span>
             </span>
           ))}
         </div>

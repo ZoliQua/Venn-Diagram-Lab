@@ -322,7 +322,7 @@ function LayersInfo({ textId, textX, textY, shapes }: {
       </div>
       {isCountText && (
         <div className="prop-layers-suggested">
-          <label>Suggested text</label>
+          <label>Suggested ID</label>
           <span className={`prop-layers-suggested-value ${isMatch ? 'prop-layers-ok' : 'prop-layers-warn'}`}>
             {suggestedLetters || '—'}
             {suggestedLetters && (
