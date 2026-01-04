@@ -1,6 +1,33 @@
 # Changelog
 
-All notable changes to the React Venn Diagram Modifier project.
+All notable changes to the Venn Diagram Lab project.
+
+## [1.4.0] — 2026-01-04
+
+### Added
+- **Mode dropdown**: Mode selector replaced with a single dropdown button showing active mode icon + name, click to switch between 👁 View, ✏️ Edit, 📊 Data
+- **Summary icon**: Summary view moved to ☰ icon button next to ? in toolbar right
+- **View mode model browser**: Empty View state shows full model gallery inline (Summary-style cards grouped by set count), sidebar and right panel hidden until model selected
+- **Welcome dialog about text**: Short program description added above mode selector cards
+- **Welcome instruction text**: "Please select a function to get started" above mode cards
+- **Shape colors in Data mode**: Color picker per set (A–H) in Column Mapping section
+- **Shape opacity slider**: Adjustable shape opacity (5–100%) in Data mode Column Mapping
+- **File Info section in Data mode**: Separate section with CSV metadata (filename, type, columns, binary, rows) + Download button
+- **Move Shapes mode (Edit)**: Toolbar toggle to drag-reposition shapes with transform updates
+- **Font family selector (Edit)**: Font type dropdown in PropertyPanel (Tahoma, Arial, sans-serif, monospace, Roboto)
+- **Collapsible sections**: File Info, Layers (Edit sidebar), Region Statistics (Edit) now collapsible with ▾/▸ toggle
+- **Edit empty state**: Two buttons — Select Model + Open Custom
+
+### Changed
+- **Renamed**: "React Venn Diagram Modifier" → "Venn Diagram Lab" across all files
+- **Renamed**: Test mode → Data mode everywhere (AppMode type, WelcomeDialog, HelpDialog, Toolbar)
+- **ViewerInfoPanel**: Uses live shape colors from doc instead of hardcoded SHAPE_COLORS
+- **SelectionRect**: Uses screen rect + inverse CTM for correct bounds on transformed elements
+- **Data mode section numbering**: 1. Data Source, 2. File Info, 3. Model, 4. Column Mapping, 5. View
+
+### Fixed
+- **Unsaved changes confirm**: Now triggers on all edit operations (PropertyPanel changes, sidebar toggles, element moves, visibility changes) — not just drag and text edit
+- **Summary dialog from Welcome**: Close returns to Welcome dialog instead of falling through to View mode
 
 ## [1.3.0] — 2026-01-01
 

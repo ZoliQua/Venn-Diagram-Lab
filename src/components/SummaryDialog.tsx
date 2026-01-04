@@ -9,7 +9,7 @@ interface SummaryDialogProps {
   selectMode?: boolean; // true = "Select for Edit" header
 }
 
-const SOURCES: Record<string, { label: string; url?: string }> = {
+export const SOURCES: Record<string, { label: string; url?: string }> = {
   'venn-2-set.svg': { label: 'Venn, 1880', url: 'publications/Venn-1880.pdf' },
   'venn-3-set.svg': { label: 'Venn, 1880', url: 'publications/Venn-1880.pdf' },
   'venn-4-set.svg': { label: 'Venn, 1880', url: 'publications/Venn-1880.pdf' },
@@ -42,7 +42,7 @@ const SOURCES: Record<string, { label: string; url?: string }> = {
   'venn-8-set.svg': { label: 'SUMO-Venn' },
 };
 
-function SvgPreview({ filename }: { filename: string }) {
+export function SvgPreview({ filename }: { filename: string }) {
   const [svgContent, setSvgContent] = useState<string>('');
 
   useEffect(() => {

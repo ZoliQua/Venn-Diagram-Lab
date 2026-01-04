@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useSvgDocument } from './hooks/useSvgDocument.ts';
 import { useSelection } from './hooks/useSelection.ts';
 import { useZoomPan } from './hooks/useZoomPan.ts';
@@ -13,10 +13,10 @@ import { TextEditDialog } from './components/TextEditDialog.tsx';
 import { ReportDialog } from './components/ReportDialog.tsx';
 import { ViewerSidebar } from './components/ViewerSidebar.tsx';
 import { ViewerInfoPanel } from './components/ViewerInfoPanel.tsx';
-import { fetchModel, fetchRegionData } from './models.ts';
+import { fetchModel, fetchRegionData, getModelsBySetCount } from './models.ts';
 import type { RegionData } from './models.ts';
 import { CutViewCanvas } from './components/CutViewCanvas.tsx';
-import { SummaryDialog } from './components/SummaryDialog.tsx';
+import { SummaryDialog, SvgPreview, SOURCES } from './components/SummaryDialog.tsx';
 import { WelcomeDialog } from './components/WelcomeDialog.tsx';
 import { HelpDialog } from './components/HelpDialog.tsx';
 import { SvgValidationDialog } from './components/SvgValidationDialog.tsx';
@@ -26,7 +26,7 @@ import { parseCsv, calculateVennCounts, getBinaryColumns } from './utils/csvPars
 import type { CsvData } from './utils/csvParser.ts';
 
 export type ViewStyle = 'layer' | 'cut';
-export type AppMode = 'view' | 'edit' | 'test';
+export type AppMode = 'view' | 'edit' | 'data';
 
 export default function App() {
   const [mode, setMode] = useState<AppMode>('view');
@@ -36,6 +36,7 @@ export default function App() {
   const [regionData, setRegionData] = useState<RegionData | null>(null);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [summarySelectMode, setSummarySelectMode] = useState(false);
+  const [summaryFromWelcome, setSummaryFromWelcome] = useState(false);
   const [welcomeOpen, setWelcomeOpen] = useState(true);
   const [helpOpen, setHelpOpen] = useState(false);
   const [hasUnsavedEdits, setHasUnsavedEdits] = useState(false);
@@ -43,7 +44,7 @@ export default function App() {
   const [validationDialog, setValidationDialog] = useState<{ filename: string; content: string } | null>(null);
   const [originalSvgContent, setOriginalSvgContent] = useState<string | null>(null);
 
-  // Test mode state
+  // Data mode state
   const [testCsvData, setTestCsvData] = useState<CsvData | null>(null);
   const [testCsvFilename, setTestCsvFilename] = useState<string | null>(null);
   const [testModel, setTestModel] = useState<string | null>(null);
@@ -57,6 +58,11 @@ export default function App() {
   const [testShowNames, setTestShowNames] = useState(true);
   const [testShowSums, setTestShowSums] = useState(true);
   const [testNameFontSize, setTestNameFontSize] = useState(24);
+  const [testShapeOpacity, setTestShapeOpacity] = useState(0.2);
+  const [testShapeColors, setTestShapeColors] = useState<Record<string, string>>({
+    A: '#FFF200', B: '#2E3192', C: '#ED1C24', D: '#808285',
+    E: '#3C2415', F: '#9E1F63', G: '#CA4B9B', H: '#21AED1',
+  });
 
   const svgDoc = useSvgDocument();
   const { doc } = svgDoc;
@@ -64,6 +70,7 @@ export default function App() {
   const zoomPan = useZoomPan();
   const [showGrid, setShowGrid] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
+  const [moveShapes, setMoveShapes] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -96,6 +103,27 @@ export default function App() {
   }).current;
 
   const drag = useDrag(zoomPan.state.scale, svgRef, stableDragCallbacks);
+
+  // Shape drag state (Move Shapes mode) — tracked globally via container events
+  const shapeDragRef = useRef<{ id: string; startX: number; startY: number; origTransform: string } | null>(null);
+
+  const handleShapeDragStart = useCallback((e: React.PointerEvent, id: string) => {
+    if (!moveShapes) return;
+    const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
+    if (!svg) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    const shape = doc?.shapes.find(s => s.id === id);
+    shapeDragRef.current = {
+      id,
+      startX: pt.x,
+      startY: pt.y,
+      origTransform: shape?.attributes['transform'] ?? '',
+    };
+    e.stopPropagation(); // prevent pan
+    e.preventDefault();
+  }, [moveShapes, doc]);
 
   const handleSave = useCallback(() => {
     if (!doc) return;
@@ -265,7 +293,7 @@ export default function App() {
   // Viewer: switch to edit
   const handleEditThis = useCallback(() => { setMode('edit'); }, []);
 
-  // Test mode handlers
+  // Data mode handlers
   const handleTestLoadCsv = useCallback(async (source: 'file' | 'sample') => {
     if (source === 'sample') {
       try {
@@ -357,12 +385,22 @@ export default function App() {
         svgDoc.updateTextStyle(`CountSUM_${letters[i]}`, 'text-anchor', 'middle');
       }
 
+      // Apply custom shape colors and opacity
+      for (let i = 0; i < testColumnMapping.length; i++) {
+        const letter = letters[i];
+        const color = testShapeColors[letter];
+        if (color) {
+          svgDoc.updateShapeStyle(`Shape${letter}`, 'fill', color);
+        }
+        svgDoc.updateShapeStyle(`Shape${letter}`, 'opacity', String(testShapeOpacity));
+      }
+
       setTestCalculated(true);
       regionDetection.clearSelection();
     } catch (e) {
       setTestError(`Calculation failed: ${e}`);
     }
-  }, [testCsvData, testModel, testColumnMapping, svgDoc, zoomPan, regionDetection]);
+  }, [testCsvData, testModel, testColumnMapping, svgDoc, zoomPan, regionDetection, testShapeColors, testShapeOpacity]);
 
   // Viewer: region list hover/click
   const handleSidebarHoverRegion = useCallback((_region: Region | null) => {
@@ -381,6 +419,8 @@ export default function App() {
 
   // Determine active region label for sidebar highlighting
   const activeRegion = regionDetection.selectedRegion ?? regionDetection.hoveredRegion;
+
+  const modelsBySet = useMemo(() => getModelsBySetCount(), []);
 
   return (
     <div className="app">
@@ -404,8 +444,10 @@ export default function App() {
         onZoomOut={zoomPan.zoomOut}
         onZoomReset={zoomPan.resetZoom}
         showValidation={showValidation}
+        moveShapes={moveShapes}
         onToggleGrid={() => setShowGrid(g => !g)}
         onToggleValidation={() => setShowValidation(v => !v)}
+        onToggleMoveShapes={() => setMoveShapes(m => !m)}
         onUndo={svgDoc.undo}
         onRedo={svgDoc.redo}
         onReport={() => setReportOpen(true)}
@@ -413,20 +455,22 @@ export default function App() {
 
       <div className="main-layout">
         {mode === 'view' ? (
-          <ViewerSidebar
-            doc={doc}
-            currentModel={currentModel}
-            onLoadModel={handleLoadModel}
-            hoveredRegion={regionDetection.hoveredRegion}
-            selectedRegion={regionDetection.selectedRegion}
-            onHoverRegion={handleSidebarHoverRegion}
-            onSelectRegion={handleSidebarSelectRegion}
-            onEditThis={handleEditThis}
-            isLoading={isLoadingModel}
-            viewStyle={viewStyle}
-            onSetViewStyle={setViewStyle}
-          />
-        ) : mode === 'test' ? (
+          doc ? (
+            <ViewerSidebar
+              doc={doc}
+              currentModel={currentModel}
+              onLoadModel={handleLoadModel}
+              hoveredRegion={regionDetection.hoveredRegion}
+              selectedRegion={regionDetection.selectedRegion}
+              onHoverRegion={handleSidebarHoverRegion}
+              onSelectRegion={handleSidebarSelectRegion}
+              onEditThis={handleEditThis}
+              isLoading={isLoadingModel}
+              viewStyle={viewStyle}
+              onSetViewStyle={setViewStyle}
+            />
+          ) : null
+        ) : mode === 'data' ? (
           <TestSidebar
             csvData={testCsvData}
             csvFilename={testCsvFilename}
@@ -456,6 +500,26 @@ export default function App() {
             onToggleTitle={() => { setTestShowTitle(v => !v); if (doc) svgDoc.toggleMeta('headerHidden'); }}
             onToggleNames={() => { setTestShowNames(v => !v); if (doc) svgDoc.toggleGroupVisibility('names'); }}
             onToggleSums={() => { setTestShowSums(v => !v); if (doc) svgDoc.toggleGroupVisibility('sums'); }}
+            shapeOpacity={testShapeOpacity}
+            onShapeOpacityChange={(opacity) => {
+              setTestShapeOpacity(opacity);
+              if (doc) {
+                const letters = 'ABCDEFGH';
+                for (let i = 0; i < doc.shapes.length && i < 8; i++) {
+                  svgDoc.updateShapeStyle(`Shape${letters[i]}`, 'opacity', String(opacity));
+                }
+              }
+            }}
+            shapeColors={testShapeColors}
+            onShapeColorChange={(letter, color) => {
+              setTestShapeColors(prev => ({ ...prev, [letter]: color }));
+              if (doc) {
+                // Update shape fill color
+                svgDoc.updateShapeStyle(`Shape${letter}`, 'fill', color);
+                // Update bullet color
+                svgDoc.updateShapeStyle(`Bullet${letter}`, 'fill', color);
+              }
+            }}
             nameFontSize={testNameFontSize}
             onNameFontSizeChange={(size) => {
               setTestNameFontSize(size);
@@ -476,26 +540,26 @@ export default function App() {
             onSelectFromLibrary={handleSelectFromLibrary}
             onOpenCustomFile={handleOpenCustomFile}
             onSelect={selectById}
-            onToggleMeta={svgDoc.toggleMeta}
-            onMoveElement={svgDoc.moveElementInGroup}
+            onToggleMeta={(...a) => { svgDoc.toggleMeta(...a); setHasUnsavedEdits(true); }}
+            onMoveElement={(...a) => { svgDoc.moveElementInGroup(...a); setHasUnsavedEdits(true); }}
             onAddText={handleAddText}
-            onAddTextDirect={svgDoc.addText}
+            onAddTextDirect={(...a) => { svgDoc.addText(...a); setHasUnsavedEdits(true); }}
             onRemoveText={handleRemoveText}
-            onToggleElementVisibility={svgDoc.toggleElementVisibility}
-            onToggleGroupVisibility={svgDoc.toggleGroupVisibility}
+            onToggleElementVisibility={(...a) => { svgDoc.toggleElementVisibility(...a); setHasUnsavedEdits(true); }}
+            onToggleGroupVisibility={(...a) => { svgDoc.toggleGroupVisibility(...a); setHasUnsavedEdits(true); }}
           />
         )}
 
         <div className="canvas-area">
           {doc ? (
-            (mode === 'view' || mode === 'test') && viewStyle === 'cut' && regionData ? (
+            (mode === 'view' || mode === 'data') && viewStyle === 'cut' && regionData ? (
               <div className="canvas-container" ref={zoomPan.setContainerRef} onWheel={zoomPan.onWheel}>
                 <CutViewCanvas
                   regionData={regionData}
                   scale={zoomPan.state.scale}
                   onRegionHover={regionDetection.setHoverByLabel}
                   onRegionClick={regionDetection.setSelectByLabel}
-                  countOverrides={mode === 'test' && doc ? (() => {
+                  countOverrides={mode === 'data' && doc ? (() => {
                     const m = new Map<string, string>();
                     for (const t of doc.texts.values) {
                       const label = t.id.replace('Count_', '');
@@ -520,24 +584,98 @@ export default function App() {
                 onPanPointerMove={zoomPan.onPointerMove}
                 onPanPointerUp={zoomPan.onPointerUp}
                 onDragTextStart={drag.onPointerDown}
+                onDragShapeStart={moveShapes ? handleShapeDragStart : undefined}
+                onShapeDragMove={moveShapes ? (e: React.PointerEvent) => {
+                  if (!shapeDragRef.current) return;
+                  const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
+                  if (!svg) return;
+                  const ctm = svg.getScreenCTM();
+                  if (!ctm) return;
+                  const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+                  const dx = pt.x - shapeDragRef.current.startX;
+                  const dy = pt.y - shapeDragRef.current.startY;
+                  const el = document.getElementById(shapeDragRef.current.id);
+                  if (el) {
+                    el.setAttribute('transform', `translate(${dx},${dy}) ${shapeDragRef.current.origTransform}`.trim());
+                  }
+                } : undefined}
+                onShapeDragEnd={moveShapes ? (e: React.PointerEvent) => {
+                  if (!shapeDragRef.current) return;
+                  const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
+                  if (!svg) return;
+                  const ctm = svg.getScreenCTM();
+                  if (!ctm) return;
+                  const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+                  const dx = pt.x - shapeDragRef.current.startX;
+                  const dy = pt.y - shapeDragRef.current.startY;
+                  const id = shapeDragRef.current.id;
+                  const orig = shapeDragRef.current.origTransform;
+                  const newTransform = `translate(${Math.round(dx * 10) / 10},${Math.round(dy * 10) / 10}) ${orig}`.trim();
+                  svgDoc.updateShapeAttribute(id, 'transform', newTransform);
+                  setHasUnsavedEdits(true);
+                  shapeDragRef.current = null;
+                  void e;
+                } : undefined}
                 onDragPointerMove={drag.onPointerMove}
                 onDragPointerUp={drag.onPointerUp}
                 onDoubleClickText={handleDoubleClickText}
-                readOnly={mode === 'view' || mode === 'test'}
-                viewStyle={(mode === 'view' || mode === 'test') ? viewStyle : 'layer'}
+                moveShapes={moveShapes}
+                readOnly={mode === 'view' || mode === 'data'}
+                viewStyle={(mode === 'view' || mode === 'data') ? viewStyle : 'layer'}
                 hoveredRegion={activeRegion}
                 onRegionHover={regionDetection.onHover}
                 onRegionClick={regionDetection.lockHover}
                 onRegionLeave={regionDetection.clearHover}
                 onReadOnlyTextClick={(letter) => regionDetection.setSelectByLabel(letter, true)}
               />
+          ) : mode === 'view' && !welcomeOpen ? (
+            <div className="canvas-model-browser">
+              <div className="canvas-model-browser-inner">
+                <h2 className="canvas-model-browser-title">Select a Venn Diagram Model</h2>
+                {Array.from(modelsBySet.entries())
+                  .sort(([a], [b]) => a - b)
+                  .map(([setCount, models]) => (
+                    <div key={setCount} className="summary-group">
+                      <h3 className="summary-group-title">
+                        {setCount}-Set Diagrams
+                        <span className="summary-group-count">{models.length} variant{models.length > 1 ? 's' : ''} — {Math.pow(2, setCount) - 1} regions</span>
+                      </h3>
+                      <div className="summary-grid">
+                        {models.map(m => {
+                          const source = SOURCES[m.filename];
+                          return (
+                            <div
+                              key={m.filename}
+                              className="summary-card"
+                              onClick={() => handleLoadModel(m.filename)}
+                            >
+                              <SvgPreview filename={m.filename} />
+                              <div className="summary-card-info">
+                                <div className="summary-card-name">{m.label}</div>
+                                {source && (
+                                  <div className="summary-card-source">
+                                    <span>{source.label}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
           ) : (
             <div className="canvas-empty">
               <div className="canvas-empty-text">
-                {mode === 'test' ? 'Load data and select a model to calculate' : mode === 'view' ? 'Select a Venn diagram model' : 'Open an SVG file to start editing'}
+                {mode === 'data' ? 'Load data and select a model to calculate' : 'Open an SVG file to start editing'}
               </div>
               {mode === 'edit' && (
-                <button className="btn btn-large" onClick={handleOpen}>Open SVG File</button>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button className="btn btn-large" onClick={handleSelectFromLibrary}>Select Model</button>
+                  <button className="btn btn-large" onClick={handleOpen}>Open Custom</button>
+                </div>
               )}
             </div>
           )}
@@ -546,26 +684,28 @@ export default function App() {
           )}
         </div>
 
-        {mode === 'view' || mode === 'test' ? (
-          <ViewerInfoPanel
-            doc={doc}
-            hoveredRegion={regionDetection.hoveredRegion}
-            selectedRegion={regionDetection.selectedRegion}
-            regionExclusiveItems={mode === 'test' ? testExclusiveItems : null}
-            regionInclusiveItems={mode === 'test' ? testInclusiveItems : null}
-            canSave={mode === 'test' && testCalculated && viewStyle === 'layer'}
-            onSave={handleSave}
-            onClearSelection={regionDetection.clearSelection}
-          />
+        {(mode === 'view' || mode === 'data') ? (
+          (mode === 'view' && !doc) ? null : (
+            <ViewerInfoPanel
+              doc={doc}
+              hoveredRegion={regionDetection.hoveredRegion}
+              selectedRegion={regionDetection.selectedRegion}
+              regionExclusiveItems={mode === 'data' ? testExclusiveItems : null}
+              regionInclusiveItems={mode === 'data' ? testInclusiveItems : null}
+              canSave={mode === 'data' && testCalculated && viewStyle === 'layer'}
+              onSave={handleSave}
+              onClearSelection={regionDetection.clearSelection}
+            />
+          )
         ) : (
           <PropertyPanel
             selected={selected}
             shapes={doc?.shapes ?? []}
-            onUpdateTextPosition={svgDoc.updateTextPosition}
-            onUpdateTextContent={svgDoc.updateTextContent}
-            onUpdateTextStyle={svgDoc.updateTextStyle}
-            onUpdateBulletPosition={svgDoc.updateBulletPosition}
-            onUpdateShapeStyle={svgDoc.updateShapeStyle}
+            onUpdateTextPosition={(...a) => { svgDoc.updateTextPosition(...a); setHasUnsavedEdits(true); }}
+            onUpdateTextContent={(...a) => { svgDoc.updateTextContent(...a); setHasUnsavedEdits(true); }}
+            onUpdateTextStyle={(...a) => { svgDoc.updateTextStyle(...a); setHasUnsavedEdits(true); }}
+            onUpdateBulletPosition={(...a) => { svgDoc.updateBulletPosition(...a); setHasUnsavedEdits(true); }}
+            onUpdateShapeStyle={(...a) => { svgDoc.updateShapeStyle(...a); setHasUnsavedEdits(true); }}
           />
         )}
       </div>
@@ -586,10 +726,13 @@ export default function App() {
       <SummaryDialog
         isOpen={summaryOpen}
         selectMode={summarySelectMode}
-        onClose={() => { setSummaryOpen(false); setSummarySelectMode(false); }}
+        onClose={() => {
+          setSummaryOpen(false);
+          setSummarySelectMode(false);
+          if (summaryFromWelcome) { setWelcomeOpen(true); setSummaryFromWelcome(false); }
+        }}
         onSelectModel={async (filename) => {
           if (summarySelectMode) {
-            // Edit mode: load into editor
             const svgString = await fetchModel(filename);
             handleLoadFile(filename, svgString);
           } else {
@@ -598,6 +741,7 @@ export default function App() {
           }
           setSummaryOpen(false);
           setSummarySelectMode(false);
+          setSummaryFromWelcome(false);
         }}
       />
 
@@ -612,7 +756,7 @@ export default function App() {
       <WelcomeDialog
         isOpen={welcomeOpen}
         onSelectMode={(m) => { setMode(m); setWelcomeOpen(false); }}
-        onSummary={() => { setSummarySelectMode(false); setSummaryOpen(true); setWelcomeOpen(false); }}
+        onSummary={() => { setSummarySelectMode(false); setSummaryFromWelcome(true); setSummaryOpen(true); setWelcomeOpen(false); }}
       />
 
       <HelpDialog

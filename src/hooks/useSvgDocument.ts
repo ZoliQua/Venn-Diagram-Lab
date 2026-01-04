@@ -161,6 +161,18 @@ export function useSvgDocument() {
     });
   }, [updateDoc]);
 
+  const updateShapeAttribute = useCallback((id: string, attr: string, value: string) => {
+    updateDoc(d => {
+      for (const s of d.shapes) {
+        if (s.id === id) {
+          s.attributes[attr] = value;
+          break;
+        }
+      }
+      return d;
+    });
+  }, [updateDoc]);
+
   const addText = useCallback((group: 'names' | 'values' | 'sums', text: VennText) => {
     updateDoc(d => {
       d.texts[group].push(text);
@@ -271,6 +283,7 @@ export function useSvgDocument() {
     updateViewBox,
     updateBulletPosition,
     updateShapeStyle,
+    updateShapeAttribute,
     addText,
     removeText,
     moveElementInGroup,

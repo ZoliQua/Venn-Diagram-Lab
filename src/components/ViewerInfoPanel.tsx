@@ -50,6 +50,14 @@ export function ViewerInfoPanel({ doc, hoveredRegion, selectedRegion, regionExcl
   const letters = region.shapeIds.map(shapeIdToLetter);
   const nameTexts = doc.texts.names;
 
+  // Get live shape colors from doc (respects user modifications)
+  const liveColors: Record<string, string> = {};
+  for (const s of doc.shapes) {
+    const letter = s.id.replace('Shape', '');
+    const m = s.style.match(/fill:\s*([^;]+)/);
+    if (m) liveColors[letter] = m[1];
+  }
+
   return (
     <div className="property-panel viewer-info-panel">
       <div className="panel-section">
@@ -75,11 +83,11 @@ export function ViewerInfoPanel({ doc, hoveredRegion, selectedRegion, regionExcl
               <div key={letter} className="viewer-set-item">
                 <span
                   className="viewer-set-dot"
-                  style={{ background: SHAPE_COLORS[letter] ?? '#666' }}
+                  style={{ background: liveColors[letter] ?? SHAPE_COLORS[letter] ?? '#666' }}
                 />
                 <span className="viewer-set-letter">{letter}</span>
                 <span className="viewer-set-name">{displayName}</span>
-                <span className="viewer-set-color">{SHAPE_COLOR_NAMES[letter]}</span>
+                <span className="viewer-set-color">{liveColors[letter] ?? SHAPE_COLOR_NAMES[letter]}</span>
               </div>
             );
           })}

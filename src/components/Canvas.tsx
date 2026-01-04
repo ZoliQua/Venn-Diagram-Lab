@@ -17,10 +17,14 @@ interface CanvasProps {
   onPanPointerMove: (e: React.PointerEvent) => void;
   onPanPointerUp: () => void;
   onDragTextStart: (e: React.PointerEvent, id: string, origX: number, origY: number) => void;
+  onDragShapeStart?: (e: React.PointerEvent, id: string) => void;
+  onShapeDragMove?: (e: React.PointerEvent) => void;
+  onShapeDragEnd?: (e: React.PointerEvent) => void;
   onDragPointerMove: (e: React.PointerEvent) => void;
   onDragPointerUp: (e: React.PointerEvent) => void;
   onDoubleClickText: (id: string) => void;
   readOnly?: boolean;
+  moveShapes?: boolean;
   viewStyle?: 'layer' | 'cut';
   hoveredRegion?: RegionInfo | null;
   onRegionHover?: (svgX: number, svgY: number) => void;
@@ -222,12 +226,20 @@ function SelectionRect({ targetId }: { targetId: string }) {
     const el = document.getElementById(targetId);
     if (!el || !rectRef.current) return;
     try {
-      const bbox = (el as unknown as SVGGraphicsElement).getBBox();
+      // Use screen rect + SVG inverse CTM to get transformed bounds
+      const svg = el.closest('svg');
+      if (!svg) return;
+      const ctm = (svg as SVGSVGElement).getScreenCTM();
+      if (!ctm) return;
+      const screenRect = el.getBoundingClientRect();
+      const inv = ctm.inverse();
+      const topLeft = new DOMPoint(screenRect.left, screenRect.top).matrixTransform(inv);
+      const bottomRight = new DOMPoint(screenRect.right, screenRect.bottom).matrixTransform(inv);
       const rect = rectRef.current;
-      rect.setAttribute('x', String(bbox.x - 3));
-      rect.setAttribute('y', String(bbox.y - 3));
-      rect.setAttribute('width', String(bbox.width + 6));
-      rect.setAttribute('height', String(bbox.height + 6));
+      rect.setAttribute('x', String(topLeft.x - 3));
+      rect.setAttribute('y', String(topLeft.y - 3));
+      rect.setAttribute('width', String(bottomRight.x - topLeft.x + 6));
+      rect.setAttribute('height', String(bottomRight.y - topLeft.y + 6));
     } catch {
       // Element might not be rendered yet
     }
@@ -259,10 +271,14 @@ export function Canvas({
   onPanPointerMove,
   onPanPointerUp,
   onDragTextStart,
+  onDragShapeStart,
+  onShapeDragMove,
+  onShapeDragEnd,
   onDragPointerMove,
   onDragPointerUp,
   onDoubleClickText,
   readOnly,
+  moveShapes,
   viewStyle,
   hoveredRegion,
   onRegionHover,
@@ -400,8 +416,8 @@ export function Canvas({
       className="canvas-container"
       onWheel={onZoomWheel}
       onPointerDown={onPanPointerDown}
-      onPointerMove={(e) => { onPanPointerMove(e); if (!readOnly) onDragPointerMove(e); }}
-      onPointerUp={(e) => { onPanPointerUp(); if (!readOnly) onDragPointerUp(e); }}
+      onPointerMove={(e) => { onPanPointerMove(e); if (!readOnly) onDragPointerMove(e); if (onShapeDragMove) onShapeDragMove(e); }}
+      onPointerUp={(e) => { onPanPointerUp(); if (!readOnly) onDragPointerUp(e); if (onShapeDragEnd) onShapeDragEnd(e); }}
       onClick={handleBackgroundClick}
       onMouseLeave={handleViewerLeave}
     >
@@ -468,18 +484,18 @@ export function Canvas({
                 strokeMiterlimit: styleObj['stroke-miterlimit'] ? Number(styleObj['stroke-miterlimit']) : undefined,
                 strokeLinecap: styleObj['stroke-linecap'] as React.CSSProperties['strokeLinecap'],
                 strokeLinejoin: styleObj['stroke-linejoin'] as React.CSSProperties['strokeLinejoin'],
-                cursor: readOnly ? 'crosshair' : 'pointer',
+                cursor: readOnly ? 'crosshair' : moveShapes ? 'move' : 'pointer',
               };
 
               const isSelected = selectedId === s.id;
               const handleClick = (e: React.MouseEvent) => {
-                if (readOnly) {
-                  // In readOnly mode, let click bubble up to SVG → lockHover
-                  return;
-                }
+                if (readOnly) return;
                 e.stopPropagation();
                 onSelect(s.id);
               };
+              const handleShapePointerDown = moveShapes && onDragShapeStart
+                ? (e: React.PointerEvent) => { e.stopPropagation(); onDragShapeStart(e, s.id); }
+                : undefined;
 
               // Build SVG attributes from stored attributes map
               const svgAttrs: Record<string, string | undefined> = {};
@@ -488,7 +504,9 @@ export function Canvas({
               }
 
               return (
-                <g key={s.id}>
+                <g key={s.id}
+                  onPointerDown={handleShapePointerDown}
+                >
                   {renderShapeElement(s.tagName, s.id, svgAttrs, commonStyle, handleClick)}
                   {isSelected && <SelectionRect targetId={s.id} />}
                 </g>

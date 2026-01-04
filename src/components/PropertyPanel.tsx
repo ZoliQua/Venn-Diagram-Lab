@@ -109,6 +109,7 @@ function TextProperties({
   const [content, setContent] = useState(t.content);
   const [x, setX] = useState(String(t.x));
   const [y, setY] = useState(String(t.y));
+  const [fontFamily, setFontFamily] = useState(styleObj['font-family']?.replace(/'/g, '') || 'Tahoma');
   const [fontSize, setFontSize] = useState(parseFontSize(styleObj['font-size']));
   const [anchor, setAnchor] = useState(styleObj['text-anchor'] || 'start');
   const [fill, setFill] = useState(styleObj['fill'] || '#262262');
@@ -120,6 +121,7 @@ function TextProperties({
     setX(String(t.x));
     setY(String(t.y));
     const s = parseStyleString(t.style);
+    setFontFamily(s['font-family']?.replace(/'/g, '') || 'Tahoma');
     setFontSize(parseFontSize(s['font-size']));
     setAnchor(s['text-anchor'] || 'start');
     setFill(s['fill'] || '#262262');
@@ -193,6 +195,23 @@ function TextProperties({
           onBlur={commitPosition}
           onKeyDown={e => { if (e.key === 'Enter') commitPosition(); }}
         />
+      </div>
+      <div className="prop-row">
+        <label>Font type</label>
+        <select
+          className="prop-select"
+          value={fontFamily}
+          onChange={e => {
+            setFontFamily(e.target.value);
+            onUpdateStyle(t.id, 'font-family', `'${e.target.value}'`);
+          }}
+        >
+          <option value="Tahoma">Tahoma</option>
+          <option value="Arial">Arial</option>
+          <option value="sans-serif">Sans-serif</option>
+          <option value="monospace">Monospace</option>
+          <option value="Roboto">Roboto</option>
+        </select>
       </div>
       <div className="prop-row">
         <label>Font size</label>

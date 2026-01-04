@@ -1,4 +1,4 @@
-# 🔵🟡🔴 React Venn Diagram Modifier
+# 🔵🟡🔴 Venn Diagram Lab
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 8-set, covering all known construction methods. Built with React, TypeScript, and Vite.
 

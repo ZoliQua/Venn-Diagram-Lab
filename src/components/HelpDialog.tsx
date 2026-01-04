@@ -32,8 +32,8 @@ const HELP: Record<AppMode, { title: string; sections: { heading: string; conten
       { heading: 'Layer Tree', content: 'Left sidebar shows all elements organized by group (Shapes, Header, Names, Values, Sums, Bullets). Toggle visibility, reorder, add or remove elements.' },
     ],
   },
-  test: {
-    title: 'Test Mode — Help',
+  data: {
+    title: 'Data Mode — Help',
     sections: [
       { heading: 'Overview', content: 'Load CSV data with binary (0/1) columns, map them to Venn diagram sets, and calculate intersection counts. Visualize the results on any diagram model.' },
       { heading: '1. Data Source', content: 'Load Sample: loads the built-in streaming platforms dataset (800 titles × 8 platforms). Upload Custom: load your own CSV with binary columns.' },

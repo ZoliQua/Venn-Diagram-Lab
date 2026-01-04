@@ -26,6 +26,10 @@ interface TestSidebarProps {
   onToggleSums: () => void;
   nameFontSize: number;
   onNameFontSizeChange: (size: number) => void;
+  shapeColors: Record<string, string>;
+  onShapeColorChange: (letter: string, color: string) => void;
+  shapeOpacity: number;
+  onShapeOpacityChange: (opacity: number) => void;
 }
 
 export function TestSidebar({
@@ -39,6 +43,8 @@ export function TestSidebar({
   showTitle, showNames, showSums,
   onToggleTitle, onToggleNames, onToggleSums,
   nameFontSize, onNameFontSizeChange,
+  shapeColors, onShapeColorChange,
+  shapeOpacity, onShapeOpacityChange,
 }: TestSidebarProps) {
   useMemo(() => getModelsBySetCount(), []);
   const [fileInputKey, setFileInputKey] = useState(0);
@@ -91,19 +97,34 @@ export function TestSidebar({
             <input key={fileInputKey} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileChange} />
           </label>
         </div>
-        {csvFilename && (
-          <div className="test-csv-info">
-            <div className="test-csv-filename">{csvFilename}</div>
-            <div className="test-csv-stats">{csvData?.rows.length} rows, {csvData?.headers.length} columns</div>
-            <div className="test-csv-stats">{binaryColumns.length} binary columns detected</div>
-          </div>
-        )}
       </div>
+
+      {/* File Info */}
+      {csvData && csvFilename && (
+        <div className="sidebar-section">
+          <div className="sidebar-section-title">2. File Info</div>
+          <div className="sidebar-file-info">
+            <div><span className="file-info-label">Filename:</span> {csvFilename}</div>
+            <div><span className="file-info-label">File type:</span> CSV</div>
+            <div><span className="file-info-label">Columns:</span> {csvData.headers.length} columns</div>
+            <div><span className="file-info-label">Binary:</span> {binaryColumns.length} detected</div>
+            <div><span className="file-info-label">Rows:</span> {csvData.rows.length}</div>
+          </div>
+          <button className="btn btn-sm" style={{ width: '100%', marginTop: 6 }}
+            onClick={() => {
+              if (!csvFilename) return;
+              const link = document.createElement('a');
+              link.href = `./data/${csvFilename}`;
+              link.download = csvFilename;
+              link.click();
+            }}>Download File</button>
+        </div>
+      )}
 
       {/* Model Selection */}
       {csvData && (
         <div className="sidebar-section">
-          <div className="sidebar-section-title">2. Venn Diagram Model</div>
+          <div className="sidebar-section-title">3. Venn Diagram Model</div>
           {n >= 2 ? (
             <select
               className="model-selector"
@@ -135,11 +156,18 @@ export function TestSidebar({
       {/* Column Mapping */}
       {csvData && n >= 2 && (
         <div className="sidebar-section">
-          <div className="sidebar-section-title">3. Column Mapping</div>
+          <div className="sidebar-section-title">4. Column Mapping</div>
           <div className="test-column-mapping">
             {letters.map((letter, i) => (
               <div key={letter} className="test-column-row">
                 <span className="test-column-letter">{letter}</span>
+                <input
+                  type="color"
+                  className="test-color-input"
+                  value={shapeColors[letter] ?? '#666666'}
+                  onChange={e => onShapeColorChange(letter, e.target.value)}
+                  title={`Color for set ${letter}`}
+                />
                 <select
                   className="test-column-select"
                   value={columnMapping[i]}
@@ -151,6 +179,10 @@ export function TestSidebar({
                 </select>
               </div>
             ))}
+          </div>
+          <div className="test-font-size" style={{ marginTop: 6 }}>
+            <label>Opacity: {Math.round(shapeOpacity * 100)}%</label>
+            <input type="range" min="5" max="100" value={Math.round(shapeOpacity * 100)} onChange={e => onShapeOpacityChange(parseInt(e.target.value) / 100)} />
           </div>
           <button
             className="btn btn-sm btn-accent"
@@ -166,7 +198,7 @@ export function TestSidebar({
       {/* View Style */}
       {isCalculated && (
         <div className="sidebar-section">
-          <div className="sidebar-section-title">4. View</div>
+          <div className="sidebar-section-title">5. View</div>
           <div className="view-style-switcher">
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'layer' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('layer')}>Layer</button>
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'cut' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('cut')}>Cut</button>

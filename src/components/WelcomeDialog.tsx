@@ -14,7 +14,11 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary }: WelcomeDialog
     <div className="dialog-overlay">
       <div className="welcome-dialog">
         <h1 className="welcome-title">{APP_NAME}</h1>
-        <p className="welcome-subtitle">v{APP_VERSION} — Interactive Venn diagram viewer, editor & data analyzer</p>
+        <p className="welcome-subtitle">v{APP_VERSION}</p>
+
+        <p className="welcome-about">A collection of 32 Venn diagram SVG models from 2-set to 8-set, based on constructions by Venn, Edwards, Anderson, Grünbaum, Bannier &amp; Bodin, and others. View diagrams interactively, edit their SVG structure, or load your own CSV data to visualize set intersections.</p>
+
+        <p className="welcome-instruction">Please select a function to get started</p>
 
         <div className="welcome-modes">
           <button className="welcome-mode-card" onClick={() => onSelectMode('view')}>
@@ -29,9 +33,9 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary }: WelcomeDialog
             <div className="welcome-mode-desc">Open, modify, and save SVG Venn diagrams with full editing tools</div>
           </button>
 
-          <button className="welcome-mode-card" onClick={() => onSelectMode('test')}>
+          <button className="welcome-mode-card" onClick={() => onSelectMode('data')}>
             <div className="welcome-mode-icon">📊</div>
-            <div className="welcome-mode-name">Test</div>
+            <div className="welcome-mode-name">Data</div>
             <div className="welcome-mode-desc">Load CSV data, map columns to sets, and calculate Venn intersections</div>
           </button>
         </div>

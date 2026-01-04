@@ -2,7 +2,7 @@
 
 ## Projekt célja
 
-React Venn Diagram Modifier — Venn diagramok megtekintése, szerkesztése és adatokkal való vizuális bemutatása. 32 SVG modell (2–8 set), interaktív viewer régió detektálással, és SVG editor.
+Venn Diagram Lab — Venn diagramok megtekintése, szerkesztése és adatokkal való vizuális bemutatása. 32 SVG modell (2–8 set), interaktív viewer régió detektálással, és SVG editor.
 
 ## Strict Rules
 

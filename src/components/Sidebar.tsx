@@ -39,6 +39,8 @@ interface SidebarProps {
 export function Sidebar({ doc, selected, onSave, onRestore, onSelectFromLibrary, onOpenCustomFile, onSelect, onToggleMeta, onMoveElement, onAddText, onAddTextDirect, onRemoveText, onToggleElementVisibility, onToggleGroupVisibility }: SidebarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [restoreConfirmOpen, setRestoreConfirmOpen] = useState(false);
+  const [fileInfoOpen, setFileInfoOpen] = useState(true);
+  const [layersOpen, setLayersOpen] = useState(true);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -83,24 +85,32 @@ export function Sidebar({ doc, selected, onSave, onRestore, onSelectFromLibrary,
       {/* FILE INFO */}
       {doc && vennType && (
         <div className="sidebar-section">
-          <div className="sidebar-section-title">File Info</div>
-          <div className="sidebar-file-info">
-            <div><span className="file-info-label">Filename:</span> {doc.filename}</div>
-            <div><span className="file-info-label">Venn type:</span> {vennType.setCount} sets</div>
-            <div><span className="file-info-label">Form:</span> {vennType.form}</div>
+          <div className="sidebar-section-title sidebar-collapsible" onClick={() => setFileInfoOpen(o => !o)}>
+            <span>{fileInfoOpen ? '▾' : '▸'} File Info</span>
           </div>
-          <div className="sidebar-file-buttons" style={{ marginTop: 8 }}>
-            <button className="btn" onClick={onSave}>Save</button>
-            <button className="btn" onClick={() => setRestoreConfirmOpen(true)}>Restore</button>
-          </div>
+          {fileInfoOpen && (
+            <>
+              <div className="sidebar-file-info">
+                <div><span className="file-info-label">Filename:</span> {doc.filename}</div>
+                <div><span className="file-info-label">Venn type:</span> {vennType.setCount} sets</div>
+                <div><span className="file-info-label">Form:</span> {vennType.form}</div>
+              </div>
+              <div className="sidebar-file-buttons" style={{ marginTop: 8 }}>
+                <button className="btn" onClick={onSave}>Save</button>
+                <button className="btn" onClick={() => setRestoreConfirmOpen(true)}>Restore</button>
+              </div>
+            </>
+          )}
         </div>
       )}
 
       {/* LAYERS */}
       {doc && (
         <div className="sidebar-section" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <div className="sidebar-section-title">Layers</div>
-          <div style={{ flex: 1, overflow: 'auto' }}>
+          <div className="sidebar-section-title sidebar-collapsible" onClick={() => setLayersOpen(o => !o)}>
+            <span>{layersOpen ? '▾' : '▸'} Layers</span>
+          </div>
+          {layersOpen && <div style={{ flex: 1, overflow: 'auto' }}>
             <LayerTree
               doc={doc}
               selected={selected}
@@ -112,7 +122,7 @@ export function Sidebar({ doc, selected, onSave, onRestore, onSelectFromLibrary,
               onToggleElementVisibility={onToggleElementVisibility}
               onToggleGroupVisibility={onToggleGroupVisibility}
             />
-          </div>
+          </div>}
         </div>
       )}
 

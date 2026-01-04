@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { VennDocument } from '../types.ts';
 
 interface StatsPanelProps {
@@ -82,10 +82,14 @@ export function StatsPanel({ doc, onAddText }: StatsPanelProps) {
   const totalExpected = stats.reduce((s, r) => s + r.expected, 0);
   const totalFound = stats.reduce((s, r) => s + r.found, 0);
 
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <div className="stats-panel">
-      <div className="stats-title">Region Statistics</div>
-      <div className="stats-table">
+      <div className="sidebar-section-title sidebar-collapsible" onClick={() => setCollapsed(c => !c)}>
+        <span>{collapsed ? '▸' : '▾'} Region Statistics</span>
+      </div>
+      {!collapsed && (<div className="stats-table">
         <div className="stats-header-row">
           <span className="stats-col-len">Chars</span>
           <span className="stats-col-count">Found</span>
@@ -120,8 +124,8 @@ export function StatsPanel({ doc, onAddText }: StatsPanelProps) {
           <span className="stats-col-expected">{totalExpected}</span>
           <span className="stats-col-action"></span>
         </div>
-      </div>
-      {stats.some(r => r.missing.length > 0) && (
+      </div>)}
+      {!collapsed && stats.some(r => r.missing.length > 0) && (
         <div className="stats-missing-detail">
           <div className="stats-missing-title">Missing regions</div>
           {stats.filter(r => r.missing.length > 0).map(row => (
