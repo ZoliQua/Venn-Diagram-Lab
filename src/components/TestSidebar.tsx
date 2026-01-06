@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import type { ViewStyle } from '../App.tsx';
 import { MODEL_LIST, getModelsBySetCount } from '../models.ts';
 import type { CsvData } from '../utils/csvParser.ts';
@@ -7,8 +7,6 @@ import { getBinaryColumns } from '../utils/csvParser.ts';
 interface TestSidebarProps {
   csvData: CsvData | null;
   csvFilename: string | null;
-  onLoadCsv: (source: 'file' | 'sample') => void;
-  onFileUpload: (file: File) => void;
   selectedModel: string | null;
   onSelectModel: (filename: string, setCount: number) => void;
   columnMapping: number[];  // indices into csv headers for A, B, C, ...
@@ -26,6 +24,12 @@ interface TestSidebarProps {
   onToggleSums: () => void;
   nameFontSize: number;
   onNameFontSizeChange: (size: number) => void;
+  nameFontFamily: string;
+  onNameFontFamilyChange: (font: string) => void;
+  titleFontSize: number;
+  onTitleFontSizeChange: (size: number) => void;
+  titleFontFamily: string;
+  onTitleFontFamilyChange: (font: string) => void;
   shapeColors: Record<string, string>;
   onShapeColorChange: (letter: string, color: string) => void;
   shapeOpacity: number;
@@ -34,7 +38,6 @@ interface TestSidebarProps {
 
 export function TestSidebar({
   csvData, csvFilename,
-  onLoadCsv, onFileUpload,
   selectedModel, onSelectModel,
   columnMapping, onSetColumnMapping,
   onCalculate, isCalculated,
@@ -43,24 +46,18 @@ export function TestSidebar({
   showTitle, showNames, showSums,
   onToggleTitle, onToggleNames, onToggleSums,
   nameFontSize, onNameFontSizeChange,
+  nameFontFamily, onNameFontFamilyChange,
+  titleFontSize, onTitleFontSizeChange,
+  titleFontFamily, onTitleFontFamilyChange,
   shapeColors, onShapeColorChange,
   shapeOpacity, onShapeOpacityChange,
 }: TestSidebarProps) {
   useMemo(() => getModelsBySetCount(), []);
-  const [fileInputKey, setFileInputKey] = useState(0);
 
   const binaryColumns = useMemo(() => {
     if (!csvData) return [];
     return getBinaryColumns(csvData);
   }, [csvData]);
-
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onFileUpload(file);
-      setFileInputKey(k => k + 1);
-    }
-  }, [onFileUpload]);
 
   const handleColumnChange = useCallback((setIndex: number, colIndex: number) => {
     const newMapping = [...columnMapping];
@@ -87,22 +84,10 @@ export function TestSidebar({
 
   return (
     <div className="sidebar test-sidebar">
-      {/* Data Source */}
-      <div className="sidebar-section">
-        <div className="sidebar-section-title">1. Data Source</div>
-        <div className="test-data-buttons">
-          <button className="btn btn-sm" onClick={() => onLoadCsv('sample')}>Load Sample</button>
-          <label className="btn btn-sm" style={{ cursor: 'pointer' }}>
-            Upload Custom
-            <input key={fileInputKey} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileChange} />
-          </label>
-        </div>
-      </div>
-
       {/* File Info */}
       {csvData && csvFilename && (
         <div className="sidebar-section">
-          <div className="sidebar-section-title">2. File Info</div>
+          <div className="sidebar-section-title">1. File Info</div>
           <div className="sidebar-file-info">
             <div><span className="file-info-label">Filename:</span> {csvFilename}</div>
             <div><span className="file-info-label">File type:</span> CSV</div>
@@ -124,7 +109,7 @@ export function TestSidebar({
       {/* Model Selection */}
       {csvData && (
         <div className="sidebar-section">
-          <div className="sidebar-section-title">3. Venn Diagram Model</div>
+          <div className="sidebar-section-title">2. Venn Diagram Model</div>
           {n >= 2 ? (
             <select
               className="model-selector"
@@ -156,7 +141,7 @@ export function TestSidebar({
       {/* Column Mapping */}
       {csvData && n >= 2 && (
         <div className="sidebar-section">
-          <div className="sidebar-section-title">4. Column Mapping</div>
+          <div className="sidebar-section-title">3. Column Mapping</div>
           <div className="test-column-mapping">
             {letters.map((letter, i) => (
               <div key={letter} className="test-column-row">
@@ -198,21 +183,50 @@ export function TestSidebar({
       {/* View Style */}
       {isCalculated && (
         <div className="sidebar-section">
-          <div className="sidebar-section-title">5. View</div>
+          <div className="sidebar-section-title">4. View</div>
           <div className="view-style-switcher">
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'layer' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('layer')}>Layer</button>
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'cut' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('cut')}>Cut</button>
           </div>
           {viewStyle === 'layer' && (
             <>
+              <div className="sidebar-section-title" style={{ marginTop: 8 }}>Show elements</div>
               <div className="test-view-toggles">
                 <button className={`btn btn-sm btn-toggle ${showTitle ? 'btn-toggle-active' : ''}`} onClick={onToggleTitle}>Title</button>
                 <button className={`btn btn-sm btn-toggle ${showNames ? 'btn-toggle-active' : ''}`} onClick={onToggleNames}>Names</button>
                 <button className={`btn btn-sm btn-toggle ${showSums ? 'btn-toggle-active' : ''}`} onClick={onToggleSums}>Numbers</button>
               </div>
+
+              <div className="sidebar-section-title" style={{ marginTop: 12 }}>Group names</div>
               <div className="test-font-size">
-                <label>Name size: {nameFontSize}px</label>
+                <label>Font-size: {nameFontSize}px</label>
                 <input type="range" min="8" max="48" value={nameFontSize} onChange={e => onNameFontSizeChange(parseInt(e.target.value))} />
+              </div>
+              <div className="test-font-size">
+                <label>Font type</label>
+                <select className="prop-select" value={nameFontFamily} onChange={e => onNameFontFamilyChange(e.target.value)}>
+                  <option value="Tahoma">Tahoma</option>
+                  <option value="Arial">Arial</option>
+                  <option value="sans-serif">Sans-serif</option>
+                  <option value="monospace">Monospace</option>
+                  <option value="Roboto">Roboto</option>
+                </select>
+              </div>
+
+              <div className="sidebar-section-title" style={{ marginTop: 12 }}>Diagram Title</div>
+              <div className="test-font-size">
+                <label>Font-size: {titleFontSize}px</label>
+                <input type="range" min="8" max="48" value={titleFontSize} onChange={e => onTitleFontSizeChange(parseInt(e.target.value))} />
+              </div>
+              <div className="test-font-size">
+                <label>Font type</label>
+                <select className="prop-select" value={titleFontFamily} onChange={e => onTitleFontFamilyChange(e.target.value)}>
+                  <option value="Tahoma">Tahoma</option>
+                  <option value="Arial">Arial</option>
+                  <option value="sans-serif">Sans-serif</option>
+                  <option value="monospace">Monospace</option>
+                  <option value="Roboto">Roboto</option>
+                </select>
               </div>
             </>
           )}

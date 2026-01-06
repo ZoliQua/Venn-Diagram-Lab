@@ -536,6 +536,30 @@ html, body, #root {
   border-bottom: 1px solid var(--border);
 }
 
+.prop-tools-section {
+  margin-bottom: 12px;
+}
+
+.prop-tools-subheader {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.prop-tools-buttons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.btn-tool {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 11px !important;
+  padding: 5px 6px !important;
+}
+
 .prop-empty {
   color: var(--text-muted);
   font-size: 12px;
@@ -1413,10 +1437,12 @@ html, body, #root {
   margin: 0;
 }
 
-.summary-close {
+.summary-header-buttons {
   position: absolute;
   top: 12px;
   right: 16px;
+  display: flex;
+  gap: 8px;
 }
 
 .summary-content {
@@ -1778,6 +1804,35 @@ html, body, #root {
   border-radius: 3px;
   border: 1px solid #a33;
   text-transform: uppercase;
+}
+
+/* ---- Rotate tooltip ---- */
+.rotate-tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: 'Tahoma', monospace;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.modified-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  background: #d4a017;
+  color: #000;
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-radius: 3px;
+  border: 1px solid #b08a15;
+  text-transform: uppercase;
+  margin-left: 6px;
 }
 
 .viewer-region-label {

@@ -156,7 +156,6 @@ export function LayerTree({ doc, selected, onSelect, onToggleMeta, onMoveElement
 
   return (
     <div className="layer-tree">
-      <div className="layer-tree-title">Layers</div>
       <GroupSection
         title="Shapes"
         groupKey="shapes"

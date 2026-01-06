@@ -16,7 +16,7 @@ interface CanvasProps {
   onPanPointerDown: (e: React.PointerEvent) => void;
   onPanPointerMove: (e: React.PointerEvent) => void;
   onPanPointerUp: () => void;
-  onDragTextStart: (e: React.PointerEvent, id: string, origX: number, origY: number) => void;
+  onDragTextStart?: (e: React.PointerEvent, id: string, origX: number, origY: number) => void;
   onDragShapeStart?: (e: React.PointerEvent, id: string) => void;
   onShapeDragMove?: (e: React.PointerEvent) => void;
   onShapeDragEnd?: (e: React.PointerEvent) => void;
@@ -25,6 +25,7 @@ interface CanvasProps {
   onDoubleClickText: (id: string) => void;
   readOnly?: boolean;
   moveShapes?: boolean;
+  shapeCursor?: string;
   viewStyle?: 'layer' | 'cut';
   hoveredRegion?: RegionInfo | null;
   onRegionHover?: (svgX: number, svgY: number) => void;
@@ -279,6 +280,7 @@ export function Canvas({
   onDoubleClickText,
   readOnly,
   moveShapes,
+  shapeCursor,
   viewStyle,
   hoveredRegion,
   onRegionHover,
@@ -403,7 +405,7 @@ export function Canvas({
         viewerHighlight={readOnly === true && highlightedCountId === t.id}
         readOnly={readOnly}
         isCutView={isCutView}
-        onPointerDown={readOnly ? () => {} : (e) => onDragTextStart(e, t.id, t.x, t.y)}
+        onPointerDown={readOnly || !onDragTextStart ? () => {} : (e) => onDragTextStart(e, t.id, t.x, t.y)}
         onClick={handleTextClick}
         onDoubleClick={readOnly ? () => {} : () => onDoubleClickText(t.id)}
       />
@@ -484,7 +486,7 @@ export function Canvas({
                 strokeMiterlimit: styleObj['stroke-miterlimit'] ? Number(styleObj['stroke-miterlimit']) : undefined,
                 strokeLinecap: styleObj['stroke-linecap'] as React.CSSProperties['strokeLinecap'],
                 strokeLinejoin: styleObj['stroke-linejoin'] as React.CSSProperties['strokeLinejoin'],
-                cursor: readOnly ? 'crosshair' : moveShapes ? 'move' : 'pointer',
+                cursor: readOnly ? 'crosshair' : moveShapes ? (shapeCursor ?? 'move') : 'pointer',
               };
 
               const isSelected = selectedId === s.id;
@@ -600,8 +602,13 @@ export function Canvas({
             <g id="Group_Bullets">
               {doc.bullets.filter(b => !doc.meta.hiddenIds.has(b.id)).map(b => {
                 const styleObj = parseStyleToObj(b.style);
+                const bulletPointerDown = moveShapes && onDragShapeStart
+                  ? (e: React.PointerEvent) => { e.stopPropagation(); onDragShapeStart(e, b.id); }
+                  : undefined;
                 return (
-                  <g key={b.id}>
+                  <g key={b.id}
+                    onPointerDown={bulletPointerDown}
+                  >
                     <circle
                       id={b.id}
                       cx={b.cx}
@@ -612,9 +619,9 @@ export function Canvas({
                         fill: styleObj['fill'],
                         stroke: styleObj['stroke'],
                         strokeWidth: styleObj['stroke-width'],
-                        cursor: 'pointer',
+                        cursor: readOnly ? 'default' : moveShapes ? (shapeCursor ?? 'move') : 'pointer',
                       }}
-                      onClick={(e) => { e.stopPropagation(); onSelect(b.id); }}
+                      onClick={(e) => { if (readOnly) return; e.stopPropagation(); onSelect(b.id); }}
                     />
                     {selectedId === b.id && <SelectionRect targetId={b.id} />}
                   </g>

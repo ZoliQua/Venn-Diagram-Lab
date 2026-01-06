@@ -2,6 +2,52 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.5.0] — 2026-01-06
+
+### Added
+- **7 new Carroll diagram models**: 3-set rectangles, 3-set rectangle curved, 3–6 set Carroll triangle constructions (Carroll, 2000) — total now 39 models
+- **Pre-computed region JSON data** for all 7 new models
+- **Carroll 2000 publication** PDF reference
+- **`generate_region_json.py`** script for generating region JSON from SVG models
+- **Edit mode — Open button** in toolbar: opens SummaryDialog in select mode with "Open Custom SVG" option
+- **Edit mode — Tools panel** on right side: TOOLS section above Properties with Shapes and Text subheaders
+- **Shape tools** (right panel): Move, Rotate, Resize — mutually exclusive toggle buttons for shape manipulation
+- **Text tools** (right panel): Move (default on), Rotate, Resize — mutually exclusive toggle buttons for text manipulation
+- **Rotate Shapes mode**: drag to rotate shapes around their center, angle tooltip at cursor (e.g. `+45.3°`), `grab` cursor
+- **Resize Shapes mode**: drag to scale shapes from center, percentage tooltip at cursor (e.g. `120%`), `nwse-resize` cursor
+- **Text Rotate**: horizontal drag to rotate text around visual center (1px = 1°), angle tooltip at cursor
+- **Text Resize**: vertical drag to change font size (10px = 1pt), size tooltip at cursor (e.g. `18px`)
+- **Bullet (BulletX) elements**: now movable with Move Shapes tool (updates cx/cy), and interactive with Rotate/Resize tools
+- **Data mode — Open/Save/Close buttons** in toolbar: Open shows dialog with "Load Sample CSV" / "Open Custom CSV", Save exports SVG, Close resets to empty state
+- **Data mode — Open CSV dialog**: choice between sample and custom CSV file
+- **Data mode — empty state**: centered "Load Sample" / "Upload Custom" buttons, sidebar and right panel hidden
+- **Data mode — Show elements header**: above Title/Names/Numbers toggles
+- **Data mode — Group names section**: Font-size slider with px value + Font type dropdown (Tahoma, Arial, Sans-serif, Monospace, Roboto)
+- **Data mode — Diagram Title section**: Font-size slider with px value + Font type dropdown
+- **`clearDoc()` method** in useSvgDocument hook: properly clears document and history state
+- **`isModified` / `markSaved()`** in useSvgDocument: history-based modification tracking (replaces manual `hasUnsavedEdits` state)
+- **MODIFIED badge**: yellow badge next to "File Info" in Edit sidebar, appears when document has unsaved changes, disappears on undo to saved state
+
+### Changed
+- **Mode selector**: "Test" renamed to "Data" everywhere (AppMode type, WelcomeDialog, HelpDialog, Toolbar)
+- **Welcome dialog**: added program description, removed redundant instruction text, model count updated to 39
+- **Summary dialog**: "Open Custom SVG" button in header when in select mode, header buttons layout
+- **Edit sidebar**: removed SVG FILE section (Select/Open Custom buttons), file operations moved to toolbar Open button
+- **Data sidebar**: removed Data Source section (moved to central empty state), section numbering updated (1–4)
+- **Toolbar**: Move/Rotate/Resize Shapes buttons moved from toolbar to right-side Tools panel
+- **Model catalog**: expanded from 32 to 39 models with Carroll constructions
+- **Help dialog**: updated model counts (32 → 39 in View and Edit sections)
+- **Test files**: updated model count assertions
+
+### Fixed
+- **Text drag not detected as modification**: `useDrag.onPointerUp` was parsing `transform="translate()"` regex on text elements that use `x`/`y` attributes — `onDragEnd` was never called. Fixed: compute final position from pointer delta
+- **Click-to-select falsely marking as modified**: added 0.5px threshold in `useDrag.onPointerUp` — click without movement no longer pushes to history
+- **Unsaved changes detection**: replaced manual `hasUnsavedEdits` state with `useSvgDocument.isModified` (compares history index to saved index). All edit operations now automatically tracked via undo history
+- **Data mode Close**: properly resets all state using `clearDoc()` instead of loading empty SVG
+- **LayerTree duplicate title**: removed redundant "Layers" title inside LayerTree component (already shown by parent collapsible header)
+- **Text Rotate**: uses visual bounding box center (not baseline x/y) and horizontal drag (1px = 1°) instead of atan2 from click point
+- **Text Resize**: modifies SVG `style` attribute directly instead of DOM inline style, preventing initial size jump on click
+
 ## [1.4.0] — 2026-01-04
 
 ### Added

@@ -2,7 +2,7 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 8-set, covering all known construction methods. Built with React, TypeScript, and Vite.
 
-**Version:** 1.3.0 | **Models:** 32 SVG diagrams | **License:** MIT
+**Version:** 1.5.0 | **Models:** 39 SVG diagrams | **License:** MIT
 
 ## ✨ Features
 
@@ -10,12 +10,12 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 8-set, coverin
 
 | Mode | Description |
 |------|-------------|
-| **Summary** | Gallery view of all 32 diagrams with SVG previews, grouped by set count, with publication references |
+| **Summary** | Gallery view of all 39 diagrams with SVG previews, grouped by set count, with publication references |
 | **View** | Interactive diagram viewer with region detection. Two sub-modes: **Layer** (transparent overlapping shapes) and **Cut** (pre-computed intersection regions from JSON data) |
 | **Edit** | Full SVG editor with drag-to-position, text editing, undo/redo, validation, and export |
 
 ### View Mode — Layer View
-- Load any of the 32 SVG models from the dropdown
+- Load any of the 39 SVG models from the dropdown
 - Hover over the diagram to detect which intersection region you're in
 - Region detection uses `SVGGeometryElement.isPointInFill()` hit-testing
 - Right panel shows: region label, involved sets with colors, intersection expression
@@ -39,7 +39,7 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 8-set, coverin
 - ViewBox editor
 
 ### Summary Mode
-- Dialog gallery of all 32 diagrams
+- Dialog gallery of all 39 diagrams
 - SVG previews rendered inline
 - Grouped by set count (2-set through 8-set)
 - Source references linked to publication PDFs
@@ -72,7 +72,7 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 8-set, coverin
 │   │   └── regions.ts        Region enumeration (2^n − 1 subsets)
 │   └── 📁 __tests__/         Test suites
 ├── 📁 models/
-│   ├── 📁 svg/               32 SVG Venn diagram models
+│   ├── 📁 svg/               39 SVG Venn diagram models
 │   └── 📁 json/              32 JSON pre-computed region data
 ├── 📁 publications/          Research papers (PDF)
 ├── 🐍 *.py                   Python utility scripts

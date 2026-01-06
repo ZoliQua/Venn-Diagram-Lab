@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { getModelsBySetCount } from '../models.ts';
+import { getModelsBySetCount, MODEL_LIST } from '../models.ts';
 import { APP_NAME, APP_VERSION } from '../version.ts';
 
 interface SummaryDialogProps {
@@ -7,6 +7,7 @@ interface SummaryDialogProps {
   onClose: () => void;
   onSelectModel: (filename: string) => void;
   selectMode?: boolean; // true = "Select for Edit" header
+  onOpenCustom?: () => void;
 }
 
 export const SOURCES: Record<string, { label: string; url?: string }> = {
@@ -38,6 +39,10 @@ export const SOURCES: Record<string, { label: string; url?: string }> = {
   'venn-7e-set-massey.svg': { label: 'Mamakani et al., 2012', url: 'publications/Mamakani-et-al-2012.pdf' },
   'venn-7e-set-palmerston-north.svg': { label: 'Mamakani et al., 2012', url: 'publications/Mamakani-et-al-2012.pdf' },
   'venn-7e-set-victoria.svg': { label: 'Mamakani et al., 2012', url: 'publications/Mamakani-et-al-2012.pdf' },
+  'venn-3e-set-carroll-triangle.svg': { label: 'Carroll, 2000', url: 'publications/Caroll-2000.pdf' },
+  'venn-4e-set-carroll-triangle.svg': { label: 'Carroll, 2000', url: 'publications/Caroll-2000.pdf' },
+  'venn-5e-set-carroll-triangle.svg': { label: 'Carroll, 2000', url: 'publications/Caroll-2000.pdf' },
+  'venn-6e-set-carroll-triangle.svg': { label: 'Carroll, 2000', url: 'publications/Caroll-2000.pdf' },
   'venn-6-set.svg': { label: 'SUMO-Venn' },
   'venn-8-set.svg': { label: 'SUMO-Venn' },
 };
@@ -68,7 +73,7 @@ export function SvgPreview({ filename }: { filename: string }) {
   );
 }
 
-export function SummaryDialog({ isOpen, onClose, onSelectModel, selectMode }: SummaryDialogProps) {
+export function SummaryDialog({ isOpen, onClose, onSelectModel, selectMode, onOpenCustom }: SummaryDialogProps) {
   const modelsBySet = useMemo(() => getModelsBySetCount(), []);
 
   if (!isOpen) return null;
@@ -78,8 +83,11 @@ export function SummaryDialog({ isOpen, onClose, onSelectModel, selectMode }: Su
       <div className="summary-dialog" onClick={e => e.stopPropagation()}>
         <div className="summary-header">
           <h1 className="summary-title">{selectMode ? 'Select SVG Model' : APP_NAME}</h1>
-          <p className="summary-subtitle">{selectMode ? 'Choose a diagram to open in the editor' : `32 Venn diagram models from 2-set to 8-set — v${APP_VERSION}`}</p>
-          <button className="btn btn-toolbar summary-close" onClick={onClose}>Close</button>
+          <p className="summary-subtitle">{selectMode ? 'Choose a diagram to open in the editor' : `${MODEL_LIST.length} Venn diagram models from 2-set to 8-set — v${APP_VERSION}`}</p>
+          <div className="summary-header-buttons">
+            {selectMode && onOpenCustom && <button className="btn btn-toolbar" onClick={onOpenCustom}>Open Custom SVG</button>}
+            <button className="btn btn-toolbar summary-close-btn" onClick={onClose}>Close</button>
+          </div>
         </div>
 
         <div className="summary-content">
