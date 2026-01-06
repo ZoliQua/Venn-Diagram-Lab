@@ -18,6 +18,12 @@ export function useSvgDocument() {
   const [doc, setDoc] = useState<VennDocument | null>(null);
   const historyRef = useRef<VennDocument[]>([]);
   const historyIndexRef = useRef(-1);
+  const savedIndexRef = useRef(-1);
+  const [isModified, setIsModified] = useState(false);
+
+  const syncModified = useCallback(() => {
+    setIsModified(historyIndexRef.current !== savedIndexRef.current);
+  }, []);
 
   const pushHistory = useCallback((newDoc: VennDocument) => {
     const h = historyRef.current;
@@ -27,16 +33,22 @@ export function useSvgDocument() {
     historyRef.current.push(cloneDoc(newDoc));
     if (historyRef.current.length > MAX_HISTORY) {
       historyRef.current.shift();
+      // Adjust savedIndex if it was shifted out
+      if (savedIndexRef.current > 0) savedIndexRef.current--;
+      else if (savedIndexRef.current === 0) savedIndexRef.current = -2; // lost saved state
     }
     historyIndexRef.current = historyRef.current.length - 1;
-  }, []);
+    syncModified();
+  }, [syncModified]);
 
   const loadFromString = useCallback((filename: string, svgString: string) => {
     const parsed = loadSvg(filename, svgString);
     setDoc(parsed);
     historyRef.current = [cloneDoc(parsed)];
     historyIndexRef.current = 0;
-  }, []);
+    savedIndexRef.current = 0;
+    syncModified();
+  }, [syncModified]);
 
   const updateDoc = useCallback((updater: (d: VennDocument) => VennDocument, addToHistory = true) => {
     setDoc(prev => {
@@ -256,8 +268,9 @@ export function useSvgDocument() {
     if (idx > 0) {
       historyIndexRef.current = idx - 1;
       setDoc(cloneDoc(historyRef.current[idx - 1]));
+      syncModified();
     }
-  }, []);
+  }, [syncModified]);
 
   const redo = useCallback(() => {
     const h = historyRef.current;
@@ -265,13 +278,27 @@ export function useSvgDocument() {
     if (idx < h.length - 1) {
       historyIndexRef.current = idx + 1;
       setDoc(cloneDoc(h[idx + 1]));
+      syncModified();
     }
-  }, []);
+  }, [syncModified]);
 
   const saveToString = useCallback((): string => {
     if (!doc) return '';
     return saveSvg(doc);
   }, [doc]);
+
+  const markSaved = useCallback(() => {
+    savedIndexRef.current = historyIndexRef.current;
+    syncModified();
+  }, [syncModified]);
+
+  const clearDoc = useCallback(() => {
+    setDoc(null);
+    historyRef.current = [];
+    historyIndexRef.current = -1;
+    savedIndexRef.current = -1;
+    syncModified();
+  }, [syncModified]);
 
   return {
     doc,
@@ -294,6 +321,9 @@ export function useSvgDocument() {
     redo,
     saveToString,
     pushHistory,
+    isModified,
+    markSaved,
+    clearDoc,
   };
 }
 

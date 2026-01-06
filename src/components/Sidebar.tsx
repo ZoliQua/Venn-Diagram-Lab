@@ -34,9 +34,10 @@ interface SidebarProps {
   onRemoveText: (id: string) => void;
   onToggleElementVisibility: (id: string) => void;
   onToggleGroupVisibility: (group: string) => void;
+  isModified?: boolean;
 }
 
-export function Sidebar({ doc, selected, onSave, onRestore, onSelectFromLibrary, onOpenCustomFile, onSelect, onToggleMeta, onMoveElement, onAddText, onAddTextDirect, onRemoveText, onToggleElementVisibility, onToggleGroupVisibility }: SidebarProps) {
+export function Sidebar({ doc, selected, onSave, onRestore, onOpenCustomFile, onSelect, onToggleMeta, onMoveElement, onAddText, onAddTextDirect, onRemoveText, onToggleElementVisibility, onToggleGroupVisibility, isModified }: SidebarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [restoreConfirmOpen, setRestoreConfirmOpen] = useState(false);
   const [fileInfoOpen, setFileInfoOpen] = useState(true);
@@ -72,21 +73,14 @@ export function Sidebar({ doc, selected, onSave, onRestore, onSelectFromLibrary,
 
   return (
     <div className="sidebar">
-      {/* SVG FILE */}
-      <div className="sidebar-section">
-        <div className="sidebar-section-title">SVG File</div>
-        <input ref={inputRef} type="file" accept=".svg" style={{ display: 'none' }} onChange={handleFileChange} />
-        <div className="sidebar-file-buttons">
-          <button className="btn" onClick={onSelectFromLibrary}>Select</button>
-          <button className="btn" onClick={() => inputRef.current?.click()}>Open Custom</button>
-        </div>
-      </div>
+      <input ref={inputRef} type="file" accept=".svg" style={{ display: 'none' }} onChange={handleFileChange} />
 
       {/* FILE INFO */}
       {doc && vennType && (
         <div className="sidebar-section">
           <div className="sidebar-section-title sidebar-collapsible" onClick={() => setFileInfoOpen(o => !o)}>
             <span>{fileInfoOpen ? '▾' : '▸'} File Info</span>
+            {isModified && <span className="modified-badge">MODIFIED</span>}
           </div>
           {fileInfoOpen && (
             <>

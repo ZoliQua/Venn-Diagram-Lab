@@ -11,8 +11,8 @@ const STANDARD_COLORS: Record<string, string> = {
 };
 
 describe('SVG format validation', () => {
-  it('has 32 SVG files', () => {
-    expect(svgFiles.length).toBe(32);
+  it('has 39 SVG files', () => {
+    expect(svgFiles.length).toBe(39);
   });
 
   for (const file of svgFiles) {

@@ -4,8 +4,8 @@ import { existsSync } from 'fs';
 import { resolve } from 'path';
 
 describe('MODEL_LIST', () => {
-  it('contains 32 models', () => {
-    expect(MODEL_LIST).toHaveLength(32);
+  it('contains 39 models', () => {
+    expect(MODEL_LIST).toHaveLength(39);
   });
 
   it('every model has required fields', () => {
@@ -52,6 +52,6 @@ describe('getModelsBySetCount', () => {
       }
       total += models.length;
     }
-    expect(total).toBe(32);
+    expect(total).toBe(39);
   });
 });

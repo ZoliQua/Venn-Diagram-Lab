@@ -10,6 +10,14 @@ interface PropertyPanelProps {
   onUpdateTextStyle: (id: string, property: string, value: string) => void;
   onUpdateBulletPosition: (id: string, cx: number, cy: number) => void;
   onUpdateShapeStyle: (id: string, property: string, value: string) => void;
+  moveShapes?: boolean;
+  rotateShapes?: boolean;
+  resizeShapes?: boolean;
+  onToggleMoveShapes?: () => void;
+  onToggleRotateShapes?: () => void;
+  onToggleResizeShapes?: () => void;
+  textTool?: 'move' | 'rotate' | 'resize';
+  onSetTextTool?: (tool: 'move' | 'rotate' | 'resize' | null) => void;
 }
 
 function parseStyleString(style: string): Record<string, string> {
@@ -507,6 +515,14 @@ export function PropertyPanel({
   onUpdateTextStyle,
   onUpdateBulletPosition,
   onUpdateShapeStyle,
+  moveShapes,
+  rotateShapes,
+  resizeShapes,
+  onToggleMoveShapes,
+  onToggleRotateShapes,
+  onToggleResizeShapes,
+  textTool,
+  onSetTextTool,
 }: PropertyPanelProps) {
   const [width, setWidth] = useState(280);
   const resizingRef = useRef(false);
@@ -548,12 +564,32 @@ export function PropertyPanel({
     document.body.style.userSelect = 'none';
   };
 
+  const toolsSection = onToggleMoveShapes ? (
+    <div className="prop-tools-section">
+      <div className="prop-title">Tools</div>
+      <div className="prop-tools-subheader">Shapes</div>
+      <div className="prop-tools-buttons">
+        <button className={`btn btn-sm btn-tool ${moveShapes ? 'btn-mode-active' : ''}`} onClick={onToggleMoveShapes}>Move</button>
+        <button className={`btn btn-sm btn-tool ${rotateShapes ? 'btn-mode-active' : ''}`} onClick={onToggleRotateShapes}>Rotate</button>
+        <button className={`btn btn-sm btn-tool ${resizeShapes ? 'btn-mode-active' : ''}`} onClick={onToggleResizeShapes}>Resize</button>
+      </div>
+      <div className="prop-tools-subheader" style={{ marginTop: 8 }}>Text</div>
+      <div className="prop-tools-buttons">
+        <button className={`btn btn-sm btn-tool ${textTool === 'move' ? 'btn-mode-active' : ''}`} onClick={() => onSetTextTool?.(textTool === 'move' ? null : 'move')}>Move</button>
+        <button className={`btn btn-sm btn-tool ${textTool === 'rotate' ? 'btn-mode-active' : ''}`} onClick={() => onSetTextTool?.(textTool === 'rotate' ? null : 'rotate')}>Rotate</button>
+        <button className={`btn btn-sm btn-tool ${textTool === 'resize' ? 'btn-mode-active' : ''}`} onClick={() => onSetTextTool?.(textTool === 'resize' ? null : 'resize')}>Resize</button>
+      </div>
+    </div>
+  ) : null;
+
   const panelContent = !selected ? (
     <div className="property-panel" style={{ width }}>
+      {toolsSection}
       <div className="prop-empty">No element selected</div>
     </div>
   ) : (
     <div className="property-panel" style={{ width }}>
+      {toolsSection}
       <div className="prop-title">Properties</div>
       {selected.type === 'text' && (
         <TextProperties

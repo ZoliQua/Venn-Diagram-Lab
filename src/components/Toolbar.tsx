@@ -21,10 +21,13 @@ interface ToolbarProps {
   onZoomOut: () => void;
   onZoomReset: () => void;
   showValidation: boolean;
-  moveShapes: boolean;
   onToggleGrid: () => void;
   onToggleValidation: () => void;
-  onToggleMoveShapes: () => void;
+  onOpen?: () => void;
+  onDataOpen?: () => void;
+  onDataSave?: () => void;
+  onDataClose?: () => void;
+  hasDataFile?: boolean;
   onUndo: () => void;
   onRedo: () => void;
   onReport: () => void;
@@ -33,10 +36,11 @@ interface ToolbarProps {
 export function Toolbar({
   mode, onSetMode, onSummary,
   filename, zoom, showGrid,
-  onHelp, moveShapes, onToggleMoveShapes,
+  onHelp,
   onZoomIn, onZoomOut, onZoomReset,
   showValidation,
   onToggleGrid, onToggleValidation,
+  onOpen, onDataOpen, onDataSave, onDataClose, hasDataFile,
   onUndo, onRedo, onReport,
 }: ToolbarProps) {
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
@@ -82,10 +86,20 @@ export function Toolbar({
         {mode === 'edit' && (
           <>
             <span className="toolbar-sep" />
+            <button className="btn btn-toolbar" onClick={onOpen}>Open</button>
+            <span className="toolbar-sep" />
             <button className="btn btn-toolbar" onClick={onUndo}>Undo</button>
             <button className="btn btn-toolbar" onClick={onRedo}>Redo</button>
             <span className="toolbar-sep" />
             <button className="btn btn-toolbar" onClick={onReport} disabled={!filename}>Report</button>
+          </>
+        )}
+        {mode === 'data' && (
+          <>
+            <span className="toolbar-sep" />
+            <button className="btn btn-toolbar" onClick={onDataOpen}>Open</button>
+            <button className="btn btn-toolbar" onClick={onDataSave} disabled={!hasDataFile}>Save</button>
+            <button className="btn btn-toolbar" onClick={onDataClose} disabled={!hasDataFile}>Close</button>
           </>
         )}
       </div>
@@ -95,7 +109,6 @@ export function Toolbar({
           <>
             <button className={`btn btn-toolbar ${showGrid ? 'btn-mode-active' : ''}`} onClick={onToggleGrid}>Grid</button>
             <button className={`btn btn-toolbar ${showValidation ? 'btn-mode-active' : ''}`} onClick={onToggleValidation}>Validate</button>
-            <button className={`btn btn-toolbar ${moveShapes ? 'btn-mode-active' : ''}`} onClick={onToggleMoveShapes}>Move Shapes</button>
             <span className="toolbar-sep" />
           </>
         )}

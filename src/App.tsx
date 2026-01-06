@@ -39,8 +39,8 @@ export default function App() {
   const [summaryFromWelcome, setSummaryFromWelcome] = useState(false);
   const [welcomeOpen, setWelcomeOpen] = useState(true);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [hasUnsavedEdits, setHasUnsavedEdits] = useState(false);
   const [modeSwitchTarget, setModeSwitchTarget] = useState<AppMode | null>(null);
+  const [dataOpenDialog, setDataOpenDialog] = useState(false);
   const [validationDialog, setValidationDialog] = useState<{ filename: string; content: string } | null>(null);
   const [originalSvgContent, setOriginalSvgContent] = useState<string | null>(null);
 
@@ -58,6 +58,9 @@ export default function App() {
   const [testShowNames, setTestShowNames] = useState(true);
   const [testShowSums, setTestShowSums] = useState(true);
   const [testNameFontSize, setTestNameFontSize] = useState(24);
+  const [testNameFontFamily, setTestNameFontFamily] = useState('Tahoma');
+  const [testTitleFontSize, setTestTitleFontSize] = useState(24);
+  const [testTitleFontFamily, setTestTitleFontFamily] = useState('Tahoma');
   const [testShapeOpacity, setTestShapeOpacity] = useState(0.2);
   const [testShapeColors, setTestShapeColors] = useState<Record<string, string>>({
     A: '#FFF200', B: '#2E3192', C: '#ED1C24', D: '#808285',
@@ -71,6 +74,9 @@ export default function App() {
   const [showGrid, setShowGrid] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [moveShapes, setMoveShapes] = useState(false);
+  const [rotateShapes, setRotateShapes] = useState(false);
+  const [resizeShapes, setResizeShapes] = useState(false);
+  const [textTool, setTextTool] = useState<'move' | 'rotate' | 'resize' | null>('move');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -90,7 +96,6 @@ export default function App() {
   };
   dragCallbacksRef.current.onDragEnd = (id: string, x: number, y: number) => {
     svgDoc.updateTextPosition(id, x, y);
-    setHasUnsavedEdits(true);
   };
 
   const stableDragCallbacks = useRef({
@@ -103,6 +108,94 @@ export default function App() {
   }).current;
 
   const drag = useDrag(zoomPan.state.scale, svgRef, stableDragCallbacks);
+
+  // Text rotate/resize state
+  const textToolRef = useRef<{ id: string; mode: 'rotate' | 'resize'; centerX: number; centerY: number; startAngle: number; startY: number; origFontSize: number } | null>(null);
+  const [textToolAngle, setTextToolAngle] = useState<number | null>(null);
+  const [textToolCursor, setTextToolCursor] = useState<{ x: number; y: number } | null>(null);
+  const [textToolSize, setTextToolSize] = useState<number | null>(null);
+
+  const handleTextToolStart = useCallback((e: React.PointerEvent, id: string, _origX: number, _origY: number) => {
+    if (!textTool || textTool === 'move') return;
+    const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
+    if (!svg) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    // Get visual center via bounding box (like shape rotate)
+    const domEl = document.getElementById(id);
+    if (!domEl) return;
+    const bbox = domEl.getBoundingClientRect();
+    const centerScreen = new DOMPoint(bbox.left + bbox.width / 2, bbox.top + bbox.height / 2);
+    const center = centerScreen.matrixTransform(ctm.inverse());
+    // Get font size from text style
+    const allTexts = doc ? [doc.texts.header, ...doc.texts.names, ...doc.texts.values, ...doc.texts.sums].filter(Boolean) : [];
+    const textEl = allTexts.find(t => t?.id === id);
+    const styleMap = textEl?.style ? Object.fromEntries(textEl.style.split(';').map(p => { const c = p.indexOf(':'); return c > 0 ? [p.slice(0, c).trim(), p.slice(c + 1).trim()] : ['', '']; }).filter(([k]) => k)) : {};
+    const fontSize = parseInt(styleMap['font-size']?.replace(/px$/, '') ?? '12', 10) || 12;
+
+    if (textTool === 'rotate') {
+      textToolRef.current = { id, mode: 'rotate', centerX: center.x, centerY: center.y, startAngle: e.clientX, startY: 0, origFontSize: fontSize };
+      setTextToolAngle(0);
+    } else {
+      textToolRef.current = { id, mode: 'resize', centerX: center.x, centerY: center.y, startAngle: 0, startY: e.clientY, origFontSize: fontSize };
+      setTextToolSize(fontSize);
+    }
+    setTextToolCursor({ x: e.clientX, y: e.clientY });
+    e.stopPropagation();
+    e.preventDefault();
+    (e.target as Element).setPointerCapture(e.pointerId);
+  }, [textTool, doc]);
+
+  const handleTextToolMove = useCallback((e: React.PointerEvent) => {
+    if (!textToolRef.current) return;
+    const { id, mode, centerX, centerY, startAngle, startY, origFontSize } = textToolRef.current;
+    setTextToolCursor({ x: e.clientX, y: e.clientY });
+
+    if (mode === 'rotate') {
+      // startAngle stores the initial clientX; 1px horizontal = 1 degree
+      const delta = Math.round((e.clientX - startAngle) * 10) / 10;
+      setTextToolAngle(delta);
+      const el = document.getElementById(id);
+      if (el) {
+        el.setAttribute('transform', `rotate(${delta},${Math.round(centerX * 10) / 10},${Math.round(centerY * 10) / 10})`);
+      }
+    } else {
+      // Resize: each 10px vertical drag = 1pt
+      const dy = startY - e.clientY; // up = bigger
+      const newSize = Math.max(4, Math.min(120, origFontSize + Math.round(dy / 10)));
+      setTextToolSize(newSize);
+      const el = document.getElementById(id);
+      if (el) {
+        // Update the style attribute directly (not inline CSS) so it takes effect
+        const curStyle = el.getAttribute('style') || '';
+        const updatedStyle = curStyle.replace(/font-size:\s*[^;]+/, `font-size:${newSize}`);
+        el.setAttribute('style', updatedStyle);
+      }
+    }
+  }, []);
+
+  const handleTextToolEnd = useCallback(() => {
+    if (!textToolRef.current) return;
+    const { id, mode, centerX, centerY } = textToolRef.current;
+    if (mode === 'rotate') {
+      const angle = textToolAngle ?? 0;
+      if (Math.abs(angle) > 0.5) {
+        const cx = Math.round(centerX * 10) / 10;
+        const cy = Math.round(centerY * 10) / 10;
+        svgDoc.updateTextStyle(id, 'transform', `rotate(${angle},${cx},${cy})`);
+      }
+      // Remove DOM transform
+      const el = document.getElementById(id);
+      if (el) el.removeAttribute('transform');
+    } else {
+      const newSize = textToolSize ?? 12;
+      svgDoc.updateTextStyle(id, 'font-size', String(newSize));
+    }
+    textToolRef.current = null;
+    setTextToolAngle(null);
+    setTextToolSize(null);
+    setTextToolCursor(null);
+  }, [textToolAngle, textToolSize, svgDoc]);
 
   // Shape drag state (Move Shapes mode) — tracked globally via container events
   const shapeDragRef = useRef<{ id: string; startX: number; startY: number; origTransform: string } | null>(null);
@@ -121,9 +214,156 @@ export default function App() {
       startY: pt.y,
       origTransform: shape?.attributes['transform'] ?? '',
     };
-    e.stopPropagation(); // prevent pan
+    e.stopPropagation();
     e.preventDefault();
   }, [moveShapes, doc]);
+
+  // Shape rotate state
+  const shapeRotateRef = useRef<{ id: string; centerX: number; centerY: number; startAngle: number; origTransform: string } | null>(null);
+  const [rotateAngle, setRotateAngle] = useState<number | null>(null);
+  const [rotateCursor, setRotateCursor] = useState<{ x: number; y: number } | null>(null);
+
+  const handleShapeRotateStart = useCallback((e: React.PointerEvent, id: string) => {
+    if (!rotateShapes) return;
+    const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
+    if (!svg) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    // Get shape center via bounding box
+    const el = document.getElementById(id);
+    if (!el) return;
+    const bbox = el.getBoundingClientRect();
+    const centerScreen = new DOMPoint(bbox.left + bbox.width / 2, bbox.top + bbox.height / 2);
+    const center = centerScreen.matrixTransform(ctm.inverse());
+    const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    const startAngle = Math.atan2(pt.y - center.y, pt.x - center.x) * 180 / Math.PI;
+    const shape = doc?.shapes.find(s => s.id === id);
+    shapeRotateRef.current = {
+      id,
+      centerX: center.x,
+      centerY: center.y,
+      startAngle,
+      origTransform: shape?.attributes['transform'] ?? '',
+    };
+    setRotateAngle(0);
+    setRotateCursor({ x: e.clientX, y: e.clientY });
+    e.stopPropagation();
+    e.preventDefault();
+  }, [rotateShapes, doc]);
+
+  const handleShapeRotateMove = useCallback((e: React.PointerEvent) => {
+    if (!shapeRotateRef.current) return;
+    const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
+    if (!svg) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    const { centerX, centerY, startAngle, id, origTransform } = shapeRotateRef.current;
+    const currentAngle = Math.atan2(pt.y - centerY, pt.x - centerX) * 180 / Math.PI;
+    let delta = currentAngle - startAngle;
+    // Normalize to -180..180
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    const rounded = Math.round(delta * 10) / 10;
+    setRotateAngle(rounded);
+    setRotateCursor({ x: e.clientX, y: e.clientY });
+    const el = document.getElementById(id);
+    if (el) {
+      el.setAttribute('transform', `rotate(${rounded},${Math.round(centerX * 10) / 10},${Math.round(centerY * 10) / 10}) ${origTransform}`.trim());
+    }
+  }, []);
+
+  const handleShapeRotateEnd = useCallback(() => {
+    if (!shapeRotateRef.current) return;
+    const { id, centerX, centerY, origTransform } = shapeRotateRef.current;
+    const angle = rotateAngle ?? 0;
+    if (Math.abs(angle) > 0.5) {
+      const newTransform = `rotate(${angle},${Math.round(centerX * 10) / 10},${Math.round(centerY * 10) / 10}) ${origTransform}`.trim();
+      // Bullets are circles — rotation is committed as transform attribute on the shape
+      // updateShapeAttribute works on doc.shapes; bullets don't need rotation
+      const isShape = doc?.shapes.some(s => s.id === id);
+      if (isShape) {
+        svgDoc.updateShapeAttribute(id, 'transform', newTransform);
+      }
+    }
+    shapeRotateRef.current = null;
+    setRotateAngle(null);
+    setRotateCursor(null);
+  }, [rotateAngle, svgDoc]);
+
+  // Shape resize state
+  const shapeResizeRef = useRef<{ id: string; centerX: number; centerY: number; startDist: number; origTransform: string } | null>(null);
+  const [resizeScale, setResizeScale] = useState<number | null>(null);
+  const [resizeCursor, setResizeCursor] = useState<{ x: number; y: number } | null>(null);
+
+  const handleShapeResizeStart = useCallback((e: React.PointerEvent, id: string) => {
+    if (!resizeShapes) return;
+    const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
+    if (!svg) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    const bbox = el.getBoundingClientRect();
+    const centerScreen = new DOMPoint(bbox.left + bbox.width / 2, bbox.top + bbox.height / 2);
+    const center = centerScreen.matrixTransform(ctm.inverse());
+    const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    const startDist = Math.hypot(pt.x - center.x, pt.y - center.y);
+    const shape = doc?.shapes.find(s => s.id === id);
+    shapeResizeRef.current = {
+      id,
+      centerX: center.x,
+      centerY: center.y,
+      startDist: Math.max(startDist, 1),
+      origTransform: shape?.attributes['transform'] ?? '',
+    };
+    setResizeScale(100);
+    setResizeCursor({ x: e.clientX, y: e.clientY });
+    e.stopPropagation();
+    e.preventDefault();
+  }, [resizeShapes, doc]);
+
+  const handleShapeResizeMove = useCallback((e: React.PointerEvent) => {
+    if (!shapeResizeRef.current) return;
+    const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
+    if (!svg) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    const { centerX, centerY, startDist, id, origTransform } = shapeResizeRef.current;
+    const currentDist = Math.hypot(pt.x - centerX, pt.y - centerY);
+    const scale = currentDist / startDist;
+    const pct = Math.round(scale * 100);
+    setResizeScale(pct);
+    setResizeCursor({ x: e.clientX, y: e.clientY });
+    const el = document.getElementById(id);
+    if (el) {
+      const cx = Math.round(centerX * 10) / 10;
+      const cy = Math.round(centerY * 10) / 10;
+      const s = Math.round(scale * 1000) / 1000;
+      el.setAttribute('transform', `translate(${cx},${cy}) scale(${s}) translate(${-cx},${-cy}) ${origTransform}`.trim());
+    }
+  }, []);
+
+  const handleShapeResizeEnd = useCallback(() => {
+    if (!shapeResizeRef.current) return;
+    const { id, centerX, centerY, startDist, origTransform } = shapeResizeRef.current;
+    const scale = (resizeScale ?? 100) / 100;
+    if (Math.abs(scale - 1) > 0.01) {
+      const cx = Math.round(centerX * 10) / 10;
+      const cy = Math.round(centerY * 10) / 10;
+      const s = Math.round(scale * 1000) / 1000;
+      const newTransform = `translate(${cx},${cy}) scale(${s}) translate(${-cx},${-cy}) ${origTransform}`.trim();
+      const isShape = doc?.shapes.some(sh => sh.id === id);
+      if (isShape) {
+        svgDoc.updateShapeAttribute(id, 'transform', newTransform);
+      }
+    }
+    shapeResizeRef.current = null;
+    setResizeScale(null);
+    setResizeCursor(null);
+    void startDist;
+  }, [resizeScale, svgDoc, doc]);
 
   const handleSave = useCallback(() => {
     if (!doc) return;
@@ -137,7 +377,7 @@ export default function App() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    setHasUnsavedEdits(false);
+    svgDoc.markSaved();
   }, [doc, svgDoc]);
 
   // Stable refs for keyboard shortcuts
@@ -187,7 +427,6 @@ export default function App() {
   const handleLoadFile = useCallback((filename: string, content: string) => {
     svgDoc.loadFromString(filename, content);
     clearSelection();
-    setHasUnsavedEdits(false);
     setOriginalSvgContent(content);
   }, [svgDoc, clearSelection]);
 
@@ -197,7 +436,6 @@ export default function App() {
     if (!doc || !originalSvgContent) return;
     svgDoc.loadFromString(doc.filename, originalSvgContent);
     clearSelection();
-    setHasUnsavedEdits(false);
   }, [doc, originalSvgContent, svgDoc, clearSelection]);
 
   // Edit: open custom file → validation dialog
@@ -263,7 +501,6 @@ export default function App() {
   const handleEditDialogConfirm = useCallback((id: string, newContent: string) => {
     svgDoc.updateTextContent(id, newContent);
     setEditDialog(null);
-    setHasUnsavedEdits(true);
   }, [svgDoc]);
 
   const handleEditDialogCancel = useCallback(() => { setEditDialog(null); }, []);
@@ -337,6 +574,23 @@ export default function App() {
     };
     reader.readAsText(file);
   }, []);
+
+  const dataFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDataClose = useCallback(() => {
+    setTestCsvData(null);
+    setTestCsvFilename(null);
+    setTestModel(null);
+    setTestColumnMapping([]);
+    setTestCalculated(false);
+    setTestVennCounts(null);
+    setTestExclusiveItems(null);
+    setTestInclusiveItems(null);
+    setTestError(null);
+    svgDoc.clearDoc();
+    setCurrentModel(null);
+    setRegionData(null);
+  }, [svgDoc]);
 
   const handleTestCalculate = useCallback(async () => {
     if (!testCsvData || !testModel || testColumnMapping.length < 2) return;
@@ -425,11 +679,16 @@ export default function App() {
   return (
     <div className="app">
       <input ref={fileInputRef} type="file" accept=".svg" style={{ display: 'none' }} onChange={handleFileChange} />
+      <input ref={dataFileInputRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) handleTestFileUpload(file);
+        e.target.value = '';
+      }} />
 
       <Toolbar
         mode={mode}
         onSetMode={(newMode) => {
-          if (mode === 'edit' && hasUnsavedEdits && newMode !== 'edit') {
+          if (mode === 'edit' && svgDoc.isModified && newMode !== 'edit') {
             setModeSwitchTarget(newMode);
             return;
           }
@@ -444,10 +703,13 @@ export default function App() {
         onZoomOut={zoomPan.zoomOut}
         onZoomReset={zoomPan.resetZoom}
         showValidation={showValidation}
-        moveShapes={moveShapes}
         onToggleGrid={() => setShowGrid(g => !g)}
         onToggleValidation={() => setShowValidation(v => !v)}
-        onToggleMoveShapes={() => setMoveShapes(m => !m)}
+        onOpen={handleSelectFromLibrary}
+        onDataOpen={() => setDataOpenDialog(true)}
+        onDataSave={handleSave}
+        onDataClose={handleDataClose}
+        hasDataFile={!!testCsvData}
         onUndo={svgDoc.undo}
         onRedo={svgDoc.redo}
         onReport={() => setReportOpen(true)}
@@ -471,11 +733,9 @@ export default function App() {
             />
           ) : null
         ) : mode === 'data' ? (
-          <TestSidebar
+          !testCsvData ? null : <TestSidebar
             csvData={testCsvData}
             csvFilename={testCsvFilename}
-            onLoadCsv={handleTestLoadCsv}
-            onFileUpload={handleTestFileUpload}
             selectedModel={testModel}
             onSelectModel={(filename, setCount) => {
               setTestModel(filename);
@@ -529,6 +789,27 @@ export default function App() {
                 svgDoc.updateTextStyle(`Name${letters[i]}`, 'font-size', String(size));
               }
             }}
+            nameFontFamily={testNameFontFamily}
+            onNameFontFamilyChange={(font) => {
+              setTestNameFontFamily(font);
+              if (!doc) return;
+              const letters = 'ABCDEFGH';
+              for (let i = 0; i < doc.shapes.length && i < 8; i++) {
+                svgDoc.updateTextStyle(`Name${letters[i]}`, 'font-family', `'${font}'`);
+              }
+            }}
+            titleFontSize={testTitleFontSize}
+            onTitleFontSizeChange={(size) => {
+              setTestTitleFontSize(size);
+              if (!doc?.texts.header) return;
+              svgDoc.updateTextStyle(doc.texts.header.id, 'font-size', String(size));
+            }}
+            titleFontFamily={testTitleFontFamily}
+            onTitleFontFamilyChange={(font) => {
+              setTestTitleFontFamily(font);
+              if (!doc?.texts.header) return;
+              svgDoc.updateTextStyle(doc.texts.header.id, 'font-family', `'${font}'`);
+            }}
           />
         ) : (
           <Sidebar
@@ -540,13 +821,14 @@ export default function App() {
             onSelectFromLibrary={handleSelectFromLibrary}
             onOpenCustomFile={handleOpenCustomFile}
             onSelect={selectById}
-            onToggleMeta={(...a) => { svgDoc.toggleMeta(...a); setHasUnsavedEdits(true); }}
-            onMoveElement={(...a) => { svgDoc.moveElementInGroup(...a); setHasUnsavedEdits(true); }}
+            onToggleMeta={svgDoc.toggleMeta}
+            onMoveElement={svgDoc.moveElementInGroup}
             onAddText={handleAddText}
-            onAddTextDirect={(...a) => { svgDoc.addText(...a); setHasUnsavedEdits(true); }}
+            onAddTextDirect={svgDoc.addText}
             onRemoveText={handleRemoveText}
-            onToggleElementVisibility={(...a) => { svgDoc.toggleElementVisibility(...a); setHasUnsavedEdits(true); }}
-            onToggleGroupVisibility={(...a) => { svgDoc.toggleGroupVisibility(...a); setHasUnsavedEdits(true); }}
+            onToggleElementVisibility={svgDoc.toggleElementVisibility}
+            onToggleGroupVisibility={svgDoc.toggleGroupVisibility}
+            isModified={svgDoc.isModified}
           />
         )}
 
@@ -583,9 +865,9 @@ export default function App() {
                 onPanPointerDown={zoomPan.onPointerDown}
                 onPanPointerMove={zoomPan.onPointerMove}
                 onPanPointerUp={zoomPan.onPointerUp}
-                onDragTextStart={drag.onPointerDown}
-                onDragShapeStart={moveShapes ? handleShapeDragStart : undefined}
-                onShapeDragMove={moveShapes ? (e: React.PointerEvent) => {
+                onDragTextStart={textTool === 'move' ? drag.onPointerDown : textTool ? handleTextToolStart : undefined}
+                onDragShapeStart={moveShapes ? handleShapeDragStart : rotateShapes ? handleShapeRotateStart : resizeShapes ? handleShapeResizeStart : undefined}
+                onShapeDragMove={resizeShapes ? handleShapeResizeMove : rotateShapes ? handleShapeRotateMove : moveShapes ? (e: React.PointerEvent) => {
                   if (!shapeDragRef.current) return;
                   const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
                   if (!svg) return;
@@ -599,7 +881,7 @@ export default function App() {
                     el.setAttribute('transform', `translate(${dx},${dy}) ${shapeDragRef.current.origTransform}`.trim());
                   }
                 } : undefined}
-                onShapeDragEnd={moveShapes ? (e: React.PointerEvent) => {
+                onShapeDragEnd={resizeShapes ? ((_e: React.PointerEvent) => { handleShapeResizeEnd(); }) : rotateShapes ? ((_e: React.PointerEvent) => { handleShapeRotateEnd(); }) : moveShapes ? (e: React.PointerEvent) => {
                   if (!shapeDragRef.current) return;
                   const svg = document.querySelector('.canvas-svg') as SVGSVGElement | null;
                   if (!svg) return;
@@ -609,17 +891,26 @@ export default function App() {
                   const dx = pt.x - shapeDragRef.current.startX;
                   const dy = pt.y - shapeDragRef.current.startY;
                   const id = shapeDragRef.current.id;
-                  const orig = shapeDragRef.current.origTransform;
-                  const newTransform = `translate(${Math.round(dx * 10) / 10},${Math.round(dy * 10) / 10}) ${orig}`.trim();
-                  svgDoc.updateShapeAttribute(id, 'transform', newTransform);
-                  setHasUnsavedEdits(true);
+                  // Check if it's a bullet (BulletX) → update cx/cy
+                  const bullet = doc?.bullets.find(b => b.id === id);
+                  if (bullet) {
+                    svgDoc.updateBulletPosition(id, Math.round((bullet.cx + dx) * 10) / 10, Math.round((bullet.cy + dy) * 10) / 10);
+                    // Remove DOM transform (was visual-only during drag)
+                    const el = document.getElementById(id);
+                    if (el) el.removeAttribute('transform');
+                  } else {
+                    const orig = shapeDragRef.current.origTransform;
+                    const newTransform = `translate(${Math.round(dx * 10) / 10},${Math.round(dy * 10) / 10}) ${orig}`.trim();
+                    svgDoc.updateShapeAttribute(id, 'transform', newTransform);
+                  }
                   shapeDragRef.current = null;
                   void e;
                 } : undefined}
-                onDragPointerMove={drag.onPointerMove}
-                onDragPointerUp={drag.onPointerUp}
+                onDragPointerMove={(e: React.PointerEvent) => { drag.onPointerMove(e); handleTextToolMove(e); }}
+                onDragPointerUp={(e: React.PointerEvent) => { drag.onPointerUp(e); handleTextToolEnd(); }}
                 onDoubleClickText={handleDoubleClickText}
-                moveShapes={moveShapes}
+                moveShapes={moveShapes || rotateShapes || resizeShapes}
+                shapeCursor={rotateShapes ? 'grab' : resizeShapes ? 'nwse-resize' : 'move'}
                 readOnly={mode === 'view' || mode === 'data'}
                 viewStyle={(mode === 'view' || mode === 'data') ? viewStyle : 'layer'}
                 hoveredRegion={activeRegion}
@@ -669,12 +960,25 @@ export default function App() {
           ) : (
             <div className="canvas-empty">
               <div className="canvas-empty-text">
-                {mode === 'data' ? 'Load data and select a model to calculate' : 'Open an SVG file to start editing'}
+                {mode === 'data' ? 'Load CSV data to get started' : 'Open an SVG file to start editing'}
               </div>
               {mode === 'edit' && (
                 <div style={{ display: 'flex', gap: 12 }}>
                   <button className="btn btn-large" onClick={handleSelectFromLibrary}>Select Model</button>
                   <button className="btn btn-large" onClick={handleOpen}>Open Custom</button>
+                </div>
+              )}
+              {mode === 'data' && (
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button className="btn btn-large" onClick={() => handleTestLoadCsv('sample')}>Load Sample</button>
+                  <label className="btn btn-large" style={{ cursor: 'pointer' }}>
+                    Upload Custom
+                    <input type="file" accept=".csv" style={{ display: 'none' }} onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleTestFileUpload(file);
+                      e.target.value = '';
+                    }} />
+                  </label>
                 </div>
               )}
             </div>
@@ -685,7 +989,7 @@ export default function App() {
         </div>
 
         {(mode === 'view' || mode === 'data') ? (
-          (mode === 'view' && !doc) ? null : (
+          ((mode === 'view' && !doc) || (mode === 'data' && !testCsvData)) ? null : (
             <ViewerInfoPanel
               doc={doc}
               hoveredRegion={regionDetection.hoveredRegion}
@@ -701,11 +1005,19 @@ export default function App() {
           <PropertyPanel
             selected={selected}
             shapes={doc?.shapes ?? []}
-            onUpdateTextPosition={(...a) => { svgDoc.updateTextPosition(...a); setHasUnsavedEdits(true); }}
-            onUpdateTextContent={(...a) => { svgDoc.updateTextContent(...a); setHasUnsavedEdits(true); }}
-            onUpdateTextStyle={(...a) => { svgDoc.updateTextStyle(...a); setHasUnsavedEdits(true); }}
-            onUpdateBulletPosition={(...a) => { svgDoc.updateBulletPosition(...a); setHasUnsavedEdits(true); }}
-            onUpdateShapeStyle={(...a) => { svgDoc.updateShapeStyle(...a); setHasUnsavedEdits(true); }}
+            onUpdateTextPosition={svgDoc.updateTextPosition}
+            onUpdateTextContent={svgDoc.updateTextContent}
+            onUpdateTextStyle={svgDoc.updateTextStyle}
+            onUpdateBulletPosition={svgDoc.updateBulletPosition}
+            onUpdateShapeStyle={svgDoc.updateShapeStyle}
+            moveShapes={moveShapes}
+            rotateShapes={rotateShapes}
+            resizeShapes={resizeShapes}
+            onToggleMoveShapes={() => { setMoveShapes(m => !m); setRotateShapes(false); setResizeShapes(false); }}
+            onToggleRotateShapes={() => { setRotateShapes(r => !r); setMoveShapes(false); setResizeShapes(false); }}
+            onToggleResizeShapes={() => { setResizeShapes(r => !r); setMoveShapes(false); setRotateShapes(false); }}
+            textTool={textTool ?? undefined}
+            onSetTextTool={setTextTool}
           />
         )}
       </div>
@@ -743,6 +1055,7 @@ export default function App() {
           setSummarySelectMode(false);
           setSummaryFromWelcome(false);
         }}
+        onOpenCustom={() => { setSummaryOpen(false); setSummarySelectMode(false); handleOpen(); }}
       />
 
       <TextEditDialog
@@ -765,6 +1078,21 @@ export default function App() {
         onClose={() => setHelpOpen(false)}
       />
 
+      {/* Data Open dialog */}
+      {dataOpenDialog && (
+        <div className="dialog-overlay" onClick={() => setDataOpenDialog(false)}>
+          <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
+            <h3 className="confirm-title">Open CSV Data</h3>
+            <p className="confirm-text">Choose a data source for Venn diagram calculation.</p>
+            <div className="confirm-actions">
+              <button className="btn btn-accent" onClick={() => { setDataOpenDialog(false); handleTestLoadCsv('sample'); }}>Load Sample CSV</button>
+              <button className="btn" onClick={() => { setDataOpenDialog(false); dataFileInputRef.current?.click(); }}>Open Custom CSV</button>
+              <button className="btn" onClick={() => setDataOpenDialog(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Unsaved changes confirm */}
       {modeSwitchTarget !== null && (
         <div className="dialog-overlay" onClick={() => setModeSwitchTarget(null)}>
@@ -772,8 +1100,8 @@ export default function App() {
             <h3 className="confirm-title">Unsaved Changes</h3>
             <p className="confirm-text">You have unsaved changes. Save before switching?</p>
             <div className="confirm-actions">
-              <button className="btn btn-accent" onClick={() => { handleSave(); setHasUnsavedEdits(false); setMode(modeSwitchTarget); setModeSwitchTarget(null); }}>Save & Switch</button>
-              <button className="btn" onClick={() => { setHasUnsavedEdits(false); setMode(modeSwitchTarget); setModeSwitchTarget(null); }}>Discard</button>
+              <button className="btn btn-accent" onClick={() => { handleSave(); setMode(modeSwitchTarget); setModeSwitchTarget(null); }}>Save & Switch</button>
+              <button className="btn" onClick={() => { svgDoc.markSaved(); setMode(modeSwitchTarget); setModeSwitchTarget(null); }}>Discard</button>
               <button className="btn" onClick={() => setModeSwitchTarget(null)}>Cancel</button>
             </div>
           </div>
@@ -787,6 +1115,32 @@ export default function App() {
         onAccept={handleValidationAccept}
         onCancel={() => setValidationDialog(null)}
       />
+
+      {/* Rotate angle tooltip */}
+      {rotateAngle !== null && rotateCursor && (
+        <div className="rotate-tooltip" style={{ left: rotateCursor.x + 16, top: rotateCursor.y - 12 }}>
+          {rotateAngle > 0 ? '+' : ''}{rotateAngle}°
+        </div>
+      )}
+
+      {/* Resize scale tooltip */}
+      {resizeScale !== null && resizeCursor && (
+        <div className="rotate-tooltip" style={{ left: resizeCursor.x + 16, top: resizeCursor.y - 12 }}>
+          {resizeScale}%
+        </div>
+      )}
+
+      {/* Text tool tooltip */}
+      {textToolCursor && textToolAngle !== null && (
+        <div className="rotate-tooltip" style={{ left: textToolCursor.x + 16, top: textToolCursor.y - 12 }}>
+          {textToolAngle > 0 ? '+' : ''}{textToolAngle}°
+        </div>
+      )}
+      {textToolCursor && textToolSize !== null && (
+        <div className="rotate-tooltip" style={{ left: textToolCursor.x + 16, top: textToolCursor.y - 12 }}>
+          {textToolSize}px
+        </div>
+      )}
     </div>
   );
 }

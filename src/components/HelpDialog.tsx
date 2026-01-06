@@ -10,7 +10,7 @@ const HELP: Record<AppMode, { title: string; sections: { heading: string; conten
   view: {
     title: 'View Mode — Help',
     sections: [
-      { heading: 'Overview', content: 'Browse and explore 32 pre-built Venn diagram SVG models, from 2-set to 8-set, covering all major construction methods (Venn, Edwards, Anderson, Grünbaum, Bannier, Mamakani).' },
+      { heading: 'Overview', content: 'Browse and explore 39 pre-built Venn diagram SVG models, from 2-set to 8-set, covering all major construction methods (Venn, Edwards, Anderson, Grünbaum, Bannier, Mamakani).' },
       { heading: 'Model Selection', content: 'Use the left sidebar dropdown to select a diagram. Models are grouped by set count (2–8).' },
       { heading: 'Layer View', content: 'Shows the original SVG with semi-transparent overlapping shapes. Hover over any point to detect which intersection region you are in. The right panel shows region details.' },
       { heading: 'Cut View', content: 'Renders pre-computed intersection region paths. Each region is a separate clickable SVG element. Hover to highlight, click to inspect.' },
@@ -23,7 +23,7 @@ const HELP: Record<AppMode, { title: string; sections: { heading: string; conten
     title: 'Edit Mode — Help',
     sections: [
       { heading: 'Overview', content: 'Full SVG editor for Venn diagrams. Open existing models or custom SVG files, reposition text elements, edit content, and save.' },
-      { heading: 'Opening Files', content: 'SELECT: choose from the built-in 32 models. OPEN CUSTOM: load any SVG file (validated against the Venn SVG format specification).' },
+      { heading: 'Opening Files', content: 'SELECT: choose from the built-in 39 models. OPEN CUSTOM: load any SVG file (validated against the Venn SVG format specification).' },
       { heading: 'Editing', content: 'Click any text element to select it. Drag to reposition. Double-click to edit text content. Use the right property panel to adjust position, font size, colors.' },
       { heading: 'Undo/Redo', content: 'Ctrl+Z to undo, Ctrl+Shift+Z or Ctrl+Y to redo. Up to 50 history steps.' },
       { heading: 'Validation', content: 'Toggle "Validate" in the toolbar to highlight Count texts that are in the wrong position (based on which shapes contain that point). Use "Report" for a full validation table.' },

@@ -7,7 +7,7 @@ interface DragCallbacks {
 
 export function useDrag(
   scale: number,
-  svgRef: React.RefObject<SVGSVGElement | null>,
+  _svgRef: React.RefObject<SVGSVGElement | null>,
   callbacks: DragCallbacks,
 ) {
   const dragging = useRef<{
@@ -47,25 +47,18 @@ export function useDrag(
   );
 
   const onPointerUp = useCallback(
-    (_e: React.PointerEvent) => {
+    (e: React.PointerEvent) => {
       if (!dragging.current) return;
       const d = dragging.current;
-      // Read current position from what was last moved
-      const svg = svgRef.current;
-      if (svg) {
-        // Final position is already applied via onDragMove, now push to history
-        const textEl = svg.querySelector(`#${CSS.escape(d.id)}`);
-        if (textEl) {
-          const transform = textEl.getAttribute('transform') || '';
-          const match = transform.match(/translate\(([^,]+),\s*([^)]+)\)/);
-          if (match) {
-            callbacks.onDragEnd(d.id, parseFloat(match[1]), parseFloat(match[2]));
-          }
-        }
+      const dx = (e.clientX - d.startX) / scale;
+      const dy = (e.clientY - d.startY) / scale;
+      // Only commit to history if position actually changed (threshold: 0.5px)
+      if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+        callbacks.onDragEnd(d.id, d.origX + dx, d.origY + dy);
       }
       dragging.current = null;
     },
-    [svgRef, callbacks],
+    [scale, callbacks],
   );
 
   return { onPointerDown, onPointerMove, onPointerUp, isDragging: () => dragging.current !== null };
