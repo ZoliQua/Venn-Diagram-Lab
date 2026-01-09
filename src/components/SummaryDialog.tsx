@@ -106,7 +106,7 @@ export function SummaryDialog({ isOpen, onClose, onSelectModel, selectMode, onOp
                       <div
                         key={m.filename}
                         className="summary-card"
-                        onClick={() => { onSelectModel(m.filename); onClose(); }}
+                        onClick={() => onSelectModel(m.filename)}
                       >
                         <SvgPreview filename={m.filename} />
                         <div className="summary-card-info">

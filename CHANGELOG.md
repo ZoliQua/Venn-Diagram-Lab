@@ -2,6 +2,39 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.7.0] — 2026-01-09
+
+### Added
+- **DataSummaryPanel**: right-side statistics panel in Data mode with 6 collapsible sections: Overview, Set Sizes, Pairwise Jaccard Index, Sorensen-Dice Index, Intersection Enrichment (hypergeometric test + BH-FDR), Export Statistics
+- **Statistics utility** (`statistics.ts`): `logChoose`, `hypergeometricPValue`, `foldEnrichment`, `adjustPValues` (Benjamini-Hochberg), `pairwiseStatistics`
+- **Statistics tests** (`statistics.test.ts`): 21 tests for all statistics functions
+- **Right panel toggle**: Properties / Statistics switcher at top of right panel (Data mode, after Calculate)
+- **Collapsible sidebar sections**: all 5 Data mode sections (File Info, Model, Column Mapping, View, Export) now collapsible with ▾/▸ toggle
+- **Venn model info**: selected model shows Venn type, form, and region count below the dropdown
+- **Selected region style**: configurable hover/highlight color for count values via color picker
+- **Heatmap customization**: 3-point color picker (Low, Mid, High) and legend position selector (4 corners)
+- **SVG/PNG/JPG export in sidebar**: Export section with image export buttons + descriptive hint texts
+- **Cut View locked region**: locked selection persists when moving mouse away; visual highlight stays
+- **Cut View background click**: clicking empty area in Cut View unlocks the selection
+- **Layer View background click**: clicking outside shapes unlocks the selection
+- **Data mode sidebar scrolling**: overflow-y auto for long content
+- **Subheading style**: new `sidebar-subsection-title` CSS class for Group names, Diagram Title, Color mode, Selected region style
+- **Welcome → Summary → model select**: now correctly closes Welcome dialog and enters View mode
+
+### Changed
+- **4. View section restructured**: "Show elements" removed; Names/SUM Numbers toggles moved into "Group names and numbers"; Title toggle moved into "Diagram Title"
+- **Help dialog restructured**: hierarchical 2-level format with heading (blue, bold) and subheading (indented with left border) across all 3 modes
+- **Export section reordered**: SVG/PNG/JPG first with hint text, then Regions Summary / Item Matrix TSV with hint text
+- **Data → Edit mode switch**: `markSaved()` called to prevent false MODIFIED state
+- **Data mode switch**: diagram cleared only when no CSV data is loaded
+- **Export PNG/JPG buttons removed from Properties panel** (moved to sidebar Export section)
+- **SummaryDialog card click**: no longer calls `onClose` (prevented Welcome from reopening)
+
+### Fixed
+- **Welcome dialog persisting after model select from Summary**: `setWelcomeOpen(false)` was missing in `onSelectModel`; `onClose` was reopening Welcome via `summaryFromWelcome` flag
+- **Cut View hover overriding locked region**: introduced `lockedIndex` computed from `lockedLabel` prop; `activeIndex` prioritizes lock over hover
+- **Data → Edit false MODIFIED**: mode switch now marks current state as saved
+
 ## [1.5.1] — 2026-01-07
 
 ### Added

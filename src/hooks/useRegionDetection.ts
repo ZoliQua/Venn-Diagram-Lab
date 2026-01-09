@@ -67,6 +67,8 @@ export function useRegionDetection(doc: VennDocument | null) {
   const lockHover = useCallback(() => {
     if (hoveredRef.current) {
       setSelectedRegion({ ...hoveredRef.current });
+    } else {
+      setSelectedRegion(null);
     }
   }, []);
 

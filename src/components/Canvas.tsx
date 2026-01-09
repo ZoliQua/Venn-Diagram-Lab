@@ -28,6 +28,7 @@ interface CanvasProps {
   shapeCursor?: string;
   viewStyle?: 'layer' | 'cut';
   hoveredRegion?: RegionInfo | null;
+  hoverColor?: string;
   onRegionHover?: (svgX: number, svgY: number) => void;
   onRegionClick?: () => void;
   onRegionLeave?: () => void;
@@ -130,6 +131,7 @@ function TextElement({
   isSelected,
   errorHighlight,
   viewerHighlight,
+  hoverColor,
   readOnly,
   isCutView,
   onPointerDown,
@@ -140,6 +142,7 @@ function TextElement({
   isSelected: boolean;
   errorHighlight: boolean;
   viewerHighlight?: boolean;
+  hoverColor?: string;
   readOnly?: boolean;
   isCutView?: boolean;
   onPointerDown: (e: React.PointerEvent) => void;
@@ -152,8 +155,9 @@ function TextElement({
     : `translate(${t.x}, ${t.y})`;
 
   const isCut = isCutView && !errorHighlight;
-  const fillColor = errorHighlight ? '#ff0000' : viewerHighlight ? '#00ff88' : isCut ? '#ffffff' : styleObj['fill'];
-  const strokeColor = errorHighlight ? '#ff0000' : viewerHighlight ? '#00ff88' : isCut ? 'none' : styleObj['stroke'];
+  const hc = hoverColor || '#00ff88';
+  const fillColor = errorHighlight ? '#ff0000' : viewerHighlight ? hc : isCut ? '#ffffff' : styleObj['fill'];
+  const strokeColor = errorHighlight ? '#ff0000' : viewerHighlight ? hc : isCut ? 'none' : styleObj['stroke'];
 
   return (
     <g>
@@ -283,6 +287,7 @@ export function Canvas({
   shapeCursor,
   viewStyle,
   hoveredRegion,
+  hoverColor,
   onRegionHover,
   onRegionClick,
   onRegionLeave,
@@ -403,6 +408,7 @@ export function Canvas({
         isSelected={!readOnly && selectedId === t.id}
         errorHighlight={!readOnly && showValidation && invalidIds.has(t.id)}
         viewerHighlight={readOnly === true && highlightedCountId === t.id}
+        hoverColor={hoverColor}
         readOnly={readOnly}
         isCutView={isCutView}
         onPointerDown={readOnly || !onDragTextStart ? () => {} : (e) => onDragTextStart(e, t.id, t.x, t.y)}

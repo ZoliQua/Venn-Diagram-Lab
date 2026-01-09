@@ -2,7 +2,7 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 8-set, covering all known construction methods. Built with React, TypeScript, and Vite.
 
-**Version:** 1.6.0 | **Models:** 39 SVG diagrams | **License:** MIT
+**Version:** 1.7.0 | **Models:** 39 SVG diagrams | **License:** MIT
 
 ## Features
 
@@ -43,10 +43,12 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 8-set, coverin
 - Two data formats: **Binary** (0/1 per cell) and **Aggregated** (item names per column)
 - Configurable row/item delimiters, header detection, column selection, row filtering
 - Per-set color picker, shape opacity slider, font controls for names and title
-- Cut View with **Heatmap** color mode (RdBu diverging scale based on count values)
-- Export: **Regions Summary TSV** (all regions with counts/percentages/items) and **Item Matrix TSV** (per-item set membership)
+- Cut View with **Heatmap** color mode (customizable 3-point color scale + legend position)
+- Collapsible sidebar sections (File Info, Model, Column Mapping, View, Export)
+- Right panel toggle: **Properties** (region info, items, unlock) / **Statistics** (Jaccard, Dice, enrichment)
+- Selected region style: configurable highlight color for hovered/selected count values
+- Export: **SVG / PNG / JPG** image export + **Regions Summary TSV** + **Item Matrix TSV**
 - Export individual region items via right panel
-- Export diagram as **PNG** or **JPG** (2x retina, white background)
 - Sample datasets: binary (streaming platforms) and aggregated (gene sets)
 
 ### Summary Mode

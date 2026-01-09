@@ -22,6 +22,7 @@ import { HelpDialog } from './components/HelpDialog.tsx';
 import { SvgValidationDialog } from './components/SvgValidationDialog.tsx';
 import { TestSidebar } from './components/TestSidebar.tsx';
 import { CsvImportDialog } from './components/CsvImportDialog.tsx';
+import { DataSummaryPanel } from './components/DataSummaryPanel.tsx';
 import type { Region } from './utils/regions.ts';
 import { calculateVennCounts, calculateVennCountsFromAggregated } from './utils/csvParser.ts';
 import type { CsvData, FileType, Delimiter, CsvImportResult, VennResult } from './utils/csvParser.ts';
@@ -36,6 +37,10 @@ export default function App() {
   const [isLoadingModel, setIsLoadingModel] = useState(false);
   const [viewStyle, setViewStyle] = useState<ViewStyle>('layer');
   const [cutColorMode, setCutColorMode] = useState<'depth' | 'heatmap'>('depth');
+  const [heatmapColors, setHeatmapColors] = useState({ low: '#2166AC', mid: '#F7F7F7', high: '#B2182B' });
+  const [heatmapLegendPosition, setHeatmapLegendPosition] = useState('bottom-left');
+  const [hoverColor, setHoverColor] = useState('#00ff88');
+  const [dataRightPanel, setDataRightPanel] = useState<'properties' | 'statistics'>('properties');
   const [regionData, setRegionData] = useState<RegionData | null>(null);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [summarySelectMode, setSummarySelectMode] = useState(false);
@@ -742,6 +747,14 @@ export default function App() {
             setModeSwitchTarget(newMode);
             return;
           }
+          if (newMode === 'data' && !testCsvData) {
+            svgDoc.clearDoc();
+            setCurrentModel(null);
+            setRegionData(null);
+          }
+          if (newMode === 'edit' && mode === 'data') {
+            svgDoc.markSaved();
+          }
           setMode(newMode);
         }}
         onSummary={() => { setSummarySelectMode(false); setSummaryOpen(true); }}
@@ -810,10 +823,16 @@ export default function App() {
             onSetViewStyle={setViewStyle}
             cutColorMode={cutColorMode}
             onSetCutColorMode={setCutColorMode}
+            heatmapColors={heatmapColors}
+            onSetHeatmapColors={setHeatmapColors}
+            heatmapLegendPosition={heatmapLegendPosition}
+            onSetHeatmapLegendPosition={setHeatmapLegendPosition}
             error={testError}
             showTitle={testShowTitle}
             showNames={testShowNames}
             showSums={testShowSums}
+            hoverColor={hoverColor}
+            onHoverColorChange={setHoverColor}
             onToggleTitle={() => { setTestShowTitle(v => !v); if (doc) svgDoc.toggleMeta('headerHidden'); }}
             onToggleNames={() => { setTestShowNames(v => !v); if (doc) svgDoc.toggleGroupVisibility('names'); }}
             onToggleSums={() => { setTestShowSums(v => !v); if (doc) svgDoc.toggleGroupVisibility('sums'); }}
@@ -879,6 +898,8 @@ export default function App() {
               const tsv = exportMatrixTsv(testVennResult, testColumnMapping.length, setNames);
               downloadFile(tsv, `venn_${testColumnMapping.length}set_matrix.tsv`);
             } : undefined}
+            onSaveSvg={handleSave}
+            onExportImage={handleExportImage}
           />
         ) : (
           <Sidebar
@@ -910,6 +931,8 @@ export default function App() {
                   scale={zoomPan.state.scale}
                   onRegionHover={regionDetection.setHoverByLabel}
                   onRegionClick={regionDetection.setSelectByLabel}
+                  onBackgroundClick={regionDetection.clearSelection}
+                  lockedLabel={regionDetection.selectedRegion?.label ?? null}
                   countOverrides={mode === 'data' && doc ? (() => {
                     const m = new Map<string, string>();
                     for (const t of doc.texts.values) {
@@ -919,6 +942,8 @@ export default function App() {
                     return m;
                   })() : null}
                   colorMode={mode === 'data' ? cutColorMode : 'depth'}
+                  heatmapColors={heatmapColors}
+                  legendPosition={heatmapLegendPosition}
                 />
               </div>
             ) :
@@ -984,6 +1009,7 @@ export default function App() {
                 readOnly={mode === 'view' || mode === 'data'}
                 viewStyle={(mode === 'view' || mode === 'data') ? viewStyle : 'layer'}
                 hoveredRegion={activeRegion}
+                hoverColor={mode === 'data' ? hoverColor : undefined}
                 onRegionHover={regionDetection.onHover}
                 onRegionClick={regionDetection.lockHover}
                 onRegionLeave={regionDetection.clearHover}
@@ -1060,17 +1086,36 @@ export default function App() {
 
         {(mode === 'view' || mode === 'data') ? (
           ((mode === 'view' && !doc) || (mode === 'data' && !testCsvData)) ? null : (
-            <ViewerInfoPanel
-              doc={doc}
-              hoveredRegion={regionDetection.hoveredRegion}
-              selectedRegion={regionDetection.selectedRegion}
-              regionExclusiveItems={mode === 'data' ? testExclusiveItems : null}
-              regionInclusiveItems={mode === 'data' ? testInclusiveItems : null}
-              canSave={mode === 'data' && testCalculated && viewStyle === 'layer'}
-              onSave={handleSave}
-              onClearSelection={regionDetection.clearSelection}
-              onExportImage={handleExportImage}
-            />
+            <div className="right-panel-wrapper">
+              {mode === 'data' && testCalculated && testVennResult && (
+                <div className="right-panel-toggle">
+                  <div className="view-style-switcher">
+                    <button className={`btn btn-sm btn-view-style ${dataRightPanel === 'properties' ? 'btn-mode-active' : ''}`} onClick={() => setDataRightPanel('properties')}>Properties</button>
+                    <button className={`btn btn-sm btn-view-style ${dataRightPanel === 'statistics' ? 'btn-mode-active' : ''}`} onClick={() => setDataRightPanel('statistics')}>Statistics</button>
+                  </div>
+                </div>
+              )}
+              {mode === 'data' && testCalculated && testVennResult && dataRightPanel === 'statistics' ? (
+                <DataSummaryPanel
+                  vennResult={testVennResult}
+                  n={testColumnMapping.length}
+                  setNames={testColumnMapping.map(i => testCsvData?.headers[i] ?? '')}
+                  totalItems={testCsvData?.rows.length ?? 0}
+                  selectedRegionLabel={regionDetection.selectedRegion?.label ?? null}
+                />
+              ) : (
+                <ViewerInfoPanel
+                  doc={doc}
+                  hoveredRegion={regionDetection.hoveredRegion}
+                  selectedRegion={regionDetection.selectedRegion}
+                  regionExclusiveItems={mode === 'data' ? testExclusiveItems : null}
+                  regionInclusiveItems={mode === 'data' ? testInclusiveItems : null}
+                  canSave={mode === 'data' && testCalculated && viewStyle === 'layer'}
+                  onSave={handleSave}
+                  onClearSelection={regionDetection.clearSelection}
+                />
+              )}
+            </div>
           )
         ) : (
           <PropertyPanel
@@ -1125,6 +1170,7 @@ export default function App() {
           setSummaryOpen(false);
           setSummarySelectMode(false);
           setSummaryFromWelcome(false);
+          setWelcomeOpen(false);
         }}
         onOpenCustom={() => { setSummaryOpen(false); setSummarySelectMode(false); handleOpen(); }}
       />
