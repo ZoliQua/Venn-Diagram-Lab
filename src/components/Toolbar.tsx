@@ -29,9 +29,11 @@ interface ToolbarProps {
   onDataSave?: () => void;
   onDataClose?: () => void;
   hasDataFile?: boolean;
+  isCalculated?: boolean;
   onUndo: () => void;
   onRedo: () => void;
   onReport: () => void;
+  onDataReport?: () => void;
 }
 
 export function Toolbar({
@@ -41,8 +43,8 @@ export function Toolbar({
   onZoomIn, onZoomOut, onZoomReset,
   showValidation,
   onToggleGrid, onToggleValidation,
-  onOpen, onClose, onDataOpen, onDataSave, onDataClose, hasDataFile,
-  onUndo, onRedo, onReport,
+  onOpen, onClose, onDataOpen, onDataSave, onDataClose, hasDataFile, isCalculated,
+  onUndo, onRedo, onReport, onDataReport,
 }: ToolbarProps) {
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -108,6 +110,8 @@ export function Toolbar({
             <button className="btn btn-toolbar" onClick={onDataOpen}>Open</button>
             <button className="btn btn-toolbar" onClick={onDataSave} disabled={!hasDataFile}>Save</button>
             <button className="btn btn-toolbar" onClick={onDataClose} disabled={!hasDataFile}>Close</button>
+            <span className="toolbar-sep" />
+            <button className="btn btn-toolbar" onClick={onDataReport} disabled={!isCalculated}>Report</button>
           </>
         )}
       </div>
