@@ -1587,7 +1587,13 @@ html, body, #root {
   margin-left: auto;
 }
 
-/* ---- Centered Canvas (View mode) ---- */
+/* ---- Centered Canvas (all modes) ---- */
+.canvas-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .canvas-container .canvas-inner {
   margin: auto;
 }

@@ -2,6 +2,52 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.8.3] — 2026-01-14
+
+### Changed
+- **SVG centering**: Canvas is now centered in all three modes (View, Edit, Data) using flexbox alignment
+- **Auto-calculate**: Removed the Calculate button from Data mode; calculation triggers automatically when a Venn Diagram model is selected
+- **Column Mapping hidden**: Column Mapping section only appears after selecting a model, not immediately after file import
+- **Canvas prompt text**: When data is loaded but no model selected, canvas shows "Please select a Venn Diagram model from the left panel" instead of "Load your data"
+- **Column name trimming**: Column headers in Data mode dropdown trimmed to 32 characters with ellipsis
+- **PDF Report refinements**: Name (full) column widened to 60mm with 32-character trim; Set Size column narrowed
+
+## [1.8.2] — 2026-01-13
+
+### Fixed
+- **SVG format fixes**: Edwards 8a/9a SVGs — removed duplicate `Tahoma, Tahoma` font-family (766 fixes) and stripped `px` units from font-size (695 fixes)
+- **Test cleanup**: SVG format tests now filter only `venn*.svg` files (excludes non-diagram SVGs like `names-bar.svg`); Euler diagrams allow fewer Count elements than 2^n-1; file count assertion corrected to 44
+- **9-set Data mode**: Extended all set letter references from `ABCDEFGH` to `ABCDEFGHI` across csvParser, exportData, statistics, DataSummaryPanel, TestSidebar, and App; initial column mapping limit raised from 8 to 9; added I color (#F7941E)
+- **SVG centering**: Canvas now centered in all three modes (View, Edit, Data)
+- **Column mapping names**: Trimmed to 32 characters with ellipsis in Data mode dropdown
+- **Auto-calculate**: Removed Calculate button; calculation triggers automatically on model selection
+
+## [1.8.1] — 2026-01-12
+
+### Added
+- **PDF Report generation**: Report button in Data mode toolbar generates a multi-page A4 PDF
+  - Page 1: Data Overview (timestamp, file info, region stats), Set Sizes pie chart (pastel colors) + table with Exclusive/Inclusive columns
+  - Page 2: Venn Diagram image + UpSet Plot image (print-optimized, white background, max 20 columns)
+  - Page 3+: Pairwise Jaccard Index, Sørensen-Dice Index, Intersection Enrichment tables with significance coloring
+  - Footer on all pages with version and page numbers
+  - 7-8-9 set diagrams: each statistics table on its own page
+- **jsPDF dependency**: Lazy-loaded as separate chunk (~400KB), only downloaded when Report is clicked
+- **SVG capture utility** (`svgToImage.ts`): Reusable SVG-to-PNG converter for PDF embedding
+- **UpSet SVG builder** (`upsetSvgBuilder.ts`): Generates print-ready UpSet plot SVG strings from data
+
+## [1.8.0] — 2026-01-11
+
+### Added
+- **UpSet Plot visualization**: New sub-mode tab alongside Layer and Cut in both View and Data modes
+  - Pure SVG rendering with matrix dots, vertical intersection bars, horizontal set size bars
+  - Hover highlight with tooltip (set names ∩ count), click to lock selection
+  - Pagination: top 50 intersections per page with prev/next controls
+  - Sort modes: by intersection size (descending) or by degree (set membership count)
+  - Color modes: depth-based, heatmap (3-point diverging scale), custom single color
+  - Adjustable minimum count threshold filter
+  - Zoom support via existing zoom controls
+- **UpSet data utilities** (`upsetData.ts`): Converter functions from RegionData (View mode) and VennResult (Data mode)
+
 ## [1.7.1] — 2026-01-10
 
 ### Added

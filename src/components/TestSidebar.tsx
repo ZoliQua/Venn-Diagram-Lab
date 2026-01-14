@@ -222,8 +222,8 @@ export function TestSidebar({
         </div>
       )}
 
-      {/* Column Mapping */}
-      {csvData && n >= 2 && (
+      {/* Column Mapping — only shown after model is selected */}
+      {csvData && n >= 2 && selectedModel && (
         <div className="sidebar-section">
           <div className="sidebar-section-title sidebar-collapsible" onClick={() => setMappingOpen(o => !o)}>
             <span>{mappingOpen ? '▾' : '▸'} 3. Column Mapping</span>
@@ -246,7 +246,7 @@ export function TestSidebar({
                   onChange={e => handleColumnChange(i, parseInt(e.target.value))}
                 >
                   {csvData.headers.map((h, hi) => (
-                    <option key={hi} value={hi}>{h}</option>
+                    <option key={hi} value={hi}>{h.length > 32 ? h.slice(0, 32) + '…' : h}</option>
                   ))}
                 </select>
               </div>
@@ -256,14 +256,6 @@ export function TestSidebar({
             <label>Opacity: {Math.round(shapeOpacity * 100)}%</label>
             <input type="range" min="5" max="100" value={Math.round(shapeOpacity * 100)} onChange={e => onShapeOpacityChange(parseInt(e.target.value) / 100)} />
           </div>
-          <button
-            className="btn btn-sm btn-accent"
-            style={{ width: '100%', marginTop: 8 }}
-            onClick={onCalculate}
-            disabled={!selectedModel || n < 2}
-          >
-            Calculate
-          </button>
           </>}
         </div>
       )}

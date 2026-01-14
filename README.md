@@ -2,7 +2,7 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite.
 
-**Version:** 1.7.1 | **Models:** 44 SVG diagrams | **License:** MIT
+**Version:** 1.8.3 | **Models:** 44 SVG diagrams | **License:** MIT
 
 ## Features
 
@@ -11,9 +11,9 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 | Mode | Description |
 |------|-------------|
 | **Summary** | Gallery view of all 44 diagrams with SVG previews, grouped by set count, with publication references |
-| **View** | Interactive diagram viewer with region detection. Two sub-modes: **Layer** (transparent overlapping shapes) and **Cut** (pre-computed intersection regions from JSON data) |
+| **View** | Interactive diagram viewer with region detection. Three sub-modes: **Layer** (transparent overlapping shapes), **Cut** (pre-computed intersection regions from JSON data), and **UpSet** (UpSet plot visualization) |
 | **Edit** | Full SVG editor with drag-to-position, text editing, undo/redo, validation, and export |
-| **Data** | Load CSV/TSV data (binary or aggregated), map columns to Venn sets, calculate intersections, export results as TSV |
+| **Data** | Load CSV/TSV/GMT/GMX data, map columns to Venn sets (up to 9), auto-calculate on model selection, export as TSV/PDF |
 
 ### View Mode — Layer View
 - Load any of the 44 SVG models from the dropdown
@@ -27,6 +27,15 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 - Each of the 2^n - 1 regions is a separate SVG `<path>` element with direct mouse events
 - Hover highlights the region, dims others, shows white outline and centered label
 - Two color modes: **Depth** (dark-to-warm by intersection depth) and **Heatmap** (RdBu diverging scale by count values)
+
+### View Mode — UpSet Plot
+- **UpSet plot** visualization showing intersection sizes as vertical bars above a dot matrix
+- Horizontal set size bars on the left, with trimmed set labels and size counts
+- Hover highlights + tooltip (set names and count), click to lock selection
+- Pagination: top 50 intersections shown, prev/next page controls
+- Sort by intersection size (descending) or by degree (number of member sets)
+- Color modes: **Depth** (blue-to-red by member count), **Heatmap**, or **Custom** single color
+- Adjustable minimum count threshold filter
 
 ### Edit Mode
 - Open/Save SVG files
@@ -48,9 +57,13 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 - Collapsible sidebar sections (File Info, Model, Column Mapping, View, Export)
 - Right panel toggle: **Properties** (region info, items, unlock) / **Statistics** (Jaccard, Dice, enrichment)
 - Selected region style: configurable highlight color for hovered/selected count values
+- Auto-calculate on model selection (no manual Calculate button needed)
+- UpSet Plot sub-mode available after calculation (max 20 intersections in print export)
 - Export: **SVG / PNG / JPG** image export + **Regions Summary TSV** + **Item Matrix TSV**
+- **PDF Report**: Multi-page A4 report with data overview, pie chart, Venn diagram, UpSet plot, and full statistical tables (Jaccard, Dice, Enrichment)
 - Export individual region items via right panel
 - Sample datasets: binary (streaming platforms) and aggregated (gene sets)
+- Supports up to **9 sets** (A through I)
 
 ### Summary Mode
 - Dialog gallery of all 44 diagrams
@@ -69,6 +82,8 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 │   │   ├── Toolbar.tsx        Top bar (mode switcher, zoom, tools)
 │   │   ├── Canvas.tsx         SVG rendering + interaction
 │   │   ├── CutViewCanvas.tsx  Region-based rendering (Cut View)
+│   │   ├── UpsetPlot.tsx      UpSet plot SVG rendering
+│   │   ├── PdfReportDialog.tsx PDF report generation dialog
 │   │   ├── ViewerSidebar.tsx  Model selector + region list
 │   │   ├── ViewerInfoPanel.tsx Region info display
 │   │   ├── SummaryDialog.tsx  Gallery dialog + SOURCES table
@@ -85,7 +100,11 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 │   │   ├── hitTest.ts         Shape containment detection
 │   │   ├── regions.ts         Region enumeration (2^n - 1 subsets)
 │   │   ├── csvParser.ts       CSV/TSV parser, binary & aggregated Venn calculation
-│   │   └── exportData.ts      TSV export (Region Summary + Item Matrix)
+│   │   ├── exportData.ts      TSV export (Region Summary + Item Matrix)
+│   │   ├── upsetData.ts       UpSet data conversion + sorting
+│   │   ├── pdfReport.ts       PDF report generation (jsPDF)
+│   │   ├── svgToImage.ts      SVG-to-PNG capture utility
+│   │   └── upsetSvgBuilder.ts Print-optimized UpSet SVG builder
 │   └── __tests__/             Test suites
 ├── models/
 │   ├── svg/                   44 SVG Venn diagram models

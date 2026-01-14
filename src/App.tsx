@@ -74,6 +74,7 @@ export default function App() {
   const [testItemDelimiter, setTestItemDelimiter] = useState<Delimiter>(',');
   const [testGeneSetMeta, setTestGeneSetMeta] = useState<GeneSetMeta | null>(null);
   const [testCalculated, setTestCalculated] = useState(false);
+  const [testPendingCalculate, setTestPendingCalculate] = useState(false);
   const [testVennResult, setTestVennResult] = useState<VennResult | null>(null);
   const [testExclusiveItems, setTestExclusiveItems] = useState<Map<string, string[]> | null>(null);
   const [testInclusiveItems, setTestInclusiveItems] = useState<Map<string, string[]> | null>(null);
@@ -735,6 +736,14 @@ export default function App() {
     }
   }, [testCsvData, testModel, testColumnMapping, svgDoc, zoomPan, regionDetection, testShapeColors, testShapeOpacity, testFileType, testItemDelimiter, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testShowTitle, testShowNames, testShowSums]);
 
+  // Auto-calculate when model is selected in Data mode
+  useEffect(() => {
+    if (testPendingCalculate && testModel && testCsvData && testColumnMapping.length >= 2) {
+      setTestPendingCalculate(false);
+      handleTestCalculate();
+    }
+  }, [testPendingCalculate, testModel, testCsvData, testColumnMapping, handleTestCalculate]);
+
   // Viewer: region list hover/click
   const handleSidebarHoverRegion = useCallback((_region: Region | null) => {
     // Sidebar hover could drive canvas highlight in the future
@@ -843,13 +852,13 @@ export default function App() {
               // Resize column mapping to match model's set count
               if (testCsvData) {
                 if (testFileType === 'aggregated') {
-                  // Aggregated: slice from original columns (so switching back to larger model works)
                   setTestColumnMapping(testOriginalColumns.slice(0, setCount));
                 } else {
-                  // Binary: slice from original columns
                   setTestColumnMapping(testOriginalColumns.slice(0, setCount));
                 }
               }
+              // Auto-trigger calculation after state update
+              setTestPendingCalculate(true);
             }}
             columnMapping={testColumnMapping}
             originalColumnCount={testOriginalColumns.length}
@@ -1126,7 +1135,11 @@ export default function App() {
           ) : (
             <div className="canvas-empty">
               <div className="canvas-empty-text">
-                {mode === 'data' ? 'Load your data to get started' : 'Open an SVG file to start editing'}
+                {mode === 'data' && testCsvData
+                  ? 'Please select a Venn Diagram model from the left panel'
+                  : mode === 'data'
+                  ? 'Load your data to get started'
+                  : 'Open an SVG file to start editing'}
               </div>
               {mode === 'edit' && (
                 <div style={{ display: 'flex', gap: 12 }}>
@@ -1134,7 +1147,7 @@ export default function App() {
                   <button className="btn btn-large" onClick={handleOpen}>Open Custom</button>
                 </div>
               )}
-              {mode === 'data' && (
+              {mode === 'data' && !testCsvData && (
                 <div style={{ display: 'flex', gap: 12 }}>
                   <button className="btn btn-large" onClick={() => handleTestLoadCsv('sample')}>Load Sample Data</button>
                   <label className="btn btn-large" style={{ cursor: 'pointer' }}>
