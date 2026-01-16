@@ -34,6 +34,8 @@ import { upsetDataFromRegionData, upsetDataFromVennResult } from './utils/upsetD
 import { PdfReportDialog } from './components/PdfReportDialog.tsx';
 import { SampleDataDialog } from './components/SampleDataDialog.tsx';
 import type { SampleDataset } from './components/SampleDataDialog.tsx';
+import { PasteImportDialog } from './components/PasteImportDialog.tsx';
+import { UrlImportDialog } from './components/UrlImportDialog.tsx';
 
 export type ViewStyle = 'layer' | 'cut' | 'upset';
 export type AppMode = 'view' | 'edit' | 'data';
@@ -61,6 +63,8 @@ export default function App() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [pdfReportOpen, setPdfReportOpen] = useState(false);
   const [sampleDataDialog, setSampleDataDialog] = useState(false);
+  const [pasteDialog, setPasteDialog] = useState(false);
+  const [urlDialog, setUrlDialog] = useState(false);
   const [modeSwitchTarget, setModeSwitchTarget] = useState<AppMode | null>(null);
   const [dataOpenDialog, setDataOpenDialog] = useState(false);
   const [csvImportDialog, setCsvImportDialog] = useState<{ rawText: string; filename: string; geneSetFormat?: GeneSetFormat } | null>(null);
@@ -620,6 +624,24 @@ export default function App() {
     reader.readAsText(file);
   }, []);
 
+  const handlePasteImportLoad = useCallback((result: CsvImportResult) => {
+    setPasteDialog(false);
+    setTestCsvData(result.csv);
+    setTestCsvFilename('pasted-data');
+    setTestFileType(result.fileType);
+    setTestGeneSetMeta(null);
+    setTestError(null);
+    setTestCalculated(false);
+    const cols = result.selectedColumns.slice(0, 9);
+    setTestColumnMapping(cols);
+    setTestOriginalColumns(cols);
+  }, []);
+
+  const handleUrlImportLoad = useCallback((rawText: string, filename: string, geneSetFormat?: GeneSetFormat) => {
+    setUrlDialog(false);
+    setCsvImportDialog({ rawText, filename, geneSetFormat });
+  }, []);
+
   const handleCsvImportLoad = useCallback((result: CsvImportResult) => {
     const filename = csvImportDialog?.filename ?? 'data.csv';
     setCsvImportDialog(null);
@@ -1151,7 +1173,7 @@ export default function App() {
                 </div>
               )}
               {mode === 'data' && !testCsvData && (
-                <div style={{ display: 'flex', gap: 12 }}>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <button className="btn btn-large" onClick={() => setSampleDataDialog(true)}>Load Sample Data</button>
                   <label className="btn btn-large" style={{ cursor: 'pointer' }}>
                     Upload Custom File
@@ -1161,6 +1183,8 @@ export default function App() {
                       e.target.value = '';
                     }} />
                   </label>
+                  <button className="btn btn-large" onClick={() => setPasteDialog(true)}>Paste Lists</button>
+                  <button className="btn btn-large" onClick={() => setUrlDialog(true)}>Load from URL</button>
                 </div>
               )}
             </div>
@@ -1290,6 +1314,8 @@ export default function App() {
             <div className="confirm-actions">
               <button className="btn btn-accent" onClick={() => { setDataOpenDialog(false); setSampleDataDialog(true); }}>Load Sample Data</button>
               <button className="btn" onClick={() => { setDataOpenDialog(false); dataFileInputRef.current?.click(); }}>Upload Custom File</button>
+              <button className="btn" onClick={() => { setDataOpenDialog(false); setPasteDialog(true); }}>Paste Lists</button>
+              <button className="btn" onClick={() => { setDataOpenDialog(false); setUrlDialog(true); }}>Load from URL</button>
               <button className="btn" onClick={() => setDataOpenDialog(false)}>Cancel</button>
             </div>
           </div>
@@ -1352,6 +1378,18 @@ export default function App() {
         isOpen={sampleDataDialog}
         onSelect={handleLoadSampleDataset}
         onClose={() => setSampleDataDialog(false)}
+      />
+
+      <PasteImportDialog
+        isOpen={pasteDialog}
+        onLoad={handlePasteImportLoad}
+        onCancel={() => setPasteDialog(false)}
+      />
+
+      <UrlImportDialog
+        isOpen={urlDialog}
+        onLoad={handleUrlImportLoad}
+        onCancel={() => setUrlDialog(false)}
       />
 
       {/* Rotate angle tooltip */}

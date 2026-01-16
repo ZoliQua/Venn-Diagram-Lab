@@ -2,7 +2,7 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite.
 
-**Version:** 1.8.4 | **Models:** 44 SVG diagrams | **License:** MIT
+**Version:** 1.8.5 | **Models:** 44 SVG diagrams | **License:** MIT
 
 ## Features
 
@@ -13,7 +13,7 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 | **Summary** | Gallery view of all 44 diagrams with SVG previews, grouped by set count, with publication references |
 | **View** | Interactive diagram viewer with region detection. Three sub-modes: **Layer** (transparent overlapping shapes), **Cut** (pre-computed intersection regions from JSON data), and **UpSet** (UpSet plot visualization) |
 | **Edit** | Full SVG editor with drag-to-position, text editing, undo/redo, validation, and export |
-| **Data** | Load CSV/TSV/GMT/GMX data, map columns to Venn sets (up to 9), auto-calculate on model selection, export as TSV/PDF |
+| **Data** | Load CSV/TSV/GMT/GMX data, paste gene lists, fetch from URL, map columns to Venn sets (up to 9), auto-calculate on model selection, export as TSV/PDF |
 
 ### View Mode — Layer View
 - Load any of the 44 SVG models from the dropdown
@@ -84,6 +84,9 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 │   │   ├── CutViewCanvas.tsx  Region-based rendering (Cut View)
 │   │   ├── UpsetPlot.tsx      UpSet plot SVG rendering
 │   │   ├── PdfReportDialog.tsx PDF report generation dialog
+│   │   ├── PasteImportDialog.tsx Paste gene lists import
+│   │   ├── UrlImportDialog.tsx  URL data import with validation
+│   │   ├── SampleDataDialog.tsx Sample dataset selector
 │   │   ├── ViewerSidebar.tsx  Model selector + region list
 │   │   ├── ViewerInfoPanel.tsx Region info display
 │   │   ├── SummaryDialog.tsx  Gallery dialog + SOURCES table

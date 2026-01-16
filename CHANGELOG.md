@@ -2,6 +2,21 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.8.5] — 2026-01-16
+
+### Added
+- **Paste Import Dialog** (`PasteImportDialog.tsx`): Paste gene/item lists directly from clipboard into 2-9 labeled textareas with per-set name input, color indicators, delimiter selector (newline/comma/tab/space with auto-detect), real-time item counts, and total unique items. Generates aggregated CsvData, bypassing the CSV Import Dialog.
+- **URL Import Dialog** (`UrlImportDialog.tsx`): Fetch data from any HTTP/HTTPS URL with a 5-step validation pipeline (URL format, protocol, file extension, fetch with 30s timeout and 50MB limit, content format detection). Shows validation checklist with status icons and a 5-line preview. CORS errors produce a clear user message. Routes fetched data to CsvImportDialog.
+- **Import buttons**: "Paste Lists" and "Load from URL" added to Welcome screen (4 buttons with flex-wrap), Data Open dialog (5 buttons), alongside existing "Load Sample Data" and "Upload Custom File"
+- **PDF Report — About This Report**: Last page with methodology explanations for Venn diagrams, UpSet plots, Jaccard Index, Sorensen-Dice Index, and Hypergeometric Enrichment test
+- **PDF Report — Footnotes**: Truncated set names in Set Sizes table marked with asterisk (*), full names listed in a footnote below the table
+
+### Changed
+- **PDF Venn diagram**: Title hidden, Name elements set to 16px for cleaner print output
+- **PDF font**: Switched from Times to Helvetica for consistent character spacing and better Unicode rendering
+- **PDF Set Sizes table**: "Name (full)" renamed to "Name", trimmed to 30 characters
+- **Sample datasets renamed**: Files prefixed with `dataset_real_` (real data) and `dataset_mock_` (test data) for clarity
+
 ## [1.8.4] — 2026-01-14
 
 ### Added

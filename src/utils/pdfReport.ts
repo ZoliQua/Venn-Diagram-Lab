@@ -26,8 +26,8 @@ const PAGE_H = 297;
 const M = { top: 20, bottom: 20, left: 15, right: 15 };
 const CONTENT_W = PAGE_W - M.left - M.right;
 
-// Font: use "times" (closest to Minion Pro in jsPDF built-in fonts)
-const FONT = 'times';
+// Font: helvetica (best Unicode support and consistent spacing in jsPDF)
+const FONT = 'helvetica';
 
 function formatP(p: number): string {
   if (p < 0.001) return p.toExponential(1);
@@ -426,7 +426,8 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
   drawPieChart(pdf, pieCx, pieCy, pieR, pieSlices);
   y += pieChartH + 2;
 
-  // Table below pie chart
+  // Table below pie chart — track truncated names for footnote
+  const truncatedNames: { letter: string; fullName: string }[] = [];
   const inclusiveTotal = letters.reduce((s, l) => s + (vennResult.inclusive.get(l) ?? 0), 0);
   const setSizeRows = letters.map((l, i) => {
     const size = vennResult.inclusive.get(l) ?? 0;
@@ -434,14 +435,39 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
     const incl = size - excl;
     const pct = inclusiveTotal > 0 ? (size / inclusiveTotal * 100).toFixed(1) + '%' : '0%';
     const fullName = setNames[i] ?? l;
-    const fullTrunc = fullName.length > 32 ? fullName.slice(0, 32) : fullName;
-    return [l, fullTrunc, trimmedNames[i], String(size), String(excl), String(incl), pct];
+    let fullDisplay: string;
+    if (fullName.length > 30) {
+      fullDisplay = fullName.slice(0, 30) + '*';
+      truncatedNames.push({ letter: l, fullName });
+    } else {
+      fullDisplay = fullName;
+    }
+    return [l, fullDisplay, trimmedNames[i], String(size), String(excl), String(incl), pct];
   });
 
-  y = drawTable(pdf, M.left, y, ['Set', 'Name (full)', 'Name (short)', 'Size', 'Exclusive', 'Inclusive', '%'], setSizeRows,
+  y = drawTable(pdf, M.left, y, ['Set', 'Name', 'Name (short)', 'Size', 'Exclusive', 'Inclusive', '%'], setSizeRows,
     [10, 60, 36, 12, 16, 16, 14],
     { aligns: ['center', 'left', 'left', 'right', 'right', 'right', 'right'] },
   );
+
+  // Footnote for truncated names
+  if (truncatedNames.length > 0) {
+    if (y + 10 > PAGE_H - M.bottom) {
+      pdf.addPage();
+      y = M.top;
+    }
+    pdf.setFontSize(6);
+    pdf.setFont(FONT, 'italic');
+    pdf.setTextColor(120, 120, 120);
+    const truncList = truncatedNames.map(t => `${t.letter}: ${t.fullName}`).join(', ');
+    const footnoteText = `* Names truncated for display. Full names: ${truncList}.`;
+    const footnoteLines = pdf.splitTextToSize(footnoteText, CONTENT_W);
+    for (const line of footnoteLines) {
+      pdf.text(line, M.left, y + 3);
+      y += 3;
+    }
+    y += 2;
+  }
 
   // ════════════════════════════════════════════
   // PAGE 2: Plots — Venn Diagram + UpSet Plot
@@ -551,6 +577,71 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
     [55, 15, 20, 18, 25, 25, 14],
     { aligns: ['left', 'right', 'right', 'right', 'right', 'right', 'center'], rowBgColors: enrichBg, fontSize: 7 },
   );
+
+  // ════════════════════════════════════════════
+  // LAST PAGE: Methodology & Explanation
+  // ════════════════════════════════════════════
+  pdf.addPage();
+  y = M.top;
+
+  y = pageTitle(pdf, 'About This Report', y);
+
+  const explanationSections: { title: string; text: string }[] = [
+    {
+      title: 'Venn Diagram Lab',
+      text: 'Venn Diagram Lab is an interactive tool for visualizing set relationships using Venn diagrams. It supports 2 to 9 overlapping sets across 44 diagram models, covering all major construction methods (Venn, Edwards, Anderson, Carroll, Bannier-Bodin, Grunbaum, Mamakani, and SUMO-Venn). Users can import their own datasets in CSV, TSV, GMT, or GMX format, map data columns to diagram sets, and generate intersection counts automatically. The tool calculates both exclusive counts (items belonging to exactly one specific combination of sets) and inclusive counts (all items in a given set, regardless of overlap).',
+    },
+    {
+      title: 'Venn Diagrams',
+      text: 'A Venn diagram displays all possible logical relations between a finite collection of sets. Each set is represented as a closed shape, and overlapping areas represent intersections -- items that belong to multiple sets simultaneously. For n sets, there are (2^n)-1 possible non-empty regions. The diagram allows researchers to visually identify which items are shared between groups, which are unique to a single group, and how extensively the groups overlap. In this report, exclusive region counts are shown: each item is counted exactly once, in the region corresponding to its precise combination of set memberships.',
+    },
+    {
+      title: 'UpSet Plots',
+      text: 'An UpSet plot is a scalable alternative to Venn diagrams for quantifying set intersections. Instead of overlapping shapes, it uses a matrix layout: rows represent the sets, columns represent specific intersections, and filled dots connected by lines indicate which sets participate in each intersection. Vertical bars above the matrix show the size (item count) of each intersection, sorted by size in descending order. Horizontal bars on the left show the total size of each set. UpSet plots are particularly useful for more than 4 sets, where traditional Venn diagrams become visually complex. This report shows the top 20 intersections by size.',
+    },
+    {
+      title: 'Pairwise Jaccard Index',
+      text: 'The Jaccard similarity index measures the overlap between two sets as the ratio of their intersection size to their union size: J(A,B) = |A inter B| / |A union B|. Values range from 0 (no shared items) to 1 (identical sets). A Jaccard index above 0.7 suggests high similarity, while below 0.1 indicates very little overlap. The Overlap Coefficient is a related measure: OC(A,B) = |A inter B| / min(|A|, |B|), which is more useful when one set is much smaller than the other.',
+    },
+    {
+      title: 'Sorensen-Dice Index',
+      text: 'The Sorensen-Dice coefficient is another similarity measure, defined as D(A,B) = 2*|A inter B| / (|A| + |B|). It gives more weight to shared items than the Jaccard index and is widely used in ecological and bioinformatics studies. Like Jaccard, values range from 0 to 1, with higher values indicating greater similarity between sets.',
+    },
+    {
+      title: 'Intersection Enrichment (Hypergeometric Test)',
+      text: 'The hypergeometric test evaluates whether the observed overlap between two sets is greater than expected by chance. Given a total population of N items, where set A contains K items and set B contains n items, the test calculates the probability of observing k or more shared items under a random null model (sampling without replacement). The Fold Enrichment (FE) is the ratio of observed to expected overlap: FE = (k/n) / (K/N). An FE > 1 indicates more overlap than expected. The p-values are corrected for multiple testing using the Benjamini-Hochberg False Discovery Rate (FDR) method. Significance levels are marked as: *** (FDR < 0.001), ** (FDR < 0.01), * (FDR < 0.05), ns (not significant).',
+    },
+  ];
+
+  for (const section of explanationSections) {
+    // Check if title + at least some text fits
+    if (y + 16 > PAGE_H - M.bottom) {
+      pdf.addPage();
+      y = M.top;
+    }
+
+    // Section title
+    pdf.setFontSize(10);
+    pdf.setFont(FONT, 'bold');
+    pdf.setTextColor(30, 30, 80);
+    pdf.text(section.title, M.left, y + 5);
+    y += 7;
+
+    // Section text — wrap manually
+    pdf.setFontSize(8);
+    pdf.setFont(FONT, 'normal');
+    pdf.setTextColor(60, 60, 60);
+    const lines = pdf.splitTextToSize(section.text, CONTENT_W);
+    for (const line of lines) {
+      if (y + 4 > PAGE_H - M.bottom) {
+        pdf.addPage();
+        y = M.top;
+      }
+      pdf.text(line, M.left, y + 3);
+      y += 3.5;
+    }
+    y += 4;
+  }
 
   // ── Footer on all pages ──
   const totalPages = pdf.getNumberOfPages();

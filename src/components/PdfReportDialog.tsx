@@ -42,21 +42,23 @@ export function PdfReportDialog({
 
         let vennImage: { dataUrl: string; width: number; height: number };
 
-        if (viewStyle === 'layer') {
-          // Capture the current SVG from DOM
-          const svgEl = document.querySelector('.canvas-svg') as SVGSVGElement | null;
-          if (svgEl) {
-            vennImage = await svgElementToDataUrl(svgEl);
-          } else {
-            // Fallback: rebuild from document
-            const svgString = saveSvg(doc);
-            vennImage = await svgStringToDataUrl(svgString);
-          }
-        } else {
-          // Not in layer view — rebuild from document model
-          const svgString = saveSvg(doc);
-          vennImage = await svgStringToDataUrl(svgString);
-        }
+        // Build SVG from document model for consistent PDF output
+        const svgString = saveSvg(doc);
+        // Parse and modify: hide title, set Name font size to 16px
+        const parser = new DOMParser();
+        const svgDom = parser.parseFromString(svgString, 'image/svg+xml');
+        const svgRoot = svgDom.documentElement as unknown as SVGSVGElement;
+        // Hide title
+        const titleEl = svgRoot.querySelector('#Title');
+        if (titleEl) (titleEl as SVGElement).setAttribute('style', (titleEl.getAttribute('style') ?? '') + ';display:none');
+        // Set Name elements to 16px
+        svgRoot.querySelectorAll('[id^="Name"]').forEach(el => {
+          const style = el.getAttribute('style') ?? '';
+          const updated = style.replace(/font-size:\s*[^;]+/, 'font-size:16');
+          el.setAttribute('style', updated.includes('font-size') ? updated : updated + ';font-size:16');
+        });
+        const modifiedSvg = new XMLSerializer().serializeToString(svgRoot);
+        vennImage = await svgStringToDataUrl(modifiedSvg);
 
         if (cancelled) return;
 

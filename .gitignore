@@ -29,6 +29,7 @@ logs
 *~
 
 # Project-specific
+article/
 test/
 samples/
 models/svg/archive/
