@@ -2,7 +2,7 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite.
 
-**Version:** 1.8.5 | **Models:** 44 SVG diagrams | **License:** MIT
+**Version:** 1.8.7 | **Models:** 44 SVG diagrams | **License:** MIT
 
 ## Features
 
@@ -57,7 +57,10 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 - Collapsible sidebar sections (File Info, Model, Column Mapping, View, Export)
 - Right panel toggle: **Properties** (region info, items, unlock) / **Statistics** (Jaccard, Dice, enrichment)
 - Selected region style: configurable highlight color for hovered/selected count values
+- Visual model browser after data import — shows compatible diagram models filtered by set count
 - Auto-calculate on model selection (no manual Calculate button needed)
+- **Find Item** search: global cross-region search with match highlighting and region navigation
+- **In-region filter**: filter items within a selected region with highlighted matches
 - UpSet Plot sub-mode available after calculation (max 20 intersections in print export)
 - Export: **SVG / PNG / JPG** image export + **Regions Summary TSV** + **Item Matrix TSV**
 - **PDF Report**: Multi-page A4 report with data overview, pie chart, Venn diagram, UpSet plot, and full statistical tables (Jaccard, Dice, Enrichment)

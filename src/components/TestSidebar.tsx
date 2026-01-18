@@ -184,8 +184,8 @@ export function TestSidebar({
         </div>
       )}
 
-      {/* Model Selection */}
-      {csvData && (
+      {/* Model Selection — only show when a model is already selected (browser is in canvas otherwise) */}
+      {csvData && selectedModel && (
         <div className="sidebar-section">
           <div className="sidebar-section-title sidebar-collapsible" onClick={() => setModelOpen(o => !o)}>
             <span>{modelOpen ? '▾' : '▸'} 2. Venn Diagram Model</span>

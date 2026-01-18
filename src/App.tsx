@@ -755,9 +755,14 @@ export default function App() {
         svgDoc.updateShapeStyle(`Shape${letter}`, 'opacity', String(testShapeOpacity));
       }
 
+      // Auto-reduce font size if any name is longer than 8 characters
+      const hasLongName = testColumnMapping.some(ci => (testCsvData.headers[ci] ?? '').length > 8);
+      const effectiveNameFontSize = hasLongName && testNameFontSize > 14 ? 14 : testNameFontSize;
+      if (hasLongName && testNameFontSize > 14) setTestNameFontSize(14);
+
       // Re-apply view settings (font size, font family, visibility)
       for (let i = 0; i < testColumnMapping.length; i++) {
-        svgDoc.updateTextStyle(`Name${letters[i]}`, 'font-size', String(testNameFontSize));
+        svgDoc.updateTextStyle(`Name${letters[i]}`, 'font-size', String(effectiveNameFontSize));
         svgDoc.updateTextStyle(`Name${letters[i]}`, 'font-family', `'${testNameFontFamily}'`);
       }
       if (svgDoc.doc?.texts.header) {
@@ -1177,34 +1182,94 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="canvas-empty">
-              <div className="canvas-empty-text">
-                {mode === 'data' && testCsvData
-                  ? 'Please select a Venn Diagram model from the left panel'
-                  : mode === 'data'
-                  ? 'Load your data to get started'
-                  : 'Open an SVG file to start editing'}
-              </div>
-              {mode === 'edit' && (
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <button className="btn btn-large" onClick={handleSelectFromLibrary}>Select Model</button>
-                  <button className="btn btn-large" onClick={handleOpen}>Open Custom</button>
+            <div className={mode === 'data' && testCsvData ? 'canvas-model-browser' : 'canvas-empty'}>
+              {mode === 'data' && testCsvData ? (
+                /* Data loaded, no model selected → model browser */
+                <div className="canvas-model-browser-inner">
+                  <h2 className="canvas-model-browser-title">Select Venn Diagram Model</h2>
+                  <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: -8, marginBottom: 16, fontSize: 13 }}>for your dataset</p>
+                  {Array.from(modelsBySet.entries())
+                    .sort(([a], [b]) => a - b)
+                    .filter(([setCount]) => setCount <= testOriginalColumns.length)
+                    .map(([setCount, models]) => (
+                      <div key={setCount} className="summary-group">
+                        <h3 className="summary-group-title">
+                          {setCount}-Set Diagrams
+                          <span className="summary-group-count">{models.length} variant{models.length > 1 ? 's' : ''} — {Math.pow(2, setCount) - 1} regions</span>
+                        </h3>
+                        <div className="summary-grid">
+                          {models.map(m => {
+                            const source = SOURCES[m.filename];
+                            return (
+                              <div
+                                key={m.filename}
+                                className="summary-card"
+                                onClick={() => {
+                                  setTestModel(m.filename);
+                                  setTestCalculated(false);
+                                  setTestColumnMapping(testOriginalColumns.slice(0, m.setCount));
+                                  setTestPendingCalculate(true);
+                                }}
+                              >
+                                <SvgPreview filename={m.filename} />
+                                <div className="summary-card-info">
+                                  <div className="summary-card-name">{m.label}</div>
+                                  {source && (
+                                    <div className="summary-card-source">
+                                      <span>{renderLabel(source.label)}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
                 </div>
-              )}
-              {mode === 'data' && !testCsvData && (
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <button className="btn btn-large" onClick={() => setSampleDataDialog(true)}>Load Sample Data</button>
-                  <label className="btn btn-large" style={{ cursor: 'pointer' }}>
-                    Upload Custom File
-                    <input type="file" accept=".csv,.tsv,.txt,.gmt,.gmx" style={{ display: 'none' }} onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleTestFileUpload(file);
-                      e.target.value = '';
-                    }} />
-                  </label>
-                  <button className="btn btn-large" onClick={() => setPasteDialog(true)}>Paste Lists</button>
-                  <button className="btn btn-large" onClick={() => setUrlDialog(true)}>Load from URL</button>
-                </div>
+              ) : (
+                <>
+                  <div className="canvas-empty-text">
+                    {mode === 'data'
+                      ? 'Load your data to get started'
+                      : 'Open an SVG file to start editing'}
+                  </div>
+                  {mode === 'edit' && (
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <button className="btn btn-large" onClick={handleSelectFromLibrary}>Select Model</button>
+                      <button className="btn btn-large" onClick={handleOpen}>Open Custom</button>
+                    </div>
+                  )}
+                  {mode === 'data' && (
+                    <div className="data-import-cards">
+                      <div className="data-import-card" onClick={() => setSampleDataDialog(true)}>
+                        <div className="data-import-card-icon">{'\u{1F4CB}'}</div>
+                        <div className="data-import-card-title">Load Sample Data</div>
+                        <div className="data-import-card-desc">Choose from curated biological datasets and test data</div>
+                      </div>
+                      <label className="data-import-card" style={{ cursor: 'pointer' }}>
+                        <div className="data-import-card-icon">{'\u{1F4C2}'}</div>
+                        <div className="data-import-card-title">Upload Custom File</div>
+                        <div className="data-import-card-desc">CSV, TSV, GMT, or GMX format</div>
+                        <input type="file" accept=".csv,.tsv,.txt,.gmt,.gmx" style={{ display: 'none' }} onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleTestFileUpload(file);
+                          e.target.value = '';
+                        }} />
+                      </label>
+                      <div className="data-import-card" onClick={() => setPasteDialog(true)}>
+                        <div className="data-import-card-icon">{'\u{1F4DD}'}</div>
+                        <div className="data-import-card-title">Paste Lists</div>
+                        <div className="data-import-card-desc">Paste gene or item lists directly from clipboard</div>
+                      </div>
+                      <div className="data-import-card" onClick={() => setUrlDialog(true)}>
+                        <div className="data-import-card-icon">{'\u{1F517}'}</div>
+                        <div className="data-import-card-title">Load from URL</div>
+                        <div className="data-import-card-desc">Fetch data from a web address</div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -1242,6 +1307,7 @@ export default function App() {
                   canSave={mode === 'data' && testCalculated && viewStyle === 'layer'}
                   onSave={handleSave}
                   onClearSelection={regionDetection.clearSelection}
+                  onSelectRegionByLabel={(label) => regionDetection.setSelectByLabel(label)}
                 />
               )}
             </div>

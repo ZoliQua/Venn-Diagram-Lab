@@ -24,27 +24,39 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary }: WelcomeDialog
               <h3 className="credits-section-title">Authors</h3>
 
               <div className="credits-person">
-                <div className="credits-name">Dr. Zoltan Dul, PhD</div>
-                <div className="credits-role">Researcher, Dentist</div>
-                <div className="credits-role">Former PhD student @ King's College London</div>
+                <img className="credits-photo" src="./credits/zoltan_pics.jpeg" alt="Zoltan Dul" />
+                <div className="credits-person-info">
+                  <div className="credits-name">Dr. Zoltan Dul, PhD</div>
+                  <div className="credits-role">Researcher, Dentist</div>
+                  <div className="credits-role">Former PhD student @ King's College London</div>
+                </div>
               </div>
 
               <div className="credits-person">
-                <div className="credits-name">Prof. N. Shaun B. Thomas</div>
-                <div className="credits-role">Cell Cycle & Epigenetics Team, Division of Cancer Studies</div>
-                <div className="credits-role">King's College London</div>
+                <img className="credits-photo" src="./credits/shaun_pics.jpeg" alt="Shaun Thomas" />
+                <div className="credits-person-info">
+                  <div className="credits-name">Prof. N. Shaun B. Thomas</div>
+                  <div className="credits-role">Cell Cycle & Epigenetics Team, Division of Cancer Studies</div>
+                  <div className="credits-role">King's College London</div>
+                </div>
               </div>
 
               <div className="credits-person">
-                <div className="credits-name">Dr. Attila Csikasz-Nagy</div>
-                <div className="credits-role">Csikasz-Nagy Group, Randall Division of Cell and Molecular Biophysics</div>
-                <div className="credits-role">King's College London</div>
+                <img className="credits-photo" src="./credits/attila_pics.jpg" alt="Attila Csikasz-Nagy" />
+                <div className="credits-person-info">
+                  <div className="credits-name">Dr. Attila Csikasz-Nagy</div>
+                  <div className="credits-role">Csikasz-Nagy Group, Randall Division of Cell and Molecular Biophysics</div>
+                  <div className="credits-role">King's College London</div>
+                </div>
               </div>
 
               <div className="credits-person">
-                <div className="credits-name">Dr. Azeddine Si Ammour</div>
-                <div className="credits-role">Genomics and Biology of Fruit Crop</div>
-                <div className="credits-role">Fondazione Edmund Mach, San Michele all'Adige</div>
+                <img className="credits-photo" src="./credits/azeddine_pics.jpg" alt="Azeddine Si Ammour" />
+                <div className="credits-person-info">
+                  <div className="credits-name">Dr. Azeddine Si Ammour</div>
+                  <div className="credits-role">Genomics and Biology of Fruit Crop</div>
+                  <div className="credits-role">Fondazione Edmund Mach, San Michele all'Adige</div>
+                </div>
               </div>
             </div>
 

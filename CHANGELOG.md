@@ -2,6 +2,31 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.8.7] — 2026-01-18
+
+### Added
+- **Region Item Search**: Two complementary search modes in the right panel (Data mode):
+  - **Find Item (global)**: Collapsible search bar at the top — searches across all regions, shows matching regions with color dots, set names, match count, and up to 5 matching items with highlighted text. Click a result to select the region on the diagram.
+  - **In-region filter**: Search bar within each region's items list (appears when >10 items) — filters items with highlighted matches, increases display limit from 50 to 200 when filtering.
+- **Data Import Cards**: Data mode welcome screen redesigned with 4 large cards in a 2x2 grid, each with icon, title, and description (Load Sample Data, Upload Custom File, Paste Lists, Load from URL).
+- **Data Model Browser**: After loading data, the canvas shows a visual model browser (like View mode) filtered to compatible set counts, with title "Select Venn Diagram Model" and subtitle "for your dataset". Clicking a model triggers auto-calculate.
+- **Credits photos**: Profile pictures for all 4 authors displayed as circular thumbnails (64x64px) in the Credits dialog.
+- **Auto font-size reduction**: In Data mode, if any set name exceeds 8 characters, the Name font-size is automatically reduced to 14px.
+
+### Changed
+- **Model selection in Data mode**: "2. VENN DIAGRAM MODEL" section hidden from sidebar until a model is selected; replaced by the visual model browser in the canvas area.
+
+## [1.8.6] — 2026-01-17
+
+### Added
+- **Light/Dark theme toggle**: Sun/moon button in toolbar with `data-theme` attribute system. 15 new semantic CSS variables, full light theme override. Persisted to localStorage, defaults to OS preference.
+
+### Fixed
+- **10 TypeScript strict errors** that broke Vercel builds: unused imports/variables, ViewStyle type mismatch.
+
+### Changed
+- **~55 hardcoded CSS colors** replaced with semantic CSS variables across editor.css and 5 TSX components.
+
 ## [1.8.5] — 2026-01-16
 
 ### Added

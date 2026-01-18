@@ -1932,6 +1932,150 @@ html, body, #root {
   margin-left: 6px;
 }
 
+/* ---- Item Search (in-region + global) ---- */
+.item-search-bar {
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.item-search-input {
+  width: 100%;
+  padding: 4px 28px 4px 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.item-search-input:focus {
+  border-color: var(--accent);
+}
+
+.item-search-clear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
+.item-search-count {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+.item-match {
+  background: rgba(255, 200, 0, 0.3);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.viewer-item-highlight {
+  border-left: 2px solid var(--accent);
+  padding-left: 6px;
+}
+
+/* Global search results */
+.global-search-section {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.global-search-result {
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.global-search-result:hover {
+  background: var(--bg-hover);
+}
+
+.global-search-result-label {
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.global-search-result-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.global-search-result-count {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ---- Data Import Cards ---- */
+.data-import-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 520px;
+  margin-top: 16px;
+}
+
+.data-import-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.data-import-card:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+}
+
+.data-import-card-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.data-import-card-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.data-import-card-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.global-search-result-items {
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
 .viewer-region-label {
   font-family: monospace;
   font-size: 32px;
@@ -2264,7 +2408,23 @@ html, body, #root {
 }
 
 .credits-person {
-  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.credits-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.credits-person-info {
+  flex: 1;
 }
 
 .credits-name {
