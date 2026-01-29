@@ -1,5 +1,11 @@
 import type { VennResult } from './csvParser.ts';
 
+const FORMULA_PREFIX_RE = /^[\t\r ]*[=+\-@]/;
+
+export function escapeSpreadsheetCell(value: string): string {
+  return FORMULA_PREFIX_RE.test(value) ? `'${value}` : value;
+}
+
 /**
  * FORMAT A: Region Summary TSV
  * Columns: Region | Sets | Depth | Exclusive_Count | Inclusive_Count | Exclusive_Pct | Items
@@ -22,11 +28,15 @@ export function exportRegionSummaryTsv(
   for (let mask = 1; mask < (1 << n); mask++) {
     const subset = letters.filter((_, i) => mask & (1 << i));
     const label = subset.join('');
-    const setLabels = subset.map(l => setNames[l.charCodeAt(0) - 65] ?? l).join(' \u2229 ');
+    const setLabels = subset
+      .map(l => escapeSpreadsheetCell(setNames[l.charCodeAt(0) - 65] ?? l))
+      .join(' \u2229 ');
     const exCount = result.exclusive.get(label) ?? 0;
     const inCount = result.inclusive.get(label) ?? 0;
     const pct = totalItems > 0 ? (exCount / totalItems * 100).toFixed(2) : '0.00';
-    const items = (result.exclusiveItems.get(label) ?? []).join(';');
+    const items = (result.exclusiveItems.get(label) ?? [])
+      .map(escapeSpreadsheetCell)
+      .join(';');
 
     rows.push([label, setLabels, subset.length, exCount, inCount, pct, items].join('\t'));
   }
@@ -50,7 +60,7 @@ export function exportMatrixTsv(
   setNames: string[],
 ): string {
   const letters = 'ABCDEFGHI'.slice(0, n).split('');
-  const headerCols = ['Item', ...letters.map((l, i) => setNames[i] ?? l), 'Region'];
+  const headerCols = ['Item', ...letters.map((l, i) => escapeSpreadsheetCell(setNames[i] ?? l)), 'Region'];
   const header = headerCols.join('\t');
 
   const rows: string[] = [];
@@ -58,7 +68,7 @@ export function exportMatrixTsv(
   for (const [label, items] of result.exclusiveItems) {
     for (const item of items) {
       const membership = letters.map(l => label.includes(l) ? '1' : '0');
-      rows.push([item, ...membership, label].join('\t'));
+      rows.push([escapeSpreadsheetCell(item), ...membership, label].join('\t'));
     }
   }
 

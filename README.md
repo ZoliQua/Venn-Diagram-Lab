@@ -77,12 +77,18 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 - Export individual region items via right panel
 - Sample datasets: binary (streaming platforms) and aggregated (gene sets)
 - Supports up to **9 sets** (A through I)
+- TSV exports escape spreadsheet-style formula prefixes in exported text cells while preserving the in-app values
 
 ### Summary Mode
 - Dialog gallery of all 44 diagrams
 - SVG previews rendered inline
 - Grouped by set count (2-set through 9-set)
 - Source references linked to publication PDFs (multi-line labels supported)
+
+## Security Notes
+
+- `index.html` defines a restrictive Content Security Policy that keeps the current GA consent loader, local assets, and `blob:` / `data:` export paths working.
+- Data-mode TSV exports escape leading spreadsheet formula prefixes (`=`, `+`, `-`, `@`) in text cells to reduce Excel/LibreOffice formula execution risk.
 
 ## Project Structure
 
@@ -128,6 +134,7 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 │   │   ├── proportionalModel.ts  VennDocument generator for proportional
 │   │   └── proportionalRegions.ts Cut View region paths for proportional
 │   └── __tests__/             Test suites
+│       ├── exportData.test.ts  TSV export hardening tests
 ├── models/
 │   ├── svg/                   44 SVG Venn diagram models
 │   └── json/                  44 JSON pre-computed region data

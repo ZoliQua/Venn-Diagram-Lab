@@ -19,11 +19,14 @@ All notable changes to the Venn Diagram Lab project.
 - **PDF Report — Significant edges**: Listed below the Network diagram with Jaccard values
 - **PDF Report — Network explanation**: "Set Relationship Network" section added to About This Report
 - **PDF Report — Section-only titles**: Empty-text sections render title only (no blank space)
+- **TSV export hardening tests**: dedicated regression coverage for spreadsheet formula escaping in `exportData.test.ts`
 
 ### Changed
 - **Dark mode as default**: OS preference check removed; always starts in dark mode unless user explicitly chose light
 - **Bullet opacity**: updateShapeStyle now also searches bullets; opacity slider syncs shapes + bullets
 - **Welcome dialog**: Data mode description updated ("Load your data to map columns...")
+- **Content Security Policy**: `index.html` now defines a restrictive CSP that still permits GA consent loading and `blob:` / `data:` export flows
+- **TSV export safety**: Region Summary and Item Matrix exports now escape spreadsheet formula prefixes in exported text cells without changing the in-app values
 
 ## [1.9.1] — 2026-01-20
 
