@@ -21,6 +21,15 @@ export interface PdfReportParams {
   proportionalAccuracy?: { single?: Map<string, number>; pairwise: Map<string, number>; triple?: number; overall: number } | null;
   networkImageWidth: number;
   networkImageHeight: number;
+  enrichmentBarDataUrl: string;
+  enrichmentBarWidth: number;
+  enrichmentBarHeight: number;
+  enrichmentLollipopDataUrl: string;
+  enrichmentLollipopWidth: number;
+  enrichmentLollipopHeight: number;
+  enrichmentHeatmapDataUrl: string;
+  enrichmentHeatmapWidth: number;
+  enrichmentHeatmapHeight: number;
   modelName: string;
 }
 
@@ -311,6 +320,9 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
     vennImageDataUrl, vennImageWidth, vennImageHeight,
     upsetImageDataUrl, upsetImageWidth, upsetImageHeight,
     networkImageDataUrl, networkImageWidth, networkImageHeight,
+    enrichmentBarDataUrl, enrichmentBarWidth, enrichmentBarHeight,
+    enrichmentLollipopDataUrl, enrichmentLollipopWidth, enrichmentLollipopHeight,
+    enrichmentHeatmapDataUrl, enrichmentHeatmapWidth, enrichmentHeatmapHeight,
   } = params;
 
   const letters = 'ABCDEFGHI'.slice(0, n).split('');
@@ -635,6 +647,36 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
   );
 
   // ════════════════════════════════════════════
+  // PAGE: Enrichment Visualisations
+  // ════════════════════════════════════════════
+  pdf.addPage();
+  y = M.top;
+
+  y = pageTitle(pdf, 'Enrichment Visualisations', y);
+
+  const drawPlotImage = (dataUrl: string, imgW: number, imgH: number, maxW: number, maxH: number): void => {
+    const aspect = imgH / imgW;
+    let w = Math.min(CONTENT_W, maxW);
+    let h = w * aspect;
+    if (h > maxH) { h = maxH; w = h / aspect; }
+    const x = M.left + (CONTENT_W - w) / 2;
+    pdf.addImage(dataUrl, 'PNG', x, y, w, h);
+    y += h + 4;
+  };
+
+  y = sectionTitle(pdf, 'Bar chart \u2014 \u2212log\u2081\u2080(FDR)', y, 50);
+  drawPlotImage(enrichmentBarDataUrl, enrichmentBarWidth, enrichmentBarHeight, CONTENT_W, 70);
+
+  if (y + 70 > PAGE_H - M.bottom) { pdf.addPage(); y = M.top; }
+  y = sectionTitle(pdf, 'Lollipop chart \u2014 \u2212log\u2081\u2080(FDR), dot area \u221d intersection', y, 50);
+  drawPlotImage(enrichmentLollipopDataUrl, enrichmentLollipopWidth, enrichmentLollipopHeight, CONTENT_W, 70);
+
+  if (y + 70 > PAGE_H - M.bottom) { pdf.addPage(); y = M.top; }
+  y = sectionTitle(pdf, 'Heatmap \u2014 pairwise \u2212log\u2081\u2080(FDR)', y, 50);
+  const heatmapMaxH = PAGE_H - M.bottom - y - 6;
+  drawPlotImage(enrichmentHeatmapDataUrl, enrichmentHeatmapWidth, enrichmentHeatmapHeight, CONTENT_W, heatmapMaxH);
+
+  // ════════════════════════════════════════════
   // LAST PAGE: Methodology & Explanation
   // ════════════════════════════════════════════
   pdf.addPage();
@@ -662,6 +704,10 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
     {
       title: '3. Set Relationship Network',
       text: 'The network diagram is a force-directed graph that visualizes pairwise relationships between sets. Each node represents a set, sized proportionally to its cardinality and colored with the standard Venn color scheme. Edges connect pairs of sets that share items, with edge thickness proportional to the chosen weight metric (intersection count, Jaccard index, Fold Enrichment, or Overlap Coefficient). Edge color indicates statistical significance: green edges are significant (FDR < 0.05), grey edges are not. The layout is computed using a spring-embedder algorithm with repulsive forces between all nodes and attractive forces along edges. This visualization is especially useful for identifying clusters of related sets and understanding the overall topology of set relationships at a glance.',
+    },
+    {
+      title: '4. Enrichment Plots',
+      text: 'The enrichment visualisations summarise the hypergeometric test results across all pairs of sets. The bar chart shows -log10(FDR) for each pair, ordered as in the statistics table and coloured green when FDR < 0.05. The lollipop chart uses the same encoding for the stick length but additionally scales the dot area by the observed intersection count, so large and significant overlaps stand out simultaneously. The heatmap renders a symmetric n by n matrix of pairwise -log10(FDR) values; the diagonal is marked with an em-dash because a set cannot be enriched against itself. In the interactive Data-mode panel the same plots can be switched to display Fold Enrichment; the PDF uses the -log10(FDR) variant.',
     },
     {
       title: 'Statistics',

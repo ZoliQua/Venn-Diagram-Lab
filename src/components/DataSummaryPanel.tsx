@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { VennResult } from '../utils/csvParser.ts';
 import { pairwiseStatistics } from '../utils/statistics.ts';
 import { downloadFile } from '../utils/exportData.ts';
+import { EnrichmentPlots } from './EnrichmentPlots.tsx';
 
 interface DataSummaryPanelProps {
   vennResult: VennResult;
@@ -9,6 +10,7 @@ interface DataSummaryPanelProps {
   setNames: string[];
   totalItems: number;
   selectedRegionLabel: string | null;
+  datasetName?: string;
 }
 
 function formatP(p: number): string {
@@ -35,12 +37,13 @@ function jaccardBgColor(j: number): string | undefined {
   return undefined;
 }
 
-export function DataSummaryPanel({ vennResult, n, setNames, totalItems }: DataSummaryPanelProps) {
+export function DataSummaryPanel({ vennResult, n, setNames, totalItems, datasetName }: DataSummaryPanelProps) {
   const [overviewOpen, setOverviewOpen] = useState(true);
   const [setSizesOpen, setSetSizesOpen] = useState(true);
   const [jaccardOpen, setJaccardOpen] = useState(true);
   const [diceOpen, setDiceOpen] = useState(false);
   const [enrichmentOpen, setEnrichmentOpen] = useState(true);
+  const [plotsOpen, setPlotsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(true);
 
   const letters = 'ABCDEFGHI'.slice(0, n).split('');
@@ -215,7 +218,22 @@ export function DataSummaryPanel({ vennResult, n, setNames, totalItems }: DataSu
         )}
       </div>
 
-      {/* 6. Export Statistics */}
+      {/* 6. Enrichment Plots */}
+      <div className="data-summary-section">
+        <div className="sidebar-section-title sidebar-collapsible" onClick={() => setPlotsOpen(o => !o)}>
+          <span>{plotsOpen ? '\u25be' : '\u25b8'} Enrichment Plots</span>
+        </div>
+        {plotsOpen && (
+          <EnrichmentPlots
+            stats={pairStats}
+            setLetters={letters}
+            setNames={setNames}
+            datasetName={datasetName}
+          />
+        )}
+      </div>
+
+      {/* 7. Export Statistics */}
       <div className="data-summary-section">
         <div className="sidebar-section-title sidebar-collapsible" onClick={() => setExportOpen(o => !o)}>
           <span>{exportOpen ? '▾' : '▸'} Export Statistics</span>

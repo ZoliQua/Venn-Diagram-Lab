@@ -3279,6 +3279,60 @@ html, body, #root {
   color: var(--text-muted, var(--text-secondary));
 }
 
+/* ---- Enrichment Plots (Data mode) ---- */
+.enrichment-plots {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 6px 0 2px;
+}
+
+.enrichment-plots-header {
+  display: flex;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+.enrichment-metric-toggle {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--bg-secondary);
+  padding: 2px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.enrichment-plot-block {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 6px 4px;
+}
+
+.enrichment-plot-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 2px 4px 4px;
+}
+
+.enrichment-plot-svg {
+  background: #ffffff;
+  border-radius: 3px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.enrichment-plot-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 /* ---- SVG Validation Dialog ---- */
 .validation-dialog {
   background: var(--bg-primary);

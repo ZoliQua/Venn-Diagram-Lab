@@ -2,6 +2,22 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.10.0] — 2026-03-30
+
+### Added
+- **Enrichment Plots (Data mode)**: New collapsible "Enrichment Plots" section in the statistics panel, showing three complementary visualisations of the pairwise hypergeometric results:
+  - **Bar chart**: one bar per pair, coloured green when FDR < 0.05 and grey otherwise; significance markers (`*`, `**`, `***`) above the bars.
+  - **Lollipop chart**: stick length encodes the chosen metric, dot area encodes the intersection count.
+  - **Heatmap**: symmetric n×n matrix; diagonal is empty (em-dash) because a set is not tested against itself.
+- **Metric toggle**: switch all three plots between `−log₁₀(FDR)` (default) and `Fold Enrichment`.
+- **Per-plot SVG export**: every enrichment plot has an "Export SVG" button that downloads the plot as a standalone SVG file.
+- **PDF Report — Enrichment Visualisations page**: all three plots appear on a dedicated page between the Statistics tables and the Methodology section (PDF variant fixed to `−log₁₀(FDR)`).
+- **Tests — `enrichmentPlotSvg.test.ts`**: 16 tests covering metric computation, FDR=0 numerical floor, SVG structure, per-pair labels, heatmap symmetry and diagonal marking.
+
+### Changed
+- **Help — Data mode Statistics**: new line documenting the Enrichment Plots section and its export buttons.
+- **PDF Methodology**: added a paragraph explaining the three enrichment plots.
+
 ## [1.9.7] — 2026-03-29
 
 ### Added

@@ -371,6 +371,7 @@ const HELP: Record<AppMode, HelpPage> = {
               { content: 'Pairwise Jaccard Index: intersection, union, Jaccard, Overlap Coefficient. Color-coded.' },
               { content: 'Sorensen-Dice Index: Dice coefficient for each pair.' },
               { content: 'Intersection Enrichment: hypergeometric test, fold enrichment, p-value, FDR (Benjamini-Hochberg). Significance markers.' },
+              { content: 'Enrichment Plots: bar, lollipop and heatmap visualisations of the hypergeometric FDR (or Fold Enrichment) across all pairs. Per-plot SVG export.' },
               { content: 'Export Statistics (TSV): all pairwise statistics in one file.' },
             ],
           },

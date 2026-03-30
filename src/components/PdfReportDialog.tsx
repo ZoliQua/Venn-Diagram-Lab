@@ -8,6 +8,12 @@ import { generatePdfReport } from '../utils/pdfReport.ts';
 import { saveSvg } from '../parser/saveSvg.ts';
 import { buildNetworkData } from '../utils/networkData.ts';
 import { buildNetworkSvgString } from '../utils/networkSvgBuilder.ts';
+import { pairwiseStatistics } from '../utils/statistics.ts';
+import {
+  buildEnrichmentBarSvg,
+  buildEnrichmentLollipopSvg,
+  buildEnrichmentHeatmapSvg,
+} from '../utils/enrichmentPlotSvg.ts';
 
 interface PdfReportDialogProps {
   isOpen: boolean;
@@ -81,6 +87,21 @@ export function PdfReportDialog({
 
         if (cancelled) return;
 
+        // Step 2c: Build Enrichment plots (PDF uses -log10(FDR) variant)
+        setStep('Rendering enrichment plots...');
+
+        const stats = pairwiseStatistics(vennResult, n, totalItems, setNames);
+        const letters = 'ABCDEFGHI'.slice(0, n).split('');
+        const metric = 'neglog10fdr' as const;
+        const barSvg = buildEnrichmentBarSvg(stats, { metric });
+        const lollipopSvg = buildEnrichmentLollipopSvg(stats, { metric });
+        const heatmapSvg = buildEnrichmentHeatmapSvg(stats, letters, setNames, { metric });
+        const enrichmentBar = await svgStringToDataUrl(barSvg);
+        const enrichmentLollipop = await svgStringToDataUrl(lollipopSvg);
+        const enrichmentHeatmap = await svgStringToDataUrl(heatmapSvg);
+
+        if (cancelled) return;
+
         // Step 3: Generate PDF
         setStep('Building PDF...');
 
@@ -101,6 +122,15 @@ export function PdfReportDialog({
           networkImageDataUrl: networkImage.dataUrl,
           networkImageWidth: networkImage.width,
           networkImageHeight: networkImage.height,
+          enrichmentBarDataUrl: enrichmentBar.dataUrl,
+          enrichmentBarWidth: enrichmentBar.width,
+          enrichmentBarHeight: enrichmentBar.height,
+          enrichmentLollipopDataUrl: enrichmentLollipop.dataUrl,
+          enrichmentLollipopWidth: enrichmentLollipop.width,
+          enrichmentLollipopHeight: enrichmentLollipop.height,
+          enrichmentHeatmapDataUrl: enrichmentHeatmap.dataUrl,
+          enrichmentHeatmapWidth: enrichmentHeatmap.width,
+          enrichmentHeatmapHeight: enrichmentHeatmap.height,
           modelName,
           proportionalAccuracy,
         });

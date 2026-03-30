@@ -1510,6 +1510,7 @@ export default function App() {
                   setNames={testColumnMapping.map(i => testCsvData?.headers[i] ?? '')}
                   totalItems={testCsvData?.rows.length ?? 0}
                   selectedRegionLabel={regionDetection.selectedRegion?.label ?? null}
+                  datasetName={testCsvFilename ?? undefined}
                 />
               ) : (
                 <ViewerInfoPanel
