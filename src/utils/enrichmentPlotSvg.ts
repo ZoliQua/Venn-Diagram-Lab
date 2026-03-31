@@ -140,9 +140,6 @@ export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlo
   const slotW = plotW / n;
   const barW = Math.min(22, slotW * 0.7);
 
-  // Title (metric)
-  parts.push(`<text x="${width / 2}" y="${M.top - 10}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="10" text-anchor="middle">${esc(metricLabel(metric))}</text>`);
-
   // Y-axis grid + labels
   for (const t of ticks) {
     const y = plotY + plotH - (t / yMax) * plotH;
@@ -177,8 +174,10 @@ export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlo
     parts.push(`<text x="${lx}" y="${ly}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="end" transform="rotate(-45 ${lx} ${ly})">${esc(s.label)}</text>`);
   }
 
-  // Axis label (y)
-  parts.push(`<text x="${M.left - 36}" y="${plotY + plotH / 2}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="middle" transform="rotate(-90 ${M.left - 36} ${plotY + plotH / 2})">${esc(metricLabel(metric))}</text>`);
+  // Axis label (y) — rotated on the left side, in a clear position
+  const yLabelX = 14;
+  const yLabelY = plotY + plotH / 2;
+  parts.push(`<text x="${yLabelX}" y="${yLabelY}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="10" font-weight="bold" text-anchor="middle" transform="rotate(-90 ${yLabelX} ${yLabelY})">${esc(metricLabel(metric))}</text>`);
 
   // Legend
   const legendY = height - 12;
@@ -225,8 +224,6 @@ export function buildEnrichmentLollipopSvg(stats: PairwiseStat[], opts: Enrichme
   const n = stats.length;
   const slotW = plotW / n;
 
-  parts.push(`<text x="${width / 2}" y="${M.top - 10}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="10" text-anchor="middle">${esc(metricLabel(metric))} \u2014 dot area \u221d intersection</text>`);
-
   for (const t of ticks) {
     const y = plotY + plotH - (t / yMax) * plotH;
     parts.push(`<line x1="${plotX}" y1="${y}" x2="${plotX + plotW}" y2="${y}" stroke="${pal.grid}" stroke-width="1"/>`);
@@ -258,7 +255,10 @@ export function buildEnrichmentLollipopSvg(stats: PairwiseStat[], opts: Enrichme
     parts.push(`<text x="${lx}" y="${ly}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="end" transform="rotate(-45 ${lx} ${ly})">${esc(s.label)}</text>`);
   }
 
-  parts.push(`<text x="${M.left - 36}" y="${plotY + plotH / 2}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="middle" transform="rotate(-90 ${M.left - 36} ${plotY + plotH / 2})">${esc(metricLabel(metric))}</text>`);
+  // Axis label (y) — rotated on the left side, in a clear position
+  const yLabelX = 14;
+  const yLabelY = plotY + plotH / 2;
+  parts.push(`<text x="${yLabelX}" y="${yLabelY}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="10" font-weight="bold" text-anchor="middle" transform="rotate(-90 ${yLabelX} ${yLabelY})">${esc(metricLabel(metric))}</text>`);
 
   // Legend
   const legendY = height - 12;
@@ -283,7 +283,7 @@ export function buildEnrichmentHeatmapSvg(
 
   const cellSize = 36;
   const leftLabelW = 110;
-  const topLabelH = 60;
+  const topLabelH = 82;
   const legendW = 22;
   const legendGap = 12;
   const legendLabelW = 48;
@@ -340,13 +340,13 @@ export function buildEnrichmentHeatmapSvg(
   for (let c = 0; c < nSets; c++) {
     const cx = gridX + c * cellSize + cellSize / 2;
     const cy = gridY - 6;
-    parts.push(`<text x="${cx}" y="${cy}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="start" transform="rotate(-45 ${cx} ${cy})">${esc(trimmedNames[c])}</text>`);
+    parts.push(`<text x="${cx}" y="${cy}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="7" text-anchor="start" transform="rotate(-45 ${cx} ${cy})">${esc(trimmedNames[c])}</text>`);
   }
 
   // Row labels (left)
   for (let r = 0; r < nSets; r++) {
     const ly = gridY + r * cellSize + cellSize / 2;
-    parts.push(`<text x="${gridX - 6}" y="${ly + 3}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="end">${esc(trimmedNames[r])}</text>`);
+    parts.push(`<text x="${gridX - 6}" y="${ly + 3}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="7" text-anchor="end">${esc(trimmedNames[r])}</text>`);
   }
 
   // Cells

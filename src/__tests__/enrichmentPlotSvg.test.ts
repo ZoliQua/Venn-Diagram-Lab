@@ -141,13 +141,16 @@ describe('buildEnrichmentHeatmapSvg', () => {
 
   it('is symmetric: AB (row 0, col 1) and BA (row 1, col 0) cells share the same fill', () => {
     const svg = buildEnrichmentHeatmapSvg(fixture, letters, names, { metric: 'neglog10fdr' });
-    // Heatmap layout constants (see enrichmentPlotSvg.ts): gridX=110, gridY=60, cellSize=36.
-    const xAB = 110 + 1 * 36; // col 1
-    const yAB = 60 + 0 * 36;  // row 0
-    const xBA = 110 + 0 * 36; // col 0
-    const yBA = 60 + 1 * 36;  // row 1
-    const matchAB = new RegExp(`<rect x="${xAB}" y="${yAB}" width="36" height="36" fill="([^"]+)"`);
-    const matchBA = new RegExp(`<rect x="${xBA}" y="${yBA}" width="36" height="36" fill="([^"]+)"`);
+    // Heatmap layout constants (see enrichmentPlotSvg.ts): gridX=110, gridY=82, cellSize=36.
+    const gridX = 110;
+    const gridY = 82;
+    const cellSize = 36;
+    const xAB = gridX + 1 * cellSize; // col 1
+    const yAB = gridY + 0 * cellSize; // row 0
+    const xBA = gridX + 0 * cellSize; // col 0
+    const yBA = gridY + 1 * cellSize; // row 1
+    const matchAB = new RegExp(`<rect x="${xAB}" y="${yAB}" width="${cellSize}" height="${cellSize}" fill="([^"]+)"`);
+    const matchBA = new RegExp(`<rect x="${xBA}" y="${yBA}" width="${cellSize}" height="${cellSize}" fill="([^"]+)"`);
     const ab = svg.match(matchAB);
     const ba = svg.match(matchBA);
     expect(ab).not.toBeNull();

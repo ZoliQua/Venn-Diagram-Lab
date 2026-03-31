@@ -836,10 +836,22 @@ export default function App() {
         svgDoc.updateShapeStyle(`Shape${letter}`, 'opacity', String(testShapeOpacity));
       }
 
-      // Auto-reduce font size if any name is longer than 8 characters
-      const hasLongName = testColumnMapping.some(ci => (testCsvData.headers[ci] ?? '').length > 8);
-      const effectiveNameFontSize = hasLongName && testNameFontSize > 14 ? 14 : testNameFontSize;
-      if (hasLongName && testNameFontSize > 14) setTestNameFontSize(14);
+      // Auto-cap name font size based on the longest column name.
+      // Only reduces the user's current setting; never increases it.
+      const maxNameLen = testColumnMapping.reduce(
+        (m, ci) => Math.max(m, (testCsvData.headers[ci] ?? '').length),
+        0,
+      );
+      const autoCap: number | null =
+        maxNameLen >= 28 ? 8 :
+        maxNameLen >= 24 ? 9 :
+        maxNameLen >= 20 ? 10 :
+        maxNameLen >= 17 ? 12 :
+        null;
+      const effectiveNameFontSize = autoCap !== null && testNameFontSize > autoCap
+        ? autoCap
+        : testNameFontSize;
+      if (autoCap !== null && testNameFontSize > autoCap) setTestNameFontSize(autoCap);
 
       // Re-apply view settings (font size, font family, visibility)
       for (let i = 0; i < testColumnMapping.length; i++) {

@@ -2,6 +2,20 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.10.1] — 2026-03-31
+
+### Fixed
+- **PDF Bar / Lollipop chart — y-axis label readability**: removed the top centered `−log₁₀(FDR)` title that occasionally overlapped significance asterisks above tall bars. The side y-axis label is now the sole metric marker (bold, 10 px, x = 14), consistently readable regardless of the data range.
+- **PDF Enrichment section headings — character spacing**: simplified `Bar chart — −log₁₀(FDR)` and similar to just `Bar chart`, `Lollipop chart`, `Heatmap`. This also removes the jsPDF helvetica kerning issue with subscript / minus unicode characters.
+- **PDF Heatmap — top metric title visibility**: column and row axis labels reduced from 9 px to 7 px, and `topLabelH` raised from 60 to 82, so the rotated axis labels no longer collide with the `−log₁₀(FDR)` title above.
+
+### Added
+- **Data mode — auto-cap name font size**: when the longest column name exceeds 16 characters, the Group-names font size is capped to 12 px (17–19 chars), 10 px (20–23), 9 px (24–27), or 8 px (≥28). Applies uniformly to all names; never increases a smaller user setting.
+- **PDF Methodology — Enrichment plots**: `About This Report` now documents the three enrichment plots under the Statistics section as entries `4. Bar chart`, `5. Lollipop chart`, `6. Heatmap`, each with its own paragraph explaining encoding, colour scale, and interpretation.
+
+### Changed
+- **PDF page title**: `Enrichment Visualisations` → `Statistics: Enrichment Visualisations` to reflect that the plots visualise the pairwise statistics.
+
 ## [1.10.0] — 2026-03-30
 
 ### Added

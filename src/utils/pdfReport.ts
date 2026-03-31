@@ -652,7 +652,7 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
   pdf.addPage();
   y = M.top;
 
-  y = pageTitle(pdf, 'Enrichment Visualisations', y);
+  y = pageTitle(pdf, 'Statistics: Enrichment Visualisations', y);
 
   const drawPlotImage = (dataUrl: string, imgW: number, imgH: number, maxW: number, maxH: number): void => {
     const aspect = imgH / imgW;
@@ -664,15 +664,15 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
     y += h + 4;
   };
 
-  y = sectionTitle(pdf, 'Bar chart \u2014 \u2212log\u2081\u2080(FDR)', y, 50);
+  y = sectionTitle(pdf, 'Bar chart', y, 50);
   drawPlotImage(enrichmentBarDataUrl, enrichmentBarWidth, enrichmentBarHeight, CONTENT_W, 70);
 
   if (y + 70 > PAGE_H - M.bottom) { pdf.addPage(); y = M.top; }
-  y = sectionTitle(pdf, 'Lollipop chart \u2014 \u2212log\u2081\u2080(FDR), dot area \u221d intersection', y, 50);
+  y = sectionTitle(pdf, 'Lollipop chart', y, 50);
   drawPlotImage(enrichmentLollipopDataUrl, enrichmentLollipopWidth, enrichmentLollipopHeight, CONTENT_W, 70);
 
   if (y + 70 > PAGE_H - M.bottom) { pdf.addPage(); y = M.top; }
-  y = sectionTitle(pdf, 'Heatmap \u2014 pairwise \u2212log\u2081\u2080(FDR)', y, 50);
+  y = sectionTitle(pdf, 'Heatmap', y, 50);
   const heatmapMaxH = PAGE_H - M.bottom - y - 6;
   drawPlotImage(enrichmentHeatmapDataUrl, enrichmentHeatmapWidth, enrichmentHeatmapHeight, CONTENT_W, heatmapMaxH);
 
@@ -706,10 +706,6 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
       text: 'The network diagram is a force-directed graph that visualizes pairwise relationships between sets. Each node represents a set, sized proportionally to its cardinality and colored with the standard Venn color scheme. Edges connect pairs of sets that share items, with edge thickness proportional to the chosen weight metric (intersection count, Jaccard index, Fold Enrichment, or Overlap Coefficient). Edge color indicates statistical significance: green edges are significant (FDR < 0.05), grey edges are not. The layout is computed using a spring-embedder algorithm with repulsive forces between all nodes and attractive forces along edges. This visualization is especially useful for identifying clusters of related sets and understanding the overall topology of set relationships at a glance.',
     },
     {
-      title: '4. Enrichment Plots',
-      text: 'The enrichment visualisations summarise the hypergeometric test results across all pairs of sets. The bar chart shows -log10(FDR) for each pair, ordered as in the statistics table and coloured green when FDR < 0.05. The lollipop chart uses the same encoding for the stick length but additionally scales the dot area by the observed intersection count, so large and significant overlaps stand out simultaneously. The heatmap renders a symmetric n by n matrix of pairwise -log10(FDR) values; the diagonal is marked with an em-dash because a set cannot be enriched against itself. In the interactive Data-mode panel the same plots can be switched to display Fold Enrichment; the PDF uses the -log10(FDR) variant.',
-    },
-    {
       title: 'Statistics',
       text: '',
     },
@@ -724,6 +720,18 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
     {
       title: '3. Intersection Enrichment (Hypergeometric Test)',
       text: 'The hypergeometric test evaluates whether the observed overlap between two sets is greater than expected by chance. Given a total population of N items, where set A contains K items and set B contains n items, the test calculates the probability of observing k or more shared items under a random null model (sampling without replacement). The Fold Enrichment (FE) is the ratio of observed to expected overlap: FE = (k/n) / (K/N). An FE > 1 indicates more overlap than expected. The p-values are corrected for multiple testing using the Benjamini-Hochberg False Discovery Rate (FDR) method. Significance levels are marked as: *** (FDR < 0.001), ** (FDR < 0.01), * (FDR < 0.05), ns (not significant).',
+    },
+    {
+      title: '4. Bar chart',
+      text: 'The bar chart plots one vertical bar per pair of sets. Bar height encodes -log10(FDR), so taller bars indicate more significant over-representation. Bars are coloured green when FDR < 0.05 and grey otherwise, and significance asterisks above each bar mark the classical thresholds: * (FDR < 0.05), ** (FDR < 0.01), *** (FDR < 0.001). The bar chart is the most direct visual summary of which pairwise overlaps survive multiple-testing correction.',
+    },
+    {
+      title: '5. Lollipop chart',
+      text: 'The lollipop chart shares the x-axis and colour coding with the bar chart, but draws each pair as a thin stick topped by a dot. The stick length still encodes -log10(FDR), while the dot area is scaled by the observed intersection count. This double encoding highlights pairs that are both statistically significant and biologically sizeable: tall stick plus large dot. Small dots on tall sticks identify small-but-significant overlaps, while short sticks on large dots identify abundant overlaps that are nevertheless consistent with chance.',
+    },
+    {
+      title: '6. Heatmap',
+      text: 'The heatmap renders a symmetric n x n matrix of pairwise -log10(FDR) values. Each cell is shaded from white (no enrichment) to dark green (strong enrichment) according to a linear colour scale shown in the legend on the right. The diagonal is marked with an em-dash because a set is not tested against itself. The matrix is symmetric: the cell (A,B) and the cell (B,A) always share the same value. In the interactive Data-mode panel the same heatmap can be switched to display Fold Enrichment, using a white-to-purple scale instead.',
     },
   ];
 
