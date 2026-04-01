@@ -164,3 +164,130 @@ describe('buildEnrichmentHeatmapSvg', () => {
     expect(svg).toContain('No sets');
   });
 });
+
+describe('style option — bar / lollipop', () => {
+  it('honours a custom sigColor in the bar chart', () => {
+    const svg = buildEnrichmentBarSvg(fixture, {
+      metric: 'neglog10fdr',
+      style: { sigColor: '#ff6600' },
+    });
+    expect(svg).toContain('#ff6600');
+    expect(svg).not.toContain('#2e7d32');
+  });
+
+  it('honours a custom nsColor in the lollipop chart', () => {
+    const svg = buildEnrichmentLollipopSvg(fixture, {
+      metric: 'neglog10fdr',
+      style: { nsColor: '#bada55' },
+    });
+    // nsColor appears in stick/dot fill for the non-significant AC pair
+    expect(svg).toContain('fill="#bada55"');
+  });
+
+  it('drops the bottom legend when showLegend is false', () => {
+    const svg = buildEnrichmentBarSvg(fixture, {
+      metric: 'neglog10fdr',
+      style: { showLegend: false },
+    });
+    expect(svg).not.toContain('FDR &lt; 0.05');
+    expect(svg).not.toContain('not significant');
+  });
+
+  it('drops the rotated y-axis label when showAxisLabel is false', () => {
+    const svg = buildEnrichmentBarSvg(fixture, {
+      metric: 'neglog10fdr',
+      style: { showAxisLabel: false, showLegend: false },
+    });
+    // When both axis label and legend are suppressed, no "FDR" string remains
+    expect(svg).not.toContain('FDR');
+  });
+
+  it('omits pair labels when showPairLabels is false', () => {
+    const svg = buildEnrichmentBarSvg(fixture, {
+      metric: 'neglog10fdr',
+      style: { showPairLabels: false },
+    });
+    for (const s of fixture) {
+      expect(svg).not.toContain(`>${s.label}<`);
+    }
+  });
+
+  it('omits significance markers when showSigMarkers is false', () => {
+    const svgWithMarkers = buildEnrichmentBarSvg(fixture, { metric: 'neglog10fdr' });
+    const svgNoMarkers = buildEnrichmentBarSvg(fixture, {
+      metric: 'neglog10fdr',
+      style: { showSigMarkers: false },
+    });
+    expect(svgWithMarkers).toContain('>***<');
+    expect(svgNoMarkers).not.toContain('>***<');
+  });
+
+  it('defaults reproduce the pre-v1.11 output (no style param)', () => {
+    const baseline = buildEnrichmentBarSvg(fixture, { metric: 'neglog10fdr' });
+    const emptyStyle = buildEnrichmentBarSvg(fixture, { metric: 'neglog10fdr', style: {} });
+    expect(baseline).toBe(emptyStyle);
+  });
+});
+
+describe('style option — heatmap', () => {
+  const letters = ['A', 'B', 'C'];
+  const names = ['Set A', 'Set B', 'Set C'];
+
+  it('honours a custom gradientHighFdrColor', () => {
+    const svg = buildEnrichmentHeatmapSvg(fixture, letters, names, {
+      metric: 'neglog10fdr',
+      style: { gradientHighFdrColor: '#ff0000' },
+    });
+    // When the max value maps to full gradient, the high end rgb(255,0,0) appears
+    expect(svg).toMatch(/rgb\(255,0,0\)/);
+  });
+
+  it('uses gradientHighFeColor when metric is foldEnrichment', () => {
+    const svg = buildEnrichmentHeatmapSvg(fixture, letters, names, {
+      metric: 'foldEnrichment',
+      style: { gradientHighFeColor: '#00ffff' },
+    });
+    expect(svg).toMatch(/rgb\(0,255,255\)/);
+  });
+
+  it('drops row and column labels when showPairLabels is false', () => {
+    const svg = buildEnrichmentHeatmapSvg(fixture, letters, names, {
+      metric: 'neglog10fdr',
+      style: { showPairLabels: false },
+    });
+    for (const l of letters) {
+      expect(svg).not.toContain(`(${l})`);
+    }
+  });
+
+  it('drops the top metric title when showAxisLabel is false', () => {
+    const svg = buildEnrichmentHeatmapSvg(fixture, letters, names, {
+      metric: 'neglog10fdr',
+      style: { showAxisLabel: false },
+    });
+    // Axis label is the only place the decorative metric label appears on the heatmap
+    expect(svg).not.toContain('\u2212log\u2081\u2080');
+  });
+
+  it('collapses the colorbar slot when showLegend is false', () => {
+    const svgWithLegend = buildEnrichmentHeatmapSvg(fixture, letters, names, {
+      metric: 'neglog10fdr',
+    });
+    const svgNoLegend = buildEnrichmentHeatmapSvg(fixture, letters, names, {
+      metric: 'neglog10fdr',
+      style: { showLegend: false },
+    });
+    const wWith = Number(svgWithLegend.match(/viewBox="0 0 (\d+)/)?.[1] ?? 0);
+    const wNo = Number(svgNoLegend.match(/viewBox="0 0 (\d+)/)?.[1] ?? 0);
+    expect(wNo).toBeLessThan(wWith);
+  });
+
+  it('scales font-size based on style.fontSize', () => {
+    const big = buildEnrichmentHeatmapSvg(fixture, letters, names, {
+      metric: 'neglog10fdr',
+      style: { fontSize: 16 },
+    });
+    // Heatmap cell-value default = 8; scale 1.6 -> ~12.8 (rounded to one decimal: 12.8)
+    expect(big).toMatch(/font-size="1[123](\.\d)?"/);
+  });
+});

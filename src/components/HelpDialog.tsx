@@ -5,6 +5,7 @@ interface HelpDialogProps {
   isOpen: boolean;
   mode: AppMode;
   onClose: () => void;
+  onStartTour?: () => void;
 }
 
 interface HelpItem {
@@ -372,6 +373,7 @@ const HELP: Record<AppMode, HelpPage> = {
               { content: 'Sorensen-Dice Index: Dice coefficient for each pair.' },
               { content: 'Intersection Enrichment: hypergeometric test, fold enrichment, p-value, FDR (Benjamini-Hochberg). Significance markers.' },
               { content: 'Enrichment Plots: bar, lollipop and heatmap visualisations of the hypergeometric FDR (or Fold Enrichment) across all pairs. Per-plot SVG export.' },
+              { content: 'Plot editor: click any enrichment plot to open the plot editor in the left sidebar (replaces the View section). Customise colours, font, background, and visibility of axis labels / legend / markers. Back to Diagram returns to the previous view; per-plot style is preserved while the data is loaded. PDF export uses the default style and is unaffected.' },
               { content: 'Export Statistics (TSV): all pairwise statistics in one file.' },
             ],
           },
@@ -402,9 +404,14 @@ const HELP: Record<AppMode, HelpPage> = {
   },
 };
 
-export function HelpDialog({ isOpen, mode, onClose }: HelpDialogProps) {
+export function HelpDialog({ isOpen, mode, onClose, onStartTour }: HelpDialogProps) {
   if (!isOpen) return null;
   const help = HELP[mode];
+
+  const handleStartTourClick = () => {
+    onClose();
+    onStartTour?.();
+  };
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
@@ -414,6 +421,17 @@ export function HelpDialog({ isOpen, mode, onClose }: HelpDialogProps) {
           <button className="btn btn-toolbar" onClick={onClose}>Close</button>
         </div>
         <div className="help-content">
+          {onStartTour && (
+            <div className="help-group">
+              <h3 className="help-heading">Getting Started</h3>
+              <p className="help-text">
+                New here? Take the guided tour — a 90-second walk-through of Data mode using a pre-loaded cancer-driver gene sample (COSMIC, OncoKB, IntOGen, Vogelstein). Each step highlights the relevant part of the interface in the real app.
+              </p>
+              <button className="btn btn-accent btn-sm" style={{ marginTop: 6 }} onClick={handleStartTourClick}>
+                {'\u{1F9ED}'} Start the tour
+              </button>
+            </div>
+          )}
           {help.groups.map((group, gi) => (
             <div key={gi} className="help-group">
               <h3 className="help-heading">{group.heading}</h3>

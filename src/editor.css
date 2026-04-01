@@ -3333,6 +3333,278 @@ html, body, #root {
   display: block;
 }
 
+/* ---- Enrichment plot block: clickable + active (v1.11.0) ---- */
+.enrichment-plot-block--clickable {
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.enrichment-plot-block--clickable:hover {
+  border-color: var(--accent);
+}
+
+.enrichment-plot-block--active {
+  border: 2px solid var(--accent);
+  padding: 5px 5px 3px;
+}
+
+/* ---- Enrichment plot editor (left sidebar, v1.11.0) ---- */
+.plot-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0 8px;
+}
+
+.plot-editor-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plot-editor-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.plot-editor-color-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.plot-editor-color-row input[type="color"] {
+  width: 34px;
+  height: 22px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0;
+  background: transparent;
+}
+
+.plot-editor-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+/* Flatten metric toggle in the sidebar editor — no surrounding frame */
+.plot-editor .enrichment-metric-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.plot-editor-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.plot-editor-back-btn {
+  width: 100%;
+}
+
+/* ---- Enrichment plot center canvas (v1.11.0) ---- */
+.canvas-plot-edit {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px;
+  overflow: auto;
+  background: var(--bg-secondary);
+}
+
+.enrichment-plot-canvas {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.enrichment-plot-canvas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 4px;
+}
+
+.enrichment-plot-canvas-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.enrichment-plot-canvas-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.enrichment-plot-canvas-svg {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.enrichment-plot-canvas-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---- Zip report progress bar (v1.12.0) ---- */
+.zip-progress-bar {
+  width: 100%;
+  height: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 4px 0 6px;
+}
+
+.zip-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover, var(--accent)));
+  transition: width 0.25s ease;
+}
+
+.zip-progress-percent {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Guided Tour (v1.13.0) ---- */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: auto;
+}
+
+.tour-overlay-center .tour-center-dim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.tour-highlight-ring {
+  position: fixed;
+  border: 2px solid var(--accent);
+  border-radius: 6px;
+  pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55), 0 0 0 4px rgba(91, 130, 255, 0.35);
+  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.tour-tooltip-card {
+  position: fixed;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  padding: 14px 16px 12px;
+  z-index: 2100;
+}
+
+.tour-tooltip-center {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 380px;
+}
+
+.tour-tooltip-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.tour-tooltip-body {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.tour-tooltip-progress {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0 10px;
+}
+
+.tour-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.tour-progress-dot-done {
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.tour-progress-dot-active {
+  background: var(--accent);
+  transform: scale(1.4);
+}
+
+.tour-tooltip-footer {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.tour-skip-btn {
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+.tour-tooltip-counter {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* Welcome screen — tour tile accent */
+.welcome-mode-card-tour {
+  position: relative;
+}
+
+.welcome-mode-card-tour::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+  opacity: 0.55;
+}
+
+/* Toolbar group wrapper (used for data-tour anchor on the two Report buttons) */
+.toolbar-group {
+  display: inline-flex;
+  gap: 0;
+}
+
 /* ---- SVG Validation Dialog ---- */
 .validation-dialog {
   background: var(--bg-primary);

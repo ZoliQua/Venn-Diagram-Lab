@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import type { KeyboardEvent } from 'react';
 import type { PairwiseStat } from '../utils/statistics.ts';
 import {
   buildEnrichmentBarSvg,
@@ -7,12 +8,18 @@ import {
   metricLabel,
 } from '../utils/enrichmentPlotSvg.ts';
 import type { EnrichmentMetric } from '../utils/enrichmentPlotSvg.ts';
+import type { EnrichmentPlotSettings, EnrichmentPlotType } from '../utils/enrichmentPlotStyle.ts';
 
 interface EnrichmentPlotsProps {
   stats: PairwiseStat[];
   setLetters: string[];
   setNames: string[];
   datasetName?: string;
+  metric: EnrichmentMetric;
+  onMetricChange: (metric: EnrichmentMetric) => void;
+  settings: EnrichmentPlotSettings;
+  activePlot?: EnrichmentPlotType | null;
+  onPlotClick?: (plot: EnrichmentPlotType) => void;
 }
 
 function downloadSvg(svgString: string, filename: string): void {
@@ -32,18 +39,80 @@ function slug(name?: string): string {
   return name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 40) || 'enrichment';
 }
 
-export function EnrichmentPlots({ stats, setLetters, setNames, datasetName }: EnrichmentPlotsProps) {
-  const [metric, setMetric] = useState<EnrichmentMetric>('neglog10fdr');
+function stopClick<E extends { stopPropagation: () => void }>(fn: () => void) {
+  return (e: E) => {
+    e.stopPropagation();
+    fn();
+  };
+}
 
-  const barSvg = useMemo(() => buildEnrichmentBarSvg(stats, { metric }), [stats, metric]);
-  const lollipopSvg = useMemo(() => buildEnrichmentLollipopSvg(stats, { metric }), [stats, metric]);
+export function EnrichmentPlots({
+  stats, setLetters, setNames, datasetName,
+  metric, onMetricChange,
+  settings,
+  activePlot = null,
+  onPlotClick,
+}: EnrichmentPlotsProps) {
+  const barSvg = useMemo(
+    () => buildEnrichmentBarSvg(stats, { metric, style: settings.bar }),
+    [stats, metric, settings.bar],
+  );
+  const lollipopSvg = useMemo(
+    () => buildEnrichmentLollipopSvg(stats, { metric, style: settings.lollipop }),
+    [stats, metric, settings.lollipop],
+  );
   const heatmapSvg = useMemo(
-    () => buildEnrichmentHeatmapSvg(stats, setLetters, setNames, { metric }),
-    [stats, setLetters, setNames, metric],
+    () => buildEnrichmentHeatmapSvg(stats, setLetters, setNames, { metric, style: settings.heatmap }),
+    [stats, setLetters, setNames, metric, settings.heatmap],
   );
 
   const prefix = slug(datasetName);
   const metricSuffix = metric === 'foldEnrichment' ? 'fe' : 'neglog10fdr';
+
+  const handleBlockClick = (plot: EnrichmentPlotType) => () => onPlotClick?.(plot);
+  const handleBlockKey = (plot: EnrichmentPlotType) => (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onPlotClick?.(plot);
+    }
+  };
+
+  const renderBlock = (
+    plot: EnrichmentPlotType,
+    title: string,
+    svg: string,
+    filenameKey: string,
+  ) => {
+    const isActive = activePlot === plot;
+    const isClickable = !!onPlotClick;
+    const classNames = [
+      'enrichment-plot-block',
+      isClickable ? 'enrichment-plot-block--clickable' : '',
+      isActive ? 'enrichment-plot-block--active' : '',
+    ].filter(Boolean).join(' ');
+
+    return (
+      <div
+        className={classNames}
+        role={isClickable ? 'button' : undefined}
+        tabIndex={isClickable ? 0 : undefined}
+        onClick={isClickable ? handleBlockClick(plot) : undefined}
+        onKeyDown={isClickable ? handleBlockKey(plot) : undefined}
+        aria-pressed={isClickable ? isActive : undefined}
+      >
+        <div className="enrichment-plot-title">
+          <span>{title}</span>
+          <button
+            className="btn btn-sm"
+            onClick={stopClick(() => downloadSvg(svg, `${prefix}_enrichment_${filenameKey}_${metricSuffix}.svg`))}
+          >
+            Export SVG
+          </button>
+        </div>
+        <div className="enrichment-plot-svg" dangerouslySetInnerHTML={{ __html: svg }} />
+      </div>
+    );
+  };
 
   return (
     <div className="enrichment-plots">
@@ -53,7 +122,7 @@ export function EnrichmentPlots({ stats, setLetters, setNames, datasetName }: En
             role="radio"
             aria-checked={metric === 'neglog10fdr'}
             className={`btn btn-sm ${metric === 'neglog10fdr' ? 'btn-accent' : ''}`}
-            onClick={() => setMetric('neglog10fdr')}
+            onClick={() => onMetricChange('neglog10fdr')}
           >
             {metricLabel('neglog10fdr')}
           </button>
@@ -61,51 +130,16 @@ export function EnrichmentPlots({ stats, setLetters, setNames, datasetName }: En
             role="radio"
             aria-checked={metric === 'foldEnrichment'}
             className={`btn btn-sm ${metric === 'foldEnrichment' ? 'btn-accent' : ''}`}
-            onClick={() => setMetric('foldEnrichment')}
+            onClick={() => onMetricChange('foldEnrichment')}
           >
             {metricLabel('foldEnrichment')}
           </button>
         </div>
       </div>
 
-      <div className="enrichment-plot-block">
-        <div className="enrichment-plot-title">
-          <span>Bar chart</span>
-          <button
-            className="btn btn-sm"
-            onClick={() => downloadSvg(barSvg, `${prefix}_enrichment_bar_${metricSuffix}.svg`)}
-          >
-            Export SVG
-          </button>
-        </div>
-        <div className="enrichment-plot-svg" dangerouslySetInnerHTML={{ __html: barSvg }} />
-      </div>
-
-      <div className="enrichment-plot-block">
-        <div className="enrichment-plot-title">
-          <span>Lollipop chart</span>
-          <button
-            className="btn btn-sm"
-            onClick={() => downloadSvg(lollipopSvg, `${prefix}_enrichment_lollipop_${metricSuffix}.svg`)}
-          >
-            Export SVG
-          </button>
-        </div>
-        <div className="enrichment-plot-svg" dangerouslySetInnerHTML={{ __html: lollipopSvg }} />
-      </div>
-
-      <div className="enrichment-plot-block">
-        <div className="enrichment-plot-title">
-          <span>Heatmap</span>
-          <button
-            className="btn btn-sm"
-            onClick={() => downloadSvg(heatmapSvg, `${prefix}_enrichment_heatmap_${metricSuffix}.svg`)}
-          >
-            Export SVG
-          </button>
-        </div>
-        <div className="enrichment-plot-svg" dangerouslySetInnerHTML={{ __html: heatmapSvg }} />
-      </div>
+      {renderBlock('bar', 'Bar chart', barSvg, 'bar')}
+      {renderBlock('lollipop', 'Lollipop chart', lollipopSvg, 'lollipop')}
+      {renderBlock('heatmap', 'Heatmap', heatmapSvg, 'heatmap')}
     </div>
   );
 }

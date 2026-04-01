@@ -6,6 +6,9 @@ import type { ProportionalAccuracy } from '../utils/proportionalLayout.ts';
 import { MODEL_LIST, getModelsBySetCount } from '../models.ts';
 import type { CsvData } from '../utils/csvParser.ts';
 import { getBinaryColumns } from '../utils/csvParser.ts';
+import type { EnrichmentMetric } from '../utils/enrichmentPlotSvg.ts';
+import type { EnrichmentPlotStyle, EnrichmentPlotSettings, PlotEditState } from '../utils/enrichmentPlotStyle.ts';
+import { EnrichmentPlotEditor } from './EnrichmentPlotEditor.tsx';
 
 function detectVennType(filename: string): { setCount: number; form: string } {
   const m = filename.match(/venn-(\d+)/);
@@ -117,6 +120,16 @@ interface TestSidebarProps {
   onExportMatrix?: () => void;
   onSaveSvg?: () => void;
   onExportImage?: (format: 'png' | 'jpg') => void;
+  // Enrichment plot editor (v1.11.0) — optional, backward-compatible
+  plotEditState?: PlotEditState | null;
+  enrichmentMetric?: EnrichmentMetric;
+  enrichmentPlotSettings?: EnrichmentPlotSettings;
+  onEnrichmentMetricChange?: (m: EnrichmentMetric) => void;
+  onUpdatePlotStyle?: (patch: Partial<EnrichmentPlotStyle>) => void;
+  onResetPlotStyle?: () => void;
+  onExitPlotEdit?: () => void;
+  /** Guided tour (v1.13.0): forces specific sections open regardless of local state. */
+  forceOpen?: Partial<Record<'fileInfo' | 'model' | 'mapping' | 'view', boolean>>;
 }
 
 export function TestSidebar({
@@ -155,12 +168,28 @@ export function TestSidebar({
   onResetDefaults,
   onExportRegionSummary, onExportMatrix,
   onSaveSvg, onExportImage,
+  plotEditState = null,
+  enrichmentMetric,
+  enrichmentPlotSettings,
+  onEnrichmentMetricChange,
+  onUpdatePlotStyle,
+  onResetPlotStyle,
+  onExitPlotEdit,
+  forceOpen,
 }: TestSidebarProps) {
   useMemo(() => getModelsBySetCount(), []);
   const [fileInfoOpen, setFileInfoOpen] = useState(true);
   const [modelOpen, setModelOpen] = useState(true);
   const [mappingOpen, setMappingOpen] = useState(true);
   const [viewOpen, setViewOpen] = useState(true);
+
+  // forceOpen (tour): treat the override as "true OR local" — never force-close.
+  const eff = {
+    fileInfo: forceOpen?.fileInfo === true ? true : fileInfoOpen,
+    model: forceOpen?.model === true ? true : modelOpen,
+    mapping: forceOpen?.mapping === true ? true : mappingOpen,
+    view: forceOpen?.view === true ? true : viewOpen,
+  };
   const [exportOpen, setExportOpen] = useState(true);
 
   const binaryColumns = useMemo(() => {
@@ -196,11 +225,11 @@ export function TestSidebar({
     <div className="sidebar test-sidebar">
       {/* File Info */}
       {csvData && csvFilename && (
-        <div className="sidebar-section">
+        <div className="sidebar-section" data-tour="sidebar-file-info">
           <div className="sidebar-section-title sidebar-collapsible" onClick={() => setFileInfoOpen(o => !o)}>
-            <span>{fileInfoOpen ? '▾' : '▸'} 1. File Info</span>
+            <span>{eff.fileInfo ? '▾' : '▸'} 1. File Info</span>
           </div>
-          {fileInfoOpen && (
+          {eff.fileInfo && (
             <>
               <div className="sidebar-file-info">
                 <div><span className="file-info-label">Filename:</span> {csvFilename}</div>
@@ -228,11 +257,11 @@ export function TestSidebar({
 
       {/* Model Selection — only show when a model is already selected (browser is in canvas otherwise) */}
       {csvData && selectedModel && (
-        <div className="sidebar-section">
+        <div className="sidebar-section" data-tour="sidebar-model">
           <div className="sidebar-section-title sidebar-collapsible" onClick={() => setModelOpen(o => !o)}>
-            <span>{modelOpen ? '▾' : '▸'} 2. Venn Diagram Model</span>
+            <span>{eff.model ? '▾' : '▸'} 2. Venn Diagram Model</span>
           </div>
-          {modelOpen && (n >= 2 ? (
+          {eff.model && (n >= 2 ? (
             <>
               <select
                 className="model-selector"
@@ -313,11 +342,11 @@ export function TestSidebar({
 
       {/* Column Mapping — only shown after model is selected */}
       {csvData && n >= 2 && selectedModel && (
-        <div className="sidebar-section">
+        <div className="sidebar-section" data-tour="sidebar-mapping">
           <div className="sidebar-section-title sidebar-collapsible" onClick={() => setMappingOpen(o => !o)}>
-            <span>{mappingOpen ? '▾' : '▸'} 3. Column Mapping</span>
+            <span>{eff.mapping ? '▾' : '▸'} 3. Column Mapping</span>
           </div>
-          {mappingOpen && <>
+          {eff.mapping && <>
           <div className="test-column-mapping">
             {letters.map((letter, i) => (
               <div key={letter} className="test-column-row">
@@ -349,13 +378,29 @@ export function TestSidebar({
         </div>
       )}
 
+      {/* Plot Editor (v1.11.0) — replaces View section when active */}
+      {isCalculated && plotEditState !== null && enrichmentMetric && enrichmentPlotSettings
+        && onEnrichmentMetricChange && onUpdatePlotStyle && onResetPlotStyle && onExitPlotEdit && (
+        <div className="sidebar-section" data-tour="sidebar-plot-editor">
+          <EnrichmentPlotEditor
+            plotType={plotEditState.plotType}
+            metric={enrichmentMetric}
+            style={enrichmentPlotSettings[plotEditState.plotType]}
+            onMetricChange={onEnrichmentMetricChange}
+            onUpdateStyle={onUpdatePlotStyle}
+            onResetStyle={onResetPlotStyle}
+            onExit={onExitPlotEdit}
+          />
+        </div>
+      )}
+
       {/* View Style */}
-      {isCalculated && (
-        <div className="sidebar-section">
+      {isCalculated && plotEditState === null && (
+        <div className="sidebar-section" data-tour="sidebar-view">
           <div className="sidebar-section-title sidebar-collapsible" onClick={() => setViewOpen(o => !o)}>
-            <span>{viewOpen ? '▾' : '▸'} 4. View</span>
+            <span>{eff.view ? '▾' : '▸'} 4. View</span>
           </div>
-          {viewOpen && <>
+          {eff.view && <>
           <div className="view-style-switcher">
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'layer' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('layer')}>Layer</button>
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'cut' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('cut')}>Cut</button>
@@ -524,8 +569,8 @@ export function TestSidebar({
         </div>
       )}
 
-      {/* Reset to Defaults */}
-      {isCalculated && (
+      {/* Reset to Defaults — hidden in plot-edit mode (Reset plot style covers it) */}
+      {isCalculated && plotEditState === null && (
         <div className="sidebar-section" style={{ paddingTop: 0 }}>
           <button className="btn btn-sm" style={{ width: '100%' }} onClick={onResetDefaults}>
             Reset to Defaults
@@ -547,13 +592,17 @@ export function TestSidebar({
                 <button className="btn btn-sm" style={{ flex: 1 }} onClick={() => onExportImage?.('png')}>PNG</button>
                 <button className="btn btn-sm" style={{ flex: 1 }} onClick={() => onExportImage?.('jpg')}>JPG</button>
               </div>
-              <div className="data-summary-hint" style={{ marginTop: 8 }}>Export calculated data as tab-separated files</div>
-              <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportRegionSummary}>
-                Regions Summary (TSV)
-              </button>
-              <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportMatrix}>
-                Item Matrix (TSV)
-              </button>
+              {plotEditState === null && (
+                <>
+                  <div className="data-summary-hint" style={{ marginTop: 8 }}>Export calculated data as tab-separated files</div>
+                  <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportRegionSummary}>
+                    Regions Summary (TSV)
+                  </button>
+                  <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportMatrix}>
+                    Item Matrix (TSV)
+                  </button>
+                </>
+              )}
             </>
           )}
         </div>

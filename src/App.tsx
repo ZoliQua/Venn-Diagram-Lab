@@ -23,6 +23,8 @@ import { SvgValidationDialog } from './components/SvgValidationDialog.tsx';
 import { TestSidebar } from './components/TestSidebar.tsx';
 import { CsvImportDialog } from './components/CsvImportDialog.tsx';
 import { DataSummaryPanel } from './components/DataSummaryPanel.tsx';
+import { EnrichmentPlotCanvas } from './components/EnrichmentPlotCanvas.tsx';
+import { pairwiseStatistics } from './utils/statistics.ts';
 import type { Region } from './utils/regions.ts';
 import { calculateVennCounts, calculateVennCountsFromAggregated } from './utils/csvParser.ts';
 import type { CsvData, FileType, Delimiter, CsvImportResult, VennResult, GeneSetFormat, GeneSetMeta } from './utils/csvParser.ts';
@@ -39,8 +41,17 @@ import type { ProportionalAccuracy, ProportionalCircle } from './utils/proportio
 import { generateProportionalModel } from './utils/proportionalModel.ts';
 import { generate2SetRegions, generate3SetRegions } from './utils/proportionalRegions.ts';
 import { PdfReportDialog } from './components/PdfReportDialog.tsx';
+import { ZipReportDialog } from './components/ZipReportDialog.tsx';
 import { CookieConsent } from './components/CookieConsent.tsx';
 import { trackEvent } from './utils/analytics.ts';
+import type { EnrichmentMetric } from './utils/enrichmentPlotSvg.ts';
+import type { EnrichmentPlotType, EnrichmentPlotStyle, EnrichmentPlotSettings, PlotEditState } from './utils/enrichmentPlotStyle.ts';
+import { createDefaultPlotSettings } from './utils/enrichmentPlotStyle.ts';
+import { TourOverlay } from './components/TourOverlay.tsx';
+import { TOUR_STEPS } from './utils/tourSteps.ts';
+import type { TourAction } from './utils/tourSteps.ts';
+import { TOUR_DATASET } from './utils/tourMock.ts';
+import { parseCsvWithDelimiter } from './utils/csvParser.ts';
 
 const PROPORTIONAL_MODEL = '__proportional__';
 import { SampleDataDialog } from './components/SampleDataDialog.tsx';
@@ -100,6 +111,7 @@ export default function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(true);
   const [helpOpen, setHelpOpen] = useState(false);
   const [pdfReportOpen, setPdfReportOpen] = useState(false);
+  const [zipReportOpen, setZipReportOpen] = useState(false);
   const [sampleDataDialog, setSampleDataDialog] = useState(false);
   const [pasteDialog, setPasteDialog] = useState(false);
   const [urlDialog, setUrlDialog] = useState(false);
@@ -136,6 +148,38 @@ export default function App() {
     A: '#FFF200', B: '#2E3192', C: '#ED1C24', D: '#808285',
     E: '#3C2415', F: '#9E1F63', G: '#CA4B9B', H: '#21AED1', I: '#F7941E',
   });
+
+  // Enrichment plot editor (v1.11.0)
+  const [testEnrichmentMetric, setTestEnrichmentMetric] = useState<EnrichmentMetric>('neglog10fdr');
+  const [testEnrichmentPlotSettings, setTestEnrichmentPlotSettings] = useState<EnrichmentPlotSettings>(
+    () => createDefaultPlotSettings(),
+  );
+  const [testPlotEditState, setTestPlotEditState] = useState<PlotEditState | null>(null);
+
+  const handleUpdatePlotStyle = useCallback(
+    (plot: EnrichmentPlotType, patch: Partial<EnrichmentPlotStyle>) => {
+      setTestEnrichmentPlotSettings(prev => ({
+        ...prev,
+        [plot]: { ...prev[plot], ...patch },
+      }));
+    },
+    [],
+  );
+  const handleResetPlotStyle = useCallback((plot: EnrichmentPlotType) => {
+    setTestEnrichmentPlotSettings(prev => ({ ...prev, [plot]: { ...createDefaultPlotSettings()[plot] } }));
+  }, []);
+  const handleEnterPlotEdit = useCallback((plot: EnrichmentPlotType) => {
+    setTestPlotEditState({ plotType: plot });
+  }, []);
+  const handleExitPlotEdit = useCallback(() => {
+    setTestPlotEditState(null);
+  }, []);
+
+  // Guided tour (v1.13.0)
+  const [tourActive, setTourActive] = useState(false);
+  const [tourStepIndex, setTourStepIndex] = useState(0);
+  const [tourForceSidebarOpen, setTourForceSidebarOpen] = useState<Partial<Record<'fileInfo' | 'model' | 'mapping' | 'view', boolean>>>({});
+  const [tourForceEnrichmentPlotsOpen, setTourForceEnrichmentPlotsOpen] = useState(false);
 
   const svgDoc = useSvgDocument();
   const { doc } = svgDoc;
@@ -432,6 +476,25 @@ export default function App() {
 
   const handleSave = useCallback(() => {
     if (!doc) return;
+    // Plot-edit mode: save the current enrichment plot SVG
+    if (mode === 'data' && testPlotEditState !== null) {
+      const plotSvg = document.querySelector('.enrichment-plot-canvas-svg svg') as SVGSVGElement | null;
+      if (plotSvg) {
+        const clone = plotSvg.cloneNode(true) as SVGSVGElement;
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(clone);
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `enrichment_${testPlotEditState.plotType}.svg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        return;
+      }
+    }
     // In cut/upset/network view, export the visible SVG from DOM
     if ((mode === 'view' || mode === 'data') && viewStyle !== 'layer') {
       const svgEl = document.querySelector('.canvas-svg') as SVGSVGElement | null;
@@ -464,10 +527,55 @@ export default function App() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     svgDoc.markSaved();
-  }, [doc, svgDoc, mode, viewStyle]);
+  }, [doc, svgDoc, mode, viewStyle, testPlotEditState]);
 
   const handleExportImage = useCallback((format: 'png' | 'jpg') => {
     trackEvent('export_image', 'export', format);
+
+    // Plot-edit mode: export the enrichment plot SVG from the canvas
+    if (mode === 'data' && testPlotEditState !== null) {
+      const plotSvg = document.querySelector('.enrichment-plot-canvas-svg svg') as SVGSVGElement | null;
+      if (!plotSvg) return;
+      const clone = plotSvg.cloneNode(true) as SVGSVGElement;
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(clone);
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.onload = () => {
+        const vbAttr = plotSvg.getAttribute('viewBox');
+        const vbParts = vbAttr?.split(/\s+/).map(Number);
+        const vb = vbParts && vbParts.length === 4
+          ? { w: vbParts[2], h: vbParts[3] }
+          : { w: plotSvg.clientWidth || 800, h: plotSvg.clientHeight || 360 };
+        const scale = 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = vb.w * scale;
+        canvas.height = vb.h * scale;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(svgUrl);
+        const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+        const ext = format === 'png' ? '.png' : '.jpg';
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `enrichment_${testPlotEditState.plotType}${ext}`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, mimeType, 0.95);
+      };
+      img.src = svgUrl;
+      return;
+    }
+
     const svgEl = document.querySelector('.canvas-svg') as SVGSVGElement | null;
     if (!svgEl || !doc) return;
     // Clone the SVG to avoid modifying the DOM
@@ -517,7 +625,7 @@ export default function App() {
       }, mimeType, 0.95);
     };
     img.src = svgUrl;
-  }, [doc]);
+  }, [doc, mode, testPlotEditState]);
 
   // Stable refs for keyboard shortcuts
   const undoRef = useRef(svgDoc.undo);
@@ -738,10 +846,98 @@ export default function App() {
     setTestExclusiveItems(null);
     setTestInclusiveItems(null);
     setTestError(null);
+    setTestPlotEditState(null);
+    setTestEnrichmentMetric('neglog10fdr');
+    setTestEnrichmentPlotSettings(createDefaultPlotSettings());
     svgDoc.clearDoc();
     setCurrentModel(null);
     setRegionData(null);
   }, [svgDoc]);
+
+  // ═══════ Guided tour glue ═══════
+  const handleStartTour = useCallback(async () => {
+    try {
+      const resp = await fetch(`./data/${TOUR_DATASET.filename}`);
+      if (!resp.ok) throw new Error(`Failed to load sample (${resp.status})`);
+      const text = await resp.text();
+      const csv = parseCsvWithDelimiter(text, TOUR_DATASET.delimiter as '\t' | ',', true);
+
+      // Seed Data-mode state directly (bypass CsvImportDialog)
+      setWelcomeOpen(false);
+      setMode('data');
+      setTestCsvData(csv);
+      setTestCsvFilename(TOUR_DATASET.filename);
+      setTestFileType(TOUR_DATASET.fileType);
+      setTestGeneSetMeta(null);
+      setTestError(null);
+      setTestCalculated(false);
+      setTestColumnMapping(TOUR_DATASET.preferredColumns);
+      setTestOriginalColumns(TOUR_DATASET.preferredColumns);
+      setTestModel(TOUR_DATASET.preferredModel);
+      setTestNameFontSize(16);
+      setTestPendingCalculate(true);
+
+      // Start tour
+      setTourStepIndex(0);
+      setTourForceSidebarOpen({});
+      setTourForceEnrichmentPlotsOpen(false);
+      setTourActive(true);
+      trackEvent('tour_start', 'tour');
+    } catch (e) {
+      setTestError(`Could not start tour: ${e instanceof Error ? e.message : String(e)}`);
+      setTourActive(false);
+    }
+  }, []);
+
+  const handleTourFinish = useCallback(() => {
+    trackEvent('tour_finish', 'tour');
+    setTourActive(false);
+    setTourForceSidebarOpen({});
+    setTourForceEnrichmentPlotsOpen(false);
+    handleDataClose();
+    setWelcomeOpen(true);
+  }, [handleDataClose]);
+
+  const handleTourSkip = useCallback(() => {
+    trackEvent('tour_skip', 'tour');
+    handleTourFinish();
+  }, [handleTourFinish]);
+
+  const dispatchTourAction = useCallback((action: TourAction) => {
+    switch (action.kind) {
+      case 'setSidebarOpen':
+        setTourForceSidebarOpen(prev => ({ ...prev, [action.section]: action.open }));
+        break;
+      case 'setRightTab':
+        setDataRightPanel(action.tab);
+        break;
+      case 'setPlotsOpen':
+        setTourForceEnrichmentPlotsOpen(action.open);
+        break;
+      case 'setViewStyle':
+        setViewStyle(action.style);
+        break;
+      case 'enterPlotEdit':
+        setTestPlotEditState({ plotType: action.plot });
+        break;
+      case 'exitPlotEdit':
+        setTestPlotEditState(null);
+        break;
+      case 'selectRegion':
+        regionDetection.setSelectByLabel(action.label);
+        break;
+      case 'scrollIntoView': {
+        const el = document.querySelector(action.selector);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        break;
+      }
+      case 'cycleViewStyles':
+      case 'cyclePlotEdits':
+      case 'none':
+      default:
+        break;
+    }
+  }, [regionDetection]);
 
   const handleTestCalculate = useCallback(async () => {
     if (!testCsvData || !testModel || testColumnMapping.length < 2) return;
@@ -984,6 +1180,7 @@ export default function App() {
         onRedo={svgDoc.redo}
         onReport={() => setReportOpen(true)}
         onDataReport={() => { setPdfReportOpen(true); trackEvent('export_pdf', 'export'); }}
+        onDataReportZip={() => { setZipReportOpen(true); trackEvent('export_zip', 'export'); }}
         theme={theme}
         onToggleTheme={handleToggleTheme}
       />
@@ -1154,6 +1351,14 @@ export default function App() {
             }}
             onSaveSvg={handleSave}
             onExportImage={handleExportImage}
+            plotEditState={testPlotEditState}
+            enrichmentMetric={testEnrichmentMetric}
+            enrichmentPlotSettings={testEnrichmentPlotSettings}
+            onEnrichmentMetricChange={setTestEnrichmentMetric}
+            onUpdatePlotStyle={testPlotEditState ? (patch) => handleUpdatePlotStyle(testPlotEditState.plotType, patch) : undefined}
+            onResetPlotStyle={testPlotEditState ? () => handleResetPlotStyle(testPlotEditState.plotType) : undefined}
+            onExitPlotEdit={handleExitPlotEdit}
+            forceOpen={tourActive ? tourForceSidebarOpen : undefined}
           />
         ) : (
           <Sidebar
@@ -1184,6 +1389,23 @@ export default function App() {
             </div>
           )}
           {doc ? (
+            mode === 'data' && testPlotEditState !== null && testVennResult && testCsvData ? (
+              <div className="canvas-container canvas-plot-edit">
+                <EnrichmentPlotCanvas
+                  plotType={testPlotEditState.plotType}
+                  stats={pairwiseStatistics(
+                    testVennResult,
+                    testColumnMapping.length,
+                    testCsvData.rows.length,
+                    testColumnMapping.map(i => testCsvData.headers[i] ?? ''),
+                  )}
+                  setLetters={'ABCDEFGHI'.slice(0, testColumnMapping.length).split('')}
+                  setNames={testColumnMapping.map(i => testCsvData.headers[i] ?? '')}
+                  metric={testEnrichmentMetric}
+                  style={testEnrichmentPlotSettings[testPlotEditState.plotType]}
+                />
+              </div>
+            ) :
             (mode === 'view' || mode === 'data') && viewStyle === 'network' && testVennResult && testCsvData ? (
               <div className="canvas-container" ref={zoomPan.setContainerRef} onWheel={zoomPan.onWheel}>
                 <NetworkPlot
@@ -1506,9 +1728,9 @@ export default function App() {
 
         {(mode === 'view' || mode === 'data') ? (
           ((mode === 'view' && !doc) || (mode === 'data' && !testCsvData)) ? null : (
-            <div className="right-panel-wrapper">
+            <div className="right-panel-wrapper" data-tour="right-panel">
               {mode === 'data' && testCalculated && testVennResult && (
-                <div className="right-panel-toggle">
+                <div className="right-panel-toggle" data-tour="right-panel-tabs">
                   <div className="view-style-switcher">
                     <button className={`btn btn-sm btn-view-style ${dataRightPanel === 'properties' ? 'btn-mode-active' : ''}`} onClick={() => setDataRightPanel('properties')}>Properties</button>
                     <button className={`btn btn-sm btn-view-style ${dataRightPanel === 'statistics' ? 'btn-mode-active' : ''}`} onClick={() => setDataRightPanel('statistics')}>Statistics</button>
@@ -1523,6 +1745,12 @@ export default function App() {
                   totalItems={testCsvData?.rows.length ?? 0}
                   selectedRegionLabel={regionDetection.selectedRegion?.label ?? null}
                   datasetName={testCsvFilename ?? undefined}
+                  enrichmentMetric={testEnrichmentMetric}
+                  onEnrichmentMetricChange={setTestEnrichmentMetric}
+                  enrichmentPlotSettings={testEnrichmentPlotSettings}
+                  activeEnrichmentPlot={testPlotEditState?.plotType ?? null}
+                  onEnterPlotEdit={handleEnterPlotEdit}
+                  forceEnrichmentPlotsOpen={tourActive && tourForceEnrichmentPlotsOpen}
                 />
               ) : (
                 <ViewerInfoPanel
@@ -1609,12 +1837,25 @@ export default function App() {
         isOpen={welcomeOpen}
         onSelectMode={(m) => { setMode(m); setWelcomeOpen(false); }}
         onSummary={() => { setSummarySelectMode(false); setSummaryFromWelcome(true); setSummaryOpen(true); setWelcomeOpen(false); }}
+        onStartTour={handleStartTour}
       />
 
       <HelpDialog
         isOpen={helpOpen}
         mode={mode}
         onClose={() => setHelpOpen(false)}
+        onStartTour={handleStartTour}
+      />
+
+      <TourOverlay
+        active={tourActive}
+        stepIndex={tourStepIndex}
+        steps={TOUR_STEPS}
+        onNext={() => setTourStepIndex(i => Math.min(i + 1, TOUR_STEPS.length - 1))}
+        onPrev={() => setTourStepIndex(i => Math.max(i - 1, 0))}
+        onSkip={handleTourSkip}
+        onFinish={handleTourFinish}
+        dispatchAction={dispatchTourAction}
       />
 
       {/* Data Open dialog */}
@@ -1674,6 +1915,23 @@ export default function App() {
         <PdfReportDialog
           isOpen={pdfReportOpen}
           onClose={() => setPdfReportOpen(false)}
+          vennResult={testVennResult}
+          doc={doc}
+          n={testColumnMapping.length}
+          setNames={testColumnMapping.map(i => testCsvData.headers[i] ?? '')}
+          totalItems={testCsvData.rows.length}
+          totalFileRows={testCsvData.rows.length}
+          filename={testCsvFilename ?? 'data'}
+          title={doc.texts.header?.content ?? testCsvFilename ?? 'Venn Diagram Report'}
+          modelName={testModel ?? ''}
+          proportionalAccuracy={proportionalAccuracy}
+        />
+      )}
+
+      {zipReportOpen && testVennResult && testCsvData && doc && (
+        <ZipReportDialog
+          isOpen={zipReportOpen}
+          onClose={() => setZipReportOpen(false)}
           vennResult={testVennResult}
           doc={doc}
           n={testColumnMapping.length}

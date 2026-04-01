@@ -54,18 +54,19 @@ export function ViewerInfoPanel({
   const [globalSearch, setGlobalSearch] = useState('');
   const [globalOpen, setGlobalOpen] = useState(true);
 
-  // Copy-to-clipboard feedback
-  const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+  // Copy-to-clipboard feedback (tied to a source key so the feedback only
+  // appears under the button pair that was clicked)
+  const [copyFeedback, setCopyFeedback] = useState<{ source: string; text: string } | null>(null);
 
   // Reset in-region filter when region changes
   useEffect(() => { setItemFilter(''); }, [region?.label]);
 
-  const handleCopyItems = async (items: string[]) => {
+  const handleCopyItems = async (items: string[], source: string) => {
     try {
       await navigator.clipboard.writeText(items.join('\n'));
-      setCopyFeedback(`Copied ${items.length} items`);
+      setCopyFeedback({ source, text: `Copied ${items.length} items` });
     } catch {
-      setCopyFeedback('Copy failed');
+      setCopyFeedback({ source, text: 'Copy failed' });
     }
     setTimeout(() => setCopyFeedback(null), 2000);
   };
@@ -305,45 +306,65 @@ export function ViewerInfoPanel({
             const inItems = regionInclusiveItems?.get(region.label) ?? [];
             const isSingle = region.label.length === 1;
 
-            if (region.isInclusive) {
-              return inItems.length > 0 ? renderItemsList(inItems, 'All Items') : null;
-            }
-
-            return (
-              <>
-                {exItems.length > 0 && renderItemsList(exItems, isSingle ? 'Exclusive Items' : 'Items')}
-                {isSingle && inItems.length > 0 && renderItemsList(inItems, 'All Items incl. intersections')}
-              </>
-            );
-          })()}
-
-          {/* Region export + copy */}
-          {regionExclusiveItems && (() => {
-            const items = region.isInclusive
-              ? (regionInclusiveItems?.get(region.label) ?? [])
-              : (regionExclusiveItems.get(region.label) ?? []);
-            if (items.length === 0) return null;
-            return (
-              <>
-                <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+            const renderButtons = (items: string[], source: string, filenameSuffix: string) => (
+              <div style={{ marginTop: 6, marginBottom: 16 }}>
+                <div style={{ display: 'flex', gap: 6 }}>
                   <button className="btn btn-sm" style={{ flex: 1 }}
                     onClick={() => {
                       const content = items.join('\n');
-                      downloadFile(content, `region_${region.label}_items.txt`, 'text/plain');
+                      downloadFile(content, `region_${region.label}_${filenameSuffix}.txt`, 'text/plain');
                     }}>
                     Export ({items.length})
                   </button>
                   <button className="btn btn-sm" style={{ flex: 1 }}
-                    onClick={() => handleCopyItems(items)}
+                    onClick={() => handleCopyItems(items, source)}
                     title="Copy items to clipboard as newline-separated text">
                     Copy
                   </button>
                 </div>
-                {copyFeedback && (
+                {copyFeedback && copyFeedback.source === source && (
                   <div className="item-search-count" style={{ marginTop: 4, textAlign: 'center' }}>
-                    {copyFeedback}
+                    {copyFeedback.text}
                   </div>
                 )}
+              </div>
+            );
+
+            if (region.isInclusive) {
+              if (inItems.length === 0) return null;
+              return (
+                <>
+                  {renderItemsList(inItems, 'All Items')}
+                  {renderButtons(inItems, 'inclusive', 'items')}
+                </>
+              );
+            }
+
+            if (isSingle) {
+              return (
+                <>
+                  {exItems.length > 0 && (
+                    <>
+                      {renderItemsList(exItems, 'Exclusive Items')}
+                      {renderButtons(exItems, 'exclusive', 'exclusive_items')}
+                    </>
+                  )}
+                  {inItems.length > 0 && (
+                    <>
+                      {renderItemsList(inItems, 'All Items incl. intersections')}
+                      {renderButtons(inItems, 'inclusive', 'inclusive_items')}
+                    </>
+                  )}
+                </>
+              );
+            }
+
+            // Multi-letter region: single list of exclusive items with one button pair
+            if (exItems.length === 0) return null;
+            return (
+              <>
+                {renderItemsList(exItems, 'Items')}
+                {renderButtons(exItems, 'exclusive', 'items')}
               </>
             );
           })()}

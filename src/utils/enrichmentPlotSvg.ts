@@ -2,14 +2,20 @@
  * Pure SVG-string generators for the three enrichment plots used in the
  * Data mode EnrichmentPlots section and the PDF report:
  *
- *   - Bar chart     (one bar per pair, ordered as provided)
+ *   - Bar chart      (one bar per pair, ordered as provided)
  *   - Lollipop chart (stick + dot, dot size ~ intersection count)
  *   - Heatmap        (n x n symmetric matrix, diagonal marked empty)
  *
  * No external dependencies. Pattern matches upsetSvgBuilder.ts /
  * networkSvgBuilder.ts: build string parts and join.
+ *
+ * v1.11.0 — builders now accept `opts.style` (Partial<EnrichmentPlotStyle>).
+ * Omitted fields fall back to DEFAULT_PLOT_STYLE, which reproduces v1.10.1
+ * hardcoded values byte-for-byte so PDF export stays unchanged.
  */
 import type { PairwiseStat } from './statistics.ts';
+import type { EnrichmentPlotStyle } from './enrichmentPlotStyle.ts';
+import { DEFAULT_PLOT_STYLE } from './enrichmentPlotStyle.ts';
 
 export type EnrichmentMetric = 'neglog10fdr' | 'foldEnrichment';
 export type PlotBackground = 'white' | 'dark';
@@ -19,24 +25,16 @@ export interface EnrichmentPlotOptions {
   background?: PlotBackground;
   width?: number;
   height?: number;
+  style?: Partial<EnrichmentPlotStyle>;
 }
 
 const FDR_FLOOR = 1e-300;
 
-const COLOR_SIG = '#2e7d32';
-const COLOR_NS = '#888888';
 const COLOR_AXIS = '#888888';
 const COLOR_GRID = '#e8e8e8';
 const COLOR_TEXT = '#222222';
 const COLOR_TEXT_MUTED = '#555555';
 const COLOR_DIAG = '#eeeeee';
-
-const HEATMAP_FDR_LOW = '#ffffff';
-const HEATMAP_FDR_HIGH = '#1b5e20';
-const HEATMAP_FE_LOW = '#ffffff';
-const HEATMAP_FE_HIGH = '#4a148c';
-
-const FONT_FAMILY = 'Tahoma,sans-serif';
 
 function esc(value: string | number): string {
   return String(value)
@@ -109,10 +107,35 @@ function palette(background: PlotBackground): Palette {
   return { bg: '#ffffff', text: COLOR_TEXT, textMuted: COLOR_TEXT_MUTED, axis: COLOR_AXIS, grid: COLOR_GRID };
 }
 
+/**
+ * Resolve the effective style for a builder. Merges DEFAULT_PLOT_STYLE with
+ * the caller's partial, and lets legacy `opts.background` win only when the
+ * style partial itself does not specify `background`.
+ */
+function resolveStyle(opts: EnrichmentPlotOptions): EnrichmentPlotStyle {
+  const partial = opts.style ?? {};
+  const merged: EnrichmentPlotStyle = { ...DEFAULT_PLOT_STYLE, ...partial };
+  if (partial.background === undefined && opts.background !== undefined) {
+    merged.background = opts.background;
+  }
+  return merged;
+}
+
+/**
+ * Scale a baseline font size by the current style.fontSize setting.
+ * DEFAULT_PLOT_STYLE.fontSize is the reference (scale=1), so default output
+ * matches v1.10.1 byte-for-byte.
+ */
+function scaleFs(base: number, style: EnrichmentPlotStyle): number {
+  const scale = style.fontSize / DEFAULT_PLOT_STYLE.fontSize;
+  return Math.max(2, Math.round(base * scale * 10) / 10);
+}
+
 export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlotOptions): string {
   const width = opts.width ?? 560;
   const height = opts.height ?? 240;
-  const pal = palette(opts.background ?? 'white');
+  const style = resolveStyle(opts);
+  const pal = palette(style.background);
   const metric = opts.metric;
 
   const M = { top: 24, right: 16, bottom: 52, left: 48 };
@@ -121,12 +144,14 @@ export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlo
   const plotW = width - M.left - M.right;
   const plotH = height - M.top - M.bottom;
 
+  const ff = style.fontFamily;
+
   const parts: string[] = [];
   parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`);
   parts.push(`<rect width="${width}" height="${height}" fill="${pal.bg}"/>`);
 
   if (stats.length === 0) {
-    parts.push(`<text x="${width / 2}" y="${height / 2}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="11" text-anchor="middle">No pairs to plot</text>`);
+    parts.push(`<text x="${width / 2}" y="${height / 2}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(11, style)}" text-anchor="middle">No pairs to plot</text>`);
     parts.push('</svg>');
     return parts.join('\n');
   }
@@ -140,16 +165,16 @@ export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlo
   const slotW = plotW / n;
   const barW = Math.min(22, slotW * 0.7);
 
-  // Y-axis grid + labels
+  // Y-axis grid + tick labels
   for (const t of ticks) {
     const y = plotY + plotH - (t / yMax) * plotH;
     parts.push(`<line x1="${plotX}" y1="${y}" x2="${plotX + plotW}" y2="${y}" stroke="${pal.grid}" stroke-width="1"/>`);
-    parts.push(`<text x="${plotX - 4}" y="${y + 3}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="end">${esc(formatTick(t))}</text>`);
+    parts.push(`<text x="${plotX - 4}" y="${y + 3}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(9, style)}" text-anchor="end">${esc(formatTick(t))}</text>`);
   }
 
   // Y-axis line
   parts.push(`<line x1="${plotX}" y1="${plotY}" x2="${plotX}" y2="${plotY + plotH}" stroke="${pal.axis}" stroke-width="1"/>`);
-  // X-axis line (value = 0)
+  // X-axis line
   parts.push(`<line x1="${plotX}" y1="${plotY + plotH}" x2="${plotX + plotW}" y2="${plotY + plotH}" stroke="${pal.axis}" stroke-width="1"/>`);
 
   // Bars + x labels
@@ -159,32 +184,39 @@ export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlo
     const cx = plotX + slotW * i + slotW / 2;
     const barH = yMax > 0 ? Math.max(0, (v / yMax) * plotH) : 0;
     const y = plotY + plotH - barH;
-    const color = s.fdr < 0.05 ? COLOR_SIG : COLOR_NS;
+    const color = s.fdr < 0.05 ? style.sigColor : style.nsColor;
 
     parts.push(`<rect x="${cx - barW / 2}" y="${y}" width="${barW}" height="${barH}" rx="1.5" fill="${color}" opacity="0.85"/>`);
 
-    const marker = sigMarker(s.fdr);
-    if (marker) {
-      parts.push(`<text x="${cx}" y="${y - 3}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="middle" font-weight="bold">${marker}</text>`);
+    if (style.showSigMarkers) {
+      const marker = sigMarker(s.fdr);
+      if (marker) {
+        parts.push(`<text x="${cx}" y="${y - 3}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(9, style)}" text-anchor="middle" font-weight="bold">${marker}</text>`);
+      }
     }
 
-    // X-tick label (rotated)
-    const lx = cx;
-    const ly = plotY + plotH + 10;
-    parts.push(`<text x="${lx}" y="${ly}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="end" transform="rotate(-45 ${lx} ${ly})">${esc(s.label)}</text>`);
+    if (style.showPairLabels) {
+      const lx = cx;
+      const ly = plotY + plotH + 10;
+      parts.push(`<text x="${lx}" y="${ly}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(9, style)}" text-anchor="end" transform="rotate(-45 ${lx} ${ly})">${esc(s.label)}</text>`);
+    }
   }
 
-  // Axis label (y) — rotated on the left side, in a clear position
-  const yLabelX = 14;
-  const yLabelY = plotY + plotH / 2;
-  parts.push(`<text x="${yLabelX}" y="${yLabelY}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="10" font-weight="bold" text-anchor="middle" transform="rotate(-90 ${yLabelX} ${yLabelY})">${esc(metricLabel(metric))}</text>`);
+  // Y-axis rotated metric label
+  if (style.showAxisLabel) {
+    const yLabelX = 14;
+    const yLabelY = plotY + plotH / 2;
+    parts.push(`<text x="${yLabelX}" y="${yLabelY}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(10, style)}" font-weight="bold" text-anchor="middle" transform="rotate(-90 ${yLabelX} ${yLabelY})">${esc(metricLabel(metric))}</text>`);
+  }
 
-  // Legend
-  const legendY = height - 12;
-  parts.push(`<rect x="${plotX}" y="${legendY - 6}" width="8" height="8" fill="${COLOR_SIG}" opacity="0.85"/>`);
-  parts.push(`<text x="${plotX + 12}" y="${legendY}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="9">FDR &lt; 0.05</text>`);
-  parts.push(`<rect x="${plotX + 70}" y="${legendY - 6}" width="8" height="8" fill="${COLOR_NS}" opacity="0.85"/>`);
-  parts.push(`<text x="${plotX + 82}" y="${legendY}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="9">not significant</text>`);
+  // Bottom legend
+  if (style.showLegend) {
+    const legendY = height - 12;
+    parts.push(`<rect x="${plotX}" y="${legendY - 6}" width="8" height="8" fill="${style.sigColor}" opacity="0.85"/>`);
+    parts.push(`<text x="${plotX + 12}" y="${legendY}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(9, style)}">FDR &lt; 0.05</text>`);
+    parts.push(`<rect x="${plotX + 70}" y="${legendY - 6}" width="8" height="8" fill="${style.nsColor}" opacity="0.85"/>`);
+    parts.push(`<text x="${plotX + 82}" y="${legendY}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(9, style)}">not significant</text>`);
+  }
 
   parts.push('</svg>');
   return parts.join('\n');
@@ -193,7 +225,8 @@ export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlo
 export function buildEnrichmentLollipopSvg(stats: PairwiseStat[], opts: EnrichmentPlotOptions): string {
   const width = opts.width ?? 560;
   const height = opts.height ?? 240;
-  const pal = palette(opts.background ?? 'white');
+  const style = resolveStyle(opts);
+  const pal = palette(style.background);
   const metric = opts.metric;
 
   const M = { top: 24, right: 16, bottom: 52, left: 48 };
@@ -202,12 +235,14 @@ export function buildEnrichmentLollipopSvg(stats: PairwiseStat[], opts: Enrichme
   const plotW = width - M.left - M.right;
   const plotH = height - M.top - M.bottom;
 
+  const ff = style.fontFamily;
+
   const parts: string[] = [];
   parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`);
   parts.push(`<rect width="${width}" height="${height}" fill="${pal.bg}"/>`);
 
   if (stats.length === 0) {
-    parts.push(`<text x="${width / 2}" y="${height / 2}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="11" text-anchor="middle">No pairs to plot</text>`);
+    parts.push(`<text x="${width / 2}" y="${height / 2}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(11, style)}" text-anchor="middle">No pairs to plot</text>`);
     parts.push('</svg>');
     return parts.join('\n');
   }
@@ -227,7 +262,7 @@ export function buildEnrichmentLollipopSvg(stats: PairwiseStat[], opts: Enrichme
   for (const t of ticks) {
     const y = plotY + plotH - (t / yMax) * plotH;
     parts.push(`<line x1="${plotX}" y1="${y}" x2="${plotX + plotW}" y2="${y}" stroke="${pal.grid}" stroke-width="1"/>`);
-    parts.push(`<text x="${plotX - 4}" y="${y + 3}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="end">${esc(formatTick(t))}</text>`);
+    parts.push(`<text x="${plotX - 4}" y="${y + 3}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(9, style)}" text-anchor="end">${esc(formatTick(t))}</text>`);
   }
 
   parts.push(`<line x1="${plotX}" y1="${plotY}" x2="${plotX}" y2="${plotY + plotH}" stroke="${pal.axis}" stroke-width="1"/>`);
@@ -238,34 +273,40 @@ export function buildEnrichmentLollipopSvg(stats: PairwiseStat[], opts: Enrichme
     const v = values[i];
     const cx = plotX + slotW * i + slotW / 2;
     const dotY = yMax > 0 ? plotY + plotH - (v / yMax) * plotH : plotY + plotH;
-    const color = s.fdr < 0.05 ? COLOR_SIG : COLOR_NS;
+    const color = s.fdr < 0.05 ? style.sigColor : style.nsColor;
     const t = Math.sqrt(s.intersection / maxIntersection);
     const r = minDotR + (maxDotR - minDotR) * t;
 
     parts.push(`<line x1="${cx}" y1="${plotY + plotH}" x2="${cx}" y2="${dotY}" stroke="${color}" stroke-width="1.2" opacity="0.85"/>`);
     parts.push(`<circle cx="${cx}" cy="${dotY}" r="${r.toFixed(2)}" fill="${color}" opacity="0.9"/>`);
 
-    const marker = sigMarker(s.fdr);
-    if (marker) {
-      parts.push(`<text x="${cx}" y="${dotY - r - 2}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="middle" font-weight="bold">${marker}</text>`);
+    if (style.showSigMarkers) {
+      const marker = sigMarker(s.fdr);
+      if (marker) {
+        parts.push(`<text x="${cx}" y="${dotY - r - 2}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(9, style)}" text-anchor="middle" font-weight="bold">${marker}</text>`);
+      }
     }
 
-    const lx = cx;
-    const ly = plotY + plotH + 10;
-    parts.push(`<text x="${lx}" y="${ly}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="end" transform="rotate(-45 ${lx} ${ly})">${esc(s.label)}</text>`);
+    if (style.showPairLabels) {
+      const lx = cx;
+      const ly = plotY + plotH + 10;
+      parts.push(`<text x="${lx}" y="${ly}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(9, style)}" text-anchor="end" transform="rotate(-45 ${lx} ${ly})">${esc(s.label)}</text>`);
+    }
   }
 
-  // Axis label (y) — rotated on the left side, in a clear position
-  const yLabelX = 14;
-  const yLabelY = plotY + plotH / 2;
-  parts.push(`<text x="${yLabelX}" y="${yLabelY}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="10" font-weight="bold" text-anchor="middle" transform="rotate(-90 ${yLabelX} ${yLabelY})">${esc(metricLabel(metric))}</text>`);
+  if (style.showAxisLabel) {
+    const yLabelX = 14;
+    const yLabelY = plotY + plotH / 2;
+    parts.push(`<text x="${yLabelX}" y="${yLabelY}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(10, style)}" font-weight="bold" text-anchor="middle" transform="rotate(-90 ${yLabelX} ${yLabelY})">${esc(metricLabel(metric))}</text>`);
+  }
 
-  // Legend
-  const legendY = height - 12;
-  parts.push(`<circle cx="${plotX + 4}" cy="${legendY - 2}" r="${minDotR}" fill="${pal.textMuted}"/>`);
-  parts.push(`<text x="${plotX + 12}" y="${legendY}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="9">small intersection</text>`);
-  parts.push(`<circle cx="${plotX + 110}" cy="${legendY - 2}" r="${maxDotR}" fill="${pal.textMuted}"/>`);
-  parts.push(`<text x="${plotX + 122}" y="${legendY}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="9">large intersection (n=${maxIntersection})</text>`);
+  if (style.showLegend) {
+    const legendY = height - 12;
+    parts.push(`<circle cx="${plotX + 4}" cy="${legendY - 2}" r="${minDotR}" fill="${pal.textMuted}"/>`);
+    parts.push(`<text x="${plotX + 12}" y="${legendY}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(9, style)}">small intersection</text>`);
+    parts.push(`<circle cx="${plotX + 110}" cy="${legendY - 2}" r="${maxDotR}" fill="${pal.textMuted}"/>`);
+    parts.push(`<text x="${plotX + 122}" y="${legendY}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(9, style)}">large intersection (n=${maxIntersection})</text>`);
+  }
 
   parts.push('</svg>');
   return parts.join('\n');
@@ -277,7 +318,8 @@ export function buildEnrichmentHeatmapSvg(
   setNames: string[],
   opts: EnrichmentPlotOptions,
 ): string {
-  const pal = palette(opts.background ?? 'white');
+  const style = resolveStyle(opts);
+  const pal = palette(style.background);
   const metric = opts.metric;
   const nSets = setLetters.length;
 
@@ -296,20 +338,24 @@ export function buildEnrichmentHeatmapSvg(
   const gridW = nSets * cellSize;
   const gridH = nSets * cellSize;
 
-  const width = gridX + gridW + legendGap + legendW + legendLabelW + paddingR;
+  // Legend takes up its own horizontal slot; when hidden, collapse it.
+  const legendSlot = style.showLegend ? (legendGap + legendW + legendLabelW) : 0;
+  const width = gridX + gridW + legendSlot + paddingR;
   const height = gridY + gridH + paddingB;
+
+  const ff = style.fontFamily;
 
   const parts: string[] = [];
   parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`);
   parts.push(`<rect width="${width}" height="${height}" fill="${pal.bg}"/>`);
 
   if (nSets === 0) {
-    parts.push(`<text x="${width / 2}" y="${height / 2}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="11" text-anchor="middle">No sets</text>`);
+    parts.push(`<text x="${width / 2}" y="${height / 2}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(11, style)}" text-anchor="middle">No sets</text>`);
     parts.push('</svg>');
     return parts.join('\n');
   }
 
-  // Build lookup: "AB" / "BA" -> stat value
+  // Build lookup: "AB" / "BA" -> stat
   const statByPair = new Map<string, PairwiseStat>();
   for (const s of stats) {
     statByPair.set(s.label, s);
@@ -321,13 +367,15 @@ export function buildEnrichmentHeatmapSvg(
   const maxVal = values.length > 0 ? Math.max(0, ...values) : 0;
   const scaleMax = maxVal > 0 ? maxVal : 1;
 
-  const hexLow = metric === 'foldEnrichment' ? HEATMAP_FE_LOW : HEATMAP_FDR_LOW;
-  const hexHigh = metric === 'foldEnrichment' ? HEATMAP_FE_HIGH : HEATMAP_FDR_HIGH;
+  const hexLow = style.gradientLowColor;
+  const hexHigh = metric === 'foldEnrichment' ? style.gradientHighFeColor : style.gradientHighFdrColor;
   const rgbLow = hexToRgb(hexLow);
   const rgbHigh = hexToRgb(hexHigh);
 
-  // Title
-  parts.push(`<text x="${gridX + gridW / 2}" y="${paddingT}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="10" text-anchor="middle">${esc(metricLabel(metric))}</text>`);
+  // Top metric title (treated as the heatmap's "axis label")
+  if (style.showAxisLabel) {
+    parts.push(`<text x="${gridX + gridW / 2}" y="${paddingT}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(10, style)}" text-anchor="middle">${esc(metricLabel(metric))}</text>`);
+  }
 
   // Trimmed display names: "Name (X)"
   const trimmedNames = setLetters.map((l, i) => {
@@ -336,17 +384,18 @@ export function buildEnrichmentHeatmapSvg(
     return `${short} (${l})`;
   });
 
-  // Column labels (top, rotated)
-  for (let c = 0; c < nSets; c++) {
-    const cx = gridX + c * cellSize + cellSize / 2;
-    const cy = gridY - 6;
-    parts.push(`<text x="${cx}" y="${cy}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="7" text-anchor="start" transform="rotate(-45 ${cx} ${cy})">${esc(trimmedNames[c])}</text>`);
-  }
-
-  // Row labels (left)
-  for (let r = 0; r < nSets; r++) {
-    const ly = gridY + r * cellSize + cellSize / 2;
-    parts.push(`<text x="${gridX - 6}" y="${ly + 3}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="7" text-anchor="end">${esc(trimmedNames[r])}</text>`);
+  if (style.showPairLabels) {
+    // Column labels (top, rotated)
+    for (let c = 0; c < nSets; c++) {
+      const cx = gridX + c * cellSize + cellSize / 2;
+      const cy = gridY - 6;
+      parts.push(`<text x="${cx}" y="${cy}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(7, style)}" text-anchor="start" transform="rotate(-45 ${cx} ${cy})">${esc(trimmedNames[c])}</text>`);
+    }
+    // Row labels (left)
+    for (let r = 0; r < nSets; r++) {
+      const ly = gridY + r * cellSize + cellSize / 2;
+      parts.push(`<text x="${gridX - 6}" y="${ly + 3}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(7, style)}" text-anchor="end">${esc(trimmedNames[r])}</text>`);
+    }
   }
 
   // Cells
@@ -357,7 +406,7 @@ export function buildEnrichmentHeatmapSvg(
 
       if (r === c) {
         parts.push(`<rect data-diag="true" x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="${COLOR_DIAG}" stroke="${pal.grid}" stroke-width="0.8"/>`);
-        parts.push(`<text x="${x + cellSize / 2}" y="${y + cellSize / 2 + 3}" fill="${pal.textMuted}" font-family="${FONT_FAMILY}" font-size="9" text-anchor="middle">\u2014</text>`);
+        parts.push(`<text x="${x + cellSize / 2}" y="${y + cellSize / 2 + 3}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(9, style)}" text-anchor="middle">\u2014</text>`);
         continue;
       }
 
@@ -372,24 +421,26 @@ export function buildEnrichmentHeatmapSvg(
       if (s) {
         const label = metric === 'foldEnrichment' ? s.foldEnrichment.toFixed(1) : v.toFixed(1);
         const textColor = t > 0.55 ? '#ffffff' : pal.text;
-        parts.push(`<text x="${x + cellSize / 2}" y="${y + cellSize / 2 + 3}" fill="${textColor}" font-family="${FONT_FAMILY}" font-size="8" text-anchor="middle">${esc(label)}</text>`);
+        parts.push(`<text x="${x + cellSize / 2}" y="${y + cellSize / 2 + 3}" fill="${textColor}" font-family="${ff}" font-size="${scaleFs(8, style)}" text-anchor="middle">${esc(label)}</text>`);
       }
     }
   }
 
   // Colorbar legend
-  const lbX = gridX + gridW + legendGap;
-  const lbY = gridY;
-  const lbH = gridH;
-  const lbSteps = 32;
-  for (let i = 0; i < lbSteps; i++) {
-    const t = 1 - i / (lbSteps - 1);
-    const fill = lerpRgb(rgbLow, rgbHigh, t);
-    parts.push(`<rect x="${lbX}" y="${lbY + (lbH / lbSteps) * i}" width="${legendW}" height="${lbH / lbSteps + 0.5}" fill="${fill}"/>`);
+  if (style.showLegend) {
+    const lbX = gridX + gridW + legendGap;
+    const lbY = gridY;
+    const lbH = gridH;
+    const lbSteps = 32;
+    for (let i = 0; i < lbSteps; i++) {
+      const t = 1 - i / (lbSteps - 1);
+      const fill = lerpRgb(rgbLow, rgbHigh, t);
+      parts.push(`<rect x="${lbX}" y="${lbY + (lbH / lbSteps) * i}" width="${legendW}" height="${lbH / lbSteps + 0.5}" fill="${fill}"/>`);
+    }
+    parts.push(`<rect x="${lbX}" y="${lbY}" width="${legendW}" height="${lbH}" fill="none" stroke="${pal.axis}" stroke-width="0.6"/>`);
+    parts.push(`<text x="${lbX + legendW + 4}" y="${lbY + 6}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(9, style)}">${esc(formatTick(scaleMax))}</text>`);
+    parts.push(`<text x="${lbX + legendW + 4}" y="${lbY + lbH}" fill="${pal.text}" font-family="${ff}" font-size="${scaleFs(9, style)}">0</text>`);
   }
-  parts.push(`<rect x="${lbX}" y="${lbY}" width="${legendW}" height="${lbH}" fill="none" stroke="${pal.axis}" stroke-width="0.6"/>`);
-  parts.push(`<text x="${lbX + legendW + 4}" y="${lbY + 6}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9">${esc(formatTick(scaleMax))}</text>`);
-  parts.push(`<text x="${lbX + legendW + 4}" y="${lbY + lbH}" fill="${pal.text}" font-family="${FONT_FAMILY}" font-size="9">0</text>`);
 
   parts.push('</svg>');
   return parts.join('\n');

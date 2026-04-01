@@ -3,6 +3,8 @@ import type { VennResult } from '../utils/csvParser.ts';
 import { pairwiseStatistics } from '../utils/statistics.ts';
 import { downloadFile } from '../utils/exportData.ts';
 import { EnrichmentPlots } from './EnrichmentPlots.tsx';
+import type { EnrichmentMetric } from '../utils/enrichmentPlotSvg.ts';
+import type { EnrichmentPlotSettings, EnrichmentPlotType } from '../utils/enrichmentPlotStyle.ts';
 
 interface DataSummaryPanelProps {
   vennResult: VennResult;
@@ -11,6 +13,13 @@ interface DataSummaryPanelProps {
   totalItems: number;
   selectedRegionLabel: string | null;
   datasetName?: string;
+  enrichmentMetric: EnrichmentMetric;
+  onEnrichmentMetricChange: (metric: EnrichmentMetric) => void;
+  enrichmentPlotSettings: EnrichmentPlotSettings;
+  activeEnrichmentPlot: EnrichmentPlotType | null;
+  onEnterPlotEdit: (plot: EnrichmentPlotType) => void;
+  /** Guided tour (v1.13.0): forces the Enrichment Plots section open. */
+  forceEnrichmentPlotsOpen?: boolean;
 }
 
 function formatP(p: number): string {
@@ -37,13 +46,19 @@ function jaccardBgColor(j: number): string | undefined {
   return undefined;
 }
 
-export function DataSummaryPanel({ vennResult, n, setNames, totalItems, datasetName }: DataSummaryPanelProps) {
+export function DataSummaryPanel({
+  vennResult, n, setNames, totalItems, datasetName,
+  enrichmentMetric, onEnrichmentMetricChange,
+  enrichmentPlotSettings, activeEnrichmentPlot, onEnterPlotEdit,
+  forceEnrichmentPlotsOpen,
+}: DataSummaryPanelProps) {
   const [overviewOpen, setOverviewOpen] = useState(true);
+  const [plotsOpen, setPlotsOpen] = useState(true);
+  const effPlotsOpen = forceEnrichmentPlotsOpen === true ? true : plotsOpen;
   const [setSizesOpen, setSetSizesOpen] = useState(true);
   const [jaccardOpen, setJaccardOpen] = useState(true);
   const [diceOpen, setDiceOpen] = useState(false);
   const [enrichmentOpen, setEnrichmentOpen] = useState(true);
-  const [plotsOpen, setPlotsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(true);
 
   const letters = 'ABCDEFGHI'.slice(0, n).split('');
@@ -115,8 +130,28 @@ export function DataSummaryPanel({ vennResult, n, setNames, totalItems, datasetN
         )}
       </div>
 
-      {/* 2. Set Sizes */}
-      <div className="data-summary-section">
+      {/* 2. Enrichment Plots */}
+      <div className="data-summary-section" data-tour="right-panel-enrichment-plots">
+        <div className="sidebar-section-title sidebar-collapsible" onClick={() => setPlotsOpen(o => !o)}>
+          <span>{effPlotsOpen ? '▾' : '▸'} Enrichment Plots</span>
+        </div>
+        {effPlotsOpen && (
+          <EnrichmentPlots
+            stats={pairStats}
+            setLetters={letters}
+            setNames={setNames}
+            datasetName={datasetName}
+            metric={enrichmentMetric}
+            onMetricChange={onEnrichmentMetricChange}
+            settings={enrichmentPlotSettings}
+            activePlot={activeEnrichmentPlot}
+            onPlotClick={onEnterPlotEdit}
+          />
+        )}
+      </div>
+
+      {/* 3. Set Sizes */}
+      <div className="data-summary-section" data-tour="right-panel-stats-tables">
         <div className="sidebar-section-title sidebar-collapsible" onClick={() => setSetSizesOpen(o => !o)}>
           <span>{setSizesOpen ? '▾' : '▸'} Set Sizes</span>
         </div>
@@ -139,7 +174,7 @@ export function DataSummaryPanel({ vennResult, n, setNames, totalItems, datasetN
         )}
       </div>
 
-      {/* 3. Pairwise Jaccard */}
+      {/* 4. Pairwise Jaccard */}
       <div className="data-summary-section">
         <div className="sidebar-section-title sidebar-collapsible" onClick={() => setJaccardOpen(o => !o)}>
           <span>{jaccardOpen ? '▾' : '▸'} Pairwise Jaccard Index</span>
@@ -164,7 +199,7 @@ export function DataSummaryPanel({ vennResult, n, setNames, totalItems, datasetN
         )}
       </div>
 
-      {/* 4. Sørensen-Dice */}
+      {/* 5. Sørensen-Dice */}
       <div className="data-summary-section">
         <div className="sidebar-section-title sidebar-collapsible" onClick={() => setDiceOpen(o => !o)}>
           <span>{diceOpen ? '▾' : '▸'} Sorensen-Dice Index</span>
@@ -186,7 +221,7 @@ export function DataSummaryPanel({ vennResult, n, setNames, totalItems, datasetN
         )}
       </div>
 
-      {/* 5. Intersection Enrichment */}
+      {/* 6. Intersection Enrichment */}
       <div className="data-summary-section">
         <div className="sidebar-section-title sidebar-collapsible" onClick={() => setEnrichmentOpen(o => !o)}>
           <span>{enrichmentOpen ? '▾' : '▸'} Intersection Enrichment</span>
@@ -215,21 +250,6 @@ export function DataSummaryPanel({ vennResult, n, setNames, totalItems, datasetN
               </tbody>
             </table>
           </>
-        )}
-      </div>
-
-      {/* 6. Enrichment Plots */}
-      <div className="data-summary-section">
-        <div className="sidebar-section-title sidebar-collapsible" onClick={() => setPlotsOpen(o => !o)}>
-          <span>{plotsOpen ? '\u25be' : '\u25b8'} Enrichment Plots</span>
-        </div>
-        {plotsOpen && (
-          <EnrichmentPlots
-            stats={pairStats}
-            setLetters={letters}
-            setNames={setNames}
-            datasetName={datasetName}
-          />
         )}
       </div>
 

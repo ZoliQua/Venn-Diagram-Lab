@@ -1,19 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { VennResult } from '../utils/csvParser.ts';
 import type { VennDocument } from '../types.ts';
-import { upsetDataFromVennResult } from '../utils/upsetData.ts';
-import { buildUpsetSvgString } from '../utils/upsetSvgBuilder.ts';
 import { svgStringToDataUrl } from '../utils/svgToImage.ts';
 import { generatePdfReport } from '../utils/pdfReport.ts';
-import { saveSvg } from '../parser/saveSvg.ts';
-import { buildNetworkData } from '../utils/networkData.ts';
-import { buildNetworkSvgString } from '../utils/networkSvgBuilder.ts';
 import { pairwiseStatistics } from '../utils/statistics.ts';
-import {
-  buildEnrichmentBarSvg,
-  buildEnrichmentLollipopSvg,
-  buildEnrichmentHeatmapSvg,
-} from '../utils/enrichmentPlotSvg.ts';
+import { buildReportArtefacts } from '../utils/reportArtefacts.ts';
 
 interface PdfReportDialogProps {
   isOpen: boolean;
@@ -44,67 +35,31 @@ export function PdfReportDialog({
 
     async function generate() {
       try {
-        // Step 1: Capture Venn diagram
+        // Build every SVG artefact in one pass
         setStep('Rendering Venn diagram...');
-
-        let vennImage: { dataUrl: string; width: number; height: number };
-
-        // Build SVG from document model for consistent PDF output
-        const svgString = saveSvg(doc);
-        // Parse and modify: hide title, set Name font size to 16px
-        const parser = new DOMParser();
-        const svgDom = parser.parseFromString(svgString, 'image/svg+xml');
-        const svgRoot = svgDom.documentElement as unknown as SVGSVGElement;
-        // Hide title
-        const titleEl = svgRoot.querySelector('#Title');
-        if (titleEl) (titleEl as SVGElement).setAttribute('style', (titleEl.getAttribute('style') ?? '') + ';display:none');
-        // Set Name elements to 16px
-        svgRoot.querySelectorAll('[id^="Name"]').forEach(el => {
-          const style = el.getAttribute('style') ?? '';
-          const updated = style.replace(/font-size:\s*[^;]+/, 'font-size:16');
-          el.setAttribute('style', updated.includes('font-size') ? updated : updated + ';font-size:16');
+        const pairwiseStats = pairwiseStatistics(vennResult, n, totalItems, setNames);
+        const art = buildReportArtefacts({
+          doc, vennResult, n, setNames, totalItems, pairwiseStats,
         });
-        const modifiedSvg = new XMLSerializer().serializeToString(svgRoot);
-        vennImage = await svgStringToDataUrl(modifiedSvg);
 
+        const vennImage = await svgStringToDataUrl(art.vennSvgPrepared);
         if (cancelled) return;
 
-        // Step 2: Build UpSet plot
         setStep('Rendering UpSet plot...');
-
-        const upsetData = upsetDataFromVennResult(vennResult, n);
-        const upsetSvgString = buildUpsetSvgString(upsetData, setNames);
-        const upsetImage = await svgStringToDataUrl(upsetSvgString);
-
+        const upsetImage = await svgStringToDataUrl(art.upsetSvg);
         if (cancelled) return;
 
-        // Step 2b: Build Network diagram
         setStep('Rendering Network diagram...');
-
-        const netData = buildNetworkData(vennResult, n, totalItems, setNames, 'intersection');
-        const netSvgString = buildNetworkSvgString(netData, 'intersection');
-        const networkImage = await svgStringToDataUrl(netSvgString);
-
+        const networkImage = await svgStringToDataUrl(art.networkSvg);
         if (cancelled) return;
 
-        // Step 2c: Build Enrichment plots (PDF uses -log10(FDR) variant)
         setStep('Rendering enrichment plots...');
-
-        const stats = pairwiseStatistics(vennResult, n, totalItems, setNames);
-        const letters = 'ABCDEFGHI'.slice(0, n).split('');
-        const metric = 'neglog10fdr' as const;
-        const barSvg = buildEnrichmentBarSvg(stats, { metric });
-        const lollipopSvg = buildEnrichmentLollipopSvg(stats, { metric });
-        const heatmapSvg = buildEnrichmentHeatmapSvg(stats, letters, setNames, { metric });
-        const enrichmentBar = await svgStringToDataUrl(barSvg);
-        const enrichmentLollipop = await svgStringToDataUrl(lollipopSvg);
-        const enrichmentHeatmap = await svgStringToDataUrl(heatmapSvg);
-
+        const enrichmentBar = await svgStringToDataUrl(art.enrichmentBarSvg);
+        const enrichmentLollipop = await svgStringToDataUrl(art.enrichmentLollipopSvg);
+        const enrichmentHeatmap = await svgStringToDataUrl(art.enrichmentHeatmapSvg);
         if (cancelled) return;
 
-        // Step 3: Generate PDF
         setStep('Building PDF...');
-
         const blob = await generatePdfReport({
           title,
           filename,
@@ -137,9 +92,7 @@ export function PdfReportDialog({
 
         if (cancelled) return;
 
-        // Step 4: Download
         setStep('Downloading...');
-
         const baseName = filename.replace(/\.[^.]+$/, '');
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

@@ -34,6 +34,7 @@ interface ToolbarProps {
   onRedo: () => void;
   onReport: () => void;
   onDataReport?: () => void;
+  onDataReportZip?: () => void;
   theme: ThemeMode;
   onToggleTheme: () => void;
 }
@@ -46,7 +47,7 @@ export function Toolbar({
   showValidation,
   onToggleGrid, onToggleValidation,
   onOpen, onClose, onDataOpen, onDataSave, onDataClose, hasDataFile, isCalculated,
-  onUndo, onRedo, onReport, onDataReport,
+  onUndo, onRedo, onReport, onDataReport, onDataReportZip,
   theme, onToggleTheme,
 }: ToolbarProps) {
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
@@ -110,11 +111,14 @@ export function Toolbar({
         {mode === 'data' && (
           <>
             <span className="toolbar-sep" />
-            <button className="btn btn-toolbar" onClick={onDataOpen}>Open</button>
+            <button className="btn btn-toolbar" data-tour="toolbar-data-open" onClick={onDataOpen}>Open</button>
             <button className="btn btn-toolbar" onClick={onDataSave} disabled={!hasDataFile}>Save</button>
             <button className="btn btn-toolbar" onClick={onDataClose} disabled={!hasDataFile}>Close</button>
             <span className="toolbar-sep" />
-            <button className="btn btn-toolbar" onClick={onDataReport} disabled={!isCalculated}>Report</button>
+            <span className="toolbar-group" data-tour="toolbar-reports">
+              <button className="btn btn-toolbar" onClick={onDataReport} disabled={!isCalculated}>Report PDF</button>
+              <button className="btn btn-toolbar" onClick={onDataReportZip} disabled={!isCalculated || !onDataReportZip}>Full Report (zip)</button>
+            </span>
           </>
         )}
       </div>

@@ -2,6 +2,26 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.11.0] — 2026-04-01
+
+### Added
+- **Clickable enrichment plots (Data mode)**: The three enrichment plots in the right-panel `Statistics → Enrichment Plots` section are now clickable. Clicking any plot opens a dedicated plot editor.
+- **Enrichment plot editor** (left sidebar): Replaces the `4. View` section while editing. Controls include significance / non-significance colour pickers, heatmap gradient endpoints (low / FDR-high / FE-high), font size slider (6–16), font family dropdown, background toggle (white / dark), and visibility toggles for axis label, pair labels, significance markers and legend. A **Back to Diagram** button returns to the previous view; the edited plot's style is preserved while the dataset is loaded.
+- **Responsive plot canvas**: While a plot is being edited, the main canvas shows the plot at a large responsive size (aspect preserved, scales with available width).
+- **Per-plot style state**: Bar, lollipop and heatmap keep independent style settings; switching between them inside the editor preserves each plot's customisations.
+- **New module `enrichmentPlotStyle.ts`**: centralised `EnrichmentPlotStyle` type, `DEFAULT_PLOT_STYLE` (bit-for-bit v1.10.1 values), `createDefaultPlotSettings()`.
+- Tests: 13 new `enrichmentPlotSvg.test.ts` cases covering custom colours, visibility toggles, gradient customisation and font-size scaling; new `enrichmentPlotStyle.test.ts` (6 tests) for defaults.
+
+### Changed
+- **Metric toggle lifted to App-level state**: `−log₁₀(FDR)` / `Fold Enrichment` selection is now shared between the right-panel plots and the editor sidebar (single source of truth).
+- **Close (Data mode)**: now also resets plot-editor state (`plotEditState`, metric, per-plot style) to their defaults.
+- **Help — Data mode Statistics**: new line documenting the plot editor workflow.
+
+### Notes
+- Style customisations live in React state only (no localStorage).
+- **PDF export unchanged** — the report always uses `DEFAULT_PLOT_STYLE` for the three enrichment plots and therefore reproduces v1.10.1 output byte-for-byte. Exposing customisations in the PDF is intentionally deferred to a future release.
+- `EnrichmentPlotOptions.style` is optional; callers that do not pass it (including the PDF pipeline) get the defaults and therefore keep previous behaviour.
+
 ## [1.10.1] — 2026-03-31
 
 ### Fixed

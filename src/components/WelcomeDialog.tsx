@@ -7,9 +7,10 @@ interface WelcomeDialogProps {
   isOpen: boolean;
   onSelectMode: (mode: AppMode) => void;
   onSummary: () => void;
+  onStartTour?: () => void;
 }
 
-export function WelcomeDialog({ isOpen, onSelectMode, onSummary }: WelcomeDialogProps) {
+export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour }: WelcomeDialogProps) {
   const [showCredits, setShowCredits] = useState(false);
   const [showAboutVenn, setShowAboutVenn] = useState(false);
 
@@ -108,6 +109,14 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary }: WelcomeDialog
             <div className="welcome-mode-name">Data</div>
             <div className="welcome-mode-desc">Load your data to map columns to sets, and calculate Venn intersections</div>
           </button>
+
+          {onStartTour && (
+            <button className="welcome-mode-card welcome-mode-card-tour" onClick={onStartTour}>
+              <div className="welcome-mode-icon">🧭</div>
+              <div className="welcome-mode-name">Tour</div>
+              <div className="welcome-mode-desc">Take a 90-second guided tour through Data mode using a sample dataset</div>
+            </button>
+          )}
         </div>
 
         <div className="welcome-bottom-buttons">
