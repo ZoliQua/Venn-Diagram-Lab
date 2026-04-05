@@ -1181,6 +1181,7 @@ export default function App() {
         onReport={() => setReportOpen(true)}
         onDataReport={() => { setPdfReportOpen(true); trackEvent('export_pdf', 'export'); }}
         onDataReportZip={() => { setZipReportOpen(true); trackEvent('export_zip', 'export'); }}
+        onGoMain={() => { setWelcomeOpen(true); }}
         theme={theme}
         onToggleTheme={handleToggleTheme}
       />
@@ -1361,24 +1362,26 @@ export default function App() {
             forceOpen={tourActive ? tourForceSidebarOpen : undefined}
           />
         ) : (
-          <Sidebar
-            doc={doc}
-            selected={selected}
-            onLoadFile={handleLoadFile}
-            onSave={handleSave}
-            onRestore={handleRestore}
-            onSelectFromLibrary={handleSelectFromLibrary}
-            onOpenCustomFile={handleOpenCustomFile}
-            onSelect={selectById}
-            onToggleMeta={svgDoc.toggleMeta}
-            onMoveElement={svgDoc.moveElementInGroup}
-            onAddText={handleAddText}
-            onAddTextDirect={svgDoc.addText}
-            onRemoveText={handleRemoveText}
-            onToggleElementVisibility={svgDoc.toggleElementVisibility}
-            onToggleGroupVisibility={svgDoc.toggleGroupVisibility}
-            isModified={svgDoc.isModified}
-          />
+          !doc ? null : (
+            <Sidebar
+              doc={doc}
+              selected={selected}
+              onLoadFile={handleLoadFile}
+              onSave={handleSave}
+              onRestore={handleRestore}
+              onSelectFromLibrary={handleSelectFromLibrary}
+              onOpenCustomFile={handleOpenCustomFile}
+              onSelect={selectById}
+              onToggleMeta={svgDoc.toggleMeta}
+              onMoveElement={svgDoc.moveElementInGroup}
+              onAddText={handleAddText}
+              onAddTextDirect={svgDoc.addText}
+              onRemoveText={handleRemoveText}
+              onToggleElementVisibility={svgDoc.toggleElementVisibility}
+              onToggleGroupVisibility={svgDoc.toggleGroupVisibility}
+              isModified={svgDoc.isModified}
+            />
+          )
         )}
 
         <div className="canvas-area">
@@ -1680,12 +1683,22 @@ export default function App() {
                   <div className="canvas-empty-text">
                     {mode === 'data'
                       ? 'Load your data to get started'
-                      : 'Open an SVG file to start editing'}
+                      : mode === 'edit'
+                        ? 'Open an SVG file to start editing'
+                        : ''}
                   </div>
                   {mode === 'edit' && (
-                    <div style={{ display: 'flex', gap: 12 }}>
-                      <button className="btn btn-large" onClick={handleSelectFromLibrary}>Select Model</button>
-                      <button className="btn btn-large" onClick={handleOpen}>Open Custom</button>
+                    <div className="data-import-cards">
+                      <div className="data-import-card" onClick={handleSelectFromLibrary}>
+                        <div className="data-import-card-icon">{'\u{1F5C2}'}</div>
+                        <div className="data-import-card-title">Select Model</div>
+                        <div className="data-import-card-desc">Pick one of the 44 built-in Venn diagram models to edit</div>
+                      </div>
+                      <div className="data-import-card" onClick={handleOpen}>
+                        <div className="data-import-card-icon">{'\u{1F4C2}'}</div>
+                        <div className="data-import-card-title">Open Custom SVG</div>
+                        <div className="data-import-card-desc">Upload your own Venn diagram SVG file for editing</div>
+                      </div>
                     </div>
                   )}
                   {mode === 'data' && (
@@ -1768,23 +1781,25 @@ export default function App() {
             </div>
           )
         ) : (
-          <PropertyPanel
-            selected={selected}
-            shapes={[...(doc?.shapes ?? []), ...(doc?.shapesExtras ?? [])]}
-            onUpdateTextPosition={svgDoc.updateTextPosition}
-            onUpdateTextContent={svgDoc.updateTextContent}
-            onUpdateTextStyle={svgDoc.updateTextStyle}
-            onUpdateBulletPosition={svgDoc.updateBulletPosition}
-            onUpdateShapeStyle={svgDoc.updateShapeStyle}
-            moveShapes={moveShapes}
-            rotateShapes={rotateShapes}
-            resizeShapes={resizeShapes}
-            onToggleMoveShapes={() => { setMoveShapes(m => !m); setRotateShapes(false); setResizeShapes(false); }}
-            onToggleRotateShapes={() => { setRotateShapes(r => !r); setMoveShapes(false); setResizeShapes(false); }}
-            onToggleResizeShapes={() => { setResizeShapes(r => !r); setMoveShapes(false); setRotateShapes(false); }}
-            textTool={textTool ?? undefined}
-            onSetTextTool={setTextTool}
-          />
+          !doc ? null : (
+            <PropertyPanel
+              selected={selected}
+              shapes={[...(doc?.shapes ?? []), ...(doc?.shapesExtras ?? [])]}
+              onUpdateTextPosition={svgDoc.updateTextPosition}
+              onUpdateTextContent={svgDoc.updateTextContent}
+              onUpdateTextStyle={svgDoc.updateTextStyle}
+              onUpdateBulletPosition={svgDoc.updateBulletPosition}
+              onUpdateShapeStyle={svgDoc.updateShapeStyle}
+              moveShapes={moveShapes}
+              rotateShapes={rotateShapes}
+              resizeShapes={resizeShapes}
+              onToggleMoveShapes={() => { setMoveShapes(m => !m); setRotateShapes(false); setResizeShapes(false); }}
+              onToggleRotateShapes={() => { setRotateShapes(r => !r); setMoveShapes(false); setRotateShapes(false); }}
+              onToggleResizeShapes={() => { setResizeShapes(r => !r); setMoveShapes(false); setRotateShapes(false); }}
+              textTool={textTool ?? undefined}
+              onSetTextTool={setTextTool}
+            />
+          )
         )}
       </div>
 

@@ -2,6 +2,12 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.13.1] — 2026-04-05
+
+### Added
+- **Main option** in the toolbar mode dropdown (🏠 Main): available in every mode and returns to the welcome screen without resetting the dataset or the SVG being edited.
+- **Edit mode empty state** now mirrors Data mode: left and right panels are hidden when no SVG is loaded, and two large cards take the centre of the canvas — **Select Model** (pick one of the 44 built-in Venn diagrams) and **Open Custom SVG** (upload your own) — each with a descriptive subtitle.
+
 ## [1.13.0] — 2026-04-03
 
 ### Added

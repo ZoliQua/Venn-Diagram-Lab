@@ -35,6 +35,7 @@ interface ToolbarProps {
   onReport: () => void;
   onDataReport?: () => void;
   onDataReportZip?: () => void;
+  onGoMain?: () => void;
   theme: ThemeMode;
   onToggleTheme: () => void;
 }
@@ -48,6 +49,7 @@ export function Toolbar({
   onToggleGrid, onToggleValidation,
   onOpen, onClose, onDataOpen, onDataSave, onDataClose, hasDataFile, isCalculated,
   onUndo, onRedo, onReport, onDataReport, onDataReportZip,
+  onGoMain,
   theme, onToggleTheme,
 }: ToolbarProps) {
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
@@ -78,6 +80,14 @@ export function Toolbar({
           </button>
           {modeDropdownOpen && (
             <div className="mode-dropdown-menu">
+              {onGoMain && (
+                <button
+                  className="mode-dropdown-item mode-dropdown-main"
+                  onClick={() => { onGoMain(); setModeDropdownOpen(false); }}
+                >
+                  {'\u{1F3E0}'} Main
+                </button>
+              )}
               {(Object.keys(MODE_LABELS) as AppMode[]).map(m => (
                 <button
                   key={m}
