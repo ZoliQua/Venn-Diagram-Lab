@@ -28,6 +28,7 @@ import { pairwiseStatistics } from './utils/statistics.ts';
 import type { Region } from './utils/regions.ts';
 import { calculateVennCounts, calculateVennCountsFromAggregated } from './utils/csvParser.ts';
 import type { CsvData, FileType, Delimiter, CsvImportResult, VennResult, GeneSetFormat, GeneSetMeta } from './utils/csvParser.ts';
+import { truncateName } from './utils/truncateName.ts';
 import { detectGeneSetFormat } from './utils/csvParser.ts';
 import { exportRegionSummaryTsv, exportMatrixTsv, downloadFile } from './utils/exportData.ts';
 import { UpsetPlot } from './components/UpsetPlot.tsx';
@@ -141,6 +142,8 @@ export default function App() {
   const [testShowSums, setTestShowSums] = useState(true);
   const [testNameFontSize, setTestNameFontSize] = useState(24);
   const [testNameFontFamily, setTestNameFontFamily] = useState('Tahoma');
+  // v1.13.4: "Max name length" slider — null = no truncation (full column name).
+  const [testNameMaxChars, setTestNameMaxChars] = useState<number | null>(null);
   const [testTitleFontSize, setTestTitleFontSize] = useState(24);
   const [testTitleFontFamily, setTestTitleFontFamily] = useState('Tahoma');
   const [testShapeOpacity, setTestShapeOpacity] = useState(0.2);
@@ -849,6 +852,7 @@ export default function App() {
     setTestPlotEditState(null);
     setTestEnrichmentMetric('neglog10fdr');
     setTestEnrichmentPlotSettings(createDefaultPlotSettings());
+    setTestNameMaxChars(null);
     svgDoc.clearDoc();
     setCurrentModel(null);
     setRegionData(null);
@@ -973,7 +977,10 @@ export default function App() {
               700,
             );
 
-        const colNames = testColumnMapping.map(ci => testCsvData.headers[ci]);
+        const rawColNames = testColumnMapping.map(ci => testCsvData.headers[ci]);
+        const colNames = testNameMaxChars !== null
+          ? rawColNames.map(name => truncateName(name, testNameMaxChars))
+          : rawColNames;
         const generatedDoc = generateProportionalModel(n, colNames, result.exclusive, result.inclusive, layout);
         svgDoc.loadDoc(generatedDoc);
 
@@ -1012,8 +1019,11 @@ export default function App() {
           svgDoc.updateTextStyle(`Count_${label}`, 'text-anchor', 'middle');
         }
         for (let i = 0; i < n; i++) {
-          const colName = testCsvData.headers[testColumnMapping[i]];
-          svgDoc.updateTextContent(`Name${letters[i]}`, colName);
+          const rawName = testCsvData.headers[testColumnMapping[i]];
+          const displayName = testNameMaxChars !== null
+            ? truncateName(rawName, testNameMaxChars)
+            : rawName;
+          svgDoc.updateTextContent(`Name${letters[i]}`, displayName);
         }
         for (let i = 0; i < n; i++) {
           const total = result.inclusive.get(letters[i]) ?? 0;
@@ -1032,12 +1042,17 @@ export default function App() {
         svgDoc.updateShapeStyle(`Shape${letter}`, 'opacity', String(testShapeOpacity));
       }
 
-      // Auto-cap name font size based on the longest column name.
-      // Only reduces the user's current setting; never increases it.
-      const maxNameLen = testColumnMapping.reduce(
+      // Auto-cap name font size based on the longest *displayed* name length.
+      // When the user has shortened names via the Max name length slider
+      // (v1.13.4), the font cap is relaxed accordingly. Only reduces the
+      // user's current font-size setting; never increases it.
+      const rawMaxNameLen = testColumnMapping.reduce(
         (m, ci) => Math.max(m, (testCsvData.headers[ci] ?? '').length),
         0,
       );
+      const maxNameLen = testNameMaxChars !== null
+        ? Math.min(rawMaxNameLen, Math.max(16, testNameMaxChars))
+        : rawMaxNameLen;
       const autoCap: number | null =
         maxNameLen >= 28 ? 8 :
         maxNameLen >= 24 ? 9 :
@@ -1072,7 +1087,7 @@ export default function App() {
     } finally {
       setIsCalculating(false);
     }
-  }, [testCsvData, testModel, testColumnMapping, svgDoc, zoomPan, regionDetection, testShapeColors, testShapeOpacity, testFileType, testItemDelimiter, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testShowTitle, testShowNames, testShowSums]);
+  }, [testCsvData, testModel, testColumnMapping, svgDoc, zoomPan, regionDetection, testShapeColors, testShapeOpacity, testFileType, testItemDelimiter, testNameFontSize, testNameFontFamily, testNameMaxChars, testTitleFontSize, testTitleFontFamily, testShowTitle, testShowNames, testShowSums]);
 
   // Auto-calculate when model is selected in Data mode
   useEffect(() => {
@@ -1102,6 +1117,35 @@ export default function App() {
     }
     prevMappingRef.current = key;
   }, [testColumnMapping, testModel, testCsvData, testCalculated]);
+
+  // v1.13.4: Apply "Max name length" truncation live when the slider moves.
+  // Decoupled from handleTestCalculate so dragging stays smooth — only the
+  // NameX text contents change, geometry and counts are untouched.
+  useEffect(() => {
+    if (!testCalculated || !testCsvData) return;
+    const n = testColumnMapping.length;
+    const letters = 'ABCDEFGHI'.slice(0, n).split('');
+    for (let i = 0; i < n; i++) {
+      const rawName = testCsvData.headers[testColumnMapping[i]] ?? letters[i];
+      const displayName = testNameMaxChars !== null
+        ? truncateName(rawName, testNameMaxChars)
+        : rawName;
+      svgDoc.updateTextContent(`Name${letters[i]}`, displayName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [testNameMaxChars]);
+
+  // Clamp testNameMaxChars when the longest mapped column name shrinks
+  // (e.g. user swaps to shorter columns). Keeps the slider range consistent.
+  useEffect(() => {
+    if (testNameMaxChars === null || !testCsvData) return;
+    const maxLen = testColumnMapping.reduce(
+      (m, ci) => Math.max(m, (testCsvData.headers[ci] ?? '').length),
+      0,
+    );
+    const ceiling = Math.max(16, maxLen);
+    if (testNameMaxChars > ceiling) setTestNameMaxChars(ceiling);
+  }, [testColumnMapping, testCsvData, testNameMaxChars]);
 
   // Viewer: region list hover/click
   const handleSidebarHoverRegion = useCallback((_region: Region | null) => {
@@ -1288,6 +1332,13 @@ export default function App() {
                 svgDoc.updateTextStyle(`Name${letters[i]}`, 'font-family', `'${font}'`);
               }
             }}
+            nameMaxCharsMax={Math.max(16, testCsvData ? testColumnMapping.reduce(
+              (m, ci) => Math.max(m, (testCsvData.headers[ci] ?? '').length), 0,
+            ) : 16)}
+            nameMaxChars={testNameMaxChars ?? Math.max(16, testCsvData ? testColumnMapping.reduce(
+              (m, ci) => Math.max(m, (testCsvData.headers[ci] ?? '').length), 0,
+            ) : 16)}
+            onNameMaxCharsChange={(v) => setTestNameMaxChars(v)}
             titleFontSize={testTitleFontSize}
             onTitleFontSizeChange={(size) => {
               setTestTitleFontSize(size);
@@ -1340,6 +1391,7 @@ export default function App() {
               setTestShapeColors({ A: '#FFF200', B: '#2E3192', C: '#ED1C24', D: '#808285', E: '#3C2415', F: '#9E1F63', G: '#CA4B9B', H: '#21AED1', I: '#F7941E' });
               setTestNameFontSize(24);
               setTestNameFontFamily('Tahoma');
+              setTestNameMaxChars(null);
               setTestTitleFontSize(24);
               setTestTitleFontFamily('Tahoma');
               setHoverColor('#00ff88');
@@ -1755,7 +1807,7 @@ export default function App() {
                   vennResult={testVennResult}
                   n={testColumnMapping.length}
                   setNames={testColumnMapping.map(i => testCsvData?.headers[i] ?? '')}
-                  totalItems={testCsvData?.rows.length ?? 0}
+                  totalItems={testVennResult?.totalUniqueItems ?? testCsvData?.rows.length ?? 0}
                   selectedRegionLabel={regionDetection.selectedRegion?.label ?? null}
                   datasetName={testCsvFilename ?? undefined}
                   enrichmentMetric={testEnrichmentMetric}
@@ -1934,7 +1986,7 @@ export default function App() {
           doc={doc}
           n={testColumnMapping.length}
           setNames={testColumnMapping.map(i => testCsvData.headers[i] ?? '')}
-          totalItems={testCsvData.rows.length}
+          totalItems={testVennResult?.totalUniqueItems ?? testCsvData.rows.length}
           totalFileRows={testCsvData.rows.length}
           filename={testCsvFilename ?? 'data'}
           title={doc.texts.header?.content ?? testCsvFilename ?? 'Venn Diagram Report'}
@@ -1951,7 +2003,7 @@ export default function App() {
           doc={doc}
           n={testColumnMapping.length}
           setNames={testColumnMapping.map(i => testCsvData.headers[i] ?? '')}
-          totalItems={testCsvData.rows.length}
+          totalItems={testVennResult?.totalUniqueItems ?? testCsvData.rows.length}
           totalFileRows={testCsvData.rows.length}
           filename={testCsvFilename ?? 'data'}
           title={doc.texts.header?.content ?? testCsvFilename ?? 'Venn Diagram Report'}

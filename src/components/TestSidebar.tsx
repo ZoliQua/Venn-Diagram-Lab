@@ -80,6 +80,9 @@ interface TestSidebarProps {
   onNameFontSizeChange: (size: number) => void;
   nameFontFamily: string;
   onNameFontFamilyChange: (font: string) => void;
+  nameMaxChars: number;
+  nameMaxCharsMax: number;
+  onNameMaxCharsChange: (value: number) => void;
   titleFontSize: number;
   onTitleFontSizeChange: (size: number) => void;
   titleFontFamily: string;
@@ -147,6 +150,7 @@ export function TestSidebar({
   onToggleTitle, onToggleNames, onToggleSums,
   nameFontSize, onNameFontSizeChange,
   nameFontFamily, onNameFontFamilyChange,
+  nameMaxChars, nameMaxCharsMax, onNameMaxCharsChange,
   titleFontSize, onTitleFontSizeChange,
   titleFontFamily, onTitleFontFamilyChange,
   moveNames, onSetMoveNames,
@@ -536,6 +540,17 @@ export function TestSidebar({
                   <option value="monospace">Monospace</option>
                   <option value="Roboto">Roboto</option>
                 </select>
+              </div>
+              <div className="test-font-size">
+                <label>Max name length: {nameMaxChars} chars</label>
+                <input
+                  type="range"
+                  min="16"
+                  max={nameMaxCharsMax}
+                  value={nameMaxChars}
+                  disabled={nameMaxCharsMax <= 16}
+                  onChange={e => onNameMaxCharsChange(parseInt(e.target.value))}
+                />
               </div>
 
               <div className="sidebar-subsection-title" style={{ marginTop: 12 }}>Diagram Title</div>

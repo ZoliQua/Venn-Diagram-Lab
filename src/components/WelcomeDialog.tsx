@@ -114,7 +114,7 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour }: 
             <button className="welcome-mode-card welcome-mode-card-tour" onClick={onStartTour}>
               <div className="welcome-mode-icon">🧭</div>
               <div className="welcome-mode-name">Tour</div>
-              <div className="welcome-mode-desc">Take a 90-second guided tour through Data mode using a sample dataset</div>
+              <div className="welcome-mode-desc">Take a short guided tour through Data mode using a sample dataset</div>
             </button>
           )}
         </div>

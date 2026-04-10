@@ -229,7 +229,7 @@ export function calculateVennCountsFromAggregated(
     }
   }
 
-  return { inclusive, exclusive, inclusiveItems, exclusiveItems };
+  return { inclusive, exclusive, inclusiveItems, exclusiveItems, totalUniqueItems: allItems.size };
 }
 
 /**
@@ -240,6 +240,13 @@ export interface VennResult {
   exclusive: Map<string, number>;
   inclusiveItems: Map<string, string[]>;
   exclusiveItems: Map<string, string[]>;
+  /**
+   * Size of the hypergeometric background universe.
+   * Binary mode: equals the number of data rows (one row per unique item).
+   * Aggregated mode: equals |union of items across all mapped columns|
+   * (not rows.length, which reflects the longest column after GMT padding).
+   */
+  totalUniqueItems: number;
 }
 
 export function calculateVennCounts(
@@ -287,7 +294,7 @@ export function calculateVennCounts(
     }
   }
 
-  return { inclusive, exclusive, inclusiveItems, exclusiveItems };
+  return { inclusive, exclusive, inclusiveItems, exclusiveItems, totalUniqueItems: csv.rows.length };
 }
 
 /**

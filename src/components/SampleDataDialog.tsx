@@ -18,7 +18,7 @@ export const SAMPLE_DATASETS: SampleDataset[] = [
     type: 'real',
     dataFormat: 'binary',
     description: 'Curated cancer-related hallmark gene sets from the Molecular Signatures Database (MSigDB). Includes key oncogenic pathways such as P53, MYC targets, and cell cycle regulation.',
-    reference: '',
+    reference: 'Liberzon A. et al., Cell Syst 2015; 1(6):417-425. DOI: 10.1016/j.cels.2015.12.004',
   },
   {
     id: 'msigdb-immune',
@@ -27,7 +27,7 @@ export const SAMPLE_DATASETS: SampleDataset[] = [
     type: 'real',
     dataFormat: 'binary',
     description: 'Immune signaling hallmark gene sets from MSigDB. Covers interferon response, TNF-alpha signaling, inflammatory response, and complement pathways.',
-    reference: '',
+    reference: 'Liberzon A. et al., Cell Syst 2015; 1(6):417-425. DOI: 10.1016/j.cels.2015.12.004',
   },
   {
     id: 'cancer-drivers',
@@ -36,7 +36,7 @@ export const SAMPLE_DATASETS: SampleDataset[] = [
     type: 'real',
     dataFormat: 'binary',
     description: 'Cancer driver genes compiled from four major databases: COSMIC Cancer Gene Census, OncoKB, IntOGen, and Vogelstein et al. Useful for cross-database comparison of oncogene and tumor suppressor annotations.',
-    reference: '',
+    reference: 'COSMIC CGC (Sondka et al. 2018); OncoKB (Chakravarty et al. 2017); IntOGen (Martinez-Jimenez et al. 2020); Vogelstein et al. 2013.',
   },
   {
     id: 'mock-pathways',

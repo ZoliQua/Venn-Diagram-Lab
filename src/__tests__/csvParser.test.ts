@@ -5,12 +5,14 @@ import {
   detectDelimiter,
   validateBinaryColumns,
   validateAggregatedColumns,
+  calculateVennCounts,
   calculateVennCountsFromAggregated,
   getBinaryColumns,
   detectGeneSetFormat,
   parseGmt,
   parseGmx,
 } from '../utils/csvParser.ts';
+import type { CsvData } from '../utils/csvParser.ts';
 
 describe('splitCsvLineWithDelimiter', () => {
   it('splits by comma', () => {
@@ -325,5 +327,62 @@ describe('parseGmx', () => {
 
   it('throws on file with fewer than 3 rows', () => {
     expect(() => parseGmx('A\tB\ndesc1\tdesc2')).toThrow();
+  });
+});
+
+describe('VennResult.totalUniqueItems', () => {
+  it('binary mode: equals number of data rows', () => {
+    const csv: CsvData = {
+      headers: ['item', 'A', 'B'],
+      rows: [
+        ['g1', '1', '0'],
+        ['g2', '0', '1'],
+        ['g3', '1', '1'],
+        ['g4', '0', '0'],
+      ],
+    };
+    const result = calculateVennCounts(csv, [1, 2]);
+    expect(result.totalUniqueItems).toBe(4);
+  });
+
+  it('aggregated mode: equals union of unique items across columns', () => {
+    // A = {g1, g2, g3}, B = {g2, g3, g4}, union = {g1, g2, g3, g4}
+    const csv: CsvData = {
+      headers: ['A', 'B'],
+      rows: [
+        ['g1', 'g2'],
+        ['g2', 'g3'],
+        ['g3', 'g4'],
+      ],
+    };
+    const result = calculateVennCountsFromAggregated(csv, [0, 1], ',');
+    expect(result.totalUniqueItems).toBe(4);
+  });
+
+  it('aggregated mode: ignores padding (empty cells)', () => {
+    // Simulates GMT-parsed data: short sets padded with empty cells
+    // A has 3 genes, B has 1 gene, padded to max = 3
+    const csv: CsvData = {
+      headers: ['A', 'B'],
+      rows: [
+        ['g1', 'g4'],
+        ['g2', ''],
+        ['g3', ''],
+      ],
+    };
+    const result = calculateVennCountsFromAggregated(csv, [0, 1], ',');
+    // Union is {g1, g2, g3, g4} = 4; rows.length = 3 (WRONG if used as N)
+    expect(result.totalUniqueItems).toBe(4);
+  });
+
+  it('aggregated mode: multiple items per cell with delimiter', () => {
+    const csv: CsvData = {
+      headers: ['A', 'B'],
+      rows: [
+        ['g1,g2,g3', 'g3,g4'],
+      ],
+    };
+    const result = calculateVennCountsFromAggregated(csv, [0, 1], ',');
+    expect(result.totalUniqueItems).toBe(4);  // g1, g2, g3, g4
   });
 });

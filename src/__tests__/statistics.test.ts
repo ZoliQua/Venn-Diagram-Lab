@@ -112,6 +112,7 @@ describe('pairwiseStatistics', () => {
       exclusive: new Map([['A', 20], ['B', 10], ['AB', 10]]),
       inclusiveItems: new Map([['A', []], ['B', []], ['AB', []]]),
       exclusiveItems: new Map([['A', []], ['B', []], ['AB', []]]),
+      totalUniqueItems: 40,
     };
     const stats = pairwiseStatistics(vennResult, 2, 40, ['SetA', 'SetB']);
     expect(stats).toHaveLength(1);
@@ -143,7 +144,7 @@ describe('pairwiseStatistics', () => {
       incI.set(label, []);
       excI.set(label, []);
     }
-    const vr: VennResult = { inclusive: inc, exclusive: exc, inclusiveItems: incI, exclusiveItems: excI };
+    const vr: VennResult = { inclusive: inc, exclusive: exc, inclusiveItems: incI, exclusiveItems: excI, totalUniqueItems: 100 };
     const stats = pairwiseStatistics(vr, 4, 100, ['A', 'B', 'C', 'D']);
     expect(stats).toHaveLength(6); // C(4,2) = 6
   });

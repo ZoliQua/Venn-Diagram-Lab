@@ -42,7 +42,7 @@ export const TOUR_STEPS: TourStep[] = [
     placement: 'center',
     title: 'Welcome to the tour',
     body:
-      "Let's explore Data mode together in about 90 seconds. We've pre-loaded a " +
+      "Let's explore Data mode together. We've pre-loaded a " +
       "cancer-driver gene collection (COSMIC, OncoKB, IntOGen, Vogelstein) and laid " +
       "it out on a 4-set Edwards diagram. Click Next whenever you're ready.",
   },

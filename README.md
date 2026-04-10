@@ -2,7 +2,7 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite.
 
-**Version:** 1.13.2 | **Models:** 44 SVG diagrams + proportional | **License:** MIT
+**Version:** 1.13.4 | **Models:** 44 SVG diagrams + proportional | **License:** MIT
 
 ## Features
 
@@ -362,7 +362,7 @@ Requires Python 3 with `shapely` installed.
 | Framework | React 19 |
 | Language | TypeScript 5.9 |
 | Build | Vite 8 |
-| Testing | Vitest 4 (612 tests) |
+| Testing | Vitest 4 (622 tests) |
 | Styling | Custom CSS (dark + light theme) |
 | SVG | Native DOM API |
 | PDF export | jsPDF (lazy-loaded) |

@@ -2,6 +2,22 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## [1.13.4] — 2026-04-10
+
+### Fixed
+- **Hypergeometric background universe (aggregated imports)**: the `DataSummaryPanel`, `PdfReportDialog`, and `ZipReportDialog` all received `totalItems` as `testCsvData.rows.length`. For binary-matrix imports this equalled one row per unique item, which is correct. For aggregated imports (paste, GMT, GMX), `parseGmt` pads the CSV rows with empty cells up to the largest gene set size, so `rows.length` reflected the *longest column*, not the *union of all unique items*. All pairwise hypergeometric p-values, fold enrichments, and the FDR correction were consequently computed with a biased N. The `VennResult` interface now exposes a `totalUniqueItems` field populated by both calculation paths (binary: equals row count; aggregated: equals the union of unique items across all sets). `App.tsx` consumes this value wherever background universe is required.
+
+### Added
+- **Max name length slider** (Data mode, `4. View → Group names and numbers`): new slider directly under *Font type* lets the user cap the displayed group names to between 16 characters and the length of the longest mapped column name. Truncation happens from the tail with a single-character ellipsis (`…`); the returned string is exactly the configured length. The slider drags live (updates `NameX` text content directly, no full recalculation). The font-size auto-cap (17/20/24/28-char thresholds) now uses the *displayed* length, so shortening a name relaxes the cap. When all mapped columns are ≤ 16 characters the slider is disabled. Reset to Defaults / Close clears the override back to full names.
+- New helper `src/utils/truncateName.ts` with 6 dedicated tests (no-op, truncation with ellipsis, idempotence, edge cases for non-positive / non-finite `maxChars`, exact 16-char cap).
+- **LICENSE file** at the repository root (MIT, 2024-2026 Zoltan Dul).
+- **Sample dataset references** in the `Load Sample Data` dialog: MSigDB Hallmark datasets now cite Liberzon et al. 2015 (Cell Syst); the cancer driver dataset cites its four primary sources (COSMIC CGC, OncoKB, IntOGen, Vogelstein et al. 2013).
+- 4 additional tests in `csvParser.test.ts` covering `VennResult.totalUniqueItems` for binary mode, aggregated mode (clean), aggregated mode with padding, and aggregated mode with multi-item cells.
+
+### Changed
+- **Tour description** — "90-second" phrasing replaced with "short" in the welcome card, the Help dialog call-to-action, and the first tour step. The actual tour length (~2 minutes for readers who finish every step) is no longer implied to be shorter than it is.
+- `README.md` and `CITATION.cff` bumped to 1.13.4.
+
 ## [1.13.2] — 2026-04-22
 
 ### Fixed

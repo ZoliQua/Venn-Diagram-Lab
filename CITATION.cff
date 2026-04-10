@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
 title: "Venn Diagram Lab"
-version: 1.13.2
-date-released: 2026-04-22
+version: 1.13.4
+date-released: 2026-04-10
 url: "https://www.orthologfindertool.com/venn-lab/"
 repository-code: "https://github.com/ZoliQua/React-Venn-Diagram-Lab"
 license: MIT

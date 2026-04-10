@@ -24,6 +24,7 @@ function makeResult(): VennResult {
       ['B', []],
       ['AB', ['=SUM(A1:A2)', '@shared']],
     ]),
+    totalUniqueItems: 3,
   };
 }
 

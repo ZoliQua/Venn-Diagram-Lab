@@ -495,7 +495,7 @@ export function HelpDialog({ isOpen, mode, onClose, onStartTour }: HelpDialogPro
             <div className="help-group">
               <h3 className="help-heading">Getting Started</h3>
               <p className="help-text">
-                New here? Take the guided tour — a 90-second walk-through of Data mode using a pre-loaded cancer-driver gene sample (COSMIC, OncoKB, IntOGen, Vogelstein). Each step highlights the relevant part of the interface in the real app.
+                New here? Take the guided tour — a short walk-through of Data mode using a pre-loaded cancer-driver gene sample (COSMIC, OncoKB, IntOGen, Vogelstein). Each step highlights the relevant part of the interface in the real app.
               </p>
               <button className="btn btn-accent btn-sm" style={{ marginTop: 6 }} onClick={handleStartTourClick}>
                 {'\u{1F9ED}'} Start the tour
