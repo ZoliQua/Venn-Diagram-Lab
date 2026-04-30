@@ -4,7 +4,7 @@ type: software
 title: "Venn Diagram Lab"
 version: 1.13.5
 date-released: 2026-04-12
-url: "https://www.orthologfindertool.com/venn-lab/"
+url: "https://www.venndiagramlab.org/"
 repository-code: "https://github.com/ZoliQua/React-Venn-Diagram-Lab"
 license: MIT
 doi: "10.5281/zenodo.19510813"
@@ -12,6 +12,9 @@ authors:
   - family-names: Dul
     given-names: Zoltán
     orcid: "https://orcid.org/0000-0002-9523-3450"
+  - family-names: Ölbei
+    given-names: Márton
+    orcid: "https://orcid.org/0000-0002-4903-6237"
   - family-names: Thomas
     given-names: "N. Shaun B."
   - family-names: Si Ammour
