@@ -4,7 +4,7 @@
 
 Venn Diagram Lab — interactive viewer, editor, and data visualization tool for Venn diagrams. 44 SVG models (2-set to 9-set) covering all major construction methods, with interactive region detection (Layer/Cut/UpSet views), a full SVG editor, CSV/TSV/GMT/GMX data import (file, paste, URL), statistical analysis, PDF report generation, and light/dark theme support.
 
-**Repository:** https://github.com/ZoliQua/React-Venn-Diagram-Lab
+**Repository:** https://github.com/ZoliQua/Venn-Diagram-Lab
 **Tech stack:** React 19 + TypeScript 5.9 + Vite 8 + Vitest 4
 **Version file:** `src/version.ts` (currently 1.9.3)
 
@@ -193,7 +193,7 @@ Text elements within Group_Values must be sorted:
 ### SVG Comment Header
 All SVGs use this exact comment:
 ```
-<!-- Created by Zoltan Dul in 2026 - free to use with MIT license. Part of React Venn Diagram Lab Module - https://github.com/ZoliQua/React-Venn-Diagram-Lab - SVG Version: 3.0.0 -->
+<!-- Created by Zoltan Dul in 2026 - free to use with MIT license. Part of Venn Diagram Lab Module - https://github.com/ZoliQua/Venn-Diagram-Lab - SVG Version: 3.0.0 -->
 ```
 
 ## JSON Region Data
