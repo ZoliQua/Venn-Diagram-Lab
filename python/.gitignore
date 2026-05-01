@@ -1,0 +1,23 @@
+# Build artifacts
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Bundled data (populated at build time or via sync_data.py)
+src/venn_diagram_lab/_data/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+
+# mypy / ruff
+.mypy_cache/
+.ruff_cache/
+
+# Editable install marker
+*.pth
