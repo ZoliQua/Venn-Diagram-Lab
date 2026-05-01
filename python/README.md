@@ -13,7 +13,7 @@ python -m venv .venv
 source .venv/bin/activate                    # macOS/Linux
 # .venv\Scripts\activate                     # Windows
 python python/scripts/sync_data.py            # populates python/src/venn_diagram_lab/_data/
-pip install -e python/[dev]
+pip install -e "python/[dev]"
 ```
 
 ## Run tests
@@ -24,4 +24,4 @@ pytest python/tests/ -v
 
 ## More
 
-See the design spec at `docs/superpowers/specs/2026-05-01-venn-diagram-lab-python-package-design.md`.
+See the [Venn Diagram Lab repository](https://github.com/ZoliQua/Venn-Diagram-Lab) for the web tool and the broader design.

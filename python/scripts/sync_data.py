@@ -41,11 +41,13 @@ def sync(use_symlinks: bool = False) -> None:
             continue
 
         if dest.exists() or dest.is_symlink():
-            if dest.is_symlink() or dest.is_dir():
-                if dest.is_symlink():
-                    dest.unlink()
-                else:
-                    shutil.rmtree(dest)
+            if dest.is_symlink():
+                dest.unlink()
+            elif dest.is_dir():
+                shutil.rmtree(dest)
+            else:
+                print(f"ERROR: unexpected file at destination: {dest}", file=sys.stderr)
+                continue
 
         dest.parent.mkdir(parents=True, exist_ok=True)
 
