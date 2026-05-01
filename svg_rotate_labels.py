@@ -18,7 +18,7 @@ Examples:
     python rotate_labels.py models/venn-6-set.svg --dry-run
 
 Created by Zoltan Dul in 2026 - free to use with MIT license. 
-Part of React Venn Diagram Lab Module - https://github.com/ZoliQua/React-Venn-Diagram-Lab
+Part of Venn Diagram Lab Module - https://github.com/ZoliQua/Venn-Diagram-Lab
 """
 
 import argparse

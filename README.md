@@ -2,7 +2,7 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite.
 
-[![Version](https://img.shields.io/badge/version-1.13.5-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.14.0-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19510813.svg)](https://doi.org/10.5281/zenodo.19510813)
 [![Models](https://img.shields.io/badge/models-44_SVG_+_proportional-green.svg)](#diagram-models)
@@ -374,8 +374,8 @@ Release candidates should pass `npm test`, `npm run build`, and `npm run lint` b
 ### Installation
 
 ```bash
-git clone https://github.com/ZoliQua/React-Venn-Diagram-Lab.git
-cd React-Venn-Diagram-Lab
+git clone https://github.com/ZoliQua/Venn-Diagram-Lab.git
+cd Venn-Diagram-Lab
 npm install
 ```
 

@@ -151,8 +151,8 @@ Most diagrams use `viewBox="0 0 700 700"`. Exceptions:
 Every file includes this XML comment after the XML declaration:
 ```xml
 <!-- Created by Zoltan Dul in 2026 - free to use with MIT license.
-     Part of React Venn Diagram Lab Module -
-     https://github.com/ZoliQua/React-Venn-Diagram-Lab -
+     Part of Venn Diagram Lab Module -
+     https://github.com/ZoliQua/Venn-Diagram-Lab -
      SVG Version: 3.0.0 -->
 ```
 

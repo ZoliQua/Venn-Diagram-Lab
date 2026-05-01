@@ -2,6 +2,15 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v1.14.0 — 2026-05-01
+
+### Frontend
+- **Repository renamed** from `React-Venn-Diagram-Lab` to `Venn-Diagram-Lab` to better reflect monorepo structure (web tool + Python package). All internal URLs and 44 SVG comment headers updated accordingly. GitHub redirects from the old URL automatically.
+- No functional changes to the web application.
+
+### Python (alpha — not on PyPI)
+- (preparation for upcoming Python package — see Phase 0+ plans)
+
 ## [1.13.5] — 2026-04-12
 
 ### Fixed

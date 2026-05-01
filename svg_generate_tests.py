@@ -5,7 +5,7 @@ Test 1: replace with "1"
 Test 2: replace with "123"
 
 Created by Zoltan Dul in 2026 - free to use with MIT license. 
-Part of React Venn Diagram Lab Module - https://github.com/ZoliQua/React-Venn-Diagram-Lab
+Part of Venn Diagram Lab Module - https://github.com/ZoliQua/Venn-Diagram-Lab
 """
 
 import re

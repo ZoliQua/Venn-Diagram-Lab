@@ -2,10 +2,10 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
 title: "Venn Diagram Lab"
-version: 1.13.5
-date-released: 2026-04-12
+version: 1.14.0
+date-released: 2026-05-01
 url: "https://www.venndiagramlab.org/"
-repository-code: "https://github.com/ZoliQua/React-Venn-Diagram-Lab"
+repository-code: "https://github.com/ZoliQua/Venn-Diagram-Lab"
 license: MIT
 doi: "10.5281/zenodo.19510813"
 authors:
