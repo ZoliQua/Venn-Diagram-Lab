@@ -1,0 +1,31 @@
+# Snakefile -- minimal example: vdl analyze + collect outputs
+#
+# Usage:
+#   snakemake --cores 1 --snakefile python/examples/pipelines/Snakefile \
+#       all_reports
+#
+# Inputs:  python/src/venn_diagram_lab/_data/samples/dataset_real_cancer_drivers_4.tsv
+# Outputs: results/cancer_drivers/{venn.svg,upset.png,network.png,report.pdf,statistics.tsv}
+
+INPUT_TSV = "python/src/venn_diagram_lab/_data/samples/dataset_real_cancer_drivers_4.tsv"
+OUT_DIR = "results/cancer_drivers"
+
+rule all_reports:
+    input:
+        f"{OUT_DIR}/venn.svg",
+        f"{OUT_DIR}/upset.png",
+        f"{OUT_DIR}/network.png",
+        f"{OUT_DIR}/report.pdf",
+        f"{OUT_DIR}/statistics.tsv",
+
+rule analyze:
+    input:
+        tsv=INPUT_TSV,
+    output:
+        venn=f"{OUT_DIR}/venn.svg",
+        upset=f"{OUT_DIR}/upset.png",
+        network=f"{OUT_DIR}/network.png",
+        pdf=f"{OUT_DIR}/report.pdf",
+        stats=f"{OUT_DIR}/statistics.tsv",
+    shell:
+        "vdl analyze {input.tsv} --output-dir " + OUT_DIR

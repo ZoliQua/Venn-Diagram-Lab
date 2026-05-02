@@ -1,0 +1,28 @@
+# venn-diagram-lab — Example Notebooks
+
+Eight Jupyter notebooks demonstrating common use cases. Each is fully
+self-contained: pick the closest match to your task and adapt.
+
+| # | Notebook | Length | Topics |
+|---|---|---|---|
+| 01 | `01_quickstart.ipynb` | short | First analysis in 10 cells |
+| 02 | `02_real_cancer_drivers.ipynb` | long | Walkthrough of the cancer-drivers comparison sample |
+| 03 | `03_proportional_diagrams.ipynb` | medium | Area-proportional 2-3 set diagrams |
+| 04 | `04_upset_vs_venn_vs_network.ipynb` | medium | Picking the right visualization |
+| 05 | `05_statistics_deep_dive.ipynb` | long | Jaccard / Dice / Hypergeometric / BH-FDR |
+| 06 | `06_pipeline_integration.ipynb` | medium | Snakemake + Nextflow + CLI vs library |
+| 07 | `07_pdf_reports.ipynb` | short | Multi-page PDF reports |
+| 08 | `08_custom_styling_and_export.ipynb` | long | Custom rendering, lxml post-processing, multi-format export |
+
+## Building / re-running
+
+The notebooks are generated from build scripts at
+`python/scripts/notebooks/_build_NN_<topic>.py`. To regenerate one:
+
+```bash
+python python/scripts/notebooks/_build_01_quickstart.py
+jupyter nbconvert --to notebook --execute --inplace python/examples/01_quickstart.ipynb
+```
+
+The CI workflow `.github/workflows/python-notebook-test.yml` runs all 8
+notebooks via `nbconvert --execute` on every PR.
