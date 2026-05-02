@@ -195,6 +195,12 @@ def render_venn_svg(
     show_counts : if False, blank every Count_* and CountSUM_* element.
     """
     model_name = model if model is not None else result.model
+
+    # Proportional path: bypass template loading, generate synthetic SVG.
+    if model_name == "proportional":
+        from venn_diagram_lab.proportional import generate_proportional_svg  # noqa: PLC0415
+        return SvgImage(svg=generate_proportional_svg(result))
+
     template = _load_template(model_name)
     root = etree.fromstring(template.encode())
 

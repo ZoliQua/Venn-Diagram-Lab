@@ -28,7 +28,11 @@ from venn_diagram_lab.io import (
     load_gmx,
     load_tsv,
 )
+from venn_diagram_lab.proportional import generate_proportional_svg
+from venn_diagram_lab.render.image import MplImage
+from venn_diagram_lab.render.network import render_network
 from venn_diagram_lab.render.svg import SvgImage, render_venn_svg
+from venn_diagram_lab.render.upset import render_upset
 from venn_diagram_lab.samples import list_samples, load_sample
 from venn_diagram_lab.statistics import StatisticsResult
 from venn_diagram_lab.version import __version__
@@ -38,6 +42,7 @@ __all__ = [
     "IncompatibleModelError",
     "InvalidDatasetError",
     "ModelInfo",
+    "MplImage",
     "RegionData",
     "RegionResult",
     "StatisticsResult",
@@ -46,6 +51,7 @@ __all__ = [
     "VennDiagramError",
     "__version__",
     "analyze",
+    "generate_proportional_svg",
     "list_models",
     "list_samples",
     "load_csv",
@@ -53,5 +59,7 @@ __all__ = [
     "load_gmx",
     "load_sample",
     "load_tsv",
+    "render_network",
+    "render_upset",
     "render_venn_svg",
 ]

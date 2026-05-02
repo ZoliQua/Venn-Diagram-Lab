@@ -177,6 +177,7 @@ def _enumerate_regions(dataset: Dataset) -> dict[int, RegionData]:
 
 _MIN_SETS_FOR_STATISTICS = 2
 _MAX_ALTERNATIVES_IN_MESSAGE = 5
+_PROPORTIONAL_APPROXIMATE_SET_COUNT = 3
 
 
 @dataclass(frozen=True)
@@ -245,6 +246,26 @@ class RegionResult:
 
         return render_venn_svg(self, **opts)
 
+    def render_upset(self, **opts):  # type: ignore[no-untyped-def]
+        """Render this result as an UpSet plot and return an MplImage.
+
+        Accepts the same kwargs as render.upset.render_upset (max_columns,
+        sort_by, threshold, color_mode, colors).
+        """
+        from venn_diagram_lab.render.upset import render_upset  # noqa: PLC0415
+
+        return render_upset(self, **opts)
+
+    def render_network(self, **opts):  # type: ignore[no-untyped-def]
+        """Render this result as a force-directed network and return an MplImage.
+
+        Accepts the same kwargs as render.network.render_network (edge_metric,
+        seed, significance_threshold, node_color_map).
+        """
+        from venn_diagram_lab.render.network import render_network  # noqa: PLC0415
+
+        return render_network(self, **opts)
+
 
 # ---------------------------------------------------------------------------
 # Model resolution + public entry point
@@ -255,7 +276,11 @@ def _resolve_model(model: str, set_count: int) -> str:
     """Validate the model identifier and return its canonical name.
 
     Accepts "auto" -> first model matching the set count (alphabetical order).
+    Accepts "proportional" -> deferred to render path (set-count validation there).
     """
+    if model == "proportional":
+        return "proportional"  # Set-count validation deferred to render path.
+
     index = _model_index()
 
     if model == "auto":
@@ -303,9 +328,14 @@ def analyze(dataset: Dataset, model: str = "auto") -> RegionResult:
     regions = _enumerate_regions(dataset)
     set_sizes = {name: len(items) for name, items in dataset.items.items()}
 
+    # Proportional 3-set is mathematically approximate; flag it for downstream
+    # renderers / PDF reports.
+    is_approximate = canonical == "proportional" and n == _PROPORTIONAL_APPROXIMATE_SET_COUNT
+
     return RegionResult(
         dataset=dataset,
         model=canonical,
         regions=regions,
         set_sizes=set_sizes,
+        is_approximate=is_approximate,
     )

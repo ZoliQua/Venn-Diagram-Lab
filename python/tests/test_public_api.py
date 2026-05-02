@@ -49,3 +49,12 @@ def test_render_symbols_exposed_at_top_level() -> None:
     assert callable(vdl.render_venn_svg)
     assert "SvgImage" in vdl.__all__
     assert "render_venn_svg" in vdl.__all__
+
+
+def test_render_phase3_symbols_exposed_at_top_level() -> None:
+    assert vdl.MplImage
+    assert callable(vdl.render_upset)
+    assert callable(vdl.render_network)
+    assert callable(vdl.generate_proportional_svg)
+    for sym in ("MplImage", "render_upset", "render_network", "generate_proportional_svg"):
+        assert sym in vdl.__all__, f"{sym} missing from __all__"
