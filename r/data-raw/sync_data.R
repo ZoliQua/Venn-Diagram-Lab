@@ -84,4 +84,20 @@ for (fname in SAMPLE_FILES) {
 }
 cat(sprintf("Copied %d sample datasets -> r/inst/extdata/samples/\n", n_sample))
 
+# ---------------------------------------------------------------------------
+# Phase 2 addition: copy parity fixtures from python/tests/fixtures/expected/
+# ---------------------------------------------------------------------------
+parity_src <- file.path(repo_root, "python", "tests", "fixtures", "expected")
+parity_dst <- file.path(repo_root, "r", "tests", "testthat", "fixtures", "parity")
+if (!dir.exists(parity_src)) {
+    warning("Python parity fixtures not found at: ", parity_src,
+            " — parity tests will skip. Run `npm run fixtures:parity` from repo root first.")
+} else {
+    dir.create(parity_dst, recursive = TRUE, showWarnings = FALSE)
+    fixture_files <- list.files(parity_src, pattern = "\\.tsv$", full.names = TRUE)
+    file.copy(fixture_files, parity_dst, overwrite = TRUE)
+    cat(sprintf("Copied %d parity fixtures -> r/tests/testthat/fixtures/parity/\n",
+                length(fixture_files)))
+}
+
 cat("Done.\n")
