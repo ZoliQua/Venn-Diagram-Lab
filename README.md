@@ -1,6 +1,6 @@
 # Venn Diagram Lab
 
-Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite.
+Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite. Ships with a companion published [Python module](python/README.md) (`pip install venn-diagram-lab`) that provides the same analysis and rendering capabilities headlessly — for notebooks, pipelines, and CI.
 
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -114,6 +114,7 @@ notebook gallery, and the CLI reference.
 - Sample datasets: binary (streaming platforms, cancer drivers, MSigDB hallmark collections) and aggregated (gene sets)
 - Supports up to **9 sets** (A through I)
 - TSV exports escape spreadsheet-style formula prefixes in exported text cells while preserving the in-app values
+- **Headless / scripted use:** the same import / analyze / export surface is available in Python via [`pip install venn-diagram-lab`](python/README.md) — byte-identical TSV outputs (parity-tested), the same 44 SVG models, and a `vdl analyze ... --pdf out.pdf` CLI for pipelines
 
 ### Summary Mode
 - Dialog gallery of all 44 diagrams
@@ -207,11 +208,21 @@ notebook gallery, and the CLI reference.
 ├── models/
 │   ├── svg/                   44 SVG Venn diagram models
 │   └── json/                  44 JSON pre-computed region data
+├── python/                    Companion Python module (PyPI: venn-diagram-lab)
+│   ├── README.md              Pip-page docs (install, quickstart, CLI, notebooks)
+│   ├── CHANGELOG.md           Per-package changelog
+│   ├── RELEASE.md             Operator runbook (PyPI + Zenodo release flow)
+│   ├── pyproject.toml         Hatch build config; OIDC trusted-publisher metadata
+│   ├── src/venn_diagram_lab/  Package source (io, analysis, statistics, render/, cli)
+│   ├── examples/              8 executable Jupyter notebooks (gallery + pipelines)
+│   ├── scripts/               sync_data.py + notebook builder scripts
+│   └── tests/                 Pytest suite + golden parity fixtures vs the web tool
 ├── public/about-venn/         Custom educational SVG/PNG assets for the About dialog
 ├── publications/              Research papers (PDF)
 ├── samples/                   Source SVG samples for model generation
-├── *.py                       Python utility scripts
-├── data/                      Sample datasets (CSV)
+├── scripts/                   Repo-level tooling (parity-fixture generator, etc.)
+├── *.py                       Python utility scripts (model-data generation)
+├── data/                      Sample datasets (CSV / TSV)
 ├── CHANGELOG.md               Version history
 ├── VENN-DIAGRAM-SVG-SPECIFICATION.md  SVG format specification
 ├── VENN-DIGARAM-PROJECT-STRUCTURE.md  Standard color mapping & project info
@@ -403,6 +414,21 @@ npm run test:watch # Watch mode
 npm run lint       # ESLint
 ```
 
+### Python module (development)
+
+The repo also hosts the `venn-diagram-lab` PyPI package under `python/`. To work
+on it locally:
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+python python/scripts/sync_data.py        # populate _data/ from models/ and data/
+pip install -e "python/[dev]"
+pytest python/tests/ -q
+```
+
+See [`python/README.md`](python/README.md) for the full Python development guide,
+notebook gallery, parity-test harness, and CLI reference.
+
 ### JSON Region Generation
 
 ```bash
@@ -426,12 +452,17 @@ Requires Python 3 with `shapely` installed.
 | PDF export | jsPDF (lazy-loaded) |
 | Zip / Excel export | jszip + exceljs (lazy-loaded) |
 | Region computation | Python + Shapely |
+| Python module | `venn-diagram-lab` on PyPI — see [`python/README.md`](python/README.md) |
 
 No external UI libraries — pure React + custom CSS. Heavy export libraries (jsPDF, jszip, exceljs) are lazy-loaded on demand so the main bundle stays lean.
 
-## Author
+## Authors
 
-**Zoltan Dul**
+- **Zoltán Dul** ([ORCID 0000-0002-9523-3450](https://orcid.org/0000-0002-9523-3450))
+- **Márton Ölbei** ([ORCID 0000-0002-4903-6237](https://orcid.org/0000-0002-4903-6237))
+- **N. Shaun B. Thomas**
+- **Azeddine Si Ammour** ([ORCID 0000-0002-5504-4444](https://orcid.org/0000-0002-5504-4444))
+- **Attila Csikász-Nagy** ([ORCID 0000-0002-2919-5601](https://orcid.org/0000-0002-2919-5601))
 
 ## License
 
