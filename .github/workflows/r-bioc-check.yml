@@ -1,0 +1,44 @@
+name: BiocCheck
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "r/**"
+      - ".github/workflows/r-bioc-check.yml"
+  schedule:
+    - cron: "0 6 * * 1"  # weekly Monday 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  BiocCheck:
+    runs-on: ubuntu-latest
+    # Phase 0: BiocCheck has known warnings on skeleton packages. Allow failure
+    # until Phase 8 (Polish + docs) makes it blocking.
+    continue-on-error: true
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: r
+          extra-packages: |
+            any::BiocManager
+            bioc::BiocCheck
+
+      - name: Sync bundled data
+        run: Rscript r/data-raw/sync_data.R
+
+      - name: Run BiocCheck
+        working-directory: r
+        run: |
+          Rscript -e 'BiocCheck::BiocCheck(".")' || echo "BiocCheck reported issues (allowed in Phase 0)"

@@ -1,0 +1,22 @@
+---
+title: "Choosing UpSet vs Venn vs Network"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Choosing UpSet vs Venn vs Network}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Choosing UpSet vs Venn vs Network
+
+This vignette is a Phase 0 stub. Phase 7 will fill it with the
+`vennDiagramLab` walkthrough described in the package design spec.
+
+```{r}
+library(vennDiagramLab)
+vdl_version()
+```

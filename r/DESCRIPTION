@@ -1,0 +1,39 @@
+Package: vennDiagramLab
+Type: Package
+Title: Headless Venn Diagram Analysis and Rendering
+Version: 2.0.0
+Authors@R: c(
+    person("Zoltán", "Dul", email = "ssdbtc@gmail.com",
+           role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9523-3450")),
+    person("Márton", "Ölbei", role = "aut",
+           comment = c(ORCID = "0000-0002-4903-6237")),
+    person("N. Shaun B.", "Thomas", role = "aut"),
+    person("Azeddine", "Si Ammour", role = "aut",
+           comment = c(ORCID = "0000-0002-5504-4444")),
+    person("Attila", "Csikász-Nagy", role = "aut",
+           comment = c(ORCID = "0000-0002-2919-5601")))
+Description: Headless companion to the Venn Diagram Lab web tool
+    (<https://www.venndiagramlab.org/>). Build, render, and statistically
+    analyse Venn / UpSet diagrams from CSV / TSV / GMT / GMX inputs.
+    Provides the same 44 SVG models, intersection/Jaccard/hypergeometric
+    statistics, and PDF report layout as the web tool, with byte-equivalent
+    TSV exports (parity-tested against the published Python package).
+    Integrates with ggplot2, tidygraph, and broom.
+License: MIT + file LICENSE
+URL: https://github.com/ZoliQua/Venn-Diagram-Lab,
+    https://www.venndiagramlab.org/
+BugReports: https://github.com/ZoliQua/Venn-Diagram-Lab/issues
+Depends: R (>= 4.2)
+Imports:
+    utils
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    rprojroot
+VignetteBuilder: knitr
+biocViews: Visualization, GeneSetEnrichment, Software
+Encoding: UTF-8
+LazyData: false
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3

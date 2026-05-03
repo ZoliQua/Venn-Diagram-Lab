@@ -39,3 +39,19 @@ samples/
 models/svg/archive/
 .vercel
 docs/
+
+# R package — synced data files (directories + .gitkeep stay tracked)
+# Override the project-level `samples/` rule above for the R package's bundled samples dir
+!r/inst/extdata/samples/
+r/inst/extdata/models/svg/*.svg
+r/inst/extdata/models/json/*.json
+r/inst/extdata/samples/*.csv
+r/inst/extdata/samples/*.tsv
+# R build artifacts
+r/.Rproj.user/
+r/.Rcheck/
+r/*.Rcheck/
+r/*.tar.gz
+.Rhistory
+.RData
+.Ruserdata

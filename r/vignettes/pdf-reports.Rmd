@@ -1,0 +1,22 @@
+---
+title: "PDF reports"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PDF reports}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# PDF reports
+
+This vignette is a Phase 0 stub. Phase 7 will fill it with the
+`vennDiagramLab` walkthrough described in the package design spec.
+
+```{r}
+library(vennDiagramLab)
+vdl_version()
+```

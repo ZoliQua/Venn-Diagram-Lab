@@ -1,0 +1,22 @@
+---
+title: "Pipeline integration (targets / drake)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Pipeline integration (targets / drake)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Pipeline integration (targets / drake)
+
+This vignette is a Phase 0 stub. Phase 7 will fill it with the
+`vennDiagramLab` walkthrough described in the package design spec.
+
+```{r}
+library(vennDiagramLab)
+vdl_version()
+```

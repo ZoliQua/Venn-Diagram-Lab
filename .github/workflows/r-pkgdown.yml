@@ -1,0 +1,49 @@
+name: pkgdown
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "r/**"
+      - ".github/workflows/r-pkgdown.yml"
+  workflow_dispatch:
+
+jobs:
+  pkgdown:
+    runs-on: ubuntu-latest
+    # Phase 0: deploy disabled. Phase 8 enables by removing this guard.
+    if: false
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: r
+          extra-packages: any::pkgdown
+          needs: website
+
+      - name: Sync bundled data
+        run: Rscript r/data-raw/sync_data.R
+
+      - name: Build site
+        working-directory: r
+        run: Rscript -e 'pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)'
+
+      - name: Deploy to gh-pages/r/
+        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        with:
+          clean: false
+          branch: gh-pages
+          folder: r/docs
+          target-folder: r

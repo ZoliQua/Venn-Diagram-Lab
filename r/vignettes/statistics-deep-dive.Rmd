@@ -1,0 +1,22 @@
+---
+title: "Statistics deep dive (Jaccard, Dice, hypergeometric, BH-FDR)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Statistics deep dive (Jaccard, Dice, hypergeometric, BH-FDR)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Statistics deep dive (Jaccard, Dice, hypergeometric, BH-FDR)
+
+This vignette is a Phase 0 stub. Phase 7 will fill it with the
+`vennDiagramLab` walkthrough described in the package design spec.
+
+```{r}
+library(vennDiagramLab)
+vdl_version()
+```
