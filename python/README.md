@@ -185,11 +185,15 @@ MIT — see [`LICENSE`](LICENSE).
 
 ## Citation
 
-If you use this package in research, please cite the web tool and the package:
+If you use this package in research, please cite:
 
 ```
-Dul Z. (2026). Venn Diagram Lab — interactive Venn / UpSet diagrams.
+Dul Z., Ölbei M., Thomas N. S. B., Si Ammour A., Csikász-Nagy A. (2026).
+Venn Diagram Lab — interactive Venn / UpSet diagrams (v2.0.0).
 https://www.venndiagramlab.org/
+DOI: 10.5281/zenodo.20000599
 ```
 
-A Zenodo DOI will be issued with the v2.0.0 PyPI release (Phase 9).
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20000599.svg)](https://doi.org/10.5281/zenodo.20000599)
+
+See [`CITATION.cff`](https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/CITATION.cff) for machine-readable citation metadata.

@@ -7,8 +7,7 @@ date-released: 2026-05-02
 url: "https://www.venndiagramlab.org/"
 repository-code: "https://github.com/ZoliQua/Venn-Diagram-Lab"
 license: MIT
-# DOI is updated post-release once Zenodo mints the v2.0.0 deposit (see python/RELEASE.md step 10).
-doi: "10.5281/zenodo.19510813"
+doi: "10.5281/zenodo.20000599"
 authors:
   - family-names: Dul
     given-names: Zoltán

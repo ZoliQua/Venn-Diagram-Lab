@@ -4,7 +4,7 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19510813.svg)](https://doi.org/10.5281/zenodo.19510813)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20000599.svg)](https://doi.org/10.5281/zenodo.20000599)
 [![Models](https://img.shields.io/badge/models-44_SVG_+_proportional-green.svg)](#diagram-models)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg?logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
