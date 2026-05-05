@@ -3,6 +3,7 @@
 Thumbs.db
 CLAUDE.md
 AGENTS.md
+.claude/
 
 # Python
 __pycache__/
