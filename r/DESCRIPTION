@@ -20,7 +20,8 @@ Description: Headless companion to the Venn Diagram Lab web tool
     TSV exports (parity-tested against the published Python package).
     Integrates with ggplot2, tidygraph, and broom.
 License: MIT + file LICENSE
-URL: https://github.com/ZoliQua/Venn-Diagram-Lab,
+URL: https://zoliqua.github.io/Venn-Diagram-Lab/r,
+    https://github.com/ZoliQua/Venn-Diagram-Lab,
     https://www.venndiagramlab.org/
 BugReports: https://github.com/ZoliQua/Venn-Diagram-Lab/issues
 Depends: R (>= 4.2)

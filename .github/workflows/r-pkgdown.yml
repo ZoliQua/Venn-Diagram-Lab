@@ -34,6 +34,10 @@ jobs:
       - name: Sync bundled data
         run: Rscript r/data-raw/sync_data.R
 
+      - name: Install package
+        working-directory: r
+        run: R CMD INSTALL .
+
       - name: Build site
         working-directory: r
         run: Rscript -e 'pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)'
