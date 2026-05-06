@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by Zoltan Dul in 2026 - free to use with MIT license. Part of Venn Diagram Lab Module - https://github.com/ZoliQua/Venn-Diagram-Lab - SVG Version: 3.0.0 -->
+<svg xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink"
+	 version="1.1"
+	 x="0px"
+	 y="0px"
+	 style="enable-background:new 0 0 600 260;"
+	 xml:space="preserve" viewBox="0 0 600 260">
+<g id="BarTexts">
+	<g id="BarHeader">
+		<text id="BarTitle" transform="matrix(1 0 0 1 210.1 30.7)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">Venn Diagram Title</text>
+		<text id="BarTitleName" transform="matrix(1 0 0 1 60 67)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">Group Name</text>
+		<text id="BarTitleCountSUM" transform="matrix(1 0 0 1 380 67)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle;">Summary Count</text>
+	</g>
+	<g id="BarGroup_Names">
+		<text id="BarNameA" transform="matrix(1 0 0 1 60 90)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameA</text>
+		<text id="BarNameB" transform="matrix(1 0 0 1 60 109)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameB</text>
+		<text id="BarNameC" transform="matrix(1 0 0 1 60 128)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameC</text>
+		<text id="BarNameD" transform="matrix(1 0 0 1 60 147)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameD</text>
+		<text id="BarNameE" transform="matrix(1 0 0 1 60 166)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameE</text>
+		<text id="BarNameF" transform="matrix(1 0 0 1 60 185)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameF</text>
+		<text id="BarNameG" transform="matrix(1 0 0 1 60 204)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameG</text>
+		<text id="BarNameH" transform="matrix(1 0 0 1 60 223)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10; font-family:'Tahoma'; font-size:14;">NameH</text>
+	</g>
+	<g id="BarGroup_CountSums">
+		<text id="BarCountSUM_A" transform="matrix(1 0 0 1 380 90)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle;">CountSUM_A</text>
+		<text id="BarCountSUM_B" transform="matrix(1 0 0 1 380 109)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle;">CountSUM_B</text>
+		<text id="BarCountSUM_C" transform="matrix(1 0 0 1 380 128)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle;">CountSUM_C</text>
+		<text id="BarCountSUM_D" transform="matrix(1 0 0 1 380 147)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle;">CountSUM_D</text>
+		<text id="BarCountSUM_E" transform="matrix(1 0 0 1 380 166)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle;">CountSUM_E</text>
+		<text id="BarCountSUM_F" transform="matrix(1 0 0 1 380 185)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle;">CountSUM_F</text>
+		<text id="BarCountSUM_G" transform="matrix(1 0 0 1 380 204)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle;">CountSUM_G</text>
+		<text id="BarCountSUM_H" transform="matrix(1 0 0 1 380 223)" style="fill:#262262;font-family:'Tahoma';font-size:14;text-anchor:middle;">CountSUM_H</text>
+	</g>
+</g>
+<g id="BarGroup_Bullets">
+	<circle id="BarBulletA" style="opacity:0.2;fill:#FFF200;stroke:#010101;stroke-width:2;" cx="49.2" cy="86" r="6.9"/>
+	<circle id="BarBulletB" style="opacity:0.2;fill:#2E3192;stroke:#010101;stroke-width:2;" cx="49.2" cy="105" r="6.9"/>
+	<circle id="BarBulletC" style="opacity:0.2;fill:#ED1C24;stroke:#010101;stroke-width:2;" cx="49.2" cy="124" r="6.9"/>
+	<circle id="BarBulletD" style="opacity:0.2;fill:#808285;stroke:#010101;stroke-width:2;" cx="49.2" cy="143" r="6.9"/>
+	<circle id="BarBulletE" style="opacity:0.2;fill:#3C2415;stroke:#010101;stroke-width:2;" cx="49.2" cy="162" r="6.9"/>
+	<circle id="BarBulletF" style="opacity:0.2;fill:#9E1F63;stroke:#010101;stroke-width:2;" cx="49.2" cy="181" r="6.9"/>
+	<circle id="BarBulletG" style="opacity:0.2;fill:#CA4B9B;stroke:#010101;stroke-width:2;" cx="49.2" cy="200" r="6.9"/>
+	<circle id="BarBulletH" style="opacity:0.2;fill:#21AED1;stroke:#010101;stroke-width:2;" cx="49.2" cy="219" r="6.9"/>
+</g>
+</svg>

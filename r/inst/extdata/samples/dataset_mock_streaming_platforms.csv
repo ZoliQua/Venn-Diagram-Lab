@@ -1,0 +1,801 @@
+Title,Type,Netflix,HBO_Max,Disney_Plus,Amazon_Prime_Video,Apple_TV_Plus,Paramount_Plus,Hulu,Peacock
+Dune: Part Two,Movie,0,1,0,0,0,0,0,0
+Homeland,Series,0,0,0,0,0,1,1,0
+Tales from the Loop,Series,0,0,0,1,0,0,0,0
+Solstice,Movie,1,0,1,0,1,0,1,1
+The Princess Bride,Movie,0,0,1,1,0,0,1,0
+Based on a True Story,Series,0,0,0,0,0,0,0,1
+Nova Corps,Series,1,1,1,1,1,1,1,1
+The Substance,Movie,0,1,0,0,0,0,0,0
+Law & Order: SVU,Series,0,0,0,0,0,0,1,1
+The Simpsons,Series,0,0,1,0,0,0,1,0
+Lunar Eclipse,Movie,1,0,0,1,1,1,1,1
+Ice Age: New Dawn,Movie,0,1,0,0,0,1,1,0
+Lightning Strike,Movie,0,0,1,1,0,1,0,0
+The Menu,Movie,0,0,1,0,0,0,1,0
+Avatar,Movie,0,0,1,1,0,0,0,0
+Vigil,Movie,1,1,1,0,0,1,1,1
+Tempest,Movie,1,1,1,1,1,1,1,1
+Blade Runner 2049,Movie,0,1,0,1,0,0,0,0
+Indiana Jones: Last Crusade,Movie,1,0,1,1,0,1,0,0
+Skeleton Crew,Series,0,0,1,0,0,0,0,0
+Doom Patrol,Series,0,1,0,0,0,0,0,0
+Yellowstone,Series,0,0,0,0,0,1,0,1
+The Social Network,Movie,1,0,0,1,0,0,1,0
+Hurricane Season,Series,1,0,0,1,1,0,1,0
+Ferrari,Movie,1,0,0,0,0,0,1,0
+Freefall,Movie,1,1,1,0,0,0,1,1
+Guardians of the Galaxy Vol. 3,Movie,0,0,1,0,0,0,0,0
+E.T. the Extra-Terrestrial,Movie,0,0,0,1,0,0,0,1
+Scrubs,Series,0,0,1,0,0,0,1,1
+Napoleon,Movie,0,0,0,0,1,0,0,0
+Mare of Easttown,Series,0,1,0,0,0,0,0,0
+Shadow and Bone,Series,1,0,0,0,0,0,0,0
+Hollow Ground,Movie,1,1,0,1,0,1,1,1
+The Wheel of Time,Series,0,0,0,1,0,0,0,0
+Shrek,Movie,1,0,0,0,0,0,0,1
+Impulse,Movie,0,0,0,0,1,0,1,0
+A Head Full of Ghosts,Series,0,0,0,1,0,0,0,0
+Tulsa King,Series,0,0,0,0,0,1,0,0
+Crimson Peak 2,Movie,0,0,1,1,1,0,1,1
+Presumed Innocent,Series,0,0,0,0,1,0,0,0
+Ghosted,Movie,0,0,0,0,1,0,0,0
+Venom 4,Movie,0,1,0,1,1,1,0,0
+Aliens,Movie,0,0,1,0,0,0,1,0
+Wicked,Movie,0,0,0,0,0,0,0,1
+Halo,Series,0,0,0,0,0,1,0,0
+Kinetic,Movie,0,0,1,0,0,1,1,0
+Red Notice,Movie,1,0,0,0,0,0,0,0
+Zenith 2,Movie,1,0,1,1,0,1,0,1
+Boardwalk Empire,Series,0,1,0,0,0,0,0,0
+The Marvels,Movie,0,0,1,0,0,0,0,0
+Loki,Series,0,0,1,0,0,0,0,0
+Bad Sisters,Series,0,0,0,0,1,0,0,0
+Agatha All Along,Series,0,0,1,0,0,0,0,0
+Everything Everywhere All at Once,Movie,1,0,0,1,0,0,0,0
+Jaws,Movie,0,0,0,1,0,0,0,1
+The Good Place,Series,1,0,0,0,0,0,0,1
+Dungeons & Dragons: Honor Among Thieves,Movie,0,0,0,0,0,1,0,0
+The Architect,Movie,0,0,0,0,1,0,0,1
+Silicon Valley,Series,0,1,0,0,0,0,0,0
+Godzilla x Kong: The New Empire,Movie,0,1,0,0,0,0,0,0
+Mindhunter: The Movie,Movie,0,0,1,1,0,0,1,1
+Interstellar 2,Movie,0,1,1,0,0,1,0,1
+Zero Gravity,Movie,0,0,1,1,1,0,1,0
+Megalopolis,Movie,0,0,0,1,0,0,0,0
+Rick and Morty,Series,0,1,0,0,0,0,1,0
+Daredevil: Born Again,Series,0,0,1,0,0,0,0,0
+The Wizard of Oz,Movie,1,1,0,1,0,0,1,0
+Uprising: Series,Series,0,0,1,0,1,1,1,1
+Nebula,Movie,1,1,0,1,1,1,0,0
+Mr. Robot,Series,0,0,0,1,0,0,0,1
+65,Movie,1,0,0,1,0,0,0,0
+Serpent's Path,Movie,0,0,1,0,1,0,0,0
+Indiana Jones: Temple of Doom,Movie,1,0,1,1,0,1,0,0
+The Night Agent,Series,1,0,0,0,0,0,0,0
+Fast X,Movie,0,0,0,1,0,0,0,1
+Dunkirk,Movie,0,1,0,1,0,0,0,0
+Red Zone,Series,1,1,0,1,1,0,0,1
+The Bourne Ultimatum,Movie,0,0,0,1,0,0,0,1
+How to Train Your Dragon,Movie,0,0,0,0,0,0,0,1
+Thunder Road,Movie,0,0,1,1,1,1,1,1
+Windfall,Movie,1,0,1,0,1,0,1,0
+Pulp Fiction,Movie,0,0,0,1,0,1,0,0
+Goodfellas,Movie,1,1,0,1,0,0,0,0
+Schitt's Creek,Series,1,0,0,0,0,0,1,0
+Crimson Tide,Series,0,0,1,0,0,0,0,1
+The Last Kingdom: Rebirth,Series,1,1,1,0,1,1,1,1
+The Power,Series,0,0,0,1,0,0,0,0
+Yellowstone: Generations,Series,0,1,1,1,1,0,1,0
+Ginny & Georgia,Series,1,0,0,0,0,0,0,0
+Aquaman and the Lost Kingdom,Movie,0,1,0,0,0,0,0,0
+Physical,Series,0,0,0,0,1,0,0,0
+The Zone of Interest,Movie,0,1,0,1,0,0,0,0
+Dark Horizons,Movie,1,0,0,0,0,1,0,1
+Chicago Fire,Series,0,0,0,0,0,0,1,1
+Frost Giant,Series,1,1,1,1,1,1,1,1
+Apples Never Fall,Series,0,0,0,0,0,0,0,1
+The Queen's Gambit,Series,1,0,0,0,0,0,0,0
+Emancipation,Movie,0,0,0,0,1,0,0,0
+Fight Club,Movie,0,0,1,0,0,0,1,0
+Mean Girls,Movie,1,0,0,1,0,1,0,0
+Luca,Movie,0,0,1,0,0,0,0,0
+Catalyst,Movie,1,1,1,1,1,1,1,1
+Vector,Movie,1,1,1,1,1,0,1,1
+The Other Black Girl,Series,0,0,0,0,0,0,1,0
+Twisted Metal,Series,0,0,0,0,0,0,0,1
+The Office,Series,0,0,0,0,0,0,0,1
+Jurassic Park,Movie,0,0,0,1,0,0,0,1
+Jack Ryan,Series,0,0,0,1,0,0,0,0
+The Abyss Returns,Movie,1,0,1,1,1,0,1,0
+Horizon: An American Saga,Movie,0,1,0,1,0,0,0,0
+Smile,Movie,0,0,0,0,0,1,0,0
+Gale Force,Movie,0,1,1,1,1,0,0,0
+Quicksand 2,Series,0,1,0,1,0,0,1,0
+Predator: Origin,Movie,0,0,1,0,1,1,0,0
+Twisters,Movie,0,1,0,0,0,0,0,0
+Seven Dials,Series,1,0,0,0,0,0,0,0
+Buffy the Vampire Slayer,Series,0,0,1,1,0,0,1,0
+Willow,Series,0,0,1,0,0,0,0,0
+Cascade,Movie,1,1,1,1,1,1,1,1
+Super Pumped,Series,0,0,0,0,0,1,0,0
+Band of Brothers,Series,0,1,0,0,0,0,0,0
+Not Okay,Movie,0,0,0,0,0,0,1,0
+Crossroads 2,Series,1,0,1,0,1,1,0,1
+Dirty Dancing,Movie,1,0,0,1,0,0,1,1
+Nightwatch,Movie,1,0,1,0,0,0,0,1
+Difficult People,Series,0,0,0,0,0,0,1,0
+Northern Lights,Series,0,1,0,0,1,0,0,1
+The Grand Budapest Hotel,Movie,0,0,1,1,0,0,1,0
+Inventing Anna,Series,1,0,0,0,0,0,0,0
+The Last Frontier,Movie,1,1,0,0,1,0,0,0
+Harry Potter and the Deathly Hallows Part 2,Movie,0,1,0,1,0,0,0,1
+Star Wars: The Last Jedi,Movie,0,0,1,0,0,0,0,0
+Soul,Movie,0,0,1,0,0,0,0,0
+Night Sky,Series,0,0,0,1,0,0,0,0
+Diamond City,Movie,0,1,1,0,0,1,0,0
+Citadel,Series,0,0,0,1,0,0,0,0
+Minions,Movie,1,0,0,0,0,0,0,1
+John Wick: Chapter 4,Movie,1,0,0,0,0,0,1,0
+Tetris,Movie,0,0,0,0,1,0,0,0
+The Fall Guy,Movie,0,0,0,0,0,0,0,1
+Bohemian Rhapsody,Movie,0,0,1,0,0,0,1,0
+IF,Movie,0,0,0,0,0,1,0,0
+ONE HUNDRED YEARS OF SOLITUDE,Series,1,0,0,0,0,0,0,0
+Virgin River,Series,1,0,0,0,0,0,0,0
+Fargo,Series,1,0,0,0,0,0,1,0
+The Office (US),Series,1,0,0,1,0,0,0,1
+Conversations with Friends,Series,0,0,0,0,0,0,1,0
+Yellow Jackets 2,Series,1,1,1,1,0,0,1,1
+Breaking Point 2,Series,1,1,0,0,1,1,1,1
+Mickey 17,Movie,0,0,0,1,0,0,0,0
+Monarch: Legacy of Monsters,Series,0,0,0,0,1,0,0,0
+Hyperdrive,Movie,0,0,0,0,1,1,0,1
+Encanto,Movie,0,0,1,0,0,0,0,0
+WALL-E,Movie,0,0,1,0,0,0,0,0
+Renfield,Movie,0,0,0,0,0,0,0,1
+Andor,Series,0,0,1,0,0,0,0,0
+The Resort,Series,0,0,0,0,0,0,0,1
+Ocean's Twelve,Movie,1,1,0,0,0,0,0,0
+Torrent,Movie,0,1,1,1,1,1,0,0
+Crystal Maze,Series,0,1,0,1,1,0,1,0
+Obsidian,Movie,1,1,1,1,1,0,1,0
+Chicago PD,Series,0,0,0,0,0,0,1,1
+Stranger Things,Series,1,0,0,0,0,0,0,0
+Grey's Anatomy,Series,1,0,0,0,0,0,1,0
+Braveheart,Movie,0,0,0,1,0,1,0,0
+The Abyss: Series,Series,0,0,1,1,0,1,1,0
+The Wilds,Series,0,0,0,1,0,0,0,0
+Zootopia 2,Movie,0,0,1,0,0,0,0,0
+Heatwave,Movie,0,1,1,0,0,0,1,1
+Get Out,Movie,1,0,0,1,0,0,0,1
+Zodiac Rising,Movie,1,0,0,1,1,1,1,0
+The Hunger Games,Movie,1,0,0,0,0,0,1,0
+Jade Empire,Movie,0,0,0,1,1,0,1,0
+Cruella,Movie,0,0,1,0,0,0,0,0
+Lightning Rod,Series,1,0,0,1,1,1,0,0
+Fantastic Beasts: Crimes of Grindelwald,Movie,0,1,0,0,0,0,0,1
+Narcos,Series,1,0,0,0,0,0,0,0
+Squid Game,Series,1,0,0,0,0,0,0,0
+Bugonia,Movie,1,0,0,0,1,0,0,0
+Prism,Movie,0,1,0,0,1,1,1,1
+The Sandman,Series,1,0,0,0,0,0,0,0
+"Good Luck to You, Leo Grande",Movie,0,0,0,0,0,0,1,0
+Hypernova,Series,1,0,0,1,1,0,0,0
+The Batman,Movie,0,1,0,0,0,0,0,0
+Quarantine 2,Movie,1,0,0,0,0,1,1,1
+Catch Me If You Can,Movie,1,0,0,1,0,1,0,0
+The Blacklist,Series,1,0,0,0,0,0,0,1
+Knives Out,Movie,1,0,0,0,0,0,0,0
+George & Tammy,Series,0,0,0,0,0,1,0,0
+Outpost: Series,Series,1,0,0,0,1,0,1,0
+Inferno Rising,Series,0,1,1,1,0,0,1,0
+Inside Out 2,Movie,0,0,1,0,0,0,0,0
+Harry Potter and the Sorcerer's Stone,Movie,0,1,0,1,0,0,0,1
+Radiance,Movie,1,0,1,0,0,1,0,1
+Ghostbusters: Afterlife,Movie,1,1,0,1,0,0,1,0
+American Horror Story,Series,0,0,1,0,0,0,1,0
+The Rings of Power,Series,0,0,0,1,0,0,0,0
+Ted Lasso,Series,0,0,0,0,1,0,0,0
+Alien: Romulus,Movie,0,0,1,0,0,0,0,0
+Babygirl,Movie,0,0,0,1,0,0,0,0
+Invincible,Series,0,0,0,1,0,0,0,0
+The Marvelous Mrs. Maisel,Series,0,0,0,1,0,0,0,0
+Star Wars: The Force Awakens,Movie,0,0,1,0,0,0,0,0
+Lovecraft Country,Series,0,1,0,0,0,0,0,0
+Die Hard 2,Movie,0,0,1,0,0,0,1,0
+The Rehearsal,Series,0,1,0,0,0,0,0,0
+Kaleidoscope 2,Movie,0,1,0,1,1,0,0,1
+The Map of Tiny Perfect Things,Movie,0,0,0,1,0,0,0,0
+Lessons in Chemistry,Series,0,0,0,0,1,0,0,0
+The Martian,Movie,0,0,1,0,0,0,1,0
+Edge of Tomorrow 2,Movie,0,0,1,1,1,1,0,0
+Sinners,Movie,0,1,0,0,0,0,0,0
+One Battle After Another,Movie,0,1,0,0,0,0,0,0
+Rebel Moon,Movie,1,0,0,0,0,0,0,0
+The Lord of the Rings: Two Towers,Movie,1,1,0,1,0,0,0,0
+Falling Stars,Movie,0,1,0,1,0,1,0,0
+Wednesday,Series,1,0,0,0,0,0,0,0
+The X-Files,Series,0,0,1,1,0,0,1,0
+New Girl,Series,1,0,1,0,0,0,1,0
+The Secret Lives of Mormon Wives,Series,0,0,0,0,0,0,1,0
+Abigail,Movie,0,0,0,0,0,0,0,1
+The Book of Boba Fett,Series,0,0,1,0,0,0,0,0
+The Holdovers,Movie,0,0,0,1,0,0,0,1
+Silent Waters,Movie,1,1,1,0,1,0,0,0
+Twin Peaks,Series,0,0,0,1,0,1,0,0
+The Penguin,Series,0,1,0,0,0,0,0,0
+Nightcrawler 2,Movie,1,0,1,1,0,1,1,1
+Frontier 2,Movie,0,0,0,0,1,1,0,0
+Dopesick,Series,0,0,0,0,0,0,1,0
+Rocky II,Movie,1,0,0,1,0,1,0,1
+Crystal Lake,Movie,1,0,1,1,0,0,0,1
+The Dark Knight,Movie,0,1,0,1,0,0,0,0
+John Wick,Movie,1,0,0,0,0,0,1,0
+Star Trek: Discovery,Series,0,0,0,0,0,1,0,0
+Conclave,Movie,0,0,0,1,0,0,0,1
+The Conjuring,Movie,0,1,0,1,0,0,0,0
+Arctic Fury,Movie,1,0,1,1,1,1,1,1
+Nouvelle Vague,Movie,1,0,0,0,0,0,0,0
+Binary Stars,Movie,0,0,0,1,1,1,1,0
+Pam & Tommy,Series,0,0,0,0,0,0,1,0
+The Lincoln Lawyer,Series,1,0,0,0,0,0,0,0
+The Handmaid's Tale,Series,0,0,0,0,0,0,1,0
+Pitch Perfect: Bumper in Berlin,Series,0,0,0,0,0,0,0,1
+Ripley,Series,1,0,0,0,0,0,0,0
+Normal People,Series,0,0,0,0,0,0,1,0
+Poor Things,Movie,0,0,1,0,0,0,1,0
+Jericho,Movie,0,1,1,1,0,1,0,1
+IT Chapter Two,Movie,0,1,0,1,0,0,0,0
+Velocity,Movie,1,1,1,1,1,0,0,0
+Project Hail Mary,Movie,0,0,0,0,1,0,0,0
+Jackpot 2,Movie,1,1,1,0,0,0,1,0
+Babylon,Movie,0,0,0,0,0,1,0,0
+Dark Matter,Series,0,0,0,0,1,0,0,0
+Bob's Burgers,Series,0,0,1,0,0,0,1,0
+Home Alone 2,Movie,0,0,1,1,0,0,1,0
+Winning Time,Series,0,1,0,0,0,0,0,0
+Alpha Protocol,Series,1,0,1,1,1,0,1,1
+Fly Me to the Moon,Movie,0,0,0,0,1,0,0,0
+Oz,Series,0,1,0,0,0,0,0,0
+The Sex Lives of College Girls,Series,0,1,0,0,0,0,0,0
+The Diplomat,Series,1,0,0,0,0,0,0,0
+Shadowlands,Movie,1,0,1,0,0,0,1,1
+Starfall,Movie,0,1,1,1,1,0,1,1
+Joker,Movie,0,1,0,0,0,0,0,0
+Haunted Mansion,Movie,0,0,1,0,0,0,0,0
+Secret Invasion,Series,0,0,1,0,0,0,0,0
+Axiom,Movie,1,0,1,0,0,1,0,0
+Good Omens,Series,0,0,0,1,0,0,0,0
+Obi-Wan Kenobi,Series,0,0,1,0,0,0,0,0
+WandaVision,Series,0,0,1,0,0,0,0,0
+Family Guy,Series,0,0,1,0,0,0,1,0
+Tokyo Vice,Series,0,1,0,0,0,0,0,0
+Titanic,Movie,0,0,0,1,0,1,0,0
+Xenon,Movie,1,0,0,1,1,1,0,1
+Landman,Series,0,0,0,0,0,1,0,0
+Maestro,Movie,1,0,0,0,0,0,0,0
+The Patient,Series,0,0,0,0,0,0,1,0
+The Princess Diaries,Movie,1,0,1,1,0,0,1,0
+Past Lives,Movie,1,0,0,1,0,0,0,0
+The Hobbit: Battle of Five Armies,Movie,1,1,0,1,0,0,0,0
+Finch,Movie,0,0,0,0,1,0,0,0
+Big Shot,Series,0,0,1,0,0,0,0,0
+Dune: Prophecy,Series,0,1,0,0,0,0,0,0
+Mindhunter,Series,1,0,0,0,0,0,0,0
+The Watcher,Series,1,0,0,0,0,0,0,0
+Ne Zha 2,Movie,0,1,0,0,0,0,0,0
+The Offer,Series,0,0,0,0,0,1,0,0
+Gen V,Series,0,0,0,1,0,0,0,0
+Peaky Blinders: The Immortal Man,Movie,1,0,0,0,0,0,0,0
+The Outsider,Series,0,1,0,0,0,0,0,0
+Mosaic,Movie,1,0,1,1,0,1,1,0
+Neon Lights,Movie,1,1,1,0,1,0,0,1
+The Shawshank Redemption,Movie,0,1,0,1,0,0,0,0
+Star Trek: Lower Decks,Series,0,0,0,0,0,1,0,0
+Falling Skies: Rebirth,Series,0,1,0,0,1,1,0,1
+Malcolm in the Middle,Series,0,0,1,1,0,0,1,0
+Junction,Movie,0,1,0,0,0,1,1,1
+Sorry Baby,Movie,0,1,0,0,0,0,0,0
+Ion Storm,Movie,0,1,1,0,1,1,0,0
+Beyond Borders,Movie,1,0,1,0,0,1,1,0
+Lisey's Story,Series,0,0,0,0,1,0,0,0
+Paper Trail,Movie,1,1,0,0,1,1,0,0
+The Path,Series,0,0,0,0,0,0,1,0
+Somebody Somewhere,Series,0,1,0,0,0,0,0,0
+Black Bag,Movie,0,0,0,1,0,0,0,0
+Five Nights at Freddy's,Movie,0,0,0,0,0,0,0,1
+Yield,Movie,0,1,1,0,1,1,1,0
+Tremor,Movie,1,0,0,1,0,1,1,1
+Labyrinth 2,Movie,0,1,0,0,1,0,0,0
+The Adam Project,Movie,1,0,0,0,0,0,0,0
+Kingdom,Series,1,1,1,0,0,0,0,0
+Lupin,Series,1,0,0,0,0,0,0,0
+Eclipse,Series,0,1,1,1,0,1,1,0
+Frozen,Movie,0,0,1,0,0,0,0,0
+Divergent: Legacy,Movie,0,0,1,0,0,1,0,0
+Disclaimer,Series,0,0,0,0,1,0,0,0
+Vanguard,Movie,1,1,1,1,0,1,0,0
+Senna,Series,1,0,0,0,0,0,0,0
+Lilo & Stitch,Movie,0,0,1,0,0,0,0,0
+Homecoming,Series,0,0,0,1,0,0,0,0
+Jurassic World,Movie,0,0,0,1,0,0,0,1
+Breaking Bad,Series,1,0,0,1,0,0,0,0
+Hurricane,Movie,1,1,0,0,1,0,1,1
+Solar Opposites,Series,0,0,0,0,0,0,1,0
+A Complete Unknown,Movie,0,0,1,0,0,0,1,0
+Harry Potter and the Prisoner of Azkaban,Movie,0,1,0,1,0,0,0,1
+May December,Movie,1,0,0,0,0,0,0,0
+Shrek 2,Movie,1,0,0,0,0,0,0,1
+House of the Dragon,Series,0,1,0,0,0,0,0,0
+Star Trek: The Motion Picture,Movie,1,0,0,1,0,1,0,1
+Moon Knight,Series,0,0,1,0,0,0,0,0
+Hawkeye,Series,0,0,1,0,0,0,0,0
+Ant-Man and the Wasp: Quantumania,Movie,0,0,1,0,0,0,0,0
+Nimona,Movie,1,0,0,0,0,0,0,0
+Carnival Row,Series,0,0,0,1,0,0,0,0
+Wolfs,Movie,0,0,0,0,1,0,0,0
+Gone Girl,Movie,1,0,1,0,0,0,1,0
+Helios,Movie,1,0,0,1,1,0,0,1
+The Super Mario Bros. Movie,Movie,1,0,0,0,0,0,0,1
+Wonka,Movie,0,1,0,0,0,0,0,0
+Suits,Series,1,0,0,0,0,0,0,1
+Batman Begins,Movie,0,1,0,1,0,0,0,0
+Echo,Series,0,0,1,0,0,0,0,0
+Top Gun: Maverick,Movie,0,0,0,0,0,1,0,0
+Hunters,Series,0,0,0,1,0,0,0,0
+Pacific Heights,Series,0,1,1,0,0,0,1,0
+Road House,Movie,0,0,0,1,0,0,0,0
+Star Wars: The Rise of Skywalker,Movie,0,0,1,0,0,0,0,0
+Nosferatu,Movie,0,0,1,0,0,0,1,0
+Brooklyn Nine-Nine,Series,1,0,0,0,0,0,1,1
+Aftermath,Movie,1,1,0,1,1,1,1,0
+Maelstrom,Movie,1,1,0,1,0,0,0,1
+Jade Throne,Series,0,1,0,1,0,1,0,1
+Rosaline,Movie,0,0,0,0,0,0,1,0
+Oppenheimer,Movie,0,1,0,0,0,0,0,0
+Dexter: New Blood,Series,0,0,0,0,0,1,1,0
+House,Series,0,0,0,1,0,0,0,1
+Forrest Gump,Movie,0,0,0,1,0,1,0,0
+Xero,Movie,0,0,1,1,1,0,0,0
+The Lord of the Rings: Return of the King,Movie,1,1,0,1,0,0,0,0
+Meridian,Movie,1,1,0,0,1,1,0,1
+Undercurrent,Movie,1,1,0,0,0,1,1,0
+Unity,Movie,1,1,1,0,0,1,0,1
+Wish,Movie,0,0,1,0,0,0,0,0
+Grid Lock,Movie,0,1,0,0,1,1,1,0
+Chernobyl,Series,0,1,0,0,0,0,0,0
+The Mighty Ducks: Game Changers,Series,0,0,1,0,0,0,0,0
+Nightfall,Movie,1,1,1,1,1,1,1,1
+Blackout: Series,Series,1,1,1,1,1,1,1,1
+The Expanse,Series,0,0,0,1,0,0,0,0
+Warp Speed,Movie,1,0,1,1,0,0,1,1
+The Old Man,Series,0,0,0,0,0,0,1,0
+Alien,Movie,0,0,1,0,0,0,1,0
+Anora,Movie,0,1,0,1,0,0,0,0
+Prey,Movie,0,0,0,0,0,0,1,0
+Barbie,Movie,0,1,0,0,0,0,0,0
+Pretty Woman,Movie,1,0,1,1,0,0,1,0
+Oasis,Movie,0,1,1,0,1,0,0,0
+Heartstopper,Series,1,0,0,0,0,0,0,0
+Atlanta,Series,0,0,1,0,0,0,1,0
+The Lord of the Rings: Fellowship,Movie,1,1,0,1,0,0,0,0
+Ember,Movie,0,1,1,0,1,0,0,1
+True Detective,Series,0,1,0,0,0,0,0,0
+Dominion,Movie,0,0,1,1,1,0,0,1
+Footloose,Movie,1,0,0,1,0,1,0,1
+Up,Movie,0,0,1,0,0,0,0,0
+Requiem,Movie,0,0,0,0,1,0,1,1
+Game of Thrones,Series,0,1,0,0,0,0,0,0
+The Gilded Age,Series,0,1,0,0,0,0,0,0
+Terrifier 3,Movie,0,0,0,1,0,0,0,0
+The Wire,Series,0,1,0,0,0,0,0,0
+Lawmen: Bass Reeves,Series,0,0,0,0,0,1,0,0
+Evil,Series,0,0,0,0,0,1,0,0
+Harley Quinn,Series,0,1,0,0,0,0,0,0
+The Dark Knight Rises,Movie,0,1,0,1,0,0,0,0
+Epoch,Movie,0,1,1,1,0,0,0,1
+Titanic (1997),Movie,1,1,0,1,0,1,1,0
+Downton Abbey,Series,0,0,0,1,0,0,0,1
+Lioness,Series,0,0,0,0,0,1,0,0
+High Noon Returns,Movie,1,1,0,1,1,1,1,1
+Jumanji: Welcome to the Jungle,Movie,1,1,0,1,0,0,1,0
+Dark Matter,Movie,1,1,1,1,0,0,0,0
+Night Shift,Movie,0,1,0,1,1,1,0,1
+Yonder,Movie,0,1,0,1,0,0,1,1
+Eternal Winter,Movie,0,0,1,0,0,1,1,1
+Dark Waters,Series,1,0,0,0,1,0,0,1
+Wildfire,Movie,1,1,1,1,0,1,0,1
+iCarly,Series,0,0,0,0,0,1,0,0
+Ahsoka,Series,0,0,1,0,0,0,0,0
+Killswitch,Movie,0,1,0,0,0,1,0,1
+Paddington in Peru,Movie,1,0,0,0,0,0,0,0
+Cherry,Movie,0,0,0,0,1,0,0,0
+Little Fires Everywhere,Series,0,0,0,0,0,0,1,0
+Dexter,Series,0,0,0,1,0,1,0,0
+Severance,Series,0,0,0,0,1,0,0,0
+Ironheart,Series,0,0,1,0,0,0,0,0
+Meridian Line,Series,0,0,1,1,0,0,0,1
+Reservation Dogs,Series,0,0,0,0,0,0,1,0
+Raya and the Last Dragon,Movie,0,0,1,0,0,0,0,0
+Harry Potter and the Half-Blood Prince,Movie,0,1,0,1,0,0,0,1
+Zodiac Files,Series,0,1,1,0,1,0,1,1
+Air,Movie,0,0,0,1,0,0,0,0
+The Mosquito Coast,Series,0,0,0,0,1,0,0,0
+Kaos,Series,1,0,0,0,0,0,0,0
+Us,Movie,1,0,0,1,0,0,0,1
+The Umbrella Academy,Series,1,0,0,0,0,0,0,0
+The White Lotus,Series,0,1,0,0,0,0,0,0
+Fallout,Series,0,0,0,1,0,0,0,0
+Watchmen,Series,0,1,0,0,0,0,0,0
+Turning Red,Movie,0,0,1,0,0,0,0,0
+Mythic Quest,Series,0,0,0,0,1,0,0,0
+Shrinking,Series,0,0,0,0,1,0,0,0
+Slow Horses,Series,0,0,0,0,1,0,0,0
+Mrs. Davis,Series,0,0,0,0,0,0,0,1
+John Wick: Chapter 2,Movie,1,0,0,0,0,0,1,0
+The Banker,Movie,0,0,0,0,1,0,0,0
+The Boys,Series,0,0,0,1,0,0,0,0
+The Godfather,Movie,0,0,0,1,0,1,0,0
+Society of the Snow,Movie,1,0,0,0,0,0,0,0
+Red Mercury,Movie,1,0,1,1,1,1,0,1
+Inferno 2,Movie,1,1,1,0,0,1,0,0
+Vertigo Returns,Movie,1,1,0,0,1,1,1,0
+Genesis,Movie,1,1,1,1,1,0,0,1
+Orbit,Movie,0,0,0,0,1,1,1,0
+Nope,Movie,0,0,0,1,0,0,0,1
+Golden Hour,Series,1,0,1,0,0,0,0,0
+The Brutalist,Movie,0,0,0,1,1,0,0,0
+A Quiet Place: Day One,Movie,0,0,0,0,0,1,0,0
+Saltburn,Movie,0,0,0,1,0,0,0,0
+Nyad,Movie,1,0,0,0,0,0,0,0
+Predator Files,Series,0,0,0,0,1,1,1,1
+The Witcher,Series,1,0,0,0,0,0,0,0
+Venom: The Last Dance,Movie,1,0,0,1,0,0,0,0
+The Americans,Series,0,0,0,1,0,0,1,0
+Mirage 2,Movie,0,1,0,1,0,1,1,0
+Back to the Future,Movie,0,0,0,1,0,0,0,1
+The Hobbit: Desolation of Smaug,Movie,1,1,0,1,0,0,0,0
+Little America,Series,0,0,0,0,1,0,0,0
+Mufasa: The Lion King,Movie,0,0,1,0,0,0,0,0
+Harry Potter and the Deathly Hallows Part 1,Movie,0,1,0,1,0,0,0,1
+Cold Case Files 2,Series,1,1,0,0,0,1,1,1
+Joe vs Carole,Series,0,0,0,0,0,0,0,1
+Back to the Future Part II,Movie,0,0,0,1,0,0,0,1
+Black Mirror: Rebirth,Movie,1,0,1,0,1,1,1,1
+Scream,Movie,0,0,0,1,0,1,0,0
+Daisy Jones & The Six,Series,0,0,0,1,0,0,0,0
+Rustin,Movie,1,0,0,0,0,0,0,0
+Nighthawk,Movie,1,0,0,0,1,1,0,0
+Golden Gate,Movie,0,0,0,1,0,1,0,1
+Phoenix Rising,Movie,0,1,1,0,0,1,1,1
+Ultra,Series,1,1,1,1,1,1,0,1
+Bel-Air,Series,0,0,0,0,0,0,0,1
+Ms. Marvel,Series,0,0,1,0,0,0,0,0
+The Great,Series,0,0,0,0,0,0,1,0
+Velocity: The Series,Series,0,1,0,0,0,0,1,1
+Harry Potter and the Goblet of Fire,Movie,0,1,0,1,0,0,0,1
+Frozen II,Movie,0,0,1,0,0,0,0,0
+Ferris Bueller's Day Off,Movie,1,0,0,1,0,1,0,1
+Ghostbusters,Movie,1,1,0,1,0,0,1,0
+See,Series,0,0,0,0,1,0,0,0
+Spectrum,Movie,1,1,1,0,1,0,1,0
+Kingdom of the Planet of the Apes,Movie,0,0,1,0,0,0,0,0
+Furiosa: A Mad Max Saga,Movie,0,1,0,0,0,0,0,0
+Raven's Watch,Series,1,1,0,1,1,0,1,1
+Paper Girls,Series,0,0,0,1,0,0,0,0
+Luther: The Fallen Sun,Movie,1,0,0,0,0,0,0,0
+Mission: Impossible - Dead Reckoning,Movie,0,0,0,0,0,1,0,0
+Star Trek: Picard,Series,0,0,0,0,0,1,0,0
+South Park,Series,0,1,0,0,0,1,0,0
+Futurama,Series,0,0,0,0,0,0,1,0
+Percy Jackson and the Olympians,Series,0,0,1,0,0,0,0,0
+Fracture,Movie,0,1,1,0,0,0,0,1
+Fleabag,Series,0,0,0,1,0,0,0,0
+Smile 2,Movie,0,0,0,0,0,1,0,0
+Foundation,Series,0,0,0,0,1,0,0,0
+Transformers: Rise of the Beasts,Movie,0,0,0,0,0,1,0,0
+Loot,Series,0,0,0,0,1,0,0,0
+You,Series,1,0,0,0,0,0,0,0
+Six Feet Under,Series,0,1,0,0,0,0,0,0
+Deadpool & Wolverine,Movie,0,0,1,0,0,0,0,0
+The Hobbit: An Unexpected Journey,Movie,1,1,0,1,0,0,0,0
+Flash Point,Movie,0,0,1,1,0,1,0,1
+NCIS,Series,1,0,0,0,0,1,0,0
+The Hunger Games: Catching Fire,Movie,1,0,0,0,0,0,1,0
+The Afterparty,Series,0,0,0,0,1,0,0,0
+Horizon Zero,Movie,1,1,1,1,0,0,0,1
+Masters of the Air,Series,0,0,0,0,1,0,0,0
+The Gray Man,Movie,1,0,0,0,0,0,0,0
+Servant,Series,0,0,0,0,1,0,0,0
+Tenet,Movie,0,1,0,1,0,0,0,0
+Outer Range,Series,0,0,0,1,0,0,0,0
+The Good Fight,Series,0,0,0,0,0,1,0,0
+Peaky Blinders,Series,1,0,0,0,0,0,0,0
+Xylem,Movie,0,1,1,0,1,0,1,0
+Friends,Series,1,1,0,0,0,0,0,0
+The Karate Kid,Movie,1,1,0,1,0,0,1,0
+Fire Island,Movie,0,0,0,0,0,0,1,0
+Ultraviolet,Movie,0,1,0,1,0,1,1,1
+Inception 2,Movie,1,1,1,0,1,0,1,1
+The Man Who Fell to Earth,Series,0,0,0,0,0,1,0,0
+High School Musical: The Musical: The Series,Series,0,0,1,0,0,0,0,0
+Killers of the Flower Moon,Movie,0,0,0,0,1,0,0,0
+The Boy and the Heron,Movie,1,1,0,0,0,0,0,0
+Collateral Damage 2,Movie,1,0,0,0,1,1,0,1
+A Beautiful Mind,Movie,0,0,0,1,0,0,0,1
+Harbinger,Movie,0,1,1,0,0,0,0,0
+M3GAN,Movie,0,0,0,0,0,0,0,1
+Threshold: Series,Series,0,0,1,0,1,0,0,1
+The Revenant,Movie,0,0,1,0,0,0,1,0
+Spider-Man: Across the Spider-Verse,Movie,1,0,0,1,0,0,0,0
+Indiana Jones: Raiders of the Lost Ark,Movie,1,0,1,1,0,1,0,0
+The Affair,Series,0,0,0,1,0,1,0,0
+The Irishman,Movie,1,0,0,0,0,0,0,0
+Descent,Movie,1,0,1,1,1,0,0,1
+The Naked Gun,Movie,0,0,0,0,0,1,0,0
+Into the Storm 2,Movie,1,0,1,0,1,0,0,0
+Bluey,Series,0,0,1,0,0,0,0,0
+Anomaly,Movie,1,1,1,1,1,1,0,0
+Gladiator,Movie,0,0,0,1,0,1,0,0
+Interstellar,Movie,0,1,0,1,0,0,0,0
+Law & Order,Series,0,0,0,0,0,0,1,1
+Pachinko,Series,0,0,0,0,1,0,0,0
+Zenith,Movie,1,1,0,1,1,1,0,1
+Dune,Movie,0,1,0,0,0,0,0,0
+Reacher,Series,0,0,0,1,0,0,0,0
+The Wild Robot,Movie,0,0,0,1,0,0,0,1
+Nine Perfect Strangers,Series,0,0,0,0,0,0,1,0
+Die Hard,Movie,0,0,1,0,0,0,1,0
+Harry Potter and the Order of the Phoenix,Movie,0,1,0,1,0,0,0,1
+The Morning Show,Series,0,0,0,0,1,0,0,0
+Stardust,Series,1,1,0,1,1,0,0,0
+Quantum Break,Movie,1,0,1,0,1,1,1,0
+Upload,Series,0,0,0,1,0,0,0,0
+Ghost Protocol,Movie,0,1,1,0,1,1,0,1
+The Mandalorian,Series,0,0,1,0,0,0,0,0
+Poker Face,Series,0,0,0,0,0,0,0,1
+Vanguard: Series,Series,0,1,0,1,1,1,1,1
+Pandemonium,Movie,0,1,0,1,1,0,0,0
+Nobody Wants This,Series,1,0,0,0,0,0,0,0
+Our Flag Means Death,Series,0,1,0,0,0,0,0,0
+1883,Series,0,0,0,0,0,1,0,0
+Teenage Mutant Ninja Turtles: Mutant Mayhem,Movie,0,0,0,0,0,1,0,0
+One of Us Is Lying,Series,0,0,0,0,0,0,0,1
+Heart of Stone,Movie,1,0,0,0,0,0,0,0
+Deadlock Files,Series,1,1,1,1,1,1,1,1
+The Big Bang Theory,Series,1,1,0,0,0,0,0,1
+Inception,Movie,0,1,0,1,0,0,0,0
+Frostbite,Movie,0,1,1,1,0,0,0,0
+Yellow Brick Road,Movie,1,0,0,1,1,0,1,1
+Ocean's Eleven,Movie,1,1,0,0,0,0,0,0
+Talk to Me,Movie,0,0,0,1,0,0,0,0
+Priscilla,Movie,0,0,0,1,0,0,1,0
+Terminator 2: Judgment Day,Movie,1,1,0,1,0,0,1,1
+PEN15,Series,0,0,0,0,0,0,1,0
+The Tomorrow War,Movie,0,0,0,1,0,0,0,0
+Shadow Protocol,Movie,1,0,1,1,1,1,0,0
+Fleishman Is in Trouble,Series,0,0,0,0,0,0,1,0
+Parallax,Movie,0,0,0,1,1,1,1,1
+Queer as Folk,Series,0,0,0,0,0,0,0,1
+Beacon,Movie,0,0,1,0,1,1,0,1
+The Crown,Series,1,0,0,0,0,0,0,0
+She-Hulk: Attorney at Law,Series,0,0,1,0,0,0,0,0
+Industry,Series,0,1,0,0,0,0,0,0
+Undone,Series,0,0,0,1,0,0,0,0
+The Wolf of Wall Street,Movie,1,0,0,1,0,1,0,0
+1923,Series,0,0,0,0,0,1,0,0
+Voltage,Movie,1,1,1,1,0,0,1,0
+The Foundation Returns,Series,0,1,1,1,0,1,0,0
+Mayor of Kingstown,Series,0,0,0,0,0,1,0,0
+Glacier,Movie,1,1,1,1,0,1,1,0
+Spider-Man: No Way Home,Movie,1,0,1,1,0,0,0,0
+Ocean's Eight,Series,0,0,1,0,0,1,0,1
+The Walking Dead,Series,1,0,0,1,0,0,0,0
+The Dropout,Series,0,0,0,0,0,0,1,0
+Labyrinth: The Series,Series,1,1,0,0,0,1,0,1
+Roma,Movie,1,0,0,0,0,0,0,0
+The Departed,Movie,1,1,0,1,0,0,0,0
+Extraction 2,Movie,1,0,0,0,0,0,0,0
+Ignition,Movie,0,0,1,1,1,1,0,1
+Last Resort,Movie,1,0,1,0,1,1,0,0
+Deep Blue Sea 4,Movie,0,0,0,1,1,0,0,1
+Hit Man,Movie,1,0,0,0,0,0,0,0
+Year Zero,Movie,1,1,0,0,1,0,0,1
+Paper House,Series,1,0,0,0,1,1,1,0
+Avatar: The Way of Water,Movie,0,0,1,0,0,0,0,0
+Rabbit Hole,Series,0,0,0,0,0,1,0,0
+Under the Banner of Heaven,Series,0,0,0,0,0,0,1,0
+Supernatural,Series,1,1,0,1,0,0,0,0
+The Truman Show,Movie,0,0,0,1,0,1,0,0
+Schindler's List,Movie,0,0,0,1,0,0,0,1
+Phantom Thread 2,Movie,0,0,1,0,1,1,1,0
+Coming 2 America,Movie,0,0,0,1,0,0,0,0
+Never Have I Ever,Series,1,0,0,0,0,0,0,0
+Psych,Series,0,0,0,1,0,0,0,1
+Superman,Movie,0,1,0,0,0,0,0,0
+Indiana Jones and the Dial of Destiny,Movie,0,0,1,0,0,0,0,0
+Argylle,Movie,0,0,0,0,1,0,0,0
+La La Land,Movie,1,0,0,1,0,0,1,0
+Leave the World Behind,Movie,1,0,0,0,0,0,0,0
+Outer Banks,Series,1,0,0,0,0,0,0,0
+Saving Private Ryan,Movie,0,0,0,1,0,1,0,0
+The Little Mermaid,Movie,0,0,1,0,0,0,0,0
+Invasion,Series,0,0,0,0,1,0,0,0
+Kraven the Hunter,Movie,1,0,0,1,0,0,0,0
+The Matrix,Movie,0,1,0,1,0,0,0,0
+Beetlejuice Beetlejuice,Movie,0,1,0,0,0,0,0,0
+Sound of Metal,Movie,0,0,0,1,0,0,0,0
+Extraction,Movie,1,0,0,0,0,0,0,0
+Hacks,Series,0,1,0,0,0,0,0,0
+Mr. & Mrs. Smith,Series,0,0,0,1,0,0,0,0
+Manifest,Series,1,0,0,0,0,0,0,0
+The Acolyte,Series,0,0,1,0,0,0,0,0
+Raised by Wolves,Series,0,1,0,0,0,0,0,0
+Home Alone,Movie,0,0,1,1,0,0,1,0
+Arrested Development,Series,1,0,1,0,0,0,1,0
+The Act,Series,0,0,0,0,0,0,1,0
+Hijack,Series,0,0,0,0,1,0,0,0
+Hannibal,Series,0,0,0,1,0,0,1,0
+Looking for Alaska,Series,0,0,0,0,0,0,1,0
+Jupiter Rising,Movie,1,1,1,1,0,1,1,1
+Blitz,Movie,0,1,0,0,1,0,1,1
+Tell Me Lies,Series,0,0,0,0,0,0,1,0
+Without Remorse,Movie,0,0,0,1,0,0,0,0
+Scream VI,Movie,0,0,0,0,0,1,0,0
+Enola Holmes 2,Movie,1,0,0,0,0,0,0,0
+Marcel the Shell with Shoes On,Movie,0,0,0,1,0,0,0,0
+Jetstream,Movie,1,0,1,1,1,1,1,0
+Seinfeld,Series,1,0,0,0,0,0,0,1
+Thunder Force 2,Series,1,1,0,1,0,1,0,1
+Shogun,Series,0,0,0,0,0,0,1,0
+Ozark,Series,1,0,0,0,0,0,0,0
+Better Call Saul,Series,1,0,0,1,0,0,0,0
+For All Mankind,Series,0,0,0,0,1,0,0,0
+The Continental,Series,0,0,0,0,0,0,0,1
+Gladiator II,Movie,0,0,0,0,0,1,0,0
+Westworld,Series,0,1,0,0,0,0,0,0
+Convergence,Movie,0,0,0,1,1,0,1,1
+Silent Hill,Series,1,0,1,0,0,1,1,1
+Barry,Series,0,1,0,0,0,0,0,0
+Vikings: Valhalla,Series,1,0,0,0,0,0,0,0
+Glass Onion,Movie,1,0,0,0,0,0,0,0
+Curb Your Enthusiasm,Series,0,1,0,0,0,0,0,0
+Fantastic Beasts and Where to Find Them,Movie,0,1,0,0,0,0,0,1
+Kaleidoscope: Season 2,Series,1,0,1,1,1,0,0,0
+Woke,Series,0,0,0,0,0,0,1,0
+The Breakfast Club,Movie,1,0,0,1,0,0,1,1
+Welcome to Derry,Series,0,1,0,0,0,0,0,0
+The Godfather Part II,Movie,0,0,0,1,0,1,0,0
+Hanna,Series,0,0,0,1,0,0,0,0
+Modern Family,Series,0,0,1,0,0,0,1,1
+Lockdown,Movie,0,1,0,1,1,1,1,0
+Frankenstein,Movie,0,1,0,0,0,0,0,0
+Ray Donovan,Series,0,0,0,1,0,1,0,0
+30 Rock,Series,0,0,0,1,0,0,1,1
+Black Panther: Wakanda Forever,Movie,0,0,1,0,0,0,0,0
+National Treasure: Edge of History,Series,0,0,1,0,0,0,0,0
+Nexus,Movie,1,1,1,1,1,1,1,0
+Cold Mountain Rising,Movie,0,1,1,1,1,1,1,0
+Dr. Death,Series,0,0,0,0,0,0,0,1
+Brave New World,Series,0,0,0,0,0,0,0,1
+Marriage Story,Movie,1,0,0,0,0,0,0,0
+The Power of the Dog,Movie,1,0,0,0,0,0,0,0
+The Terminal List,Series,0,0,0,1,0,0,0,0
+Kryptonite,Movie,1,0,0,0,1,1,1,1
+Deep State 2,Series,0,1,0,1,1,0,1,1
+It Ends with Us,Movie,0,1,0,0,0,0,0,0
+Rocky,Movie,1,0,0,1,0,1,0,1
+John Wick: Chapter 3,Movie,1,0,0,0,0,0,1,0
+Crossfire,Movie,0,0,1,1,0,1,1,1
+Night at the Museum,Movie,0,0,1,1,0,0,1,0
+My Spy,Movie,0,0,0,1,0,0,0,0
+Grease: Rise of the Pink Ladies,Series,0,0,0,0,0,1,0,0
+What We Do in the Shadows,Series,0,0,1,0,0,0,1,0
+Evil Dead Rise,Movie,0,1,0,0,0,0,0,0
+Fatal Attraction,Series,0,0,0,0,0,1,0,0
+Money Heist,Series,1,0,0,0,0,0,0,0
+From,Series,0,0,0,0,0,1,0,0
+Euphoria,Series,0,1,0,0,0,0,0,0
+Umbra,Movie,0,1,1,1,1,0,0,1
+One Night in Miami,Movie,0,0,0,1,0,0,0,0
+Whiplash,Movie,1,0,0,1,0,0,1,0
+Uprising,Movie,0,1,1,1,1,1,0,1
+A League of Their Own,Series,0,0,0,1,0,0,0,0
+Trap,Movie,0,1,0,0,0,0,0,0
+Orbital,Series,0,1,1,0,1,1,1,1
+Firestorm,Movie,0,0,1,1,1,1,1,0
+Only Murders in the Building,Series,0,0,1,0,0,0,1,0
+Veep,Series,0,1,0,0,0,0,0,0
+The Falcon and the Winter Soldier,Series,0,0,1,0,0,0,0,0
+Glacial,Series,1,1,1,0,1,1,1,0
+No Country for Old Men,Movie,0,0,0,1,0,1,0,0
+Silo,Series,0,0,0,0,1,0,0,0
+Mad Max: Fury Road,Movie,0,1,0,1,0,0,0,0
+Reckoning,Movie,1,1,1,0,0,0,0,1
+Saved by the Bell,Series,0,0,0,0,0,0,0,1
+Fresh,Movie,0,0,0,0,0,0,1,0
+Wavelength,Movie,1,1,0,0,0,0,1,1
+The Terminator,Movie,1,1,0,1,0,0,1,1
+Diamond Dogs,Series,1,1,1,1,1,1,1,1
+Under the Bridge,Series,0,0,0,0,0,0,1,0
+Criminal Minds,Series,0,0,0,1,0,1,0,0
+Elemental,Movie,0,0,1,0,0,0,0,0
+Wonder Woman,Movie,0,1,0,1,0,0,0,0
+Last Light 2,Series,0,1,0,0,1,1,0,0
+The Leftovers,Series,0,1,0,0,0,0,0,0
+A Minecraft Movie,Movie,0,1,0,1,0,0,0,0
+Creed III,Movie,0,0,0,1,0,0,0,0
+Uncharted 2,Movie,1,1,0,0,1,0,1,0
+The Last of Us,Series,0,1,0,0,0,0,0,0
+One Piece,Series,1,0,0,0,0,0,0,0
+Entropy,Movie,0,1,1,0,0,1,1,0
+Rampage 2,Movie,1,0,0,0,0,1,1,0
+Frasier,Series,0,0,0,0,0,1,0,0
+Succession,Series,0,1,0,0,0,0,0,0
+Lithium,Movie,1,1,1,1,1,1,1,1
+Lost,Series,0,0,1,0,0,0,1,0
+Overdrive,Movie,1,1,1,0,1,1,0,1
+Blackout,Movie,1,1,0,0,0,0,1,0
+Underground Railroad 2,Series,0,1,1,1,1,1,1,1
+It's Always Sunny in Philadelphia,Series,1,0,0,0,0,0,1,0
+Moana 2,Movie,0,0,1,0,0,0,0,0
+Peacemaker,Series,0,1,0,0,0,0,0,0
+This Is Us,Series,0,0,0,0,0,0,1,1
+Yellowjackets,Series,0,0,0,0,0,1,1,0
+Keystone,Movie,0,0,0,1,1,1,0,0
+Yellowstone: Origins,Movie,0,1,1,1,0,0,1,1
+The Bear,Series,0,0,1,0,0,0,1,0
+Despicable Me,Movie,1,0,0,0,0,0,0,1
+Drifter,Movie,0,1,0,0,1,0,1,0
+Being the Ricardos,Movie,0,0,0,1,0,0,0,0
+Sandstorm,Movie,0,0,1,0,1,0,1,0
+Binary Code,Series,0,0,0,1,0,1,1,0
+Maid,Series,1,0,0,0,0,0,0,0
+Tidal Wave,Movie,0,0,0,0,0,1,1,1
+Fight or Flight,Movie,0,0,0,0,0,1,0,0
+Ted,Series,0,0,0,0,0,0,0,1
+Lockerbie,Series,1,0,0,0,0,0,0,0
+Quicksilver,Movie,1,0,0,0,1,0,1,1
+Cocaine Bear,Movie,0,0,0,0,0,0,0,1
+Domain,Series,0,0,1,0,1,0,1,1
+Coco,Movie,0,0,1,0,0,0,0,0
+How I Met Your Mother,Series,0,0,0,1,0,0,1,0
+Defending Jacob,Series,0,0,0,0,1,0,0,0
+The Traitors,Series,0,0,0,0,0,0,0,1
+Pacific Storm,Movie,1,1,1,0,1,1,0,0
+Greyhound,Movie,0,0,0,0,1,0,0,0
+Trying,Series,0,0,0,0,1,0,0,0
+The Sopranos,Series,0,1,0,0,0,0,0,0
+The OA,Series,1,0,0,0,0,0,0,0
+Tidal Force,Series,0,0,0,1,1,1,0,1
+Borat Subsequent Moviefilm,Movie,0,0,0,1,0,0,0,0
+Bupkis,Series,0,0,0,0,0,0,0,1
+Parks and Recreation,Series,0,0,0,0,0,0,0,1
+Resonance,Movie,1,1,1,0,0,1,1,0
+Castle Rock,Series,0,0,0,0,0,0,1,0
+Vampire Academy,Series,0,0,0,0,0,0,0,1
+Ice Road,Series,1,1,0,1,1,0,1,0
+Eclipse of Reason,Movie,0,0,0,1,0,1,1,1
+CODA,Movie,0,0,0,0,1,0,0,0
+Jurassic World Rebirth,Movie,0,0,0,0,0,0,0,1
+Ocean's Thirteen,Movie,1,1,0,0,0,0,0,0
+IT,Movie,0,1,0,1,0,0,0,0
+Grease,Movie,1,0,0,1,0,1,1,0
+The Peripheral,Series,0,0,0,1,0,0,0,0
+Zero Day,Series,1,1,0,0,0,1,0,0
+Firewall,Movie,0,1,1,1,0,1,1,1
+Wicked: For Good,Movie,0,0,0,0,0,0,0,1
+Nova,Movie,1,1,0,1,0,1,0,0
+Moonrise,Series,1,0,1,0,1,0,0,1
+The Bourne Identity,Movie,0,0,0,1,0,0,0,1
+No One Will Save You,Movie,0,0,0,0,0,0,1,0
+The Idea of You,Movie,0,0,0,1,0,0,0,0
+Monk,Series,0,0,0,1,0,0,0,1
+Star Trek: Strange New Worlds,Series,0,0,0,0,0,1,0,0
+3 Body Problem,Series,1,0,0,0,0,0,0,0
+Sonic the Hedgehog 3,Movie,0,0,0,0,0,1,0,0
+Harry Potter and the Chamber of Secrets,Movie,0,1,0,1,0,0,0,1
+Calls,Series,0,0,0,0,1,0,0,0
+Superstore,Series,0,0,0,0,0,0,1,1
+Joker: Folie a Deux,Movie,0,1,0,0,0,0,0,0
