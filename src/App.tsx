@@ -839,6 +839,11 @@ export default function App() {
   const dataFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDataClose = useCallback(() => {
+    // Initial screen (no data loaded) — return to welcome.
+    if (!testCsvData) {
+      setWelcomeOpen(true);
+      return;
+    }
     setTestCsvData(null);
     setTestCsvFilename(null);
     setTestModel(null);
@@ -857,7 +862,7 @@ export default function App() {
     svgDoc.clearDoc();
     setCurrentModel(null);
     setRegionData(null);
-  }, [svgDoc]);
+  }, [svgDoc, testCsvData]);
 
   // ═══════ Guided tour glue ═══════
   const handleStartTour = useCallback(async () => {
@@ -1208,6 +1213,11 @@ export default function App() {
         onToggleValidation={() => setShowValidation(v => !v)}
         onOpen={handleSelectFromLibrary}
         onClose={() => {
+          // Initial screen (no doc loaded) — return to welcome.
+          if (!doc) {
+            setWelcomeOpen(true);
+            return;
+          }
           if (mode === 'edit' && svgDoc.isModified) {
             if (!confirm('You have unsaved changes. Close anyway?')) return;
           }

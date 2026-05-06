@@ -100,7 +100,7 @@ export function Toolbar({
             </div>
           )}
         </div>
-        {mode === 'view' && filename && (
+        {mode === 'view' && (
           <>
             <span className="toolbar-sep" />
             <button className="btn btn-toolbar" onClick={onClose}>Close</button>
@@ -110,7 +110,7 @@ export function Toolbar({
           <>
             <span className="toolbar-sep" />
             <button className="btn btn-toolbar" onClick={onOpen}>Open</button>
-            <button className="btn btn-toolbar" onClick={onClose} disabled={!filename}>Close</button>
+            <button className="btn btn-toolbar" onClick={onClose}>Close</button>
             <span className="toolbar-sep" />
             <button className="btn btn-toolbar" onClick={onUndo}>Undo</button>
             <button className="btn btn-toolbar" onClick={onRedo}>Redo</button>
@@ -123,7 +123,7 @@ export function Toolbar({
             <span className="toolbar-sep" />
             <button className="btn btn-toolbar" data-tour="toolbar-data-open" onClick={onDataOpen}>Open</button>
             <button className="btn btn-toolbar" onClick={onDataSave} disabled={!hasDataFile}>Save</button>
-            <button className="btn btn-toolbar" onClick={onDataClose} disabled={!hasDataFile}>Close</button>
+            <button className="btn btn-toolbar" onClick={onDataClose}>Close</button>
             <span className="toolbar-sep" />
             <span className="toolbar-group" data-tour="toolbar-reports">
               <button className="btn btn-toolbar" onClick={onDataReport} disabled={!isCalculated}>Report PDF</button>

@@ -2,6 +2,38 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.1.0 — 2026-05-07 — Welcome screen rework + companion / citation dialogs wired in
+
+Frontend minor release. Wires in the orphan-shipped `CompanionPackageDialog` and `CitationDialog` components from v2.0.x, completes the welcome-screen UX overhaul, and hardens the production build for the credits photos.
+
+### Welcome screen
+
+- **Credits dialog rewritten** to follow the manuscript author order (Dul → Ölbei → Thomas → Si Ammour → Csikász-Nagy), with inline ORCID iD links (official green badge SVG) for the 4 authors who have one, refreshed affiliations matching `manuscript.tex`, and Márton Ölbei added with `credits/marton_pics.jpeg`. Csikász-Nagy's third affiliation (Cytocast Hungary Kft.) is rendered as a clickable accent-coloured link.
+- **Three new welcome-screen button rows**, each separated by a faint horizontal gradient separator:
+  1. *(existing row)* About Venn Diagrams · List all Venn Diagram Models · Credits
+  2. **Python Package** (🐍 venn-diagram-lab · on PyPI) · **R Package** (R logo · vennDiagramLab · CRAN + Bioconductor pending) — open the `CompanionPackageDialog` with the matching `kind`.
+  3. **GitHub Repository** (anchor → ZoliQua/Venn-Diagram-Lab) · **How to cite ...** (📄 manuscript under publication) — open the GitHub repo or the `CitationDialog`.
+- **Welcome footer** added at the bottom: small, faint `vX.Y.Z · Last updated YYYY-MM-DD`. The version subtitle previously sitting under the title is removed; this gives the page a cleaner top, with the metadata living unobtrusively at the bottom.
+- New `APP_RELEASE_DATE` constant in `src/version.ts` drives the footer date.
+
+### Initial-screen Close button (View / Edit / Data)
+
+- `Toolbar.tsx`: the *Close* button is now always shown in **View** mode (previously hidden until a model was loaded) and always enabled in **Edit** / **Data** modes (previously disabled until a doc / dataset was loaded).
+- `App.tsx`: `onClose` and `handleDataClose` short-circuit on the initial screen — pressing *Close* with nothing loaded returns to the welcome dialog instead of being a no-op.
+
+### Production build
+
+- `vite.config.ts`: production builds now copy `credits/*.{jpg,jpeg,png}` to `dist/credits/`. In dev the images resolve via `server.fs.allow: ['.']`; without this copy step the deployed site would 404 on every author photo.
+
+### Internals
+
+- `src/version.ts`: `APP_VERSION` 2.0.0 → 2.1.0; new `APP_RELEASE_DATE = '2026-05-07'`.
+- `src/editor.css`: ~700 lines of new styles for the welcome separators / footer / companion + meta buttons / Credits ORCID, plus the styles for the previously orphan-shipped `CompanionPackageDialog` and `CitationDialog` components (all the timeline / OS-toggle / quickstart / link / notebook / feature-board / status-pill / etc. classes).
+
+No breaking changes; `App.tsx` callers / mode wiring are unchanged.
+
+
+
 ## 2026-05-06 — Pre-submission feedback patches (Python v2.0.3 + R v2.0.1)
 
 Patch round bundling pre-submission test feedback from Marci. No frontend / web tool changes — the React app stays on v2.0.0.

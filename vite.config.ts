@@ -43,6 +43,17 @@ function copyModelsPlugin() {
           copyFileSync(resolve(publicationsSrc, file), resolve(publicationsDst, file))
         }
       }
+      // Copy credits/*.{jpg,jpeg,png} (author portraits referenced by WelcomeDialog).
+      // In dev, the server allows fs reads from the project root so the images
+      // resolve directly. In production, the dist/ tree must contain them.
+      const creditsSrc = resolve(__dirname, 'credits')
+      const creditsDst = resolve(__dirname, 'dist/credits')
+      mkdirSync(creditsDst, { recursive: true })
+      for (const file of readdirSync(creditsSrc)) {
+        if (/\.(jpe?g|png)$/i.test(file)) {
+          copyFileSync(resolve(creditsSrc, file), resolve(creditsDst, file))
+        }
+      }
     }
   }
 }
