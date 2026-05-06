@@ -82,7 +82,7 @@ result_3@is_approximate
 #> [1] TRUE
 ```
 
-For 3 sets, `is_approximate = TRUE` — the solver minimises a residual
+For 3 sets, `is_approximate = TRUE` — the solver minimizes a residual
 rather than solving exactly. Inspect `result_3@regions` to see the
 actual region sizes the layout achieves.
 

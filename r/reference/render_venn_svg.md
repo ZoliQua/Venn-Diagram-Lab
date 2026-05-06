@@ -4,7 +4,7 @@ Loads the bundled SVG template for \`result@model\` (or the explicit
 \`model\` override), walks the DOM via xml2 to overwrite text content
 (\`Name\*\`, \`Count\_\*\`, \`CountSUM\_\*\`, \`Title\`) and inline
 \`fill:\` colors (\`Shape\*\`, \`Shape\*2\` for Euler extras,
-\`Bullet\*\`), and serialises back to a string.
+\`Bullet\*\`), and serializes back to a string.
 
 ## Usage
 

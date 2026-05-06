@@ -27,7 +27,7 @@ hypergeometric universe size).
   Hypergeometric universe N (population size) from the source file, when
   known. Binary CSV/TSV loaders set this to the row count (matching the
   web tool's \`csv.rows.length\`); other formats leave it \`NULL\`,
-  signalling "compute as length(item_order)" downstream.
+  signaling "compute as length(item_order)" downstream.
 
 - `source_path`:
 

@@ -1,6 +1,6 @@
 # Glance method for RegionResult (broom-compatible)
 
-Returns a 1-row tibble summarising the analysis: number of sets, number
+Returns a 1-row tibble summarizing the analysis: number of sets, number
 of non-empty regions, total unique items, hypergeometric universe size,
 resolved model name, whether the layout is approximate (proportional
 3-set), and the count of statistically significant / highly significant

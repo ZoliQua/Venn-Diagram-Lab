@@ -1,7 +1,7 @@
 # Embed a rendered Venn diagram as a ggplot2 layer
 
 Returns a list of ggplot2 layers that draw \`data\` (a
-\[\`RegionResult-class\`\]) as a rasterised Venn diagram on a
+\[\`RegionResult-class\`\]) as a rasterized Venn diagram on a
 unit-square coordinate system, ready to compose with other ggplot2
 elements (titles, themes, additional annotations).
 
@@ -52,7 +52,7 @@ geom_venn(
 ## Value
 
 A list of ggplot2 layers: an \`annotation_custom\` carrying the
-rasterised Venn, a \`geom_blank\` establishing \`\[0, 1\] x \[0, 1\]\`
+rasterized Venn, a \`geom_blank\` establishing \`\[0, 1\] x \[0, 1\]\`
 limits, and a \`coord_fixed(ratio = 1)\` so the diagram remains square.
 Note that \`coord_fixed\` will override any coordinate system the user
 has already added; add \`geom_venn()\` before other coord layers to
@@ -61,8 +61,8 @@ avoid a warning.
 ## Details
 
 This is a NEW capability – the Python package has no equivalent. It uses
-the same rasterisation pipeline as \[to_pdf_report()\]: render the SVG
-via \[render_venn_svg()\], rasterise via \`rsvg::rsvg_nativeraster()\`,
+the same rasterization pipeline as \[to_pdf_report()\]: render the SVG
+via \[render_venn_svg()\], rasterize via \`rsvg::rsvg_nativeraster()\`,
 and wrap as a \`grid::rasterGrob()\` inside
 \`ggplot2::annotation_custom()\`.
 

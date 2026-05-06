@@ -145,4 +145,4 @@ Inside a `targets` pipeline, this is a non-issue because
   [`broom::tidy()`](https://generics.r-lib.org/reference/tidy.html)
   actually mean.
 - [`vignette("v07_pdf_reports")`](https://zoliqua.github.io/Venn-Diagram-Lab/r/articles/v07_pdf_reports.md)
-  — turning a result into a PDF artefact for a pipeline.
+  — turning a result into a PDF artifact for a pipeline.

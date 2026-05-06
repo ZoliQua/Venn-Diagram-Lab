@@ -55,7 +55,7 @@ remotes::install_github("ZoliQua/Venn-Diagram-Lab", subdir = "r")
 
 library(vennDiagramLab)
 
-# Load a bundled dataset (4 cancer driver source catalogues)
+# Load a bundled dataset (4 cancer driver source catalogs)
 ds     <- load_sample("dataset_real_cancer_drivers_4")
 result <- analyze(ds)
 

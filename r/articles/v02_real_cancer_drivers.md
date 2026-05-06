@@ -4,12 +4,12 @@
 
 This vignette uses the bundled `dataset_real_cancer_drivers_4` dataset
 to illustrate a real biological analysis: how do four canonical cancer
-driver catalogues overlap?
+driver catalogs overlap?
 
 The four sources are:
 
-- **Vogelstein** — the 138-gene catalogue from Vogelstein et
-  al. (Science 2013), often cited as the “core” oncogene set.
+- **Vogelstein** — the 138-gene catalog from Vogelstein et al. (Science
+  2013), often cited as the “core” oncogene set.
 - **COSMIC_CGC** — the COSMIC Cancer Gene Census (Sondka et al. 2018), a
   curated list of genes causally implicated in cancer.
 - **OncoKB** — the MSK precision-oncology knowledge base annotation
@@ -158,7 +158,7 @@ top_pairs[order(top_pairs$p_adjusted), c("set_a", "set_b", "intersection",
 #> 6 Vogelstein OncoKB              131   0.106  3.13e-151 TRUE
 ```
 
-Every pair is significant at FDR \< 0.05 (as expected — these catalogues
+Every pair is significant at FDR \< 0.05 (as expected — these catalogs
 are designed to overlap on biology).
 
 ### Item-level annotation
