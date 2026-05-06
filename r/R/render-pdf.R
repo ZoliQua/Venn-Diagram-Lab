@@ -183,7 +183,7 @@ NULL
 .PDF_VENN_RASTER_WIDTH <- 800L
 
 #' @noRd
-# Build Page 2: rasterised venn (left) + UpSet ggplot (right).
+# Build Page 2: rasterized venn (left) + UpSet ggplot (right).
 .build_venn_upset_page <- function(result) {
     svg <- render_venn_svg(result)
     raster <- rsvg::rsvg_nativeraster(charToRaw(svg), width = .PDF_VENN_RASTER_WIDTH)

@@ -95,5 +95,5 @@ statistics(result))` caches it for you.
 
 * `vignette("v05_statistics_deep_dive")` — what the metrics in
   `broom::tidy()` actually mean.
-* `vignette("v07_pdf_reports")` — turning a result into a PDF artefact for a
+* `vignette("v07_pdf_reports")` — turning a result into a PDF artifact for a
   pipeline.

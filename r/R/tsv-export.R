@@ -313,7 +313,7 @@ setMethod("to_statistics_tsv", "RegionResult", function(result, path) {
     exp <- floor(log10(abs_val))
     mantissa_value <- abs_val / 10 ^ exp
     mantissa_str <- .js_to_fixed(mantissa_value, 2)
-    # Mantissa overflow: 9.999 -> "10.00" -> renormalise to "1.00" + exp+1
+    # Mantissa overflow: 9.999 -> "10.00" -> renormalize to "1.00" + exp+1
     if (mantissa_str == "10.00") {
         mantissa_str <- "1.00"
         exp <- exp + 1

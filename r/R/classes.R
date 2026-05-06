@@ -38,7 +38,7 @@ setClass("StatisticsResult",
 #' @slot universe_size Hypergeometric universe N (population size) from the
 #'   source file, when known. Binary CSV/TSV loaders set this to the row count
 #'   (matching the web tool's `csv.rows.length`); other formats leave it
-#'   `NULL`, signalling "compute as length(item_order)" downstream.
+#'   `NULL`, signaling "compute as length(item_order)" downstream.
 #' @slot source_path Original file path if loaded from disk; `NULL` for
 #'   in-memory datasets.
 #' @slot format Source format: one of `"csv"`, `"tsv"`, `"gmt"`, `"gmx"`.

@@ -117,7 +117,7 @@ NULL
 #' Loads the bundled SVG template for `result@model` (or the explicit `model`
 #' override), walks the DOM via xml2 to overwrite text content (`Name*`,
 #' `Count_*`, `CountSUM_*`, `Title`) and inline `fill:` colors (`Shape*`,
-#' `Shape*2` for Euler extras, `Bullet*`), and serialises back to a string.
+#' `Shape*2` for Euler extras, `Bullet*`), and serializes back to a string.
 #'
 #' For `model = "proportional"`, delegates to [generate_proportional_svg()].
 #'

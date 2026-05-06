@@ -17,7 +17,7 @@ A 1-row tibble (or data.frame fallback) with columns: `n_sets`,
   `n_significant`, `n_highly_significant`.
 }
 \description{
-Returns a 1-row tibble summarising the analysis: number of sets, number of
+Returns a 1-row tibble summarizing the analysis: number of sets, number of
 non-empty regions, total unique items, hypergeometric universe size,
 resolved model name, whether the layout is approximate (proportional
 3-set), and the count of statistically significant / highly significant

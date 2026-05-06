@@ -64,13 +64,13 @@ render_network(result, edge_metric = "intersection")
 Each node is a set, sized by inclusive cardinality. Each edge is a pair,
 weighted by the chosen `edge_metric` (`"intersection"`, `"jaccard"`,
 `"fold_enrichment"`, or `"overlap_coefficient"`). Edges below the
-significance threshold are coloured differently.
+significance threshold are colored differently.
 
 ## When the three views disagree
 
 Sometimes a region looks "small" on a Venn but lights up bright on a Network
 because the *fold-enrichment* is high relative to expectation. That's not a
-contradiction — Venn shows raw counts, Network can show normalised
+contradiction — Venn shows raw counts, Network can show normalized
 strength. Use both.
 
 ## What's next

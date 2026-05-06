@@ -44,7 +44,7 @@ First public release. Headless companion to the [Venn Diagram Lab web tool](http
 ### UpSet + Network rendering (Phase 4)
 
 * `render_upset(result, ...)` — `ComplexUpset`-based UpSet plot with sort modes (`size`, `degree`), color modes (`depth`, `heatmap`, `custom`), and `threshold` / `max_columns` cutoffs.
-* `render_network(result, ...)` — force-directed network via `tidygraph` + `ggraph`. Edge metric configurable (`intersection`, `jaccard`, `fold_enrichment`, `overlap_coefficient`); significance threshold colorises edges.
+* `render_network(result, ...)` — force-directed network via `tidygraph` + `ggraph`. Edge metric configurable (`intersection`, `jaccard`, `fold_enrichment`, `overlap_coefficient`); significance threshold colorizes edges.
 
 ### PDF reports (Phase 5)
 

@@ -14,12 +14,13 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-2919-5601")))
 Description: Headless companion to the Venn Diagram Lab web tool
     (<https://www.venndiagramlab.org/>). Build, render, and statistically
-    analyse Venn / UpSet diagrams from CSV / TSV / GMT / GMX inputs.
+    analyze Venn / UpSet diagrams from CSV / TSV / GMT / GMX inputs.
     Provides the same 44 SVG models, intersection/Jaccard/hypergeometric
     statistics, and PDF report layout as the web tool, with byte-equivalent
     TSV exports (parity-tested against the published Python package).
     Integrates with ggplot2, tidygraph, and broom.
 License: MIT + file LICENSE
+Language: en-US
 URL: https://zoliqua.github.io/Venn-Diagram-Lab/r,
     https://github.com/ZoliQua/Venn-Diagram-Lab,
     https://www.venndiagramlab.org/
