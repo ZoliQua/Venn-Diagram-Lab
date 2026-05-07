@@ -1,5 +1,18 @@
 # vennDiagramLab — NEWS
 
+## v2.0.2 — 2026-05-07 — Windows CRLF parity fix
+
+Patch release fixing a cross-platform packaging bug that surfaced on the
+win-builder CRAN check for v2.0.1.
+
+### Fixed
+
+* **TSV writers now produce byte-identical output on Windows.** `cat(out, file = path)` opens the connection in text mode by default; on Windows that converts `"\n"` → `"\r\n"`, breaking the 12 byte-parity tests against the Python golden fixtures (which use `"\n"` only, matching the React webapp's TSV exports). New private helper `.write_bytes()` opens the file in `"wb"` (binary) mode and uses `writeBin(charToRaw(x), con)`. Affects `to_region_summary_tsv()`, `to_matrix_tsv()`, and `to_statistics_tsv()`. No public-API changes; behavior on Linux/macOS unchanged.
+
+### CRAN history
+
+v2.0.1 was submitted to CRAN on 2026-05-07; the win-builder pretest failed with the CRLF bug above before the human reviewer was reached. v2.0.2 is the resubmission with the fix.
+
 ## v2.0.1 — 2026-05-06 — Pre-submission feedback fix (Marci)
 
 Patch release fixing a packaging bug that broke `analyze()` for users installing via `remotes::install_github()`.

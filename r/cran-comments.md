@@ -1,6 +1,11 @@
 ## Resubmission
 
-This is the initial submission of vennDiagramLab.
+This is a resubmission. v2.0.1 was pretested by win-builder and failed with
+12 byte-parity tests on Windows due to text-mode line-ending conversion in
+the TSV writers (`cat(out, file = path)` converts "\n" → "\r\n" on Windows;
+the parity tests + Python golden fixtures use "\n" only). v2.0.2 fixes this
+by opening the destination file in binary ("wb") mode via a new
+`.write_bytes()` helper. No public-API changes.
 
 ## Test environments
 
