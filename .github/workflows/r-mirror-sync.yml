@@ -1,0 +1,44 @@
+name: Mirror r/ subtree to vennDiagramLab repo
+
+# Pushes the r/ subtree of this monorepo to the standalone
+# https://github.com/ZoliQua/vennDiagramLab repo whenever main changes.
+# That mirror is the canonical source for CRAN + Bioconductor submissions
+# (Bioc SPB requires DESCRIPTION at repo root, which we cannot have here).
+#
+# Setup (one-time):
+# 1. Create a Personal Access Token at https://github.com/settings/tokens
+#    with the `repo` scope (or fine-grained: Contents read+write on the
+#    `ZoliQua/vennDiagramLab` repo).
+# 2. Add it as the secret `MIRROR_PAT` under
+#    https://github.com/ZoliQua/Venn-Diagram-Lab/settings/secrets/actions
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "r/**"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # subtree split needs full history
+
+      - name: Subtree split + force-push to mirror
+        env:
+          MIRROR_PAT: ${{ secrets.MIRROR_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -z "$MIRROR_PAT" ]; then
+            echo "::error::MIRROR_PAT secret is not set. Create a PAT with repo scope and add it under repo settings → Secrets → Actions."
+            exit 1
+          fi
+          SHA=$(git subtree split --prefix=r main)
+          echo "Subtree HEAD: $SHA"
+          git push --force \
+            "https://x-access-token:${MIRROR_PAT}@github.com/ZoliQua/vennDiagramLab.git" \
+            "${SHA}:refs/heads/main"
+          echo "Mirror sync complete."
