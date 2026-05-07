@@ -26,6 +26,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0   # subtree split needs full history
+          # Don't persist GITHUB_TOKEN as a git credential — it'd override
+          # our URL-embedded MIRROR_PAT and the push would auth as
+          # github-actions[bot] (which has no access to the mirror repo).
+          persist-credentials: false
 
       - name: Subtree split + force-push to mirror
         env:
