@@ -79,7 +79,7 @@ eight-vignette gallery.
 ## Documentation
 
 - Full reference + vignettes:
-  <https://zoliqua.github.io/Venn-Diagram-Lab/r>
+  <https://zoliqua.github.io/Venn-Diagram-Lab/r/>
 - Eight RMarkdown vignettes covering quickstart, biological
   walkthroughs, statistical interpretation, ggplot2 / pipeline
   integration, and PDF reports.

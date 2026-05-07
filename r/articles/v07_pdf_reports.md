@@ -33,7 +33,7 @@ to_pdf_report(result, path = out, title = "Cancer driver overlap")
 file.exists(out)
 #> [1] TRUE
 file.size(out)   # bytes
-#> [1] 120550
+#> [1] 120551
 ```
 
 (The chunk above is gated on `R >= 4.6` because the report embeds an

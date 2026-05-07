@@ -66,7 +66,7 @@ US-Letter-landscape PDF combining the venn diagram, UpSet plot,
 statistics tables, network view, and a methodology page — equivalent to
 the web tool’s “Generate Report” button.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://zoliqua.github.io/Venn-Diagram-Lab/r">vennDiagramLab</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://zoliqua.github.io/Venn-Diagram-Lab/r/">vennDiagramLab</a></span><span class="op">)</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/analyze.html">analyze</a></span><span class="op">(</span><span class="fu"><a href="../reference/load_sample.html">load_sample</a></span><span class="op">(</span><span class="st">"dataset_real_cancer_drivers_4"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="generating-the-report">Generating the report<a class="anchor" aria-label="anchor" href="#generating-the-report"></a>
@@ -87,7 +87,7 @@ directory):</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/file.info.html" class="external-link">file.size</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span>   <span class="co"># bytes</span></span>
-<span><span class="co">#&gt; [1] 120550</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 120551</span></span></code></pre></div>
 <p>(The chunk above is gated on <code>R &gt;= 4.6</code> because the
 report embeds an UpSet panel via <code>ComplexUpset</code>, whose CRAN
 release (1.3.3) is incompatible with <code>ggplot2 &gt;= 4.0</code> on

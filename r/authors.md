@@ -22,12 +22,12 @@ Source:
 
 Dul Z, Ölbei M, Thomas N, Si Ammour A, Csikász-Nagy A (2026).
 *vennDiagramLab: Headless Venn Diagram Analysis and Rendering*. R
-package version 2.0.2, <https://zoliqua.github.io/Venn-Diagram-Lab/r>.
+package version 2.0.2, <https://zoliqua.github.io/Venn-Diagram-Lab/r/>.
 
     @Manual{,
       title = {vennDiagramLab: Headless Venn Diagram Analysis and Rendering},
       author = {Zoltán Dul and Márton Ölbei and N. Shaun B. Thomas and Azeddine {Si Ammour} and Attila Csikász-Nagy},
       year = {2026},
       note = {R package version 2.0.2},
-      url = {https://zoliqua.github.io/Venn-Diagram-Lab/r},
+      url = {https://zoliqua.github.io/Venn-Diagram-Lab/r/},
     }
