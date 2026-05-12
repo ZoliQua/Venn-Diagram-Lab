@@ -22,13 +22,13 @@ Source:
 
 Dul Z., Olbei M., Thomas N.S.B., Si Ammour A., Csikasz-Nagy A. (2026).
 vennDiagramLab: Headless Venn diagram analysis and rendering. R package
-version 2.0.4. https://doi.org/10.5281/zenodo.19510813
+version 2.0.5. https://doi.org/10.5281/zenodo.19510813
 
     @Manual{vennDiagramLab-software,
       title = {vennDiagramLab: Headless Venn diagram analysis and rendering},
       author = {Zoltán Dul and Márton Ölbei and N. Shaun B. Thomas and Azeddine {Si Ammour} and Attila Csikász-Nagy},
       year = {2026},
-      note = {R package version 2.0.4},
+      note = {R package version 2.0.5},
       url = {https://zoliqua.github.io/Venn-Diagram-Lab/r/},
       doi = {10.5281/zenodo.19510813},
     }

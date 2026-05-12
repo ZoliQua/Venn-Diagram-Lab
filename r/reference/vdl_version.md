@@ -20,5 +20,5 @@ Character string, the package version (e.g. "2.0.0").
 
 ``` r
 vdl_version()
-#> [1] "2.0.4"
+#> [1] "2.0.5"
 ```
