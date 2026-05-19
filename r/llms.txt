@@ -44,12 +44,19 @@ Python package down to the byte.
 
 ## Install
 
-### From CRAN (recommended once published)
+### From CRAN (recommended)
+
+`vennDiagramLab` is on CRAN as of **2026-05-18** (current version:
+**2.0.5**):
 
 ``` r
 
 install.packages("vennDiagramLab")
 ```
+
+CRAN binaries are built for the three current major Windows / macOS /
+Linux R versions. Source-only?
+`install.packages("vennDiagramLab", type = "source")`.
 
 ### From Bioconductor (alternate channel once published)
 
@@ -169,27 +176,23 @@ citation("vennDiagramLab")
 returns a `bibentry` with the correct version + DOI for the installed
 copy.
 
-### Concept (all-versions) DOI
+### DOIs
 
-The Zenodo concept DOI
-[10.5281/zenodo.19510813](https://doi.org/10.5281/zenodo.19510813)
-always resolves to the latest version of `vennDiagramLab`. Cite this DOI
-when you want readers to be pointed at whatever is current.
+Two stable identifiers are available — pick whichever fits your
+reference style:
 
-### Version-specific DOI
-
-Each tagged R release (`r-vX.Y.Z`) mints its own Zenodo deposit and DOI.
-The most recent version-specific record is at
-<https://zenodo.org/records/20088768>; the per-version DOI from any
-release archive is preferable for exact reproducibility.
+| DOI | Resolves to | When to use |
+|----|----|----|
+| **`10.32614/CRAN.package.vennDiagramLab`** ([link](https://doi.org/10.32614/CRAN.package.vennDiagramLab)) | The CRAN package page | Citing the package as a CRAN release |
+| **`10.5281/zenodo.19510813`** ([link](https://doi.org/10.5281/zenodo.19510813)) | The Zenodo concept record — always resolves to the latest archived version | Citing the software as an archived artifact (“Cite all versions” — no need to update per release) |
 
 ### Plain-text citation
 
     Dul Z., Ölbei M., Thomas N.S.B., Si Ammour A., Csikász-Nagy A. (2026).
     vennDiagramLab: Headless Venn diagram analysis and rendering.
-    R package version 2.0.4.
-    https://zoliqua.github.io/Venn-Diagram-Lab/r/
-    DOI: 10.5281/zenodo.19510813 (all versions)
+    R package version 2.0.5.
+    https://CRAN.R-project.org/package=vennDiagramLab
+    DOI: 10.32614/CRAN.package.vennDiagramLab
 
 ## Contributing + bug reports
 

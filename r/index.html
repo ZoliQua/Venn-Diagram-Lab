@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Headless Venn Diagram Analysis and Rendering • vennDiagramLab</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Headless Venn Diagram Analysis and Rendering">
 <meta name="description" content="Headless companion to the Venn Diagram Lab web tool (&lt;https://www.venndiagramlab.org/&gt;). Build, render, and statistically analyze Venn / UpSet diagrams from CSV / TSV / GMT / GMX inputs. Provides the same 44 SVG models, intersection / Jaccard / hypergeometric statistics, and PDF report layout as the web tool, with byte-equivalent TSV exports (parity-tested against the published Python package). Integrates with ggplot2, tidygraph, and broom.">
@@ -79,10 +79,12 @@
 <h2 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
 </h2>
 <div class="section level3">
-<h3 id="from-cran-recommended-once-published">From CRAN (recommended once published)<a class="anchor" aria-label="anchor" href="#from-cran-recommended-once-published"></a>
+<h3 id="from-cran-recommended">From CRAN (recommended)<a class="anchor" aria-label="anchor" href="#from-cran-recommended"></a>
 </h3>
+<p><code>vennDiagramLab</code> is on CRAN as of <strong>2026-05-18</strong> (current version: <strong>2.0.5</strong>):</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"vennDiagramLab"</span><span class="op">)</span></span></code></pre></div>
+<p>CRAN binaries are built for the three current major Windows / macOS / Linux R versions. Source-only? <code>install.packages("vennDiagramLab", type = "source")</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="from-bioconductor-alternate-channel-once-published">From Bioconductor (alternate channel once published)<a class="anchor" aria-label="anchor" href="#from-bioconductor-alternate-channel-once-published"></a>
@@ -191,23 +193,44 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"vennDiagramLab"</span><span class="op">)</span></span></code></pre></div>
 <p>returns a <code>bibentry</code> with the correct version + DOI for the installed copy.</p>
 <div class="section level3">
-<h3 id="concept-all-versions-doi">Concept (all-versions) DOI<a class="anchor" aria-label="anchor" href="#concept-all-versions-doi"></a>
+<h3 id="dois">DOIs<a class="anchor" aria-label="anchor" href="#dois"></a>
 </h3>
-<p>The Zenodo concept DOI <a href="https://doi.org/10.5281/zenodo.19510813" class="external-link">10.5281/zenodo.19510813</a> always resolves to the latest version of <code>vennDiagramLab</code>. Cite this DOI when you want readers to be pointed at whatever is current.</p>
-</div>
-<div class="section level3">
-<h3 id="version-specific-doi">Version-specific DOI<a class="anchor" aria-label="anchor" href="#version-specific-doi"></a>
-</h3>
-<p>Each tagged R release (<code>r-vX.Y.Z</code>) mints its own Zenodo deposit and DOI. The most recent version-specific record is at <a href="https://zenodo.org/records/20088768" class="external-link uri">https://zenodo.org/records/20088768</a>; the per-version DOI from any release archive is preferable for exact reproducibility.</p>
+<p>Two stable identifiers are available — pick whichever fits your reference style:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr>
+<th>DOI</th>
+<th>Resolves to</th>
+<th>When to use</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+<strong><code>10.32614/CRAN.package.vennDiagramLab</code></strong> (<a href="https://doi.org/10.32614/CRAN.package.vennDiagramLab" class="external-link">link</a>)</td>
+<td>The CRAN package page</td>
+<td>Citing the package as a CRAN release</td>
+</tr>
+<tr>
+<td>
+<strong><code>10.5281/zenodo.19510813</code></strong> (<a href="https://doi.org/10.5281/zenodo.19510813" class="external-link">link</a>)</td>
+<td>The Zenodo concept record — always resolves to the latest archived version</td>
+<td>Citing the software as an archived artifact (“Cite all versions” — no need to update per release)</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="plain-text-citation">Plain-text citation<a class="anchor" aria-label="anchor" href="#plain-text-citation"></a>
 </h3>
 <pre><code>Dul Z., Ölbei M., Thomas N.S.B., Si Ammour A., Csikász-Nagy A. (2026).
 vennDiagramLab: Headless Venn diagram analysis and rendering.
-R package version 2.0.4.
-https://zoliqua.github.io/Venn-Diagram-Lab/r/
-DOI: 10.5281/zenodo.19510813 (all versions)</code></pre>
+R package version 2.0.5.
+https://CRAN.R-project.org/package=vennDiagramLab
+DOI: 10.32614/CRAN.package.vennDiagramLab</code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -228,6 +251,7 @@ DOI: 10.5281/zenodo.19510813 (all versions)</code></pre>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://cloud.r-project.org/package=vennDiagramLab" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/ZoliQua/Venn-Diagram-Lab/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/ZoliQua/Venn-Diagram-Lab/issues" class="external-link">Report a bug</a></li>
 </ul>
@@ -263,10 +287,13 @@ DOI: 10.5281/zenodo.19510813 (all versions)</code></pre>
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
+<li><a href="https://CRAN.R-project.org/package=vennDiagramLab" class="external-link"><img src="https://www.r-pkg.org/badges/version/vennDiagramLab" alt="CRAN status"></a></li>
+<li><a href="https://CRAN.R-project.org/package=vennDiagramLab" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/vennDiagramLab" alt="CRAN downloads"></a></li>
 <li><a href="https://github.com/ZoliQua/Venn-Diagram-Lab/actions/workflows/r-cmd-check.yml" class="external-link"><img src="https://github.com/ZoliQua/Venn-Diagram-Lab/actions/workflows/r-cmd-check.yml/badge.svg" alt="R CMD check"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
 <li><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a></li>
-<li><a href="https://doi.org/10.5281/zenodo.19510813" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19510813.svg" alt="DOI (all versions)"></a></li>
+<li><a href="https://doi.org/10.5281/zenodo.19510813" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19510813.svg" alt="DOI (Zenodo concept)"></a></li>
+<li><a href="https://doi.org/10.32614/CRAN.package.vennDiagramLab" class="external-link"><img src="https://img.shields.io/badge/DOI-10.32614%2FCRAN.package.vennDiagramLab-1F4288.svg" alt="DOI (CRAN)"></a></li>
 </ul>
 </div>
 

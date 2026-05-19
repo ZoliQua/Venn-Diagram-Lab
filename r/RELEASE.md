@@ -7,6 +7,31 @@ step.
 
 The parallel doc for Python is `../python/RELEASE.md`.
 
+## Current release status — 2026-05-18
+
+| Channel | Latest version | Status |
+|----|----|----|
+| **CRAN** | `vennDiagramLab 2.0.5` | ✓ live on CRAN since 2026-05-18 — `install.packages("vennDiagramLab")` |
+| **Bioconductor** | n/a | issue \#4289 — awaiting moderation |
+| **GitHub release** | `r-v2.0.5` | tagged + pushed; Zenodo concept DOI: `10.5281/zenodo.19510813` |
+
+The CRAN cycle required five iterations (v2.0.1 → v2.0.5) to clear the
+combined pretest gauntlet:
+
+| Version | Date | What it fixed |
+|----|----|----|
+| v2.0.1 | 2026-05-06 | Pre-submission internal feedback (Marci) |
+| v2.0.2 | 2026-05-07 | Windows CRLF byte-parity bug in `cat(..., file = path)` |
+| v2.0.3 | 2026-05-08 | 10-minute checktime budget — `skip_on_cran()` on slow tests |
+| v2.0.4 | 2026-05-12 | DESCRIPTION single-quoting per reviewer feedback |
+| v2.0.5 | 2026-05-12 | `inst/CITATION` pre-install NA crash + finish vignette skip |
+
+The Bioc track runs independently via the `r/` subtree mirror at
+[`ZoliQua/vennDiagramLab`](https://github.com/ZoliQua/vennDiagramLab),
+with a workflow-driven `Version: 0.99.0` override on every sync. The
+moderator queue is non-deterministic; nothing further is actionable from
+the maintainer side until they comment.
+
 ## One-time setup (do this before v2.0.0)
 
 ### 1. Verify Zenodo-GitHub integration
