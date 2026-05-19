@@ -56,7 +56,11 @@ class SvgImage:
         p = Path(path)
         ext = p.suffix.lower()
         if ext == ".svg":
-            p.write_text(self.svg, encoding="utf-8")
+            # `newline=""` keeps LF line endings on Windows so the SVG
+            # bytes match the React webapp's output (the TSV exports use
+            # the same pattern — see analysis.py for the parity-test
+            # rationale).
+            p.write_text(self.svg, encoding="utf-8", newline="")
             return
         if ext in {".png", ".pdf"}:
             import cairosvg  # noqa: PLC0415  # lazy import — cairosvg is a heavy native dep

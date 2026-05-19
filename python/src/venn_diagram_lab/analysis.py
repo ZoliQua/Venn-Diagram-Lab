@@ -452,7 +452,14 @@ class RegionResult:
             "Exclusive_Count", "Inclusive_Count",
             "Exclusive_Pct", "Items",
         ])
-        Path(path).write_text("\n".join([header, *(r[2] for r in rows)]), encoding="utf-8")
+        # `newline=""` keeps the LF-only output on Windows; the default
+        # text-mode write would translate "\n" -> "\r\n" and break the
+        # byte-parity tests against the React webapp's TSV fixtures.
+        Path(path).write_text(
+            "\n".join([header, *(r[2] for r in rows)]),
+            encoding="utf-8",
+            newline="",
+        )
 
     def to_statistics_tsv(self, path: PathInput) -> None:
         """Write the pairwise Statistics TSV (matches DataSummaryPanel.handleExportStats).
@@ -494,7 +501,7 @@ class RegionResult:
 
         n = len(self.dataset.set_names)
         if n < _MIN_SETS_FOR_STATISTICS:
-            Path(path).write_text(_stats_header, encoding="utf-8")
+            Path(path).write_text(_stats_header, encoding="utf-8", newline="")
             return
 
         letters = "ABCDEFGHI"[:n]
@@ -543,7 +550,11 @@ class RegionResult:
             rows.append((p_val, line))
 
         rows.sort(key=lambda r: r[0])
-        Path(path).write_text("\n".join([_stats_header, *(r[1] for r in rows)]), encoding="utf-8")
+        Path(path).write_text(
+            "\n".join([_stats_header, *(r[1] for r in rows)]),
+            encoding="utf-8",
+            newline="",
+        )
 
     def to_matrix_tsv(self, path: PathInput) -> None:
         """Write the Item Matrix TSV (matches the webapp's Export Matrix).
@@ -579,7 +590,7 @@ class RegionResult:
                 row = [escape_spreadsheet_cell(item), *membership, label]
                 out_lines.append("\t".join(row))
 
-        Path(path).write_text("\n".join(out_lines), encoding="utf-8")
+        Path(path).write_text("\n".join(out_lines), encoding="utf-8", newline="")
 
 
 # ---------------------------------------------------------------------------
