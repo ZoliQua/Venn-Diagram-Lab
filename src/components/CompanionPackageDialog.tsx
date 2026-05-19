@@ -23,8 +23,8 @@ const PYTHON_TABS: TabSpec[] = [
 
 const R_TABS: TabSpec[] = [
   { id: 'overview', label: 'Overview' },
-  { id: 'install', label: 'Preview & Install' },
-  { id: 'features', label: 'Roadmap' },
+  { id: 'install', label: 'Install & Quickstart' },
+  { id: 'features', label: 'Features' },
   { id: 'links', label: 'Links' },
 ];
 
@@ -957,8 +957,7 @@ augment(result)   # item-level membership matrix`}</CodeBlock>
           Contributions
         </a>{' '}
         tracker; the package is bioc-compatible (BiocCheck WARNING-clean,
-        biocViews set) but the queue is non-deterministic. Watch the{' '}
-        <em>Roadmap</em> tab for the full development history.
+        biocViews set) but the queue is non-deterministic.
       </div>
     </div>
   );
@@ -986,7 +985,7 @@ function RContent({ activeTab }: { activeTab: TabId }) {
           tests against the web tool's exports).{' '}
           <strong>The package is on CRAN as of 2026-05-18;</strong>{' '}
           install with <code>install.packages("vennDiagramLab")</code>, or
-          see the <em>Preview &amp; Install</em> tab for the GitHub-HEAD
+          see the <em>Install &amp; Quickstart</em> tab for the GitHub-HEAD
           and Bioconductor paths.
         </p>
 
@@ -995,10 +994,7 @@ function RContent({ activeTab }: { activeTab: TabId }) {
           <div className="companion-feature-cell" data-category="analysis">
             <div className="companion-feature-cell-icon" aria-hidden="true">{'\u{1F4C2}'}</div>
             <div className="companion-feature-cell-text">
-              <div className="companion-feature-cell-title">
-                Analysis
-                <span className="companion-status-pill companion-status-done">Phase 1 ✓</span>
-              </div>
+              <div className="companion-feature-cell-title">Analysis</div>
               <div className="companion-feature-cell-desc">
                 Load CSV / TSV / GMT / GMX, four S4 classes, <code>analyze()</code>
                 computes set sizes and all 2<sup>n</sup>−1 intersections.
@@ -1008,10 +1004,7 @@ function RContent({ activeTab }: { activeTab: TabId }) {
           <div className="companion-feature-cell" data-category="stats">
             <div className="companion-feature-cell-icon" aria-hidden="true">{'\u{1F9EE}'}</div>
             <div className="companion-feature-cell-text">
-              <div className="companion-feature-cell-title">
-                Statistics
-                <span className="companion-status-pill companion-status-done">Phase 1 ✓</span>
-              </div>
+              <div className="companion-feature-cell-title">Statistics</div>
               <div className="companion-feature-cell-desc">
                 Jaccard, Sørensen-Dice, overlap coefficient, hypergeometric
                 p-values, fold enrichment, BH-FDR — JS-style float parity with
@@ -1022,10 +1015,7 @@ function RContent({ activeTab }: { activeTab: TabId }) {
           <div className="companion-feature-cell" data-category="viz">
             <div className="companion-feature-cell-icon" aria-hidden="true">{'\u{1F3A8}'}</div>
             <div className="companion-feature-cell-text">
-              <div className="companion-feature-cell-title">
-                Visualization
-                <span className="companion-status-pill companion-status-done">Phase 3-4 ✓</span>
-              </div>
+              <div className="companion-feature-cell-title">Visualization</div>
               <div className="companion-feature-cell-desc">
                 44 SVG templates via xml2, area-proportional 2/3-set, UpSet
                 via ComplexUpset, force-directed network via ggraph + tidygraph,
@@ -1036,10 +1026,7 @@ function RContent({ activeTab }: { activeTab: TabId }) {
           <div className="companion-feature-cell" data-category="export">
             <div className="companion-feature-cell-icon" aria-hidden="true">{'\u{1F4C4}'}</div>
             <div className="companion-feature-cell-text">
-              <div className="companion-feature-cell-title">
-                Reports &amp; Export
-                <span className="companion-status-pill companion-status-done">Phase 2,5 ✓</span>
-              </div>
+              <div className="companion-feature-cell-title">Reports &amp; Export</div>
               <div className="companion-feature-cell-desc">
                 Multi-page PDF report via <code>grDevices::pdf</code> +
                 patchwork; byte-equivalent TSV writers (region summary, item
@@ -1057,19 +1044,6 @@ function RContent({ activeTab }: { activeTab: TabId }) {
           <span className="companion-badge">590+ tests</span>
           <span className="companion-badge">MIT License</span>
         </div>
-        <div className="companion-callout">
-          <strong>Live on CRAN since 2026-05-18.</strong>{' '}
-          <code>install.packages("vennDiagramLab")</code> works on every
-          major OS without any extra setup. The Bioconductor submission is
-          still in moderation on the{' '}
-          <a href="https://github.com/Bioconductor/Contributions/issues" target="_blank" rel="noopener noreferrer" className="companion-link">
-            Contributions
-          </a>{' '}
-          tracker — the package is bioc-compatible and queued, but the
-          review window is non-deterministic. See the{' '}
-          <em>Preview &amp; Install</em> tab for the GitHub-HEAD path if you
-          need an unreleased fix.
-        </div>
       </div>
     );
   }
@@ -1081,112 +1055,162 @@ function RContent({ activeTab }: { activeTab: TabId }) {
   if (activeTab === 'features') {
     return (
       <div className="companion-section">
-        <h3 className="companion-h3">Roadmap — Phase 0-9 complete</h3>
-        <p className="companion-paragraph">
-          v2.0.0 is feature-complete on <code>main</code>. The 10 development
-          phases below all shipped and were merged via squashed feature
-          branches; only the manual registry submission remains.
-        </p>
-        <ul className="companion-roadmap">
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 0 — Skeleton</strong>
-              <div className="companion-roadmap-desc">Package layout, DESCRIPTION, <code>sync_data.R</code>, 5-cell GitHub Actions CI green.</div>
+        <div className="companion-feature-board">
+
+          <div className="companion-feature-group" data-category="viz">
+            <div className="companion-feature-group-header">
+              <span className="companion-feature-group-marker" aria-hidden="true" />
+              <span className="companion-feature-group-title">Visualization</span>
+              <span className="companion-feature-group-count">4 modes</span>
             </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 1 — Core</strong>
-              <div className="companion-roadmap-desc">4 S4 classes (<code>VennDataset</code>, <code>RegionResult</code>, …), IO (<code>load_csv/tsv/gmt/gmx</code>), <code>analyze()</code>, statistics (Jaccard / Dice / hypergeometric / BH-FDR), 5 bundled samples — 169 tests.</div>
-            </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 2 — TSV exports</strong>
-              <div className="companion-roadmap-desc">3 writers (<code>to_region_summary_tsv</code>, <code>to_matrix_tsv</code>, <code>to_statistics_tsv</code>) + JS-style float helpers; 30 parity tests vs. the web tool — 269 tests.</div>
-            </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 3 — Render-1: SVG</strong>
-              <div className="companion-roadmap-desc">44-model SVG templating via <code>xml2</code> + <code>render_venn_svg()</code> + area-proportional 2/3-set generator (<code>generate_proportional_svg</code>) — 456 tests.</div>
-            </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 4 — Render-2: UpSet + Network</strong>
-              <div className="companion-roadmap-desc"><code>render_upset()</code> via ComplexUpset (depth / heatmap / custom color modes), <code>render_network()</code> via ggraph + tidygraph (4 edge metrics) — 507 tests.</div>
-            </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 5 — Render-3: PDF report</strong>
-              <div className="companion-roadmap-desc">Multi-page PDF report (<code>to_pdf_report()</code>) via <code>grDevices::pdf</code> + patchwork — same layout as the web tool's exporter — 547 tests.</div>
-            </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 6 — ggplot2 + broom</strong>
-              <div className="companion-roadmap-desc"><code>geom_venn()</code> ggplot2 layer + S3 methods <code>tidy.RegionResult()</code>, <code>glance.RegionResult()</code>, <code>augment.RegionResult()</code> for tidyverse pipelines — 590+ tests.</div>
-            </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 7 — Vignettes</strong>
-              <div className="companion-roadmap-desc">8 RMarkdown vignettes (quickstart, real cancer drivers, proportional, UpSet vs. Venn vs. network, statistics deep-dive, ggplot2 + broom, PDF reports, custom styling) — full gallery executed during R&nbsp;CMD&nbsp;check.</div>
-            </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 8 — Polish &amp; docs</strong>
-              <div className="companion-roadmap-desc">NEWS.md, README rewrite, pkgdown site, BiocCheck WARNING-clean, portable fixture-name path normalization.</div>
-            </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>Phase 9 — Release infra</strong>
-              <div className="companion-roadmap-desc">CI workflows enabled (R CMD check, BiocCheck, pkgdown deploy on push to <code>main</code> + weekly cron), <code>r/RELEASE.md</code> operator runbook, <code>r-v2.0.0</code> tag pattern (separate from Python's <code>v2.*</code>), CITATION date updated.</div>
-            </div>
-          </li>
-          <li className="companion-roadmap-done">
-            <span className="companion-roadmap-marker">✓</span>
-            <div>
-              <strong>CRAN release — published 2026-05-18</strong>
-              <div className="companion-roadmap-desc">
-                <code>vennDiagramLab 2.0.5</code> live at{' '}
-                <a href="https://CRAN.R-project.org/package=vennDiagramLab" target="_blank" rel="noopener noreferrer" className="companion-link">CRAN.R-project.org/package=vennDiagramLab</a>.
-                Five iterations (v2.0.1 → v2.0.5) addressed a Windows CRLF
-                byte-parity bug, the 10-minute checktime budget (skip_on_cran on slow tests + NOT_CRAN-gated vignettes), DESCRIPTION single-quoting, and a pre-install CITATION parsing bug.
+            <div className="companion-feature-cards">
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F3A8}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">44 SVG templates</div>
+                  <div className="companion-feature-card-desc">Every model from the web tool, 2-set to 9-set, bundled in the CRAN tarball. <code>render_venn_svg()</code> templates them via <code>xml2</code>.</div>
+                </div>
+              </div>
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{2696}\u{FE0F}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">Area-proportional</div>
+                  <div className="companion-feature-card-desc">Analytical 2-set + approximate 3-set via <code>solve_2set()</code> / <code>solve_3set()</code> / <code>generate_proportional_svg()</code>.</div>
+                </div>
+              </div>
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F4CA}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">UpSet plots</div>
+                  <div className="companion-feature-card-desc"><code>render_upset()</code> via <code>ComplexUpset</code>; depth / heatmap / custom color modes; size / degree sort; threshold cutoffs.</div>
+                </div>
+              </div>
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F578}\u{FE0F}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">Force-directed network</div>
+                  <div className="companion-feature-card-desc"><code>render_network()</code> via <code>ggraph</code> + <code>tidygraph</code>; 4 edge metrics (intersection / Jaccard / fold enrichment / overlap coefficient).</div>
+                </div>
               </div>
             </div>
-          </li>
-          <li className="companion-roadmap-active">
-            <span className="companion-roadmap-marker">●</span>
-            <div>
-              <strong>In progress — Bioconductor submission</strong>
-              <div className="companion-roadmap-desc">
-                Open on the{' '}
-                <a href="https://github.com/Bioconductor/Contributions/issues" target="_blank" rel="noopener noreferrer" className="companion-link">Bioconductor / Contributions</a>{' '}
-                tracker, currently in moderation. The package is BiocCheck
-                WARNING-clean and bioc-views tagged
-                (<code>Visualization</code>, <code>GeneSetEnrichment</code>,
-                <code>Software</code>). Independent of CRAN — install via
-                <code>install.packages("vennDiagramLab")</code> in the
-                meantime.
+          </div>
+
+          <div className="companion-feature-group" data-category="stats">
+            <div className="companion-feature-group-header">
+              <span className="companion-feature-group-marker" aria-hidden="true" />
+              <span className="companion-feature-group-title">Analysis &amp; Statistics</span>
+              <span className="companion-feature-group-count">parity-tested</span>
+            </div>
+            <div className="companion-feature-cards companion-feature-cards-single">
+              <div className="companion-feature-card companion-feature-card-wide">
+                <div className="companion-feature-card-icon">{'\u{1F9EE}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">S4 result types + stateless metric helpers</div>
+                  <div className="companion-feature-card-desc">
+                    Four S4 classes (<code>VennDataset</code>,
+                    <code>RegionData</code>, <code>RegionResult</code>,
+                    <code>StatisticsResult</code>) carry the input, the
+                    enumerated regions, and the pairwise stats.
+                    <code>analyze()</code> resolves the model and computes
+                    set sizes + all 2<sup>n</sup>−1 intersections. Stateless
+                    helpers — <code>jaccard()</code>, <code>dice()</code>,
+                    <code>overlap_coefficient()</code>, <code>fold_enrichment()</code>,
+                    <code>hypergeometric_p_value()</code>, <code>bh_fdr()</code>,
+                    <code>compute_pairwise()</code> — produce the same
+                    numbers as the web tool (JS-style float parity).
+                  </div>
+                </div>
               </div>
             </div>
-          </li>
-        </ul>
+          </div>
+
+          <div className="companion-feature-group" data-category="export">
+            <div className="companion-feature-group-header">
+              <span className="companion-feature-group-marker" aria-hidden="true" />
+              <span className="companion-feature-group-title">Reports &amp; Export</span>
+              <span className="companion-feature-group-count">3 formats</span>
+            </div>
+            <div className="companion-feature-cards">
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F4C4}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">Multi-page PDF report</div>
+                  <div className="companion-feature-card-desc"><code>to_pdf_report()</code> via <code>grDevices::pdf</code> + <code>patchwork</code> — same layout as the web tool's exporter (overview · venn + UpSet · statistics · network · methodology).</div>
+                </div>
+              </div>
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F4CB}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">Byte-equivalent TSV</div>
+                  <div className="companion-feature-card-desc"><code>to_region_summary_tsv()</code> · <code>to_matrix_tsv()</code> · <code>to_statistics_tsv()</code> — 12 byte-parity tests against shared Python golden fixtures.</div>
+                </div>
+              </div>
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F5BC}\u{FE0F}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">SVG &amp; PNG output</div>
+                  <div className="companion-feature-card-desc">Vector SVG via the bundled templates; PNG via <code>rsvg</code> + <code>ggsave()</code> for raster pipelines.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="companion-feature-group" data-category="tooling">
+            <div className="companion-feature-group-header">
+              <span className="companion-feature-group-marker" aria-hidden="true" />
+              <span className="companion-feature-group-title">Tidyverse &amp; Pipelines</span>
+              <span className="companion-feature-group-count">2 integrations</span>
+            </div>
+            <div className="companion-feature-cards">
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F4DC}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">ggplot2 layer</div>
+                  <div className="companion-feature-card-desc"><code>geom_venn()</code> drops a venn straight into a <code>ggplot</code> stack. Compose with themes, titles, and other layers.</div>
+                </div>
+              </div>
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F9F9}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">broom S3 methods</div>
+                  <div className="companion-feature-card-desc"><code>tidy()</code> / <code>glance()</code> / <code>augment()</code> on <code>RegionResult</code> return tibbles ready for <code>dplyr</code> / <code>targets</code> / <code>drake</code> pipelines.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="companion-feature-group" data-category="tooling">
+            <div className="companion-feature-group-header">
+              <span className="companion-feature-group-marker" aria-hidden="true" />
+              <span className="companion-feature-group-title">Documentation &amp; QA</span>
+              <span className="companion-feature-group-count">3 surfaces</span>
+            </div>
+            <div className="companion-feature-cards">
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F4D3}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">8 vignettes</div>
+                  <div className="companion-feature-card-desc">Quickstart, real cancer drivers, proportional, UpSet vs. venn vs. network, statistics deep-dive, broom + dplyr + targets, PDF reports, custom styling. Open via <code>browseVignettes(&quot;vennDiagramLab&quot;)</code>.</div>
+                </div>
+              </div>
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{1F4DA}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">pkgdown reference site</div>
+                  <div className="companion-feature-card-desc">Full function reference + rendered vignette gallery at <a href="https://zoliqua.github.io/Venn-Diagram-Lab/r/" target="_blank" rel="noopener noreferrer" className="companion-link">zoliqua.github.io/Venn-Diagram-Lab/r/</a>.</div>
+                </div>
+              </div>
+              <div className="companion-feature-card">
+                <div className="companion-feature-card-icon">{'\u{2705}'}</div>
+                <div className="companion-feature-card-body">
+                  <div className="companion-feature-card-title">Multi-OS CI · 590+ tests</div>
+                  <div className="companion-feature-card-desc">R CMD check matrix: Linux release / devel / oldrel × macOS × Windows. BiocCheck WARNING-clean. Vignettes executed on every push.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     );
   }

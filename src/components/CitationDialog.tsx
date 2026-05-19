@@ -23,6 +23,12 @@ const ZENODO_URL = `https://doi.org/${ZENODO_DOI}`;
 // Companion R package CRAN-minted DOI (separate from the Zenodo concept above).
 const CRAN_R_DOI = '10.32614/CRAN.package.vennDiagramLab';
 const CRAN_R_URL = `https://doi.org/${CRAN_R_DOI}`;
+// Companion Python package — PyPI has no per-package DOI, so the version is
+// cited with the PyPI URL and the project's Zenodo concept DOI as the
+// archival identifier.
+const PYPI_URL = 'https://pypi.org/project/venn-diagram-lab/';
+const PY_PACKAGE_VERSION = '2.0.3';
+const R_PACKAGE_VERSION  = '2.0.5';
 const TARGET_JOURNAL = 'BMC Bioinformatics';
 
 const MANUSCRIPT_APA = `${AUTHORS_APA} (2026). ${PAPER_TITLE}. Manuscript submitted for publication, ${TARGET_JOURNAL}.`;
@@ -48,18 +54,29 @@ const SOFTWARE_BIBTEX = `@software{venndiagramlab_${APP_VERSION.replace(/\./g, '
   note      = {Concept DOI — resolves to the latest archived version}
 }`;
 
-const R_PACKAGE_APA = `${AUTHORS_APA} (2026). vennDiagramLab: Headless Venn diagram analysis and rendering (R package version 2.0.5). CRAN. ${CRAN_R_URL}`;
+const R_PACKAGE_APA = `${AUTHORS_APA} (2026). vennDiagramLab: Headless Venn diagram analysis and rendering (R package version ${R_PACKAGE_VERSION}). CRAN. ${CRAN_R_URL}`;
 
 const R_PACKAGE_BIBTEX = `@Manual{vennDiagramLab_R,
   title     = {vennDiagramLab: Headless Venn diagram analysis and rendering},
   author    = {${AUTHORS_BIBTEX}},
   year      = {2026},
-  note      = {R package version 2.0.5},
+  note      = {R package version ${R_PACKAGE_VERSION}},
   url       = {https://CRAN.R-project.org/package=vennDiagramLab},
   doi       = {${CRAN_R_DOI}}
 }`;
 
-type CitationKind = 'manuscript' | 'software' | 'rpackage';
+const PY_PACKAGE_APA = `${AUTHORS_APA} (2026). venn-diagram-lab: Headless Venn diagram analysis and rendering (Python package version ${PY_PACKAGE_VERSION}) [Computer software]. PyPI. ${PYPI_URL}`;
+
+const PY_PACKAGE_BIBTEX = `@Manual{venn_diagram_lab_python,
+  title     = {venn-diagram-lab: Headless Venn diagram analysis and rendering},
+  author    = {${AUTHORS_BIBTEX}},
+  year      = {2026},
+  note      = {Python package version ${PY_PACKAGE_VERSION}},
+  url       = {${PYPI_URL}},
+  doi       = {${ZENODO_DOI}}
+}`;
+
+type CitationKind = 'manuscript' | 'software' | 'rpackage' | 'pypackage';
 type CitationFormat = 'apa' | 'bibtex';
 
 interface CitationCardProps {
@@ -71,12 +88,14 @@ const CARD_TITLE: Record<CitationKind, string> = {
   manuscript: 'Manuscript',
   software:   'Software (Zenodo concept DOI)',
   rpackage:   'R companion package (CRAN)',
+  pypackage:  'Python companion package (PyPI)',
 };
 
 const CARD_STATUS: Record<CitationKind, { label: string; cls: string }> = {
   manuscript: { label: 'Under review',   cls: 'citation-status-pending' },
   software:   { label: 'Citable today',  cls: 'citation-status-citable' },
   rpackage:   { label: 'Citable today',  cls: 'citation-status-citable' },
+  pypackage:  { label: 'Citable today',  cls: 'citation-status-citable' },
 };
 
 function CitationCard({ kind, citations }: CitationCardProps) {
@@ -93,16 +112,19 @@ function CitationCard({ kind, citations }: CitationCardProps) {
     }
   };
 
-  const isManuscript = kind === 'manuscript';
-  const isRPackage = kind === 'rpackage';
-
   let subtitle: string;
-  if (isManuscript) {
-    subtitle = `Submitted to ${TARGET_JOURNAL}. Citation will be updated upon acceptance.`;
-  } else if (isRPackage) {
-    subtitle = 'Zoltán Dul et al. (2026) — CRAN-minted DOI for the vennDiagramLab R package. Cite this when reproducibility for the R-side analysis specifically matters.';
-  } else {
-    subtitle = `Zenodo concept (all-versions) DOI for Venn Diagram Lab. Auto-resolves to the latest archived release — never needs to be updated per version. Currently v${APP_VERSION}.`;
+  switch (kind) {
+    case 'manuscript':
+      subtitle = `Submitted to ${TARGET_JOURNAL}. Citation will be updated upon acceptance.`;
+      break;
+    case 'rpackage':
+      subtitle = `CRAN-minted DOI for the vennDiagramLab R package (version ${R_PACKAGE_VERSION}). Cite this when reproducibility of an R-side analysis specifically matters.`;
+      break;
+    case 'pypackage':
+      subtitle = `PyPI URL for the venn-diagram-lab Python package (version ${PY_PACKAGE_VERSION}). Cite this when reproducibility of a Python-side / CLI analysis specifically matters; the doi field points at the Zenodo concept archive.`;
+      break;
+    default:
+      subtitle = `Zenodo concept (all-versions) DOI for Venn Diagram Lab. Auto-resolves to the latest archived release — never needs to be updated per version. Currently v${APP_VERSION}.`;
   }
 
   return (
@@ -160,6 +182,16 @@ function CitationCard({ kind, citations }: CitationCardProps) {
             {CRAN_R_DOI} ↗
           </a>
         )}
+        {kind === 'pypackage' && (
+          <a
+            href={PYPI_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="citation-doi-link"
+          >
+            pypi.org/project/venn-diagram-lab ↗
+          </a>
+        )}
       </div>
     </div>
   );
@@ -208,6 +240,11 @@ export function CitationDialog({ isOpen, onClose }: CitationDialogProps) {
           />
           <div className="citation-card-spacer" />
           <CitationCard
+            kind="pypackage"
+            citations={{ apa: PY_PACKAGE_APA, bibtex: PY_PACKAGE_BIBTEX }}
+          />
+          <div className="citation-card-spacer" />
+          <CitationCard
             kind="manuscript"
             citations={{ apa: MANUSCRIPT_APA, bibtex: MANUSCRIPT_BIBTEX }}
           />
@@ -216,8 +253,9 @@ export function CitationDialog({ isOpen, onClose }: CitationDialogProps) {
             <strong>Which to cite?</strong> Use the <em>Software (Zenodo
             concept DOI)</em> for the project as a whole — it always points
             at the latest archived release, so the reference never goes
-            stale. Add the <em>R companion package (CRAN)</em> entry if your
-            analysis ran specifically against the R package. Once the
+            stale. Add the <em>R companion package (CRAN)</em> or
+            <em> Python companion package (PyPI)</em> entry if your analysis
+            ran specifically against one of those packages. Once the
             manuscript is accepted, this dialog will switch the primary
             citation to the journal entry (volume / issue / page numbers and
             DOI). Watch{' '}

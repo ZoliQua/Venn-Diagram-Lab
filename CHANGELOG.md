@@ -2,6 +2,76 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.2.0 — 2026-05-19 — R companion dialog restructured to match Python; Python citation card added
+
+Frontend minor release. Restructures the R companion dialog so its tab
+layout mirrors the Python one (Overview · Install & Quickstart · Features
+· Links), and adds a third citation card for the Python companion package
+between the Zenodo software card and the Manuscript card.
+
+### `CompanionPackageDialog` — R tab restructure
+
+- **Roadmap tab removed.** The Phase 0-9 history is captured in
+  `r/NEWS.md` and `r/RELEASE.md`; surfacing it in the dialog was
+  duplicative now that CRAN is live and the development is no longer
+  in flight.
+- **`Preview & Install` tab renamed to `Install & Quickstart`**, matching
+  the Python tab's label so both companion dialogs read the same.
+- **New `Features` tab** with a five-group `companion-feature-board`
+  (Visualization · Analysis & Statistics · Reports & Export · Tidyverse
+  & Pipelines · Documentation & QA), mirroring the Python `Features` tab
+  structure. Calls out the R-specific touchpoints: `ComplexUpset` for
+  UpSet, `ggraph` + `tidygraph` for the network view, `geom_venn()`
+  ggplot2 layer, broom S3 methods, the 8-vignette gallery, the pkgdown
+  reference site, and the 590+ multi-OS test matrix.
+- **Final R tab order:** Overview · Install & Quickstart · Features ·
+  Links — identical to the Python tab order (minus the Python-only
+  `Notebooks` tab; R uses vignettes, referenced from Install).
+
+### `CompanionPackageDialog` — R Overview tab cleanup
+
+- **CRAN-state callout removed from Overview.** Both the original
+  "Not yet on CRAN or Bioconductor" warn callout (from v2.1.0) and its
+  v2.1.1 "Live on CRAN since 2026-05-18" replacement are gone. The
+  install path is surfaced on the `Install & Quickstart` tab; the link
+  cards live on the `Links` tab. Overview now leads with the package
+  description + What-you-get grid + badges and nothing else.
+- **What-you-get cells lost their `Phase N ✓` status pills.** The pills
+  pointed at a Roadmap that no longer exists; the labels are now plain
+  ("Analysis" instead of "Analysis  Phase 1 ✓").
+
+### `CompanionPackageDialog` — R Install & Quickstart tab
+
+- Final callout copy now points readers at `Install & Quickstart` (was
+  `Preview & Install`) and drops the dangling `Roadmap` reference.
+
+### `CitationDialog` — Python companion citation card
+
+- **New `pypackage` `CitationKind`** with `CARD_TITLE` / `CARD_STATUS`
+  entries. Card title: "Python companion package (PyPI)". Status pill:
+  "Citable today".
+- **Python card APA + BibTeX** generated from new
+  `PY_PACKAGE_APA` / `PY_PACKAGE_BIBTEX` constants. Version pinned to
+  `2.0.3` via the new `PY_PACKAGE_VERSION` constant (matches
+  `python/src/venn_diagram_lab/version.py`). URL points at PyPI;
+  `doi` field uses the project's Zenodo concept DOI as the archival
+  identifier since PyPI does not mint per-package DOIs.
+- **Card placement:** the four cards are now Software (Zenodo concept
+  DOI) → R companion (CRAN) → Python companion (PyPI) → Manuscript,
+  matching the user's instruction to slot both package citations
+  between the Zenodo software DOI and the journal entry.
+- **`R_PACKAGE_VERSION` constant added** alongside `PY_PACKAGE_VERSION`
+  so both companion versions are bumped in one place per release.
+- **"Which to cite?" closing callout** updated to mention the Python
+  card alongside the R card.
+
+### Internals
+
+- `src/version.ts`: `APP_VERSION` 2.1.1 → 2.2.0; `APP_RELEASE_DATE`
+  2026-05-16 → 2026-05-19. The bump is +0.1 because the dialog tab
+  layout is a visible structural change (per the SemVer policy in
+  `CLAUDE.md`).
+
 ## v2.1.1 — 2026-05-16 — Companion R package on CRAN: dialogs updated; citation DOI switched to concept
 
 Frontend patch release reflecting that the R companion package `vennDiagramLab`
