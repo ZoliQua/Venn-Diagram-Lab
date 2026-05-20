@@ -160,7 +160,16 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour }: 
   return (
     <div className="dialog-overlay">
       <div className="welcome-dialog">
-        <h1 className="welcome-title">{APP_NAME}</h1>
+        <div className="welcome-title-row">
+          <div className="welcome-logo-frame">
+            <img
+              className="welcome-logo"
+              src="./venndiagramlab-logo-no-text.png"
+              alt="Venn Diagram Lab logo"
+            />
+          </div>
+          <h1 className="welcome-title">{APP_NAME}</h1>
+        </div>
 
         <p className="welcome-about">A collection of 44 Venn diagram SVG models from 2-set to 9-set, based on constructions by Venn, Edwards, Anderson, Grünbaum, Bannier &amp; Bodin, and others. View diagrams interactively, edit their SVG structure, or load your own data to visualize set intersections.</p>
 

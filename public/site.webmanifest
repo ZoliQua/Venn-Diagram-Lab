@@ -1,0 +1,21 @@
+{
+  "name": "Venn Diagram Lab",
+  "short_name": "VDL",
+  "description": "Interactive viewer and editor for Venn diagrams — 44 SVG models from 2-set to 9-set, with data import, statistics, and PDF reports.",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#1E88E5",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/"
+}

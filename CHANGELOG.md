@@ -2,6 +2,39 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.2.1 — 2026-05-28 — Branding: new 3-circle favicon, PWA manifest, welcome-screen logo
+
+Patch release rolling out the new visual identity.
+
+### Favicons & PWA
+
+- **`public/favicon.svg`** replaced with a clean 3-circle Venn icon
+  (translucent blue / orange / green, 512×512 viewBox, soft drop-shadow).
+- **Raster fallbacks added**: `favicon.ico`, `favicon-16x16.png`,
+  `favicon-32x32.png`, plus `apple-touch-icon.png` (180×180) for the iOS
+  home screen and `android-chrome-{192,512}.png` for Android.
+- **`public/site.webmanifest`** added — minimal PWA manifest declaring
+  name, short_name, icons, `theme_color: #1E88E5`, `background_color:
+  #ffffff`, `display: standalone`. Picked up by the Lighthouse PWA
+  audit and Android home-screen install.
+- **`index.html`** updated with the matching `<link>` and `<meta>` tags;
+  CSP is unchanged and still covers the new local assets.
+
+### Welcome screen
+
+- **Framed logo next to the title** on `WelcomeDialog.tsx`
+  (`venndiagramlab-logo-no-text.png` at 36×36 with a subtle border +
+  shadow). Title row uses a new `.welcome-title-row` flex container so
+  the logo and title stay vertically centred and balanced.
+- Full-text logo (`venndiagramlab-logo.png`) added to `public/` for
+  future use (about / press / README).
+
+### Tooling
+
+- **`package-lock.json`** — drops the `@rolldown/binding-darwin-x64`
+  entry (host machine moved to Apple Silicon; the arm64 binding is
+  resolved as an optional dep on install).
+
 ## v2.2.0 — 2026-05-19 — R companion dialog restructured to match Python; Python citation card added
 
 Frontend minor release. Restructures the R companion dialog so its tab

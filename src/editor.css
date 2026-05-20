@@ -2339,11 +2339,39 @@ html, body, #root {
   width: 90vw;
 }
 
+/* Title row on the welcome screen — small framed program icon next to the title. */
+.welcome-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 8px;
+}
+
+.welcome-logo-frame {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: var(--bg-secondary, #fafafa);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.welcome-logo {
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
 .welcome-title {
   font-family: 'Georgia', 'Times New Roman', serif;
   font-size: 32px;
   color: var(--text-bright);
-  margin: 0 0 8px;
+  margin: 0;
   letter-spacing: 1px;
 }
 

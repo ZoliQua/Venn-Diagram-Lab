@@ -2,7 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Modern browsers: scalable SVG (3-circle Venn icon). -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Raster fallbacks for browsers that ignore SVG favicons. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <!-- iOS home-screen icon. -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <!-- PWA manifest (Android home-screen + Lighthouse PWA score). -->
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#1E88E5" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
