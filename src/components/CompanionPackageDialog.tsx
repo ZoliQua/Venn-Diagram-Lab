@@ -708,10 +708,9 @@ function RInstallTab() {
     <div className="companion-section">
       <div className="companion-install-intro">
         <p className="companion-paragraph">
-          <strong>vennDiagramLab 2.0.5 is on CRAN</strong> as of
-          2026-05-18 — just <code>install.packages("vennDiagramLab")</code>
-          and you are ready to go. The Bioconductor submission is still in
-          moderation; until then, CRAN is the recommended install channel.
+          <strong>vennDiagramLab 2.0.5 is on CRAN</strong> — just <code>install.packages("vennDiagramLab")</code>
+          and you are ready to go. The Bioconductor submission is in
+          moderation; CRAN is the recommended install channel.
           The GitHub install path remains available for the development HEAD.
         </p>
       </div>
@@ -970,7 +969,7 @@ function RContent({ activeTab }: { activeTab: TabId }) {
         <p className="companion-paragraph">
           <strong>vennDiagramLab</strong> is the R companion to the Venn
           Diagram Lab web tool and to the Python <code>venn-diagram-lab</code>
-          package. It is feature-complete (v2.0.0) and provides headless Venn /
+          package. It is feature-complete and provides headless Venn /
           UpSet / network diagram analysis and rendering for bioinformaticians
           and biostatisticians who work natively in R — same 44 SVG models,
           same statistics, byte-equivalent TSV exports, plus first-class
@@ -979,11 +978,11 @@ function RContent({ activeTab }: { activeTab: TabId }) {
           tidygraph, and ComplexUpset.
         </p>
         <p className="companion-paragraph">
-          v2.0.5 ships with 8 RMarkdown vignettes executed on every
+          The package ships with 8 RMarkdown vignettes executed on every
           R&nbsp;CMD&nbsp;check, a pkgdown documentation site, full
           BiocCheck WARNING-clean output, and a 590+ test suite (90+ parity
           tests against the web tool's exports).{' '}
-          <strong>The package is on CRAN as of 2026-05-18;</strong>{' '}
+          <strong>The package is on CRAN</strong>{' '}
           install with <code>install.packages("vennDiagramLab")</code>, or
           see the <em>Install &amp; Quickstart</em> tab for the GitHub-HEAD
           and Bioconductor paths.

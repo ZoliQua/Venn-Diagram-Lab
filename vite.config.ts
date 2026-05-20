@@ -16,12 +16,15 @@ function copyModelsPlugin() {
           copyFileSync(resolve(svgSrc, file), resolve(svgDst, file))
         }
       }
-      // Copy data/*.csv
+      // Copy data/*.{csv,tsv} — both extensions are referenced by
+      // sampleDatasets.ts and the guided-tour mock. The original
+      // .csv-only filter silently dropped the 3 real TSV samples and
+      // broke the homepage Tour online (404 on fetch).
       const dataSrc = resolve(__dirname, 'data')
       const dataDst = resolve(__dirname, 'dist/data')
       mkdirSync(dataDst, { recursive: true })
       for (const file of readdirSync(dataSrc)) {
-        if (file.endsWith('.csv')) {
+        if (/\.(csv|tsv)$/i.test(file)) {
           copyFileSync(resolve(dataSrc, file), resolve(dataDst, file))
         }
       }
