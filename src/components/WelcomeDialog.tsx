@@ -266,7 +266,15 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour }: 
         </div>
 
         <div className="welcome-footer">
-          v{APP_VERSION} · Last updated {APP_RELEASE_DATE}
+          v{APP_VERSION} · Last updated {APP_RELEASE_DATE} ·{' '}
+          <a
+            href="https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/CHANGELOG.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="welcome-footer-link"
+          >
+            CHANGELOG
+          </a>
         </div>
       </div>
     </div>

@@ -69,7 +69,14 @@ export function Toolbar({
 
   return (
     <div className="toolbar">
-      <span className="toolbar-app-title">{APP_NAME}</span>
+      <span className="toolbar-app-title">
+        <img
+          className="toolbar-app-logo"
+          src="./venndiagramlab-logo-no-text.png"
+          alt=""
+        />
+        {APP_NAME}
+      </span>
       <div className="toolbar-left">
         <div className="mode-dropdown" ref={dropdownRef}>
           <button

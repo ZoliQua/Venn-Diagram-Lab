@@ -1474,6 +1474,9 @@ html, body, #root {
 
 /* ---- App Title ---- */
 .toolbar-app-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: 'Georgia', 'Times New Roman', serif;
   font-size: 16px;
   font-weight: bold;
@@ -1484,6 +1487,14 @@ html, body, #root {
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
+}
+
+.toolbar-app-logo {
+  display: block;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 
@@ -2339,12 +2350,12 @@ html, body, #root {
   width: 90vw;
 }
 
-/* Title row on the welcome screen — small framed program icon next to the title. */
+/* Title row on the welcome screen — program icon next to the title. */
 .welcome-title-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 14px;
   margin: 0 0 8px;
 }
 
@@ -2352,18 +2363,13 @@ html, body, #root {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
-  background: var(--bg-secondary, #fafafa);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   flex-shrink: 0;
 }
 
 .welcome-logo {
   display: block;
-  width: 36px;
-  height: 36px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
 }
 
@@ -3630,7 +3636,7 @@ html, body, #root {
 /* Toolbar group wrapper (used for data-tour anchor on the two Report buttons) */
 .toolbar-group {
   display: inline-flex;
-  gap: 0;
+  gap: 6px;
 }
 
 /* ---- SVG Validation Dialog ---- */
@@ -3874,6 +3880,17 @@ html, body, #root {
   color: var(--text-muted);
   text-align: center;
   letter-spacing: 0.3px;
+}
+
+.welcome-footer-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.welcome-footer-link:hover {
+  color: var(--text-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ============================================================================

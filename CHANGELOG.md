@@ -19,15 +19,38 @@ Patch release rolling out the new visual identity.
   audit and Android home-screen install.
 - **`index.html`** updated with the matching `<link>` and `<meta>` tags;
   CSP is unchanged and still covers the new local assets.
+- **Raster icons re-rendered** from the final master (`favicon.ico`,
+  `favicon-16x16.png`, `favicon-32x32.png`); a 512px `favicon.png`
+  master is kept in `public/`. The editable source
+  (`venndiagramlab-logo-no-text.psd`) and the previous logo
+  (`venndiagramlab-logo-no-text-old.png`) are retained alongside it.
+- **`venndiagramlab-logo-no-text.png` re-optimized** (~690KB → ~308KB)
+  with no visible quality loss.
 
 ### Welcome screen
 
-- **Framed logo next to the title** on `WelcomeDialog.tsx`
-  (`venndiagramlab-logo-no-text.png` at 36×36 with a subtle border +
-  shadow). Title row uses a new `.welcome-title-row` flex container so
-  the logo and title stay vertically centred and balanced.
+- **Logo next to the title** on `WelcomeDialog.tsx`
+  (`venndiagramlab-logo-no-text.png` at 56×56, unframed). Title row uses
+  a new `.welcome-title-row` flex container (14px gap) so the logo and
+  title stay vertically centred and balanced.
+- **`CHANGELOG` link added to the welcome footer**, next to the version /
+  last-updated line, deep-linking to `CHANGELOG.md` on GitHub
+  (new `.welcome-footer-link` style).
 - Full-text logo (`venndiagramlab-logo.png`) added to `public/` for
   future use (about / press / README).
+
+### Toolbar
+
+- **Program logo (26×26) next to the app title** in `Toolbar.tsx`
+  (`venndiagramlab-logo-no-text.png`), via a new `.toolbar-app-logo`
+  style; `.toolbar-app-title` becomes an inline-flex row. The Report
+  buttons' `.toolbar-group` gains a 6px gap.
+
+### Sample data
+
+- **`data/dataset_mock_gene_sets.csv` trimmed** from 600 to 97 rows,
+  dropping the synthetic `GENEX_NNN` padding so the mock dataset holds
+  only readable gene-symbol entries (ragged column lengths).
 
 ### Tooling
 
