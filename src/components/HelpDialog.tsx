@@ -465,6 +465,18 @@ const HELP: Record<AppMode, HelpPage> = {
         ],
       },
       {
+        heading: 'Item Share Distribution',
+        items: [
+          { content: 'A bar chart showing, for each set-membership count k = 1..N, how many items belong to exactly k sets. Use it to assess how much of your data is unique to a single set (left bars) versus core to all sets (right bar). For 4 sets the bins are "1 set", "2 sets", "3 sets", "4 sets".' },
+        ],
+      },
+      {
+        heading: 'Cluster Heatmap',
+        items: [
+          { content: 'The Heatmap card supports two axis orders: Original (alphabetical ABCD…) and Cluster. Cluster mode runs UPGMA hierarchical clustering on 1 − Jaccard distance, reorders the rows and columns by the resulting leaf order, and draws the dendrograms above and to the left of the grid. The Editor offers complete and single linkage as alternatives. Clustering is only available for 3 or more sets.' },
+        ],
+      },
+      {
         heading: 'Main',
         items: [
           { content: 'The toolbar mode dropdown includes a Main option in every mode; it returns to the welcome screen without resetting loaded data or the SVG being edited.' },
