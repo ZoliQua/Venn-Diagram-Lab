@@ -6,8 +6,8 @@ import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 
 describe('TOUR_STEPS', () => {
-  it('has exactly 12 steps as specified', () => {
-    expect(TOUR_STEPS.length).toBe(12);
+  it('has exactly 14 steps as specified', () => {
+    expect(TOUR_STEPS.length).toBe(14);
   });
 
   it('has unique step ids', () => {

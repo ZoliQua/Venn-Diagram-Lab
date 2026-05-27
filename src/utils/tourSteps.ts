@@ -160,6 +160,35 @@ export const TOUR_STEPS: TourStep[] = [
       'returns you to the normal view; your per-plot style changes are preserved.',
   },
   {
+    id: 'stats-share-dist',
+    selector: '[data-plot-card="shareDistribution"]',
+    placement: 'left',
+    title: 'Item Share Distribution',
+    body:
+      'How many items are unique to one set vs shared across all sets? This bar ' +
+      'chart gives the per-membership-count breakdown.',
+    enterActions: [
+      { kind: 'exitPlotEdit' },
+      { kind: 'setPlotsOpen', open: true },
+      { kind: 'scrollIntoView', selector: '[data-plot-card="shareDistribution"]' },
+    ],
+  },
+  {
+    id: 'stats-cluster-heatmap',
+    selector: '[data-plot-card="heatmap"] [data-tour="cluster-toggle"]',
+    placement: 'left',
+    title: 'Cluster the Heatmap',
+    body:
+      'Switch to Cluster axis order to reorder the heatmap by UPGMA hierarchical ' +
+      'clustering on 1 − Jaccard distance. Dendrograms appear on the top and ' +
+      'left edges.',
+    enterActions: [
+      { kind: 'setPlotsOpen', open: true },
+      { kind: 'enterPlotEdit', plot: 'heatmap' },
+      { kind: 'scrollIntoView', selector: '[data-tour="cluster-toggle"]' },
+    ],
+  },
+  {
     id: 'toolbar-reports',
     selector: '[data-tour="toolbar-reports"]',
     placement: 'bottom',

@@ -148,7 +148,7 @@ export function EnrichmentPlotEditor({
       {isHeatmap && (
         <div className="plot-editor-group">
           <div className="plot-editor-label">Axis order</div>
-          <div className="test-show-inline">
+          <div className="test-show-inline" data-tour="cluster-toggle">
             <button
               type="button"
               className={`btn btn-xs btn-toggle ${style.axisOrder === 'original' ? 'btn-toggle-active' : ''}`}

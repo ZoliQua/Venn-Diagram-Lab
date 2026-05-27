@@ -133,6 +133,7 @@ export function EnrichmentPlots({
     return (
       <div
         className={classNames}
+        data-plot-card={plot}
         role={isClickable ? 'button' : undefined}
         tabIndex={isClickable ? 0 : undefined}
         onClick={isClickable ? handleBlockClick(plot) : undefined}
