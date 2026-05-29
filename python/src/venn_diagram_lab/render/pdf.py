@@ -658,11 +658,11 @@ def _pair_rows(result: RegionResult) -> list[_PairRow]:
             pair=_pair_label(a_name, b_name, set_names, letters),
             intersection=inter,
             union=size_a + size_b - inter,
-            jaccard=float(stats.jaccard.loc[a_name, b_name]),
-            overlap=float(stats.overlap_coefficient.loc[a_name, b_name]),
-            dice=float(stats.dice.loc[a_name, b_name]),
+            jaccard=float(stats.jaccard.loc[a_name, b_name]),  # type: ignore[arg-type]
+            overlap=float(stats.overlap_coefficient.loc[a_name, b_name]),  # type: ignore[arg-type]
+            dice=float(stats.dice.loc[a_name, b_name]),  # type: ignore[arg-type]
             expected=float(row["expected"]),
-            fold_enrichment=float(stats.fold_enrichment.loc[a_name, b_name]),
+            fold_enrichment=float(stats.fold_enrichment.loc[a_name, b_name]),  # type: ignore[arg-type]
             p_value=float(row["p_value"]),
             fdr=float(row["p_adjusted"]),
         ))
