@@ -91,6 +91,28 @@ setClass("RegionData",
     )
 )
 
+#' SvgImage: wrapper for rendered SVG output
+#'
+#' Returned by [render_share_distribution()] and [render_cluster_heatmap()].
+#' Mirrors the Python `SvgImage` dataclass so cross-package parity tests can
+#' use a uniform attribute name (`content`). Note that
+#' [render_venn_svg()] still returns a plain `character` for backward
+#' compatibility with the v2.0.x public API; the new plot renderers return
+#' `SvgImage` so callers can introspect explicit `width` / `height` extents.
+#'
+#' @slot content The SVG document as a string.
+#' @slot width Pixel width of the rendered SVG.
+#' @slot height Pixel height of the rendered SVG.
+#' @export
+#' @rdname SvgImage-class
+setClass("SvgImage",
+    representation(
+        content = "character",
+        width   = "integer",
+        height  = "integer"
+    )
+)
+
 #' RegionResult: result of analyze()
 #'
 #' Bundles the input dataset, chosen model, region map, set sizes, and a
