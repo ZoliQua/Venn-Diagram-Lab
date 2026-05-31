@@ -1,5 +1,27 @@
 # vennDiagramLab — NEWS
 
+## v2.2.2 — 2026-05-31 — Item-share distribution + cluster heatmap (cross-package parity)
+
+Additive feature release matching the webtool v2.2.2 and Python v2.2.2 releases. No breaking changes, no removed APIs, no new hard dependencies.
+
+### New features
+
+* `item_share_distribution(matrix)`: per-membership-count item totals.
+* `cluster_set_order(D, linkage)`: UPGMA / complete / single linkage on a
+  symmetric distance matrix, with `leaf_order` and `merges` matching the
+  cross-package convention (smaller-min-leaf on the left).
+* `render_share_distribution(dataset)`: histogram SVG, 480×280 viewBox.
+* `render_cluster_heatmap(result, linkage, ...)`: 1 − Jaccard reordered
+  heatmap with row and column dendrogram overlays.
+* Mirrors webtool v2.2.2 and Python v2.2.2 (cross-package parity tests
+  cover all four exports).
+
+### Internal
+
+* New S4 class `SvgImage` (`content`, `width`, `height` slots) returned
+  by the two new plot renderers. `render_venn_svg()` continues to return
+  a plain `character` for backwards compatibility with the v2.0.x API.
+
 ## v2.0.5 — 2026-05-12 — Fix inst/CITATION pre-install crash + finish vignette skip
 
 Patch release addressing two issues from the CRAN auto-check on v2.0.4.

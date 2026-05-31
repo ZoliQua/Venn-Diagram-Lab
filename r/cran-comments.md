@@ -1,7 +1,31 @@
-## Resubmission
+## Submission — v2.2.2
 
-This is a resubmission of v2.0.5, addressing the two issues from the
-CRAN auto-check on v2.0.4:
+This is an additive feature release on top of the CRAN-accepted v2.0.5.
+Version jumps from 2.0.5 to 2.2.2 to keep the R, Python, and web tool
+versions in lockstep (cross-package parity is part of the release
+contract). No breaking changes, no removed APIs, no new hard
+dependencies.
+
+New exports (all follow v2.0.5 conventions):
+
+* `item_share_distribution()` — per-membership-count item totals.
+* `cluster_set_order()` — UPGMA / complete / single linkage on a
+  symmetric distance matrix.
+* `render_share_distribution()` — histogram SVG (480 × 280).
+* `render_cluster_heatmap()` — 1 − Jaccard reordered heatmap with
+  row + column dendrogram overlays.
+
+A new internal S4 class `SvgImage` (`content`, `width`, `height`) is
+returned by the two new plot renderers. `render_venn_svg()` still
+returns a plain `character` vector, preserving the v2.0.x API.
+
+R CMD check: 0 errors / 0 warnings / 0 notes (preserves the v2.0.5
+baseline). Full test suite passes (576+ tests).
+
+## v2.0.5 history (previous submission, accepted)
+
+This was a resubmission addressing the two issues from the CRAN
+auto-check on v2.0.4:
 
 1. **`inst/CITATION` crash during the incoming-feasibility check**
    (`Reading CITATION file fails with $ operator is invalid for atomic

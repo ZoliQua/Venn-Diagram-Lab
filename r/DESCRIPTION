@@ -1,7 +1,8 @@
 Package: vennDiagramLab
 Type: Package
 Title: Headless Venn Diagram Analysis and Rendering
-Version: 2.0.5
+Version: 2.2.2
+Date: 2026-05-31
 Authors@R: c(
     person("Zoltán", "Dul", email = "zoltan.dul@gmail.com",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9523-3450")),
