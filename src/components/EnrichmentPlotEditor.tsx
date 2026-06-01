@@ -28,6 +28,7 @@ export function EnrichmentPlotEditor({
   onMetricChange, onUpdateStyle, onResetStyle, onExit,
 }: EnrichmentPlotEditorProps) {
   const isHeatmap = plotType === 'heatmap';
+  const isShareDist = plotType === 'shareDistribution';
 
   return (
     <div className="plot-editor">
@@ -217,15 +218,17 @@ export function EnrichmentPlotEditor({
             className={`btn btn-xs btn-toggle ${style.showAxisLabel ? 'btn-toggle-active' : ''}`}
             onClick={() => onUpdateStyle({ showAxisLabel: !style.showAxisLabel })}
           >
-            {isHeatmap ? 'Top title' : 'Y-axis label'}
+            {isHeatmap ? 'Top title' : isShareDist ? 'Title' : 'Y-axis label'}
           </button>
-          <button
-            className={`btn btn-xs btn-toggle ${style.showPairLabels ? 'btn-toggle-active' : ''}`}
-            onClick={() => onUpdateStyle({ showPairLabels: !style.showPairLabels })}
-          >
-            {isHeatmap ? 'Row / col labels' : 'Pair labels'}
-          </button>
-          {!isHeatmap && (
+          {!isShareDist && (
+            <button
+              className={`btn btn-xs btn-toggle ${style.showPairLabels ? 'btn-toggle-active' : ''}`}
+              onClick={() => onUpdateStyle({ showPairLabels: !style.showPairLabels })}
+            >
+              {isHeatmap ? 'Row / col labels' : 'Pair labels'}
+            </button>
+          )}
+          {!isHeatmap && !isShareDist && (
             <button
               className={`btn btn-xs btn-toggle ${style.showSigMarkers ? 'btn-toggle-active' : ''}`}
               onClick={() => onUpdateStyle({ showSigMarkers: !style.showSigMarkers })}
@@ -233,12 +236,14 @@ export function EnrichmentPlotEditor({
               Sig. markers
             </button>
           )}
-          <button
-            className={`btn btn-xs btn-toggle ${style.showLegend ? 'btn-toggle-active' : ''}`}
-            onClick={() => onUpdateStyle({ showLegend: !style.showLegend })}
-          >
-            Legend
-          </button>
+          {!isShareDist && (
+            <button
+              className={`btn btn-xs btn-toggle ${style.showLegend ? 'btn-toggle-active' : ''}`}
+              onClick={() => onUpdateStyle({ showLegend: !style.showLegend })}
+            >
+              Legend
+            </button>
+          )}
         </div>
       </div>
 

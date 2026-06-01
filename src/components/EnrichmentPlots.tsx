@@ -104,6 +104,7 @@ export function EnrichmentPlots({
         fontSize: settings.shareDistribution.fontSize,
         fontFamily: settings.shareDistribution.fontFamily,
         background: settings.shareDistribution.background,
+        showAxisLabel: settings.shareDistribution.showAxisLabel,
       },
     });
   }, [matrix, setLetters.length, settings.shareDistribution]);

@@ -350,9 +350,13 @@ export function buildEnrichmentHeatmapSvg(
 
   const gridWBase = nSets * cellSize;
   const gridHBase = nSets * cellSize;
-  // Pixels reserved for dendrogram tracks.
+  // Pixels reserved for dendrogram tracks. The previous `Math.max(20, …)`
+  // floor made the slider feel inert for small N (4 sets × 36 cell = 144 px
+  // grid; 6% × 144 = 8 px, clamped up to 20 — so 6%-13% all looked the same
+  // 20 px). Use a small 4 px floor (just enough to draw a visible stroke)
+  // and let the slider drive the actual size.
   const dendroPx = (showRow || showCol)
-    ? Math.max(20, Math.round(Math.min(gridWBase, gridHBase) * dendroFrac))
+    ? Math.max(4, Math.round(Math.min(gridWBase, gridHBase) * dendroFrac))
     : 0;
   const dendroColH = showCol ? dendroPx + 6 : 0; // 6px gap to top labels
   const dendroRowW = showRow ? dendroPx + 6 : 0; // 6px gap to row labels

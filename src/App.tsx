@@ -1472,7 +1472,11 @@ export default function App() {
           )}
           {doc ? (
             mode === 'data' && testPlotEditState !== null && testVennResult && testCsvData ? (
-              <div className="canvas-container canvas-plot-edit">
+              <div
+                className="canvas-container canvas-plot-edit"
+                ref={zoomPan.setContainerRef}
+                onWheel={zoomPan.onWheel}
+              >
                 <EnrichmentPlotCanvas
                   plotType={testPlotEditState.plotType}
                   stats={pairwiseStatistics(
@@ -1486,6 +1490,7 @@ export default function App() {
                   matrix={testItemSetMatrix}
                   metric={testEnrichmentMetric}
                   style={testEnrichmentPlotSettings[testPlotEditState.plotType]}
+                  zoom={zoomPan.state.scale}
                 />
               </div>
             ) :

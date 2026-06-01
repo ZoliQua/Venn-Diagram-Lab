@@ -24,10 +24,11 @@ interface EnrichmentPlotCanvasProps {
   matrix: readonly (readonly number[])[];
   metric: EnrichmentMetric;
   style: EnrichmentPlotStyle;
+  zoom?: number;
 }
 
 export function EnrichmentPlotCanvas({
-  plotType, stats, setLetters, setNames, matrix, metric, style,
+  plotType, stats, setLetters, setNames, matrix, metric, style, zoom = 1,
 }: EnrichmentPlotCanvasProps) {
   const svg = useMemo(() => {
     if (plotType === 'bar') {
@@ -44,6 +45,7 @@ export function EnrichmentPlotCanvas({
           fontSize: style.fontSize,
           fontFamily: style.fontFamily,
           background: style.background,
+          showAxisLabel: style.showAxisLabel,
         },
       });
     }
@@ -85,7 +87,11 @@ export function EnrichmentPlotCanvas({
         <div className="enrichment-plot-canvas-title">{PLOT_TYPE_LABELS[plotType]}</div>
         <div className="enrichment-plot-canvas-subtitle">{subtitle}</div>
       </div>
-      <div className="enrichment-plot-canvas-svg" dangerouslySetInnerHTML={{ __html: svg }} />
+      <div
+        className="enrichment-plot-canvas-svg"
+        style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}
+        dangerouslySetInnerHTML={{ __html: svg }}
+      />
     </div>
   );
 }
