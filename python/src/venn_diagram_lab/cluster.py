@@ -8,9 +8,9 @@ merge heights + sizes).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal
 
-import numpy as np
+import numpy.typing as npt
 from scipy.cluster.hierarchy import linkage as scipy_linkage
 from scipy.spatial.distance import squareform
 
@@ -59,7 +59,7 @@ class ClusterOrder:
 
 
 def cluster_set_order(
-    D: np.ndarray,  # noqa: N803  (D for distance matrix, math convention)
+    D: npt.NDArray[Any],  # noqa: N803  (D for distance matrix, math convention)
     *,
     method: LinkageMethod = "average",
 ) -> ClusterOrder:
@@ -110,7 +110,7 @@ def cluster_set_order(
     return ClusterOrder(leaf_order=leaf_order, merges=merges)
 
 
-def _ordered_leaves(linkage_matrix: np.ndarray, n: int) -> list[int]:
+def _ordered_leaves(linkage_matrix: npt.NDArray[Any], n: int) -> list[int]:
     """Extract a deterministic leaf order from a scipy linkage matrix.
 
     At every internal node the subtree whose minimum leaf index is

@@ -5,14 +5,16 @@ Mirror of the webtool's ``src/utils/shareDistribution.ts``.
 
 from __future__ import annotations
 
-import numpy as np
+from typing import Any
+
+import numpy.typing as npt
 
 __all__ = ["item_share_distribution"]
 
 _MATRIX_NDIM = 2
 
 
-def item_share_distribution(matrix: np.ndarray) -> dict[int, int]:
+def item_share_distribution(matrix: npt.NDArray[Any]) -> dict[int, int]:
     """Count items per set-membership level.
 
     Parameters

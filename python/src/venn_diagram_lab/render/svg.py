@@ -8,14 +8,14 @@ from dataclasses import dataclass
 from importlib import resources
 from itertools import combinations
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
+import numpy.typing as npt
 from lxml import etree
 
 from venn_diagram_lab.errors import UnknownModelError
 
 if TYPE_CHECKING:
-    import numpy as np
     import pandas as pd
     from lxml.etree import _Element
 
@@ -306,7 +306,7 @@ def _lerp_hex(a: str, b: str, t: float) -> str:
     )
 
 
-def _dataset_to_binary_matrix(dataset: Dataset) -> np.ndarray:
+def _dataset_to_binary_matrix(dataset: Dataset) -> npt.NDArray[Any]:
     """Build a binary item-by-set matrix from a :class:`Dataset`.
 
     Uses ``dataset.item_order`` as the row order when populated; otherwise
@@ -445,7 +445,7 @@ _HM_NAME_TRIM = 10
 _HM_TEXT_LIGHT_THRESHOLD = 0.55
 
 
-def _jaccard_distance_matrix(result: RegionResult) -> np.ndarray:
+def _jaccard_distance_matrix(result: RegionResult) -> npt.NDArray[Any]:
     """Return ``D = 1 - Jaccard`` for cluster_set_order, with diagonal zeroed."""
     import numpy as np  # noqa: PLC0415
 
