@@ -94,13 +94,16 @@ export function EnrichmentPlots({
   const shareDistSvg = useMemo(() => {
     const dist = itemShareDistribution(matrix, setLetters.length);
     return buildShareDistributionSvg(dist, {
+      // The shareDistribution-specific defaults (cream→purple gradient) read
+      // well on both light and dark backgrounds. The heatmap-derived
+      // gradientLowColor='#ffffff' would render the lowest bar invisible on
+      // white — don't reuse it here. Only typography + background follow
+      // the user-configurable side-panel style.
       style: {
         ...DEFAULT_SHARE_DIST_STYLE,
         fontSize: settings.shareDistribution.fontSize,
         fontFamily: settings.shareDistribution.fontFamily,
         background: settings.shareDistribution.background,
-        gradientLow: settings.shareDistribution.gradientLowColor,
-        gradientHigh: settings.shareDistribution.gradientHighFdrColor,
       },
     });
   }, [matrix, setLetters.length, settings.shareDistribution]);

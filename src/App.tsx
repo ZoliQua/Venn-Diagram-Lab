@@ -1483,6 +1483,7 @@ export default function App() {
                   )}
                   setLetters={'ABCDEFGHI'.slice(0, testColumnMapping.length).split('')}
                   setNames={testColumnMapping.map(i => testCsvData.headers[i] ?? '')}
+                  matrix={testItemSetMatrix}
                   metric={testEnrichmentMetric}
                   style={testEnrichmentPlotSettings[testPlotEditState.plotType]}
                 />

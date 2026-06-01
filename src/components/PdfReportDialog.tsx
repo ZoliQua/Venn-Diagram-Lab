@@ -6,6 +6,7 @@ import { generatePdfReport } from '../utils/pdfReport.ts';
 import { pairwiseStatistics } from '../utils/statistics.ts';
 import { buildReportArtefacts } from '../utils/reportArtefacts.ts';
 import type { EnrichmentPlotSettings } from '../utils/enrichmentPlotStyle.ts';
+import { DEFAULT_SHARE_DIST_STYLE } from '../utils/shareDistributionSvgBuilder.ts';
 
 interface PdfReportDialogProps {
   isOpen: boolean;
@@ -94,14 +95,11 @@ export function PdfReportDialog({
           heatmapStyle: enrichmentPlotSettings?.heatmap,
           heatmapMetric: 'neglog10fdr',
           shareDistributionStyle: enrichmentPlotSettings ? {
+            ...DEFAULT_SHARE_DIST_STYLE,
             background: enrichmentPlotSettings.shareDistribution.background,
             fontSize: enrichmentPlotSettings.shareDistribution.fontSize,
             fontFamily: enrichmentPlotSettings.shareDistribution.fontFamily,
-            gradientLow: enrichmentPlotSettings.shareDistribution.gradientLowColor,
-            gradientHigh: enrichmentPlotSettings.shareDistribution.gradientHighFdrColor,
-            showPercent: false,
             showAxisLabel: enrichmentPlotSettings.shareDistribution.showAxisLabel,
-            logScale: false,
           } : undefined,
         });
 

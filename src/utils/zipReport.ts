@@ -16,6 +16,7 @@ import type { EnrichmentPlotSettings } from './enrichmentPlotStyle.ts';
 import { pairwiseStatistics } from './statistics.ts';
 import { exportRegionSummaryTsv, exportMatrixTsv } from './exportData.ts';
 import { buildReportArtefacts } from './reportArtefacts.ts';
+import { DEFAULT_SHARE_DIST_STYLE } from './shareDistributionSvgBuilder.ts';
 import { svgStringToDataUrl } from './svgToImage.ts';
 import { generatePdfReport } from './pdfReport.ts';
 import { ABOUT_REPORT_SECTIONS } from './aboutReport.ts';
@@ -250,14 +251,11 @@ export async function generateZipReport(params: ZipReportParams): Promise<Blob> 
     heatmapStyle: params.enrichmentPlotSettings?.heatmap,
     heatmapMetric: 'neglog10fdr',
     shareDistributionStyle: params.enrichmentPlotSettings ? {
+      ...DEFAULT_SHARE_DIST_STYLE,
       background: params.enrichmentPlotSettings.shareDistribution.background,
       fontSize: params.enrichmentPlotSettings.shareDistribution.fontSize,
       fontFamily: params.enrichmentPlotSettings.shareDistribution.fontFamily,
-      gradientLow: params.enrichmentPlotSettings.shareDistribution.gradientLowColor,
-      gradientHigh: params.enrichmentPlotSettings.shareDistribution.gradientHighFdrColor,
-      showPercent: false,
       showAxisLabel: params.enrichmentPlotSettings.shareDistribution.showAxisLabel,
-      logScale: false,
     } : undefined,
   });
   zip.file(`venn_report_${n}-sets.pdf`, pdfBlob);
