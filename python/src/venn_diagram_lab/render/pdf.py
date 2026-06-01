@@ -6,7 +6,7 @@ import io
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
@@ -658,11 +658,11 @@ def _pair_rows(result: RegionResult) -> list[_PairRow]:
             pair=_pair_label(a_name, b_name, set_names, letters),
             intersection=inter,
             union=size_a + size_b - inter,
-            jaccard=float(stats.jaccard.loc[a_name, b_name]),  # type: ignore[arg-type]
-            overlap=float(stats.overlap_coefficient.loc[a_name, b_name]),  # type: ignore[arg-type]
-            dice=float(stats.dice.loc[a_name, b_name]),  # type: ignore[arg-type]
+            jaccard=float(cast(float, stats.jaccard.loc[a_name, b_name])),
+            overlap=float(cast(float, stats.overlap_coefficient.loc[a_name, b_name])),
+            dice=float(cast(float, stats.dice.loc[a_name, b_name])),
             expected=float(row["expected"]),
-            fold_enrichment=float(stats.fold_enrichment.loc[a_name, b_name]),  # type: ignore[arg-type]
+            fold_enrichment=float(cast(float, stats.fold_enrichment.loc[a_name, b_name])),
             p_value=float(row["p_value"]),
             fdr=float(row["p_adjusted"]),
         ))

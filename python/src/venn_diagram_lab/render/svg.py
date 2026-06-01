@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from importlib import resources
 from itertools import combinations
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from lxml import etree
 
@@ -627,9 +627,9 @@ def _append_hm_cells(
                     f'text-anchor="middle">—</text>'
                 )
                 continue
-            # jacc.iat returns a pandas scalar; cast via str() to silence
-            # mypy's wide Union and tolerate any numeric dtype.
-            v = float(jacc.iat[ri, ci]) if not jacc.empty else 0.0  # type: ignore[arg-type]
+            # jacc.iat returns a pandas scalar; explicit cast tolerates any
+            # numeric dtype across pandas-stubs versions (CI vs local).
+            v = float(cast(float, jacc.iat[ri, ci])) if not jacc.empty else 0.0
             t = v / scale_max if scale_max > 0 else 0.0
             fill = _lerp_hex(_HM_GRAD_LOW, _HM_GRAD_HIGH, max(0.0, min(1.0, t)))
             parts.append(
