@@ -100,6 +100,38 @@ print(stats.hypergeometric)     # long-form: pair, intersection, expected, p_val
 
 `compute_pairwise` produces 5 metric tables: Jaccard, Sørensen-Dice, Overlap Coefficient, Fold Enrichment, and the hypergeometric long-form (with Benjamini-Hochberg FDR correction).
 
+### Item Share Distribution + Cluster Heatmap (v2.2.2)
+
+Two additional statistics surfaces complement the pairwise tables:
+
+| Function | Purpose |
+|---|---|
+| `item_share_distribution(matrix)` | Histogram of how many sets each item belongs to (1, 2, ..., n) |
+| `cluster_set_order(D, method="average")` | UPGMA / complete / single hierarchical linkage on a distance matrix; returns leaf order + dendrogram merges |
+| `render_share_distribution_svg(dataset)` | SVG bar chart of the item-share distribution |
+| `render_cluster_heatmap_svg(result, linkage="average")` | Pairwise-Jaccard heatmap with UPGMA-reordered axes and side dendrograms |
+
+```python
+from venn_diagram_lab import load_sample, analyze
+from venn_diagram_lab.share_distribution import item_share_distribution
+from venn_diagram_lab.render.svg import (
+    render_share_distribution_svg,
+    render_cluster_heatmap_svg,
+)
+
+ds = load_sample("dataset_real_cancer_drivers_4")
+dist = item_share_distribution(ds.matrix)   # {1: 722, 2: 275, 3: 277, 4: 120}
+
+img = render_share_distribution_svg(ds)
+print(img.svg[:200])
+
+result = analyze(ds)
+heatmap = render_cluster_heatmap_svg(result, linkage="average")
+print(heatmap.svg[:200])
+```
+
+Both renderers return the same `SvgImage` dataclass as `render_venn_svg`, so `.save("plot.svg" | "plot.png" | "plot.pdf")` works uniformly.
+
 ## Export to TSV (matches the web tool byte-for-byte)
 
 ```python

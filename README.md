@@ -2,7 +2,7 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite. Ships with two officially published companion packages providing the same 44-model analysis and rendering pipeline headlessly: the **Python** [`venn-diagram-lab`](python/README.md) on PyPI and the **R** [`vennDiagramLab`](r/README.md) on CRAN — both byte-equivalent to the web tool's exports.
 
-[![Version](https://img.shields.io/badge/version-2.2.1-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.2.2-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![DOI (Zenodo concept)](https://zenodo.org/badge/DOI/10.5281/zenodo.19510813.svg)](https://doi.org/10.5281/zenodo.19510813)
 [![Models](https://img.shields.io/badge/models-44_SVG_+_proportional-green.svg)](#diagram-models)
@@ -34,6 +34,8 @@ Cross-implementation parity (byte-equivalent TSV exports across web / Python /
 R) is verified by ~30 fixture-based tests on every release.
 
 ## Features
+
+**v2.2.2 — Statistics additions.** New *Item Share Distribution* histogram and *Cluster Heatmap* (UPGMA reorder + dendrograms on the existing pairwise Jaccard heatmap). Available in the web tool's Statistics panel and PDF report, in the Python package as `item_share_distribution()` / `cluster_set_order()` / `render_share_distribution_svg()` / `render_cluster_heatmap_svg()`, and in the R package as `item_share_distribution()` / `cluster_set_order()` / `render_share_distribution()` / `render_cluster_heatmap()`.
 
 ### Four Modes
 
