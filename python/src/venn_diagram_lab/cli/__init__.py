@@ -29,6 +29,24 @@ app = typer.Typer(
 
 _console = Console()
 
+# Subapp registrations.
+from venn_diagram_lab.cli import (  # noqa: E402
+    _data,
+    _export,
+    _model,
+    _render,
+    _report,
+    _stats,  # noqa: F401  # registered via decorator in Phase 7
+    _workflow,
+)
+
+app.add_typer(_render.app, name="render")
+app.add_typer(_export.app, name="export")
+app.add_typer(_report.app, name="report")
+app.add_typer(_data.app, name="data")
+app.add_typer(_model.app, name="model")
+app.add_typer(_workflow.app, name="workflow")
+
 
 @app.callback()
 def _main() -> None:
