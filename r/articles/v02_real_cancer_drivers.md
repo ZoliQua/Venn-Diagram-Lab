@@ -116,14 +116,6 @@ For 4+ sets, an UpSet plot is often easier to read than the Venn diagram
 ``` r
 
 upset_plot <- render_upset(result, sort_by = "size")
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the ComplexUpset package.
-#>   Please report the issue at
-#>   <https://github.com/krassowski/complex-upset/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 upset_plot
 ```
 

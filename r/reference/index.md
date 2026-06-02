@@ -48,6 +48,10 @@ reports.
   : Render the Item Share Distribution histogram
 - [`render_cluster_heatmap()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/render_cluster_heatmap.md)
   : Render a cluster-ordered Jaccard similarity heatmap
+- [`render_enrichment_bar()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/render_enrichment_bar.md)
+  : Render the pairwise enrichment bar chart
+- [`render_enrichment_lollipop()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/render_enrichment_lollipop.md)
+  : Render the pairwise enrichment lollipop chart
 - [`to_pdf_report()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_pdf_report.md)
   : Compose a multi-page PDF report from a RegionResult
 
@@ -72,6 +76,16 @@ matrices, and pairwise statistics tables.
   : Write the Item Matrix TSV
 - [`to_statistics_tsv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_statistics_tsv.md)
   : Write the pairwise Statistics TSV
+
+## Bundle exports (v2.2.3)
+
+3-sheet xlsx workbook and full Report ZIP bundle matching the webtool’s
+Download Everything button.
+
+- [`to_excel_workbook()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_excel_workbook.md)
+  : Write a 3-sheet Excel workbook matching the webtool's ZIP bundle
+- [`to_zip_report()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_zip_report.md)
+  : Write a Full Report ZIP bundle
 
 ## ggplot2 + broom integration
 

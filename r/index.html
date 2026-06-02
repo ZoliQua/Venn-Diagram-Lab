@@ -179,6 +179,22 @@
 <p><code><a href="reference/to_pdf_report.html">to_pdf_report()</a></code> now closes with the unified <em>About This Report</em> appendix shared across the webtool, the Python package, and this companion: 12 structured sections (intro, Plots, Statistics) followed by a <em>Credits and Cite</em> footer listing authors, package URLs, and the Zenodo DOI. Section titles render in bold, bodies in plain weight, and the content auto-paginates across as many landscape pages as needed.</p>
 </div>
 <div class="section level2">
+<h2 id="v223-additions-phase-10">v2.2.3 additions (Phase 10)<a class="anchor" aria-label="anchor" href="#v223-additions-phase-10"></a>
+</h2>
+<p>Render + PDF + bundle parity with the webtool and Python package:</p>
+<ul>
+<li>
+<code>render_enrichment_bar(result, metric)</code> — Pairwise enrichment bar chart SVG.</li>
+<li>
+<code>render_enrichment_lollipop(result, metric)</code> — Pairwise enrichment lollipop chart SVG.</li>
+<li>
+<code>to_excel_workbook(result, path)</code> — 3-sheet xlsx (Jaccard / Sørensen-Dice / Enrichment).</li>
+<li>
+<code>to_zip_report(result, path)</code> — Full Report ZIP bundle (PDF + SVGs + TSVs + xlsx + README).</li>
+</ul>
+<p><code><a href="reference/to_pdf_report.html">to_pdf_report()</a></code> also gains <code>include_share = TRUE</code> (Item Share Distribution page, on by default) and <code>include_cluster = FALSE</code> (Cluster Heatmap page, opt-in) flags.</p>
+</div>
+<div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <ul>

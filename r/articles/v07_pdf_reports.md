@@ -22,21 +22,10 @@ directory):
 
 out <- tempfile(fileext = ".pdf")
 to_pdf_report(result, path = out, title = "Cancer driver overlap")
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the ComplexUpset package.
-#>   Please report the issue at
-#>   <https://github.com/krassowski/complex-upset/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
-#> Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
-#> for 'Dul Z., Ölbei M., Thomas N.S.B., Si Ammour A., Csikász-Nagy A. (2026).
-#> Venn Diagram Lab —' in 'mbcsToSbcs': - substituted for — (U+2014)
 file.exists(out)
 #> [1] TRUE
 file.size(out)   # bytes
-#> [1] 125558
+#> [1] 438832
 ```
 
 (The chunk above is gated on `R >= 4.6` because the report embeds an

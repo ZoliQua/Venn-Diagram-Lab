@@ -44,14 +44,6 @@ The SVG is plain text — embed it in a notebook with
 ``` r
 
 render_upset(result, sort_by = "size", color_mode = "depth")
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the ComplexUpset package.
-#>   Please report the issue at
-#>   <https://github.com/krassowski/complex-upset/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 ```
 
 ![](v04_upset_vs_venn_vs_network_files/figure-html/upset-1.png)

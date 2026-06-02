@@ -68,11 +68,6 @@ if (getRversion() >= "4.6") {
   p <- render_upset(result)
   inherits(p, "ggplot")
 }
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the ComplexUpset package.
-#>   Please report the issue at
-#>   <https://github.com/krassowski/complex-upset/issues>.
 #> [1] TRUE
 # \donttest{
 if (getRversion() >= "4.6") {

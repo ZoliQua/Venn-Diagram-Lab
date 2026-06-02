@@ -12,7 +12,9 @@ to_pdf_report(
   path,
   title = NULL,
   include_network = TRUE,
-  include_about = TRUE
+  include_about = TRUE,
+  include_share = TRUE,
+  include_cluster = FALSE
 )
 ```
 
@@ -38,6 +40,15 @@ to_pdf_report(
 
   If \`TRUE\` (default), include the methodology page.
 
+- include_share:
+
+  If \`TRUE\` (default), include the Item Share Distribution page.
+
+- include_cluster:
+
+  If \`TRUE\`, include the Cluster Heatmap page (default \`FALSE\` —
+  opt-in like Python's \`cluster_heatmap=True\`).
+
 ## Value
 
 Invisibly returns \`NULL\`. The PDF is written to \`path\`.
@@ -50,6 +61,5 @@ if (getRversion() >= "4.6") {
   result <- analyze(load_sample("dataset_real_cancer_drivers_4"))
   to_pdf_report(result, tempfile(fileext = ".pdf"))
 }
-#> Warning: for 'Dul Z., Ölbei M., Thomas N.S.B., Si Ammour A., Csikász-Nagy A. (2026). Venn Diagram Lab —' in 'mbcsToSbcs': - substituted for — (U+2014)
 # }
 ```

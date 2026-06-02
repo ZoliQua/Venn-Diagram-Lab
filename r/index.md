@@ -155,6 +155,24 @@ footer listing authors, package URLs, and the Zenodo DOI. Section titles
 render in bold, bodies in plain weight, and the content auto-paginates
 across as many landscape pages as needed.
 
+## v2.2.3 additions (Phase 10)
+
+Render + PDF + bundle parity with the webtool and Python package:
+
+- `render_enrichment_bar(result, metric)` — Pairwise enrichment bar
+  chart SVG.
+- `render_enrichment_lollipop(result, metric)` — Pairwise enrichment
+  lollipop chart SVG.
+- `to_excel_workbook(result, path)` — 3-sheet xlsx (Jaccard /
+  Sørensen-Dice / Enrichment).
+- `to_zip_report(result, path)` — Full Report ZIP bundle (PDF + SVGs +
+  TSVs + xlsx + README).
+
+[`to_pdf_report()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_pdf_report.md)
+also gains `include_share = TRUE` (Item Share Distribution page, on by
+default) and `include_cluster = FALSE` (Cluster Heatmap page, opt-in)
+flags.
+
 ## Documentation
 
 - Full reference site + vignettes:
