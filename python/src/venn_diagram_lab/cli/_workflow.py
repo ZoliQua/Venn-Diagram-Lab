@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import typer
-import yaml  # type: ignore[import-untyped]
+import yaml  # type: ignore[import-untyped, unused-ignore]
 
 from venn_diagram_lab.analysis import analyze
 from venn_diagram_lab.cli._common import exit_error, load_input
