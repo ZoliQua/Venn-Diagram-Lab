@@ -65,6 +65,17 @@ webtool and Python package APIs.
 - [`cluster_set_order()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/cluster_set_order.md)
   : Hierarchical clustering on a symmetric distance matrix.
 
+## Region accessors and DSL
+
+- [`exclusive_items()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/exclusive_items.md)
+  : Items exclusive to a specific set combination
+- [`intersection_items()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/intersection_items.md)
+  : Items in the intersection of the named sets
+- [`parse_region_expression()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/parse_region_expression.md)
+  : Parse a Boolean region expression into bitmasks
+- [`union_items()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/union_items.md)
+  : Items in the union of the named sets
+
 ## TSV exports
 
 Byte-equivalent TSV writers for region summaries, item-membership

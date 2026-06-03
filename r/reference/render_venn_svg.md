@@ -16,7 +16,10 @@ render_venn_svg(
   colors = NULL,
   title = NULL,
   show_names = TRUE,
-  show_counts = TRUE
+  show_counts = TRUE,
+  show_items = FALSE,
+  item_options = NULL,
+  highlight = NULL
 )
 ```
 
@@ -55,6 +58,29 @@ render_venn_svg(
 - show_counts:
 
   If \`FALSE\`, blanks every \`Count\_\*\` and \`CountSUM\_\*\` element.
+
+- show_items:
+
+  If \`TRUE\`, replace the per-region count text with the actual item
+  identifiers (rendered as \`\<tspan\>\` lines inside each \`Count\_\*\`
+  text node). Default \`FALSE\`.
+
+- item_options:
+
+  Named list of overrides for the item-text engine. Recognised keys:
+  \`max_items_per_region\` (default 20), \`ncol_items\` (default 1),
+  \`truncate_long_names\` (default 12; 0 disables), \`line_height\`
+  (default 10), \`font_size\` (default 8), \`show_counts_with_items\`
+  (default \`FALSE\`), \`ellipsis\` (default \`"..."\`). Unknown keys
+  raise a warning.
+
+- highlight:
+
+  Character vector of region labels (e.g. \`c("AB", "ABC")\`) or an
+  integer vector of region bitmasks (e.g. the output of
+  \[parse_region_expression()\]). When set, only the listed regions keep
+  their original fill colour; all other set-shapes are desaturated to
+  \`#cccccc\` at 25% opacity. Default \`NULL\` (no spotlight).
 
 ## Value
 

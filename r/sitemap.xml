@@ -28,12 +28,14 @@
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/compute_pairwise.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/dice.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/effective_universe.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/exclusive_items.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/fold_enrichment.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/generate_proportional_svg.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/geom_venn.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/glance.RegionResult.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/hypergeometric_p_value.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/index.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/intersection_items.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/item_share_distribution.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/jaccard.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/list_models.html</loc></url>
@@ -44,6 +46,7 @@
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/load_sample.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/load_tsv.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/overlap_coefficient.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/parse_region_expression.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/render_cluster_heatmap.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/render_enrichment_bar.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/render_enrichment_lollipop.html</loc></url>
@@ -61,6 +64,7 @@
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_region_summary_tsv.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_statistics_tsv.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_zip_report.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/union_items.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/vdl_version.html</loc></url>
 </urlset>
 

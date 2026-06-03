@@ -154,7 +154,7 @@ PDF via the <code>rsvg</code> package (already a hard import of
 <span><span class="va">pdf_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="fu">rsvg</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rsvg/reference/rsvg.html" class="external-link">rsvg_pdf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html" class="external-link">charToRaw</a></span><span class="op">(</span><span class="va">svg</span><span class="op">)</span>, <span class="va">pdf_path</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/file.info.html" class="external-link">file.size</a></span><span class="op">(</span><span class="va">pdf_path</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 31925</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 31926</span></span></code></pre></div>
 <p>For a multi-page composite report (venn + upset + statistics +
 network + about), use <code><a href="../reference/to_pdf_report.html">to_pdf_report()</a></code> — see
 <code><a href="../articles/v07_pdf_reports.html">vignette("v07_pdf_reports")</a></code>.</p>

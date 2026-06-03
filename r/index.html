@@ -52,7 +52,7 @@
 
 <p><code>vennDiagramLab</code> is the R companion to the <a href="https://www.venndiagramlab.org/" class="external-link">Venn Diagram Lab web tool</a> and the <a href="https://pypi.org/project/venn-diagram-lab/" class="external-link">Python <code>venn-diagram-lab</code> package</a>. It provides headless Venn / UpSet / Network diagram analysis and rendering for bioinformaticians and biostatisticians who work natively in R, with byte-equivalent outputs that match the web tool and the Python package down to the byte.</p>
 <div class="section level2">
-<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
+<h2 id="id_1-features">1. Features<a class="anchor" aria-label="anchor" href="#id_1-features"></a>
 </h2>
 <ul>
 <li>
@@ -76,10 +76,10 @@
 </ul>
 </div>
 <div class="section level2">
-<h2 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
+<h2 id="id_2-install">2. Install<a class="anchor" aria-label="anchor" href="#id_2-install"></a>
 </h2>
 <div class="section level3">
-<h3 id="from-cran-recommended">From CRAN (recommended)<a class="anchor" aria-label="anchor" href="#from-cran-recommended"></a>
+<h3 id="id_21-from-cran-recommended">2.1. From CRAN (recommended)<a class="anchor" aria-label="anchor" href="#id_21-from-cran-recommended"></a>
 </h3>
 <p><code>vennDiagramLab</code> is on CRAN as of <strong>2026-05-18</strong> (current version: <strong>2.2.2</strong>):</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -87,7 +87,7 @@
 <p>CRAN binaries are built for the three current major Windows / macOS / Linux R versions. Source-only? <code>install.packages("vennDiagramLab", type = "source")</code>.</p>
 </div>
 <div class="section level3">
-<h3 id="from-bioconductor-alternate-channel-once-published">From Bioconductor (alternate channel once published)<a class="anchor" aria-label="anchor" href="#from-bioconductor-alternate-channel-once-published"></a>
+<h3 id="id_22-from-bioconductor-alternate-channel-once-published">2.2. From Bioconductor (alternate channel once published)<a class="anchor" aria-label="anchor" href="#id_22-from-bioconductor-alternate-channel-once-published"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.github.io/BiocManager/" class="external-link">"BiocManager"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
@@ -95,7 +95,7 @@
 <span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"vennDiagramLab"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="development-version-github">Development version (GitHub)<a class="anchor" aria-label="anchor" href="#development-version-github"></a>
+<h3 id="id_23-development-version-github">2.3. Development version (GitHub)<a class="anchor" aria-label="anchor" href="#id_23-development-version-github"></a>
 </h3>
 <p>The package source lives in the <code>r/</code> subdirectory of the monorepo:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -108,7 +108,7 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="quickstart">Quickstart<a class="anchor" aria-label="anchor" href="#quickstart"></a>
+<h2 id="id_3-quickstart">3. Quickstart<a class="anchor" aria-label="anchor" href="#id_3-quickstart"></a>
 </h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://zoliqua.github.io/Venn-Diagram-Lab/r/">vennDiagramLab</a></span><span class="op">)</span></span>
@@ -129,7 +129,7 @@
 <p>See <code><a href="articles/v01_quickstart.html">vignette("v01_quickstart")</a></code> for the full intro and <code>browseVignettes("vennDiagramLab")</code> for the complete eight-vignette gallery.</p>
 </div>
 <div class="section level2">
-<h2 id="statistics-surfaces-v222">Statistics surfaces (v2.2.2)<a class="anchor" aria-label="anchor" href="#statistics-surfaces-v222"></a>
+<h2 id="id_4-statistics-surfaces">4. Statistics surfaces<a class="anchor" aria-label="anchor" href="#id_4-statistics-surfaces"></a>
 </h2>
 <p>Two additional statistics surfaces complement the pairwise tables, matching the web tool’s Statistics panel and the Python package:</p>
 <table class="table">
@@ -174,14 +174,16 @@
 <p>Both renderers return an <code>SvgImage</code> S4 object (slots: <code>content</code>, <code>width</code>, <code>height</code>), the same shape as <code><a href="reference/render_venn_svg.html">render_venn_svg()</a></code>.</p>
 </div>
 <div class="section level2">
-<h2 id="pdf-report--about--credits-v223">PDF report — About + Credits (v2.2.3)<a class="anchor" aria-label="anchor" href="#pdf-report--about--credits-v223"></a>
+<h2 id="id_5-pdf-report--about--credits">5. PDF report — About + Credits<a class="anchor" aria-label="anchor" href="#id_5-pdf-report--about--credits"></a>
 </h2>
-<p><code><a href="reference/to_pdf_report.html">to_pdf_report()</a></code> now closes with the unified <em>About This Report</em> appendix shared across the webtool, the Python package, and this companion: 12 structured sections (intro, Plots, Statistics) followed by a <em>Credits and Cite</em> footer listing authors, package URLs, and the Zenodo DOI. Section titles render in bold, bodies in plain weight, and the content auto-paginates across as many landscape pages as needed.</p>
+<p><code><a href="reference/to_pdf_report.html">to_pdf_report()</a></code> closes with the unified <em>About This Report</em> appendix shared across the webtool, the Python package, and this companion: 12 structured sections (intro, Plots, Statistics) followed by a <em>Credits and Cite</em> footer listing authors, package URLs, and the Zenodo DOI. Section titles render in bold, bodies in plain weight, and the content auto-paginates across as many landscape pages as needed.</p>
 </div>
 <div class="section level2">
-<h2 id="v223-additions-phase-10">v2.2.3 additions (Phase 10)<a class="anchor" aria-label="anchor" href="#v223-additions-phase-10"></a>
+<h2 id="id_6-latest-additions-v223">6. Latest additions (v2.2.3)<a class="anchor" aria-label="anchor" href="#id_6-latest-additions-v223"></a>
 </h2>
-<p>Render + PDF + bundle parity with the webtool and Python package:</p>
+<div class="section level3">
+<h3 id="id_61-render--pdf--bundle-parity">6.1. Render + PDF + bundle parity<a class="anchor" aria-label="anchor" href="#id_61-render--pdf--bundle-parity"></a>
+</h3>
 <ul>
 <li>
 <code>render_enrichment_bar(result, metric)</code> — Pairwise enrichment bar chart SVG.</li>
@@ -194,8 +196,32 @@
 </ul>
 <p><code><a href="reference/to_pdf_report.html">to_pdf_report()</a></code> also gains <code>include_share = TRUE</code> (Item Share Distribution page, on by default) and <code>include_cluster = FALSE</code> (Cluster Heatmap page, opt-in) flags.</p>
 </div>
+<div class="section level3">
+<h3 id="id_62-item-display-highlight-region-accessors-boolean-dsl">6.2. Item display, Highlight, Region accessors, Boolean DSL<a class="anchor" aria-label="anchor" href="#id_62-item-display-highlight-region-accessors-boolean-dsl"></a>
+</h3>
+<ul>
+<li>
+<code>render_venn_svg(result, show_items = TRUE, item_options = list(...))</code> — Item names inside regions, with truncation and column layout.</li>
+<li>
+<code>render_venn_svg(result, highlight = c("AB", "ABC"))</code> — Spotlight mode; desaturates sets that do not contribute to any highlighted region.</li>
+<li>
+<code>intersection_items(result, sets)</code> — Items in every named set.</li>
+<li>
+<code>exclusive_items(result, sets)</code> — Items in exactly this combination.</li>
+<li>
+<code>union_items(result, sets)</code> — Items in any of the named sets.</li>
+<li>
+<code>parse_region_expression(expr, n_sets)</code> — Boolean DSL parser returning a sorted integer vector of region bitmasks; composes with <code>highlight = ...</code>.</li>
+</ul>
+<p>The four new helpers chain naturally:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">masks</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/parse_region_expression.html">parse_region_expression</a></span><span class="op">(</span><span class="st">"A &amp; B + B &amp; C"</span>, n_sets <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span></span>
+<span><span class="va">img</span>   <span class="op">&lt;-</span> <span class="fu"><a href="reference/render_venn_svg.html">render_venn_svg</a></span><span class="op">(</span><span class="va">result</span>, highlight <span class="op">=</span> <span class="va">masks</span>, show_items <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">items</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/exclusive_items.html">exclusive_items</a></span><span class="op">(</span><span class="va">result</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
 <div class="section level2">
-<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+<h2 id="id_7-documentation">7. Documentation<a class="anchor" aria-label="anchor" href="#id_7-documentation"></a>
 </h2>
 <ul>
 <li>Full reference site + vignettes: <a href="https://zoliqua.github.io/Venn-Diagram-Lab/r/" class="uri">https://zoliqua.github.io/Venn-Diagram-Lab/r/</a>
@@ -223,7 +249,7 @@
 </ul>
 </div>
 <div class="section level2">
-<h2 id="related-projects">Related projects<a class="anchor" aria-label="anchor" href="#related-projects"></a>
+<h2 id="id_8-related-projects">8. Related projects<a class="anchor" aria-label="anchor" href="#id_8-related-projects"></a>
 </h2>
 <p><code>vennDiagramLab</code> is one of three coordinated implementations sharing the same SVG model library, statistics, and byte-equivalent TSV outputs:</p>
 <ul>
@@ -237,7 +263,7 @@
 <strong>R package</strong> (this package — <code>vennDiagramLab</code> on CRAN + Bioconductor)</li>
 </ul>
 <div class="section level3">
-<h3 id="source-repositories">Source repositories<a class="anchor" aria-label="anchor" href="#source-repositories"></a>
+<h3 id="id_9-source-repositories">9. Source repositories<a class="anchor" aria-label="anchor" href="#id_9-source-repositories"></a>
 </h3>
 <ul>
 <li>
@@ -251,15 +277,15 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+<h2 id="id_9-citation">9. Citation<a class="anchor" aria-label="anchor" href="#id_9-citation"></a>
 </h2>
 <p>If you use <code>vennDiagramLab</code> in published work, please cite both the software and the version you used.</p>
 <p>After install:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"vennDiagramLab"</span><span class="op">)</span></span></code></pre></div>
 <p>returns a <code>bibentry</code> with the correct version + DOI for the installed copy.</p>
 <div class="section level3">
-<h3 id="dois">DOIs<a class="anchor" aria-label="anchor" href="#dois"></a>
+<h3 id="id_101-dois">10.1. DOIs<a class="anchor" aria-label="anchor" href="#id_101-dois"></a>
 </h3>
 <p>Two stable identifiers are available — pick whichever fits your reference style:</p>
 <table class="table">
@@ -290,7 +316,7 @@
 </table>
 </div>
 <div class="section level3">
-<h3 id="plain-text-citation">Plain-text citation<a class="anchor" aria-label="anchor" href="#plain-text-citation"></a>
+<h3 id="id_102-plain-text-citation">10.2. Plain-text citation<a class="anchor" aria-label="anchor" href="#id_102-plain-text-citation"></a>
 </h3>
 <pre><code>Dul Z., Ölbei M., Thomas N.S.B., Si Ammour A., Csikász-Nagy A. (2026).
 vennDiagramLab: Headless Venn diagram analysis and rendering.
@@ -300,7 +326,7 @@ DOI: 10.32614/CRAN.package.vennDiagramLab</code></pre>
 </div>
 </div>
 <div class="section level2">
-<h2 id="contributing--bug-reports">Contributing + bug reports<a class="anchor" aria-label="anchor" href="#contributing--bug-reports"></a>
+<h2 id="id_10-contributing--bug-reports">10. Contributing + bug reports<a class="anchor" aria-label="anchor" href="#id_10-contributing--bug-reports"></a>
 </h2>
 <ul>
 <li>Issues: <a href="https://github.com/ZoliQua/Venn-Diagram-Lab/issues" class="external-link uri">https://github.com/ZoliQua/Venn-Diagram-Lab/issues</a>
@@ -309,7 +335,7 @@ DOI: 10.32614/CRAN.package.vennDiagramLab</code></pre>
 </ul>
 </div>
 <div class="section level2">
-<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+<h2 id="id_11-license">11. License<a class="anchor" aria-label="anchor" href="#id_11-license"></a>
 </h2>
 <p>MIT — see <a href="LICENSE">LICENSE</a>.</p>
 </div>
@@ -358,7 +384,7 @@ DOI: 10.32614/CRAN.package.vennDiagramLab</code></pre>
 <li><a href="https://github.com/ZoliQua/Venn-Diagram-Lab/actions/workflows/r-cmd-check.yml" class="external-link"><img src="https://github.com/ZoliQua/Venn-Diagram-Lab/actions/workflows/r-cmd-check.yml/badge.svg" alt="R CMD check"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
 <li><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a></li>
-<li><a href="https://doi.org/10.5281/zenodo.19510813" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19510813.svg" alt="DOI (Zenodo concept)"></a></li>
+<li><a href="https://doi.org/10.5281/zenodo.19510813" class="external-link"><img src="http://www.venndiagramlab.org/zenodo.19510813.svg" alt="DOI (Zenodo concept)"></a></li>
 <li><a href="https://doi.org/10.32614/CRAN.package.vennDiagramLab" class="external-link"><img src="https://img.shields.io/badge/DOI-10.32614%2FCRAN.package.vennDiagramLab-1F4288.svg" alt="DOI (CRAN)"></a></li>
 </ul>
 </div>
