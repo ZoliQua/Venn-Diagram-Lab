@@ -382,6 +382,7 @@ class RegionResult:
         title: str | None = None,
         include_network: bool = True,
         include_about: bool = True,
+        cluster_heatmap: bool = False,
     ) -> None:
         """Write a multi-page PDF report to disk.
 
@@ -394,6 +395,7 @@ class RegionResult:
             title=title,
             include_network=include_network,
             include_about=include_about,
+            cluster_heatmap=cluster_heatmap,
         )
 
     def to_region_summary_tsv(self, path: PathInput) -> None:

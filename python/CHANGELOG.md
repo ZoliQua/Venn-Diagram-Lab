@@ -7,7 +7,7 @@ summarises the Python-only changes.
 
 [root]: https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/CHANGELOG.md
 
-## v2.2.3 — 2026-05-31 — Enrichment bar + lollipop + data lookup
+## v2.2.3 — 2026-05-31 — Enrichment bar + lollipop + data lookup + PDF/ZIP report parity
 
 - New `render_enrichment_bar_svg(result, metric=...)` and
   `render_enrichment_lollipop_svg(result, metric=...)` — close the 3-card
@@ -21,8 +21,20 @@ summarises the Python-only changes.
 - New `vdl data lookup <INPUT> <ITEM>` — script-friendly equivalent of the
   webtool's Find Item global search; prints every region containing the
   item with its set composition and exclusive-item count.
-- Tests +8 (`tests/test_cli_render.py`, `tests/test_cli_data.py`); ruff +
-  mypy clean; full suite 455 passing.
+- **PDF report:** new **Item Share Distribution** page (histogram + per-bin
+  table + explanation), always present between the Statistics tables and
+  the Network page — mirrors the webtool's v2.2.2 PDF addition.
+- **PDF report:** new opt-in `cluster_heatmap=True` parameter on
+  `render_pdf_report` / `RegionResult.to_pdf_report` (CLI: `vdl report pdf
+  --cluster-heatmap`). Appends the cluster-ordered Jaccard heatmap page,
+  mirroring the webtool's `axisOrder=cluster` toggle.
+- **ZIP bundle:** now ships `enrichment_statistics_{n}-sets.xlsx` (3-sheet
+  Excel workbook: Jaccard / Sørensen-Dice / Enrichment, via the new
+  `venn_diagram_lab.report.to_excel_workbook`) and a `README.txt` carrying
+  provenance + the full *About This Report* methodology text.
+- Direct dep `openpyxl >= 3.1` added (previously transitive via pandas).
+- Tests +13 (`tests/test_cli_render.py`, `tests/test_cli_data.py`,
+  `tests/test_cli_report.py`); ruff + mypy clean; full suite 460 passing.
 
 ## v2.2.2 — 2026-05-31 — Item Share Distribution + Cluster Heatmap
 

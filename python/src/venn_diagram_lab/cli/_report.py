@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated
 
 import typer
 
-from venn_diagram_lab.analysis import analyze
+from venn_diagram_lab.analysis import RegionResult, analyze
 from venn_diagram_lab.cli._common import (
     AlphabeticalGroup,
     examples_epilog,
@@ -25,6 +26,8 @@ from venn_diagram_lab.render.svg import (
     render_venn_svg,
 )
 from venn_diagram_lab.render.upset import render_upset
+from venn_diagram_lab.report.excel import to_excel_workbook
+from venn_diagram_lab.version import __version__
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -59,14 +62,25 @@ def cmd_pdf(
     ] = False,
     out: Annotated[Path | None, typer.Option("--out", "-o")] = None,
     model: Annotated[str, typer.Option()] = "auto",
+    cluster_heatmap: Annotated[
+        bool,
+        typer.Option(
+            "--cluster-heatmap",
+            help=(
+                "Append a cluster-ordered Jaccard heatmap page "
+                "(mirrors the webtool's *Cluster* axis-order toggle)."
+            ),
+        ),
+    ] = False,
 ) -> None:
     """Write the multi-page PDF report (mirrors the webtool's Report PDF).
 
     Generates the canonical multi-page report: cover page with data
     overview + set-size pie chart, Venn + UpSet plots, statistics
-    tables (Jaccard / Dice / Enrichment with FDR colouring), Network
-    page with significant edges, and a methodology page. The PDF
-    layout matches the webtool's "Generate Report" output.
+    tables (Jaccard / Dice / Enrichment with FDR colouring), Item
+    Share Distribution histogram, Network page with significant edges,
+    and a methodology page. Pass ``--cluster-heatmap`` to additionally
+    append the cluster-ordered Jaccard heatmap page.
     """
     resolved = resolve_sample_or_input(input, sample)
     try:
@@ -76,7 +90,7 @@ def cmd_pdf(
         exit_error(str(e))
     target = resolve_out(out, resolved, "report", "pdf")
     target.parent.mkdir(parents=True, exist_ok=True)
-    result.to_pdf_report(target)
+    result.to_pdf_report(target, cluster_heatmap=cluster_heatmap)
     typer.echo(f"Wrote {target}")
 
 
@@ -121,6 +135,8 @@ def cmd_zip(
         exit_error(str(e))
     target = resolve_out(out, resolved, "report", "zip")
     target.parent.mkdir(parents=True, exist_ok=True)
+    n_sets = len(result.dataset.set_names)
+    xlsx_name = f"enrichment_statistics_{n_sets}-sets.xlsx"
     with TemporaryDirectory() as td:
         tdp = Path(td)
         # SVGs
@@ -132,10 +148,50 @@ def cmd_zip(
         result.to_region_summary_tsv(tdp / "regions_summary.tsv")
         result.to_matrix_tsv(tdp / "items_matrix.tsv")
         result.to_statistics_tsv(tdp / "statistics.tsv")
+        # Excel workbook (3 sheets: Jaccard / Sørensen-Dice / Enrichment).
+        to_excel_workbook(result, tdp / xlsx_name)
         # PDF
         result.to_pdf_report(tdp / "report.pdf")
+        # README.txt — provenance + About This Report methodology body.
+        (tdp / "README.txt").write_text(
+            _build_readme_text(resolved, result, xlsx_name),
+            encoding="utf-8",
+        )
         # Bundle
         with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as zf:
             for f in sorted(tdp.iterdir()):
                 zf.write(f, arcname=f.name)
     typer.echo(f"Wrote {target}")
+
+
+def _build_readme_text(
+    resolved: str, result: RegionResult, xlsx_name: str,
+) -> str:
+    """Compose the ZIP bundle's README.txt body.
+
+    Header carries provenance (ISO timestamp, tool version, dataset, model);
+    body reuses ``_ABOUT_TEXT`` from :mod:`venn_diagram_lab.render.pdf` so
+    the methodology text stays single-sourced with the PDF appendix.
+    """
+    from venn_diagram_lab.render.pdf import _ABOUT_TEXT  # noqa: PLC0415
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    header = (
+        f"Venn Diagram Lab — Full Report (ZIP)\n\n"
+        f"Generated: {timestamp}\n"
+        f"Tool version: venn-diagram-lab {__version__}\n"
+        f"Dataset: {resolved}\n"
+        f"Model: {result.model}\n\n"
+        f"Files in this bundle:\n"
+        f"  venn.svg                            Multi-set Venn diagram\n"
+        f"  upset.svg                           UpSet plot\n"
+        f"  network.svg                         Set-relationship network\n"
+        f"  share-dist.svg                      Item Share Distribution histogram\n"
+        f"  regions_summary.tsv                 Per-region exclusive + inclusive counts\n"
+        f"  items_matrix.tsv                    Binary item x set matrix\n"
+        f"  statistics.tsv                      Pairwise statistics\n"
+        f"  {xlsx_name:35s} Excel workbook: Jaccard / Sørensen-Dice / Enrichment\n"
+        f"  report.pdf                          Multi-page PDF report\n"
+        f"  README.txt                          This file\n\n"
+    )
+    return header + _ABOUT_TEXT

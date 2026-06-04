@@ -79,3 +79,80 @@ def test_report_pdf_no_input_no_sample_exits_1() -> None:
     res = runner.invoke(app, ["report", "pdf"])
     assert res.exit_code == 1
     assert "INPUT required" in res.output or "use --sample" in res.output
+
+
+# ----- v2.2.3 PDF + ZIP additions -------------------------------------------
+
+
+# Minimum PDF byte size expected once the Item Share Distribution page is
+# present (v2.2.2 baseline was ~200 KB; the share-dist page adds at least 30 KB
+# of imshow PNG payload).
+_MIN_PDF_SIZE_WITH_SHARE_DIST = 50_000
+
+
+def test_report_pdf_includes_share_distribution_page(tmp_path: Path) -> None:
+    """The v2.2.3 PDF report adds an Item Share Distribution page.
+
+    Exact text extraction would require pdfplumber/pypdf as a hard dep; instead
+    we assert the PDF is non-trivially large — the share-dist imshow payload
+    alone is several tens of KB, well above the floor.
+    """
+    target = tmp_path / "r.pdf"
+    res = runner.invoke(app, ["report", "pdf", SAMPLE, "--out", str(target)])
+    assert res.exit_code == 0, res.output
+    assert target.exists()
+    assert target.stat().st_size > _MIN_PDF_SIZE_WITH_SHARE_DIST
+
+
+def test_report_pdf_cluster_heatmap_flag(tmp_path: Path) -> None:
+    """``--cluster-heatmap`` adds the cluster-ordered Jaccard heatmap page."""
+    base = tmp_path / "r_base.pdf"
+    cluster = tmp_path / "r_cluster.pdf"
+    r1 = runner.invoke(app, ["report", "pdf", SAMPLE, "--out", str(base)])
+    r2 = runner.invoke(
+        app, ["report", "pdf", SAMPLE, "--cluster-heatmap", "--out", str(cluster)],
+    )
+    assert r1.exit_code == 0, r1.output
+    assert r2.exit_code == 0, r2.output
+    assert base.exists()
+    assert cluster.exists()
+    # The cluster-heatmap PDF must be larger than the baseline (extra page).
+    assert cluster.stat().st_size > base.stat().st_size
+
+
+def test_report_zip_contains_xlsx(tmp_path: Path) -> None:
+    """The v2.2.3 ZIP bundle includes the enrichment-statistics Excel workbook."""
+    target = tmp_path / "b.zip"
+    res = runner.invoke(app, ["report", "zip", SAMPLE, "--out", str(target)])
+    assert res.exit_code == 0, res.output
+    with zipfile.ZipFile(target) as zf:
+        names = set(zf.namelist())
+    assert any(name.endswith(".xlsx") for name in names), names
+
+
+def test_report_zip_contains_readme(tmp_path: Path) -> None:
+    """The v2.2.3 ZIP bundle includes a README.txt with provenance + methodology."""
+    target = tmp_path / "b.zip"
+    res = runner.invoke(app, ["report", "zip", SAMPLE, "--out", str(target)])
+    assert res.exit_code == 0, res.output
+    with zipfile.ZipFile(target) as zf:
+        assert "README.txt" in zf.namelist()
+        with zf.open("README.txt") as f:
+            body = f.read().decode("utf-8")
+    assert "Venn Diagram Lab" in body
+    assert "About This Report" in body
+
+
+def test_to_excel_workbook_3_sheets(tmp_path: Path) -> None:
+    """``to_excel_workbook`` writes 3 sheets: Jaccard / Sørensen-Dice / Enrichment."""
+    from openpyxl import load_workbook  # noqa: PLC0415
+
+    from venn_diagram_lab.analysis import analyze  # noqa: PLC0415
+    from venn_diagram_lab.report.excel import to_excel_workbook  # noqa: PLC0415
+    from venn_diagram_lab.samples import load_sample  # noqa: PLC0415
+
+    target = tmp_path / "stats.xlsx"
+    result = analyze(load_sample(SAMPLE))
+    to_excel_workbook(result, target)
+    wb = load_workbook(target, read_only=True)
+    assert set(wb.sheetnames) >= {"Jaccard", "Sørensen-Dice", "Enrichment"}

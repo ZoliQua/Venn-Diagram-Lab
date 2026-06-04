@@ -165,6 +165,27 @@ vdl render bar --sample
 vdl render lollipop --sample --metric foldEnrichment
 ```
 
+### PDF + ZIP report enhancements (v2.2.3)
+
+The `to_pdf_report` PDF now includes a dedicated Item Share Distribution
+page (matching the webtool's v2.2.2 PDF). Cluster-mode heatmap can be
+requested explicitly:
+
+```python
+result.to_pdf_report("report.pdf", cluster_heatmap=True)
+```
+
+```bash
+# or via CLI:
+vdl report pdf --sample --cluster-heatmap
+```
+
+The `vdl report zip` bundle now also includes an
+`enrichment_statistics_{n}-sets.xlsx` Excel workbook (3 sheets: Jaccard,
+Sørensen-Dice, Intersection Enrichment) and a `README.txt` with
+provenance + the full *About This Report* methodology text — closing
+the parity gap with the webtool's *Download Everything* button.
+
 ## Export to TSV (matches the web tool byte-for-byte)
 
 ```python
@@ -235,8 +256,8 @@ the same `RegionResult` writer methods as the Python API.
 
 | Command | Purpose |
 |---|---|
-| `vdl report pdf <input> --out R.pdf` | Multi-page PDF report (mirrors the web tool's *Report PDF*). |
-| `vdl report zip <input> --out R.zip` | Full bundle ZIP (4 SVGs + 3 TSVs + 1 PDF). |
+| `vdl report pdf <input> [--cluster-heatmap] --out R.pdf` | Multi-page PDF report (mirrors the web tool's *Report PDF*). `--cluster-heatmap` appends the cluster-ordered Jaccard heatmap page. |
+| `vdl report zip <input> --out R.zip` | Full bundle ZIP (4 SVGs + 3 TSVs + 1 XLSX + 1 PDF + README.txt). |
 
 ### `vdl data` — data operations
 

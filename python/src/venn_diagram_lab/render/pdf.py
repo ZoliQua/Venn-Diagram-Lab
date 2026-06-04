@@ -461,6 +461,142 @@ def _build_network_page(result: RegionResult) -> Figure:
     return fig
 
 
+# ---------------------------------------------------------------------------
+# Item Share Distribution page (v2.2.3 — matches webtool's v2.2.2 PDF page)
+# ---------------------------------------------------------------------------
+
+# Layout: histogram image (left ~60%) + per-bin breakdown table (right ~38%);
+# explanatory paragraph occupies the bottom band.
+_SHARE_IMG_RECT = (0.04, 0.30, 0.55, 0.60)
+_SHARE_TABLE_RECT = (0.62, 0.30, 0.34, 0.60)
+_SHARE_TEXT_RECT = (0.05, 0.05, 0.90, 0.20)
+
+_SHARE_EXPLAIN_TEXT = (
+    "Item Share Distribution\n\n"
+    "Counts how many items are shared by exactly k sets, for k = 1..N. "
+    "The leftmost bar (k = 1) is the number of items unique to a single set; "
+    "the rightmost bar (k = N) is the number of items shared by every set. "
+    "Tall left bars indicate set-specific signal; tall right bars indicate a "
+    "core shared by all sets. Bars use a tier-coloured gradient from "
+    "low (orange) to high (purple) membership."
+)
+
+
+def _build_share_distribution_page(result: RegionResult) -> Figure:
+    """Page: Item Share Distribution histogram + per-bin breakdown table.
+
+    Mirrors the webtool's v2.2.2 PDF "Item Share Distribution" page: the
+    SVG histogram (rendered via :func:`render_share_distribution_svg` and
+    rasterised through cairosvg) sits on the left; a per-bin breakdown
+    table sits on the right; an explanatory paragraph runs along the
+    bottom.
+    """
+    from venn_diagram_lab.render.svg import (  # noqa: PLC0415
+        render_share_distribution_svg,
+    )
+    from venn_diagram_lab.share_distribution import (  # noqa: PLC0415
+        item_share_distribution,
+    )
+
+    fig = plt.figure(figsize=(_PAGE_WIDTH, _PAGE_HEIGHT))
+    fig.suptitle("Item Share Distribution", fontsize=15, fontweight="bold", y=0.97)
+
+    # Histogram (SVG → PNG → imshow).
+    sd_img = render_share_distribution_svg(result.dataset)
+    sd_png = _svg_string_to_png_bytes(sd_img.svg, dpi=_DPI)
+    sd_arr = mpimg.imread(io.BytesIO(sd_png), format="png")
+    ax_img = fig.add_axes(_SHARE_IMG_RECT)
+    ax_img.imshow(sd_arr)
+    ax_img.set_axis_off()
+
+    # Per-bin breakdown table.
+    n = len(result.dataset.set_names)
+    # Build the binary matrix the same way render_share_distribution_svg does.
+    from venn_diagram_lab.render.svg import _dataset_to_binary_matrix  # noqa: PLC0415
+
+    matrix = _dataset_to_binary_matrix(result.dataset)
+    dist = item_share_distribution(matrix)
+    total_items = sum(dist.values())
+
+    table_rows = []
+    for k in range(1, n + 1):
+        count = dist.get(k, 0)
+        pct = f"{(count / total_items * 100):.1f}%" if total_items > 0 else "0.0%"
+        label = "1 set" if k == 1 else f"{k} sets"
+        table_rows.append([label, str(count), pct])
+
+    ax_table = fig.add_axes(_SHARE_TABLE_RECT)
+    ax_table.set_axis_off()
+    ax_table.text(0.0, 1.05, "Per-bin breakdown",
+                  fontsize=11, fontweight="bold", color=(0.08, 0.08, 0.24),
+                  transform=ax_table.transAxes)
+    ax_table.plot([0.0, 1.0], [1.04, 1.04], transform=ax_table.transAxes,
+                  color="#cccccc", linewidth=0.5)
+    headers = ["Membership", "Items", "%"]
+    table = ax_table.table(
+        cellText=table_rows, colLabels=headers,
+        loc="upper left", cellLoc="left",
+        colWidths=[0.45, 0.30, 0.25],
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(9)
+    table.scale(1.0, 1.4)
+    for col_idx in range(len(headers)):
+        header_cell = table[0, col_idx]
+        header_cell.set_text_props(fontweight="bold")
+        header_cell.set_facecolor("#dddddd")
+    for row_idx in range(1, len(table_rows) + 1):
+        for col_idx in (1, 2):
+            table[row_idx, col_idx].set_text_props(ha="right")
+
+    # Bottom explanatory paragraph.
+    ax_text = fig.add_axes(_SHARE_TEXT_RECT)
+    ax_text.set_axis_off()
+    ax_text.text(
+        0.0, 1.0, _SHARE_EXPLAIN_TEXT,
+        fontsize=9, va="top", wrap=True, color="#333333",
+        transform=ax_text.transAxes,
+    )
+
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Cluster heatmap page (v2.2.3 — opt-in via render_pdf_report(cluster_heatmap=True))
+# ---------------------------------------------------------------------------
+
+_HEATMAP_RECT = (0.10, 0.10, 0.80, 0.78)
+
+
+def _build_cluster_heatmap_page(result: RegionResult) -> Figure:
+    """Page: cluster-ordered Jaccard similarity heatmap with L-shaped dendrograms.
+
+    Opt-in via ``render_pdf_report(result, ..., cluster_heatmap=True)`` (or
+    ``--cluster-heatmap`` on the CLI). Renders the cluster-aware
+    Jaccard heatmap from :func:`render_cluster_heatmap_svg` (average
+    linkage) and rasterises it through cairosvg, mirroring the webtool's
+    "Cluster mode" axis-order toggle on the PDF report.
+    """
+    from venn_diagram_lab.render.svg import (  # noqa: PLC0415
+        render_cluster_heatmap_svg,
+    )
+
+    fig = plt.figure(figsize=(_PAGE_WIDTH, _PAGE_HEIGHT))
+    fig.suptitle(
+        "Clustered Jaccard Similarity Heatmap",
+        fontsize=15, fontweight="bold", y=0.97,
+    )
+
+    hm_img = render_cluster_heatmap_svg(result, linkage="average")
+    hm_png = _svg_string_to_png_bytes(hm_img.svg, dpi=_DPI)
+    hm_arr = mpimg.imread(io.BytesIO(hm_png), format="png")
+
+    ax = fig.add_axes(_HEATMAP_RECT)
+    ax.imshow(hm_arr)
+    ax.set_axis_off()
+    return fig
+
+
 _ABOUT_TEXT = """About This Report
 
 Venn diagrams visualise the membership of items across multiple sets. This report
@@ -791,6 +927,7 @@ def render_pdf_report(
     title: str | None = None,
     include_network: bool = True,
     include_about: bool = True,
+    cluster_heatmap: bool = False,
 ) -> None:
     """Compose all pages into a multi-page PDF report.
 
@@ -798,6 +935,8 @@ def render_pdf_report(
     - Page 1: dataset overview — pie chart + set-size table.
     - Page 2: Venn diagram (left) + UpSet plot (right).
     - Page 3+: pairwise statistics (Jaccard, Dice, Hypergeometric+BH-FDR).
+    - Page n-2: Item Share Distribution histogram + per-bin breakdown.
+    - Optional: cluster-ordered Jaccard heatmap (when ``cluster_heatmap=True``).
     - Optional: set-relationship network page.
     - Optional: methodology / About page.
 
@@ -808,6 +947,10 @@ def render_pdf_report(
     title : optional override for the page-1 title
     include_network : if False, skip the network page
     include_about : if False, skip the methodology page
+    cluster_heatmap : if True, append a cluster-ordered Jaccard heatmap page
+        (mirrors the webtool's *Cluster* axis-order toggle on the PDF report);
+        defaults to ``False`` to preserve byte-stable output for callers that
+        rely on the original page count.
 
     Returns
     -------
@@ -823,6 +966,9 @@ def render_pdf_report(
     pages.append(_build_overview_page(result, title=title))
     pages.append(_build_venn_upset_page(result))
     pages.extend(_build_statistics_pages(result))
+    pages.append(_build_share_distribution_page(result))
+    if cluster_heatmap and len(result.dataset.set_names) >= _MIN_SETS_FOR_STATS:
+        pages.append(_build_cluster_heatmap_page(result))
     if include_network:
         pages.append(_build_network_page(result))
     if include_about:

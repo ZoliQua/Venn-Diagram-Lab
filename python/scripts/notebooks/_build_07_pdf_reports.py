@@ -101,6 +101,28 @@ _STANDALONE_CODE = (
     "print('render_pdf_report() is identical to result.to_pdf_report()')"
 )
 
+_V223_MD = (
+    "## v2.2.3 additions: share distribution + cluster heatmap\n\n"
+    "Two PDF additions land in v2.2.3 to close the webtool parity gap:\n\n"
+    "1. **Item Share Distribution page** -- always present. Adds the\n"
+    "   histogram (items shared by exactly k sets, for k=1..N) plus a\n"
+    "   per-bin breakdown table. Sits between the Statistics tables and\n"
+    "   the Network page.\n"
+    "2. **Cluster-mode heatmap** -- opt-in via `cluster_heatmap=True`.\n"
+    "   Appends a cluster-ordered Jaccard similarity heatmap (UPGMA\n"
+    "   average linkage by default) with L-shaped dendrograms,\n"
+    "   mirroring the webtool's `axisOrder=cluster` toggle on the PDF.\n"
+)
+
+_V223_CODE = (
+    "result.to_pdf_report('/tmp/r_cluster.pdf', cluster_heatmap=True)\n\n"
+    "default_kb = Path('/tmp/cancer_drivers.pdf').stat().st_size / 1024\n"
+    "cluster_kb = Path('/tmp/r_cluster.pdf').stat().st_size / 1024\n"
+    "print(f'Default report   : {default_kb:.1f} KB')\n"
+    "print(f'+ cluster heatmap : {cluster_kb:.1f} KB')\n"
+    "print(f'Extra page adds   : {cluster_kb - default_kb:.1f} KB')"
+)
+
 _NEXT_STEPS_MD = (
     "## Next steps\n\n"
     "- [`08_custom_styling_and_export.ipynb`](08_custom_styling_and_export.ipynb)"
@@ -134,7 +156,11 @@ CELLS = [
     ("md", _STANDALONE_MD),
     # 11. render_pdf_report() standalone call
     ("code", _STANDALONE_CODE),
-    # 12. Next steps
+    # 12. v2.2.3 section header + explanation
+    ("md", _V223_MD),
+    # 13. cluster-heatmap demo
+    ("code", _V223_CODE),
+    # 14. Next steps
     ("md", _NEXT_STEPS_MD),
 ]
 
