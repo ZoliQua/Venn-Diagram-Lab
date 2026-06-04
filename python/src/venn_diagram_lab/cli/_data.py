@@ -9,7 +9,13 @@ from typing import Annotated, Any
 import typer
 
 from venn_diagram_lab.analysis import analyze, list_models
-from venn_diagram_lab.cli._common import exit_error, load_input
+from venn_diagram_lab.cli._common import (
+    AlphabeticalGroup,
+    examples_epilog,
+    exit_error,
+    load_input,
+    resolve_sample_or_input,
+)
 from venn_diagram_lab.errors import VennDiagramError
 from venn_diagram_lab.samples import list_samples
 
@@ -17,6 +23,7 @@ app = typer.Typer(
     no_args_is_help=True,
     rich_markup_mode="rich",
     help="Data operations (validate, describe, convert, fit-model, samples).",
+    cls=AlphabeticalGroup,
 )
 
 # Thresholds for fit-model recommendations.
@@ -35,10 +42,29 @@ def _items_total(ds: Any) -> int:
     return len(seen)
 
 
-@app.command("validate")
+@app.command(
+    "validate",
+    epilog=examples_epilog(
+        "  vdl data validate --sample                                             # demo run",
+        "  vdl data validate dataset_real_cancer_drivers_4 --text",
+        "  vdl data validate data/my.tsv --strict",
+    ),
+)
 def cmd_validate(  # noqa: PLR0912 - flat validation pipeline reads better than nested helpers
-    input: Annotated[str, typer.Argument()],
+    input: Annotated[
+        str | None,
+        typer.Argument(
+            help="Dataset path or bundled sample name. Optional when --sample is given.",
+        ),
+    ] = None,
     *,
+    sample: Annotated[
+        bool,
+        typer.Option(
+            "--sample",
+            help="Run with the bundled cancer-drivers sample (overrides INPUT default).",
+        ),
+    ] = False,
     text: Annotated[
         bool, typer.Option("--text", help="Human-readable output instead of JSON")
     ] = False,
@@ -46,9 +72,17 @@ def cmd_validate(  # noqa: PLR0912 - flat validation pipeline reads better than 
         bool, typer.Option("--strict", help="Promote warnings to errors")
     ] = False,
 ) -> None:
-    """Validate a dataset's schema and contents (JSON output by default)."""
+    """Validate a dataset's schema and contents.
+
+    Loads the file, checks the schema (set names present, items
+    parseable, no impossible cardinalities), and reports findings as
+    structured JSON by default or human-readable text with `--text`.
+    With `--strict`, warnings are promoted to errors so the command
+    exits non-zero in CI pipelines.
+    """
+    resolved = resolve_sample_or_input(input, sample)
     doc: dict[str, Any] = {
-        "input": input,
+        "input": resolved,
         "sets": [],
         "item_count": 0,
         "errors": [],
@@ -57,10 +91,10 @@ def cmd_validate(  # noqa: PLR0912 - flat validation pipeline reads better than 
         "exit_code": 0,
     }
     try:
-        ds = load_input(input)
+        ds = load_input(resolved)
     except (VennDiagramError, OSError, typer.Exit):
         doc["errors"].append(
-            {"kind": "load-failed", "message": f"Could not load {input}"}
+            {"kind": "load-failed", "message": f"Could not load {resolved}"}
         )
         doc["exit_code"] = 1
     else:
@@ -98,15 +132,41 @@ def cmd_validate(  # noqa: PLR0912 - flat validation pipeline reads better than 
         raise typer.Exit(code=doc["exit_code"])
 
 
-@app.command("describe")
+@app.command(
+    "describe",
+    epilog=examples_epilog(
+        "  vdl data describe --sample                                             # demo run",
+        "  vdl data describe dataset_real_cancer_drivers_4",
+        "  vdl data describe data/my.tsv --model proportional",
+    ),
+)
 def cmd_describe(
-    input: Annotated[str, typer.Argument()],
+    input: Annotated[
+        str | None,
+        typer.Argument(
+            help="Dataset path or bundled sample name. Optional when --sample is given.",
+        ),
+    ] = None,
     *,
+    sample: Annotated[
+        bool,
+        typer.Option(
+            "--sample",
+            help="Run with the bundled cancer-drivers sample (overrides INPUT default).",
+        ),
+    ] = False,
     model: Annotated[str, typer.Option()] = "auto",
 ) -> None:
-    """Print a quick summary (set sizes, top regions, model)."""
+    """Print a quick text summary of the dataset.
+
+    Loads the data, runs `analyze()` with the chosen model, and prints
+    set names, total item count (universe size), the resolved model,
+    and the top 5 regions by exclusive-item count. Use this as a fast
+    sanity check before kicking off a full report.
+    """
+    resolved = resolve_sample_or_input(input, sample)
     try:
-        ds = load_input(input)
+        ds = load_input(resolved)
         result = analyze(ds, model=model)
     except (VennDiagramError, OSError) as e:
         exit_error(str(e))
@@ -124,14 +184,27 @@ def cmd_describe(
         typer.echo(f"  {r.label:10s}  {r.exclusive_count}")
 
 
-@app.command("convert")
+@app.command(
+    "convert",
+    epilog=examples_epilog(
+        "  vdl data convert data/in.tsv data/out.csv",
+        "  vdl data convert data/in.csv data/out.tsv",
+        "  # no --sample: this command takes two explicit file paths.",
+    ),
+)
 def cmd_convert(
     input: Annotated[Path, typer.Argument(help="Input file path")],
     output: Annotated[
         Path, typer.Argument(help="Output file path; format from extension")
     ],
 ) -> None:
-    """Convert between TSV and CSV formats."""
+    """Convert between TSV and CSV formats.
+
+    Reads `input`, swaps the field separator based on its extension
+    (`.tsv` <-> `.csv`), and writes the result to `output`. This is a
+    pure delimiter swap with no schema reinterpretation. GMT and GMX
+    support is planned for a follow-up release.
+    """
     if not input.is_file():
         exit_error(f"input file not found: {input}")
     in_ext = input.suffix.lstrip(".").lower()
@@ -152,11 +225,41 @@ def cmd_convert(
     typer.echo(f"Wrote {output}")
 
 
-@app.command("fit-model")
-def cmd_fit_model(input: Annotated[str, typer.Argument()]) -> None:
-    """Recommend a model name for the dataset's set count."""
+@app.command(
+    "fit-model",
+    epilog=examples_epilog(
+        "  vdl data fit-model --sample                                            # demo run",
+        "  vdl data fit-model dataset_real_cancer_drivers_4",
+        "  vdl data fit-model data/my.tsv",
+    ),
+)
+def cmd_fit_model(
+    input: Annotated[
+        str | None,
+        typer.Argument(
+            help="Dataset path or bundled sample name. Optional when --sample is given.",
+        ),
+    ] = None,
+    *,
+    sample: Annotated[
+        bool,
+        typer.Option(
+            "--sample",
+            help="Run with the bundled cancer-drivers sample (overrides INPUT default).",
+        ),
+    ] = False,
+) -> None:
+    """Recommend a model name for the dataset's set count.
+
+    Inspects the dataset's set count N and prints (a) a single
+    heuristic-canonical model suggestion (circles for N<=3, Euler for
+    N=4, Edwards for N>=5), and (b) the full list of bundled models
+    that support exactly N sets. Useful before passing `--model` to
+    a render or report command.
+    """
+    resolved = resolve_sample_or_input(input, sample)
     try:
-        ds = load_input(input)
+        ds = load_input(resolved)
     except (VennDiagramError, OSError) as e:
         exit_error(str(e))
         return  # mypy hint; exit_error raises
@@ -194,8 +297,17 @@ def cmd_fit_model(input: Annotated[str, typer.Argument()]) -> None:
     typer.echo(f"available models for N={n}: {candidates_for_n}")
 
 
-@app.command("samples")
+@app.command(
+    "samples",
+    epilog=examples_epilog("  vdl data samples    # no sample data needed"),
+)
 def cmd_samples() -> None:
-    """List bundled sample datasets."""
+    """List bundled sample datasets (plain-text, one per line).
+
+    Same registry as `vdl list-samples`, but emitted as a plain stream
+    suitable for shell pipelines (`xargs`, `for s in $(vdl data
+    samples); do ...; done`). Use the top-level `vdl list-samples` for
+    a Rich-formatted table.
+    """
     for s in sorted(list_samples()):
         typer.echo(s)

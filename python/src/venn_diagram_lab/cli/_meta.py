@@ -7,6 +7,7 @@ from typing import cast
 import typer
 from click import Group
 
+from venn_diagram_lab.cli._common import examples_epilog
 from venn_diagram_lab.version import __version__
 
 # Webtool URL + Zenodo concept DOI (kept in sync with r/inst/CITATION).
@@ -113,17 +114,45 @@ def _print_credits() -> None:
 def register(app: typer.Typer) -> None:
     """Attach tree / about / credits to the root app."""
 
-    @app.command("tree")
+    @app.command(
+        "tree",
+        epilog=examples_epilog("  vdl tree    # no sample data needed"),
+    )
     def cmd_tree() -> None:
-        """Print every command in the CLI as a tree."""
+        """Print every command in the CLI as a tree.
+
+        Walks the full Typer/Click command graph and prints each
+        command with its short-help under its parent group. Useful
+        for discovering commands without paging through each subapp's
+        `--help`.
+        """
         _print_tree(app)
 
-    @app.command("about")
+    @app.command(
+        "about",
+        epilog=examples_epilog("  vdl about    # no sample data needed"),
+    )
     def cmd_about() -> None:
-        """Show a short overview of Venn diagrams (abridged from the webtool)."""
+        """Show a short overview of Venn diagrams (abridged from the webtool).
+
+        Covers the three sections of the webtool's About dialog:
+        historical origins, the formal mathematical definition of an
+        n-Venn diagram, and modern symmetry / monotonicity results.
+        For the full content with bibliography, see
+        https://venndiagramlab.org/.
+        """
         _print_about()
 
-    @app.command("credits")
+    @app.command(
+        "credits",
+        epilog=examples_epilog("  vdl credits    # no sample data needed"),
+    )
     def cmd_credits() -> None:
-        """Show authors, citation, and links to the webtool / Zenodo / PyPI / CRAN."""
+        """Show authors, citation, and links to the webtool / Zenodo / PyPI / CRAN.
+
+        Prints the canonical author list (in the order used by the R
+        CITATION file and the manuscript), a BibTeX-friendly citation
+        line, and links to the webtool, GitHub, PyPI, CRAN, and the
+        Zenodo concept DOI.
+        """
         _print_credits()

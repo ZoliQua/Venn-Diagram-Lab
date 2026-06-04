@@ -13,11 +13,62 @@ from venn_diagram_lab.samples import list_samples, load_sample
 # Sentinel used by `--out -` (write to stdout). Callers check `is STDOUT_SENTINEL`.
 STDOUT_SENTINEL: Path = Path("__VDL_STDOUT__")
 
+# Default bundled sample used by `--sample` flag across all subcommands.
+DEFAULT_SAMPLE_NAME = "dataset_real_cancer_drivers_4"
+
+
+class AlphabeticalGroup(typer.core.TyperGroup):
+    """Render commands + subapps interleaved in one alphabetical list.
+
+    Typer's default rendering places `@app.command` entries before
+    `add_typer` subapps; this subclass overrides `list_commands` to
+    return a single alphabetically sorted name list so the user sees
+    one merged listing under `Commands` in `--help`.
+    """
+
+    def list_commands(self, ctx):  # type: ignore[no-untyped-def]
+        return sorted(self.commands)
+
+
+def examples_epilog(*lines: str) -> str:
+    """Build a `--help` epilog with a `How to try it` panel and example lines.
+
+    Each *line* is rendered as its own paragraph so Rich/Typer keeps the
+    one-command-per-line layout. (A single `\\n` between examples gets
+    folded by Rich's paragraph wrapper; only `\\n\\n` produces a hard
+    line break.)
+    """
+    body = "\n\n".join(lines)
+    return f"How to try it:\n\n{body}\n"
+
 
 def exit_error(msg: str, *, code: int = 1) -> None:
     """Print `msg` to stderr in red and raise typer.Exit(code)."""
     typer.secho(f"error: {msg}", fg=typer.colors.RED, err=True)
     raise typer.Exit(code=code)
+
+
+def resolve_sample_or_input(input_value: str | None, sample: bool) -> str:
+    """Return the dataset key to load.
+
+    When `sample` is True and `input_value` is None, defaults to
+    :data:`DEFAULT_SAMPLE_NAME`. When `input_value` is given (with or
+    without `--sample`), passes it through unchanged. When both are
+    absent, exits with a clear error.
+    """
+    if input_value:
+        return input_value
+    if sample:
+        typer.secho(
+            f"note: --sample → using bundled '{DEFAULT_SAMPLE_NAME}'",
+            fg=typer.colors.CYAN,
+            err=True,
+        )
+        return DEFAULT_SAMPLE_NAME
+    exit_error(
+        "INPUT required (or use --sample for a demo with the bundled cancer-drivers dataset)"
+    )
+    raise RuntimeError("unreachable")
 
 
 def load_input(value: str, *, mode: str = "binary", format: str | None = None) -> Dataset:

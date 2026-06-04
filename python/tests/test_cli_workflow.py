@@ -78,3 +78,21 @@ def test_workflow_run_from_unknown_kind(tmp_path: Path) -> None:
     )
     res = runner.invoke(app, ["workflow", "run-from", str(cfg)])
     assert res.exit_code == 1
+
+
+# ----- --sample flag coverage -----------------------------------------------
+
+
+def test_workflow_bench_with_sample_flag() -> None:
+    """`vdl workflow bench --sample` runs and prints stage timings."""
+    res = runner.invoke(app, ["workflow", "bench", "--sample"])
+    assert res.exit_code == 0, res.output
+    out = res.output.lower()
+    assert "analyze" in out
+    assert "total" in out
+
+
+def test_workflow_bench_no_input_no_sample_exits_1() -> None:
+    res = runner.invoke(app, ["workflow", "bench"])
+    assert res.exit_code == 1
+    assert "INPUT required" in res.output or "use --sample" in res.output

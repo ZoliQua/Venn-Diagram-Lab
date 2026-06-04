@@ -5,6 +5,7 @@ from __future__ import annotations
 import zipfile
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from venn_diagram_lab.cli import app
@@ -51,3 +52,30 @@ def test_report_zip_contains_expected_files(tmp_path: Path) -> None:
                        "report.pdf"]
     for kind in expected_kinds:
         assert kind in names, f"{kind} missing from zip; got {names}"
+
+
+# ----- --sample flag coverage -----------------------------------------------
+
+
+def test_report_pdf_with_sample_flag(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    res = runner.invoke(app, ["report", "pdf", "--sample"])
+    assert res.exit_code == 0, res.output
+    assert (tmp_path / f"{SAMPLE}__report.pdf").exists()
+
+
+def test_report_zip_with_sample_flag(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    res = runner.invoke(app, ["report", "zip", "--sample"])
+    assert res.exit_code == 0, res.output
+    assert (tmp_path / f"{SAMPLE}__report.zip").exists()
+
+
+def test_report_pdf_no_input_no_sample_exits_1() -> None:
+    res = runner.invoke(app, ["report", "pdf"])
+    assert res.exit_code == 1
+    assert "INPUT required" in res.output or "use --sample" in res.output

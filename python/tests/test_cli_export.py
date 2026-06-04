@@ -64,3 +64,33 @@ def test_export_parity_with_api(tmp_path: Path) -> None:
     res = runner.invoke(app, ["export", "statistics", SAMPLE, "--out", str(cli_target)])
     assert res.exit_code == 0
     assert api_target.read_bytes() == cli_target.read_bytes()
+
+
+# ----- --sample flag coverage -----------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "kind,default_stem",
+    [
+        ("region-summary", "region-summary"),
+        ("matrix", "matrix"),
+        ("statistics", "statistics"),
+        # `pairwise` shares the statistics writer, so the default filename
+        # also uses the "statistics" stem. This is intentional — see _emit().
+        ("pairwise", "statistics"),
+    ],
+)
+def test_export_kind_with_sample_flag(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, kind: str, default_stem: str,
+) -> None:
+    """`vdl export <kind> --sample` writes the default-named TSV under CWD."""
+    monkeypatch.chdir(tmp_path)
+    res = runner.invoke(app, ["export", kind, "--sample"])
+    assert res.exit_code == 0, res.output
+    assert (tmp_path / f"{SAMPLE}__{default_stem}.tsv").exists()
+
+
+def test_export_statistics_no_input_no_sample_exits_1() -> None:
+    res = runner.invoke(app, ["export", "statistics"])
+    assert res.exit_code == 1
+    assert "INPUT required" in res.output or "use --sample" in res.output

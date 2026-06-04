@@ -9,12 +9,17 @@ from typing import Annotated
 import typer
 
 from venn_diagram_lab.analysis import list_models
-from venn_diagram_lab.cli._common import exit_error
+from venn_diagram_lab.cli._common import (
+    AlphabeticalGroup,
+    examples_epilog,
+    exit_error,
+)
 
 app = typer.Typer(
     no_args_is_help=True,
     rich_markup_mode="rich",
     help="Inspect bundled Venn diagram models (list, info, svg).",
+    cls=AlphabeticalGroup,
 )
 
 
@@ -44,16 +49,37 @@ def _geometry_hint(name: str) -> str:
     return "non-circle"
 
 
-@app.command("list")
+@app.command(
+    "list",
+    epilog=examples_epilog("  vdl model list    # no sample data needed"),
+)
 def cmd_list() -> None:
-    """List bundled model names (same data as top-level `vdl list-models`)."""
+    """List bundled model names, one per line.
+
+    Plain-text stream suitable for shell pipelines. The same catalog
+    is available as a Rich table via the top-level `vdl list-models`,
+    or with metadata via `vdl model info <name>`.
+    """
     for m in sorted(list_models(), key=lambda x: x.name):
         typer.echo(m.name)
 
 
-@app.command("info")
+@app.command(
+    "info",
+    epilog=examples_epilog(
+        "  vdl model info venn-3-set",
+        "  vdl model info venn-5a-set-edwards",
+        "  # no --sample: this command takes a model name, not a dataset.",
+    ),
+)
 def cmd_info(name: Annotated[str, typer.Argument()]) -> None:
-    """Print details about a specific model."""
+    """Print details about a specific bundled model.
+
+    Shows the canonical name, set count, human-readable display name,
+    and a best-effort geometry hint (circle / Edwards / Euler /
+    Mamakani rosette / etc.). Useful before choosing `--model` for
+    a render or report command.
+    """
     catalog = {m.name: m for m in list_models()}
     if name not in catalog:
         exit_error(f"unknown model {name!r}; try `vdl model list`")
@@ -64,7 +90,14 @@ def cmd_info(name: Annotated[str, typer.Argument()]) -> None:
     typer.echo(f"geometry:     {_geometry_hint(m.name)}")
 
 
-@app.command("svg")
+@app.command(
+    "svg",
+    epilog=examples_epilog(
+        "  vdl model svg venn-3-set --out /tmp/venn3.svg",
+        "  vdl model svg venn-5a-set-edwards",
+        "  # no --sample: this command takes a model name, not a dataset.",
+    ),
+)
 def cmd_svg(
     name: Annotated[str, typer.Argument()],
     out: Annotated[
@@ -72,7 +105,13 @@ def cmd_svg(
         typer.Option("--out", "-o", help="Destination path; default: <name>.svg in CWD"),
     ] = None,
 ) -> None:
-    """Write the raw bundled SVG template (no result substitution)."""
+    """Write the raw bundled SVG template (no result substitution).
+
+    Copies the model's SVG template byte-for-byte to `--out` (or
+    `<name>.svg` in the current directory). The template still
+    contains placeholder count IDs (`Count_A`, `Count_AB`, ...) — to
+    fill them with real values, use `vdl render venn` instead.
+    """
     available = {m.name for m in list_models()}
     if name not in available:
         exit_error(f"unknown model {name!r}; try `vdl model list`")

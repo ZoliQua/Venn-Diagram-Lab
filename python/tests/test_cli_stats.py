@@ -54,3 +54,32 @@ def test_share_dist_unknown_input() -> None:
 def test_cluster_unknown_input() -> None:
     res = runner.invoke(app, ["cluster", "nope_xyz"])
     assert res.exit_code == 1
+
+
+# ----- --sample flag coverage -----------------------------------------------
+
+
+def test_share_dist_with_sample_flag(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
+    res = runner.invoke(app, ["share-dist", "--sample"])
+    assert res.exit_code == 0, res.output
+    assert (tmp_path / f"{SAMPLE}__share-dist.svg").exists()
+
+
+def test_cluster_with_sample_flag(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
+    res = runner.invoke(app, ["cluster", "--sample"])
+    assert res.exit_code == 0, res.output
+    assert (tmp_path / f"{SAMPLE}__cluster.svg").exists()
+
+
+def test_share_dist_no_input_no_sample_exits_1() -> None:
+    res = runner.invoke(app, ["share-dist"])
+    assert res.exit_code == 1
+    assert "INPUT required" in res.output or "use --sample" in res.output
+
+
+def test_cluster_no_input_no_sample_exits_1() -> None:
+    res = runner.invoke(app, ["cluster"])
+    assert res.exit_code == 1
+    assert "INPUT required" in res.output or "use --sample" in res.output

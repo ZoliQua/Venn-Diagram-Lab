@@ -98,3 +98,36 @@ def test_data_validate_strict_promotes_warnings(tmp_path: Path) -> None:
     res = runner.invoke(app, ["data", "validate", SAMPLE, "--strict"])
     # For a clean sample with no warnings, --strict still exits 0.
     assert res.exit_code in (0, 1)
+
+
+# ----- --sample flag coverage -----------------------------------------------
+
+
+def test_data_validate_with_sample_flag() -> None:
+    """`vdl data validate --sample` runs end-to-end on the bundled dataset."""
+    res = runner.invoke(app, ["data", "validate", "--sample"])
+    assert res.exit_code == 0, res.output
+    # The "--sample" notice is emitted on stderr (mixed with stdout under CliRunner);
+    # strip everything before the first '{' so json.loads sees the body only.
+    body = res.output[res.output.index("{") :]
+    doc = json.loads(body)
+    assert doc["input"] == SAMPLE
+    assert len(doc["sets"]) == _EXPECTED_SETS_CANCER
+
+
+def test_data_describe_with_sample_flag() -> None:
+    res = runner.invoke(app, ["data", "describe", "--sample"])
+    assert res.exit_code == 0, res.output
+    assert "set" in res.output.lower()
+
+
+def test_data_fit_model_with_sample_flag() -> None:
+    res = runner.invoke(app, ["data", "fit-model", "--sample"])
+    assert res.exit_code == 0, res.output
+    assert "venn" in res.output.lower()
+
+
+def test_data_describe_no_input_no_sample_exits_1() -> None:
+    res = runner.invoke(app, ["data", "describe"])
+    assert res.exit_code == 1
+    assert "INPUT required" in res.output or "use --sample" in res.output

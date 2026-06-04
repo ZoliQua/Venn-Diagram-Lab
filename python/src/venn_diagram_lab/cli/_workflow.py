@@ -10,7 +10,13 @@ import typer
 import yaml  # type: ignore[import-untyped, unused-ignore]
 
 from venn_diagram_lab.analysis import analyze
-from venn_diagram_lab.cli._common import exit_error, load_input
+from venn_diagram_lab.cli._common import (
+    AlphabeticalGroup,
+    examples_epilog,
+    exit_error,
+    load_input,
+    resolve_sample_or_input,
+)
 from venn_diagram_lab.errors import VennDiagramError
 from venn_diagram_lab.io import Dataset
 from venn_diagram_lab.render.network import render_network
@@ -25,6 +31,7 @@ app = typer.Typer(
     no_args_is_help=True,
     rich_markup_mode="rich",
     help="Project workflow helpers (init, bench, run-from config).",
+    cls=AlphabeticalGroup,
 )
 
 
@@ -68,11 +75,23 @@ _KNOWN_KINDS = {
 }
 
 
-@app.command("init")
+@app.command(
+    "init",
+    epilog=examples_epilog(
+        "  vdl workflow init /tmp/my-vdl-project",
+        "  # no --sample: this command scaffolds an empty project directory.",
+    ),
+)
 def cmd_init(
     directory: Annotated[Path, typer.Argument(help="Project directory to create")],
 ) -> None:
-    """Scaffold a project layout (data/, output/, analysis.yaml)."""
+    """Scaffold a project layout (data/, output/, analysis.yaml).
+
+    Creates a fresh `data/` and `output/` directory pair plus a starter
+    `analysis.yaml` config preconfigured to run on the bundled
+    cancer-drivers sample. Fail-fast if the target directory already
+    exists and is not empty. Use `vdl workflow run-from` next.
+    """
     if directory.exists() and any(directory.iterdir()):
         exit_error(f"{directory} exists and is not empty")
     (directory / "data").mkdir(parents=True, exist_ok=True)
@@ -81,16 +100,42 @@ def cmd_init(
     typer.echo(f"Initialised project at {directory}")
 
 
-@app.command("bench")
+@app.command(
+    "bench",
+    epilog=examples_epilog(
+        "  vdl workflow bench --sample                                            # demo run",
+        "  vdl workflow bench dataset_real_cancer_drivers_4",
+        "  vdl workflow bench data/my.tsv --model proportional",
+    ),
+)
 def cmd_bench(
-    input: Annotated[str, typer.Argument(help="Path or bundled sample name")],
+    input: Annotated[
+        str | None,
+        typer.Argument(
+            help="Dataset path or bundled sample name. Optional when --sample is given.",
+        ),
+    ] = None,
     *,
+    sample: Annotated[
+        bool,
+        typer.Option(
+            "--sample",
+            help="Run with the bundled cancer-drivers sample (overrides INPUT default).",
+        ),
+    ] = False,
     model: Annotated[str, typer.Option(help="Model name; 'auto' or 'proportional'")] = "auto",
 ) -> None:
-    """Run a per-stage performance benchmark."""
+    """Run a per-stage performance benchmark.
+
+    Times each pipeline stage (load, analyze, render-venn,
+    render-upset, render-network, render-heatmap, render-share-dist)
+    and prints seconds + milliseconds plus a grand total. Use this to
+    spot bottlenecks before integrating vdl into a CI step.
+    """
+    resolved = resolve_sample_or_input(input, sample)
     stages: list[tuple[str, float]] = []
     t0 = time.perf_counter()
-    ds = load_input(input)
+    ds = load_input(resolved)
     stages.append(("load_input", time.perf_counter() - t0))
 
     t0 = time.perf_counter()
@@ -179,11 +224,24 @@ def _parse_config(config: Path) -> tuple[str, str, list[dict[str, Any]]]:
     return input_value, model, outputs
 
 
-@app.command("run-from")
+@app.command(
+    "run-from",
+    epilog=examples_epilog(
+        "  vdl workflow init /tmp/run1 && vdl workflow run-from /tmp/run1/analysis.yaml",
+        "  vdl workflow run-from my-pipeline.yaml",
+        "  # no --sample: this command takes a YAML config that already names its INPUT.",
+    ),
+)
 def cmd_run_from(
     config: Annotated[Path, typer.Argument(help="YAML config file")],
 ) -> None:
-    """Execute every step described in a YAML config."""
+    """Execute every step described in a YAML config.
+
+    Loads a `version: 1` YAML mapping with `input:`, optional `model:`,
+    and an `outputs:` list of `{kind, out, ...}` entries. Each entry is
+    dispatched to the corresponding render / export / report writer.
+    See `vdl workflow init` for a starter config you can edit.
+    """
     input_value, model, outputs = _parse_config(config)
 
     try:

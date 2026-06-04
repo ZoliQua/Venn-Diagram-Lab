@@ -13,6 +13,7 @@ from rich.console import Console
 from rich.table import Table
 
 from venn_diagram_lab.analysis import RegionResult, analyze, list_models
+from venn_diagram_lab.cli._common import AlphabeticalGroup, examples_epilog
 from venn_diagram_lab.errors import VennDiagramError
 from venn_diagram_lab.io import Dataset, load_csv, load_gmt, load_gmx, load_tsv
 from venn_diagram_lab.samples import list_samples, load_sample
@@ -36,6 +37,7 @@ app = typer.Typer(
     name="vdl",
     help="venn-diagram-lab - headless Venn diagram analysis and rendering.",
     no_args_is_help=True,
+    cls=AlphabeticalGroup,
 )
 
 _console = Console()
@@ -71,15 +73,31 @@ def _main() -> None:
     """venn-diagram-lab CLI."""
 
 
-@app.command()
+@app.command(
+    epilog=examples_epilog("  vdl version    # no sample data needed"),
+)
 def version() -> None:
-    """Print the venn-diagram-lab package version."""
+    """Print the venn-diagram-lab package version.
+
+    Single-line output suitable for shell scripts and CI pipelines.
+    The same value is exposed programmatically as
+    `venn_diagram_lab.__version__`.
+    """
     typer.echo(__version__)
 
 
-@app.command("list-models")
+@app.command(
+    "list-models",
+    epilog=examples_epilog("  vdl list-models    # no sample data needed"),
+)
 def cmd_list_models() -> None:
-    """List all bundled Venn diagram models."""
+    """List all bundled Venn diagram models.
+
+    Prints a Rich table with each model's machine name, set count, and
+    human-readable display name. The same catalog is available
+    programmatically via `venn_diagram_lab.analysis.list_models()` and
+    in a plain-text form via `vdl model list`.
+    """
     table = Table(title="Bundled models")
     table.add_column("Name", style="cyan")
     table.add_column("Sets", justify="right")
@@ -91,9 +109,18 @@ def cmd_list_models() -> None:
     _console.print(table)
 
 
-@app.command("list-samples")
+@app.command(
+    "list-samples",
+    epilog=examples_epilog("  vdl list-samples    # no sample data needed"),
+)
 def cmd_list_samples() -> None:
-    """List bundled sample datasets."""
+    """List bundled sample datasets.
+
+    Prints the registry of bundled fixtures shipped with the package
+    (3 real biological + 2 mock). Any of these names can be passed as
+    INPUT to commands like `vdl render venn` or used via `--sample` for
+    the canonical demo dataset.
+    """
     table = Table(title="Bundled sample datasets")
     table.add_column("Name", style="cyan")
 
@@ -232,7 +259,17 @@ def _emit_outputs(
     _write_outputs(result, venn, upset, network, pdf, statistics_tsv)
 
 
-@app.command("analyze")
+@app.command(
+    "analyze",
+    epilog=examples_epilog(
+        "Deprecated; see migration hints below:",
+        "  vdl render venn <input>             # replaces analyze --venn",
+        "  vdl render upset <input>            # replaces analyze --upset",
+        "  vdl render network <input>          # replaces analyze --network",
+        "  vdl report pdf <input>              # replaces analyze --pdf",
+        "  vdl export statistics <input>       # replaces analyze --statistics-tsv",
+    ),
+)
 def cmd_analyze(
     input: Annotated[Path, typer.Argument(help="Input dataset path (CSV/TSV/GMT/GMX)")],
     *,
@@ -289,7 +326,15 @@ def cmd_analyze(
     )
 
 
-@app.command("render-sample")
+@app.command(
+    "render-sample",
+    epilog=examples_epilog(
+        "Deprecated; see migration hints below:",
+        "  vdl render venn --sample            # replaces render-sample for demos",
+        "  vdl render venn dataset_real_cancer_drivers_4",
+        "  vdl report pdf <sample-name>        # bundled sample-name still works as INPUT",
+    ),
+)
 def cmd_render_sample(
     name: Annotated[str, typer.Argument(help="Sample name (use `vdl list-samples`)")],
     *,
