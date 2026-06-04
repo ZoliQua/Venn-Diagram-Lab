@@ -144,17 +144,115 @@ These match the React web tool's three Export buttons exactly — including floa
 
 ## Command-line interface
 
-The wheel installs a `vdl` console script:
+The wheel installs a `vdl` console script with a Typer-based subapp layout
+(commands are listed alphabetically in `vdl --help` and inside each
+subapp). Every subcommand has an extended `--help` page with a *How to
+try it* example block, and every dataset-consuming command accepts a
+`--sample` flag that runs the demo on the bundled
+`dataset_real_cancer_drivers_4` fixture without a positional argument.
+
+The full tree is discoverable in one shot via `vdl tree`. Below is the
+v2.2.2 catalog grouped by subapp:
+
+### Top-level shortcuts
 
 | Command | Purpose |
 |---|---|
-| `vdl version` | Print the package version |
-| `vdl list-models` | Table of the 44 bundled SVG models |
-| `vdl list-samples` | Table of bundled sample datasets |
-| `vdl analyze <input> [--model M] [--mode binary\|aggregated] [--format csv\|tsv\|gmt\|gmx] [--output-dir D] [--venn FILE] [--upset FILE] [--network FILE] [--pdf FILE] [--statistics-tsv FILE]` | Main entry point: load, analyse, optionally write outputs |
-| `vdl render-sample <name> [...same output flags...]` | Bundled-sample shortcut |
+| `vdl version` | Print the package version (single line, script-friendly). |
+| `vdl list-models` | Rich table of the 44 bundled SVG models. |
+| `vdl list-samples` | Rich table of bundled sample datasets. |
+| `vdl share-dist <input> [--out F]` | Item Share Distribution histogram (shortcut for `vdl render share-dist`). |
+| `vdl cluster <input> [--linkage M] [--out F]` | Cluster-rendered heatmap (shortcut for `vdl render heatmap --cluster`). |
+| `vdl tree` | Print every command in the CLI as a tree. |
+| `vdl about` | Short overview of Venn diagrams (abridged from the web tool's About dialog). |
+| `vdl credits` | Authors, citation, and links (web tool / Zenodo / PyPI / CRAN). |
+| `vdl analyze ...` | **Deprecated** (removed in v2.3) — Swiss-army analyzer; see migration hints. |
+| `vdl render-sample ...` | **Deprecated** (removed in v2.3) — bundled-sample shortcut for the old `analyze`. |
 
-Without any output flags, both commands print a Rich-styled summary table. With `--output-dir`, all five outputs (svg, png upset, png network, pdf, tsv) are written.
+### `vdl render` — visual outputs
+
+Each render command accepts `INPUT` (file path or bundled sample name) or
+`--sample` for demo mode. Format is inferred from the `--out` extension
+(`.svg` / `.png` / `.pdf`); default output is `<stem>__<kind>.svg` in CWD.
+
+| Command | Purpose |
+|---|---|
+| `vdl render venn <input>` | Venn diagram (44 SVG models + area-proportional 2/3-set). |
+| `vdl render upset <input>` | UpSet plot for the dataset's intersection structure. |
+| `vdl render network <input>` | Force-directed set-relationship network. |
+| `vdl render heatmap <input> [--cluster --linkage M]` | Pairwise Jaccard / FDR heatmap, optionally cluster-reordered. |
+| `vdl render share-dist <input>` | Item Share Distribution histogram (v2.2.2 stats addition). |
+| `vdl render all <input> --output-dir D` | One-shot bundle: all five SVGs into one directory. |
+
+### `vdl export` — TSV table writers
+
+Stdout pipe via `--out -` (text format only). All commands route through
+the same `RegionResult` writer methods as the Python API.
+
+| Command | Purpose |
+|---|---|
+| `vdl export region-summary <input>` | Per-region exclusive + inclusive counts + items. |
+| `vdl export matrix <input>` | Binary item × set membership matrix. |
+| `vdl export statistics <input>` | Pairwise Jaccard / Dice / OC / FE / hypergeometric / BH-FDR. |
+| `vdl export pairwise <input>` | Alias of `statistics` (common bioinformatics synonym). |
+
+### `vdl report` — multi-page bundles
+
+| Command | Purpose |
+|---|---|
+| `vdl report pdf <input> --out R.pdf` | Multi-page PDF report (mirrors the web tool's *Report PDF*). |
+| `vdl report zip <input> --out R.zip` | Full bundle ZIP (4 SVGs + 3 TSVs + 1 PDF). |
+
+### `vdl data` — data operations
+
+| Command | Purpose |
+|---|---|
+| `vdl data validate <input> [--text] [--strict]` | Schema check; JSON by default, `--text` for colourised output. Exit 1 on errors (`--strict` promotes warnings). |
+| `vdl data describe <input>` | Quick summary (set count, item count, top regions). |
+| `vdl data convert <in> <out>` | Format conversion (TSV ⇄ CSV). |
+| `vdl data fit-model <input>` | Recommend a catalog-resident model name for the input's set count. |
+| `vdl data samples` | List bundled sample datasets. |
+
+### `vdl model` — model catalog
+
+| Command | Purpose |
+|---|---|
+| `vdl model list` | Names of the 44 bundled models. |
+| `vdl model info <name>` | Set count, geometry family, display name for one model. |
+| `vdl model svg <name> [--out F]` | Write the raw bundled SVG template (no substitution). |
+
+### `vdl workflow` — project helpers
+
+| Command | Purpose |
+|---|---|
+| `vdl workflow init <dir>` | Scaffold `data/` + `output/` + sample `analysis.yaml`. |
+| `vdl workflow bench <input>` | Per-stage timing (load / analyze / 5 renderers / total). |
+| `vdl workflow run-from <cfg.yaml>` | Execute every step in a YAML config (`outputs: [{kind, out, …}]`). |
+
+### Examples
+
+```bash
+# Demo mode (no input file needed)
+vdl render venn --sample
+vdl render heatmap --sample --cluster --linkage average
+vdl share-dist --sample
+vdl report pdf --sample --out demo.pdf
+
+# Real workflow
+vdl data validate data/my_genes.tsv --text
+vdl render all data/my_genes.tsv --output-dir output/
+vdl export pairwise data/my_genes.tsv --out output/stats.tsv
+
+# Config-driven batch run
+vdl workflow init my_project/
+edit my_project/analysis.yaml
+vdl workflow run-from my_project/analysis.yaml
+
+# Discovery
+vdl tree                       # all 33 commands in one tree
+vdl render --help              # subapp help (alphabetical)
+vdl render venn --help         # extended help with "How to try it" examples
+```
 
 ## Notebook gallery
 
@@ -180,7 +278,7 @@ Each notebook is built from a `python/scripts/notebooks/_build_NN_*.py` script a
 | `dataset_real_cancer_drivers_4` | 4 | 1394 | Vogelstein / COSMIC CGC / OncoKB / IntOGen catalogs |
 | `dataset_real_msigdb_cancer_pathways` | 5 | 777 | MSigDB Hallmark cancer pathways |
 | `dataset_real_msigdb_immune_pathways` | 4 | 521 | MSigDB Hallmark immune pathways |
-| `dataset_mock_gene_sets` | 6 | 3288 | Synthetic for demos |
+| `dataset_mock_gene_sets` | 6 | 97 | Synthetic for demos (trimmed in v2.1.1) |
 | `dataset_mock_streaming_platforms` | 8 | 800 | TV/movie titles across 8 streaming services |
 
 ```python

@@ -35,7 +35,21 @@ R) is verified by ~30 fixture-based tests on every release.
 
 ## Features
 
-**v2.2.2 — Statistics additions.** New *Item Share Distribution* histogram and *Cluster Heatmap* (UPGMA reorder + dendrograms on the existing pairwise Jaccard heatmap). Available in the web tool's Statistics panel and PDF report, in the Python package as `item_share_distribution()` / `cluster_set_order()` / `render_share_distribution_svg()` / `render_cluster_heatmap_svg()`, and in the R package as `item_share_distribution()` / `cluster_set_order()` / `render_share_distribution()` / `render_cluster_heatmap()`.
+**v2.2.2 — Statistics additions + CLI expansion.** Two new analytical surfaces:
+*Item Share Distribution* histogram and *Cluster Heatmap* (UPGMA reorder +
+dendrograms on the existing pairwise Jaccard heatmap) — available in the web
+tool's Statistics panel + PDF report, in the Python package as
+`item_share_distribution()` / `cluster_set_order()` /
+`render_share_distribution_svg()` / `render_cluster_heatmap_svg()`, and in the
+R package as `item_share_distribution()` / `cluster_set_order()` /
+`render_share_distribution()` / `render_cluster_heatmap()`.
+
+The Python `vdl` CLI was also expanded from 5 commands to 30+ commands across
+6 subapps (`render`, `export`, `report`, `data`, `model`, `workflow`) plus
+discovery / about / credits / tree top-level commands. Every dataset-consuming
+command accepts a `--sample` flag for one-line demo runs on the bundled
+cancer-drivers fixture. See [`python/README.md`](python/README.md) for the
+full catalog.
 
 ### Four Modes
 
@@ -123,7 +137,7 @@ R) is verified by ~30 fixture-based tests on every release.
 - Sample datasets: binary (streaming platforms, cancer drivers, MSigDB hallmark collections) and aggregated (gene sets)
 - Supports up to **9 sets** (A through I)
 - TSV exports escape spreadsheet-style formula prefixes in exported text cells while preserving the in-app values
-- **Headless / scripted use:** the same import / analyze / export surface is available in Python via [`pip install venn-diagram-lab`](python/README.md) — byte-identical TSV outputs (parity-tested), the same 44 SVG models, and a `vdl analyze ... --pdf out.pdf` CLI for pipelines
+- **Headless / scripted use:** the same import / analyze / export surface is available in Python via [`pip install venn-diagram-lab`](python/README.md) — byte-identical TSV outputs (parity-tested), the same 44 SVG models, and a 30+ command `vdl` CLI organised into 6 subapps (`render`, `export`, `report`, `data`, `model`, `workflow`) with a `--sample` demo flag on every dataset-consuming command. See [`python/README.md`](python/README.md) for the full catalog.
 
 ### Summary Mode
 - Dialog gallery of all 44 diagrams
