@@ -2,6 +2,42 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.2.3 — 2026-06-01 — Cross-package version sync; Python CLI feature parity + PDF/ZIP report enhancements
+
+Coordinated patch release across webtool, Python, and R companion packages.
+
+### Python package (`venn-diagram-lab`)
+
+- **Two new statistics renderers** mirroring the webtool's bar + lollipop
+  cards: `render_enrichment_bar_svg(result, *, metric=...)` and
+  `render_enrichment_lollipop_svg(result, *, metric=...)`. Both accept
+  `metric="neglog10fdr"` (default) or `"foldEnrichment"`; significance
+  markers (`***` / `**` / `*`) and color palette match the webtool.
+- **`vdl render bar`** and **`vdl render lollipop`** CLI commands.
+- **`vdl data lookup <ITEM>`** CLI command — finds which Venn region(s)
+  contain a given item.
+- **PDF report** (`to_pdf_report`) gains an *Item Share Distribution* page
+  and optional cluster-mode heatmap (parameter `cluster_heatmap=True`);
+  webtool already had these via the live UI toggle, Python now follows.
+- **ZIP report bundle** gains an `enrichment_statistics_{n}-sets.xlsx`
+  Excel workbook (3 sheets: Jaccard / Sørensen-Dice / Intersection
+  Enrichment) and a `README.txt` (provenance + the full *About This
+  Report* methodology text).
+- New runtime dep: `openpyxl >= 3.1` (for the Excel workbook). Already
+  a transitive dep via pandas; promoted to direct dependency.
+
+### R package (`vennDiagramLab`)
+
+- Version sync only — no functional changes. The R package was up-to-
+  date with all v2.2.2 features (bar/lollipop don't have an R analogue
+  yet; pairwise statistics render via `ComplexUpset` / `ggraph`).
+
+### Webtool
+
+- Version sync only — the Statistics panel already has all three
+  enrichment plots (bar + lollipop + heatmap) and the PDF report already
+  emits the Item Share Distribution page when the user has it active.
+
 ## v2.2.2 — 2026-05-31 — Item Share Distribution histogram + Cluster Heatmap (UPGMA reorder + dendrograms)
 
 Minor statistics release. Adds two new analytical surfaces to the Data

@@ -1,5 +1,15 @@
 # vennDiagramLab — NEWS
 
+## v2.2.3 — 2026-06-01 — Cross-package version sync (no functional changes)
+
+The webtool and Python package shipped a coordinated v2.2.3 patch release
+(Python gained new bar / lollipop enrichment renderers, CLI shortcuts,
+and PDF/ZIP report enhancements). The R companion package has no
+analogue work in this round — `ComplexUpset` already covers the
+enrichment-plot surfaces and the R PDF report uses `patchwork`. This
+release is a version-stamp only to keep all three distributions on the
+same v2.2.3 marker; the R API is unchanged from v2.2.2.
+
 ## v2.2.2 — 2026-05-31 — Item-share distribution + cluster heatmap (cross-package parity)
 
 Additive feature release matching the webtool v2.2.2 and Python v2.2.2 releases. No breaking changes, no removed APIs, no new hard dependencies.
