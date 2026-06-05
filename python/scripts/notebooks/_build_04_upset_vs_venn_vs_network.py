@@ -30,17 +30,20 @@ _IMPORT_CODE = (
 )
 
 _RULE_TABLE_ROWS = "\n".join([
-    "| Set count | Venn diagram | UpSet plot | Network plot |",
-    "|-----------|-------------|------------|--------------|",
-    "| 2-4 sets  | Best choice -- regions are readable"
+    "| Set count | Venn | UpSet | Network | Cluster heatmap |",
+    "|-----------|------|-------|---------|-----------------|",
+    "| 2-4 sets  | Best -- regions are readable"
     " | Works, but overkill"
-    " | Use when pairwise relationships are the focus |",
-    "| 5-7 sets  | Gets crowded, hard to read"
+    " | Use for pairwise focus"
+    " | Useful from N=4 (smaller N has no cluster signal) |",
+    "| 5-7 sets  | Gets crowded"
     " | **Preferred** -- exact bars, scalable"
-    " | Useful for spotting clusters and strong edges |",
+    " | Useful for clusters and strong edges"
+    " | **Recommended** -- surfaces catalog groups |",
     "| 8-9 sets  | Avoid -- nearly unreadable"
     " | **Recommended** -- threshold filter helps"
-    " | Helpful, especially with Jaccard/FE edge weights |",
+    " | Helpful with Jaccard/FE edge weights"
+    " | **Recommended** -- only practical *matrix* view |",
 ])
 _RULE_TABLE_MD = (
     "## Rule-of-thumb: which plot to pick\n\n"
@@ -48,7 +51,8 @@ _RULE_TABLE_MD = (
     + "\n\n"
     "A good default rule:\n\n"
     "> Use **Venn** for <=4 sets, **UpSet** for >=5 sets, and **Network** whenever\n"
-    "> pairwise overlap strength matters more than the full intersection breakdown.\n"
+    "> pairwise overlap strength matters. Add a **Cluster heatmap** whenever the\n"
+    "> audience needs to see *which catalogs group together* (N>=4).\n"
 )
 
 _3SET_HEADER_MD = (
@@ -155,6 +159,38 @@ _NETWORK_CODE = (
     "r_5.render_network()"
 )
 
+_CLUSTER_HEADER_MD = (
+    "## Option 4: Cluster Heatmap (v2.2.3)\n\n"
+    "The Cluster Heatmap renders the pairwise Jaccard similarity matrix with\n"
+    "UPGMA-reordered axes and L-shaped dendrograms. Where the Network plot\n"
+    "answers *what are the strongest individual edges?*, the Cluster Heatmap\n"
+    "answers *which sets form natural groups?* -- a useful complement when\n"
+    "the dataset has 4+ sets with non-trivial structure.\n\n"
+    "Below we render it on the same 5-set MSigDB pathway dataset used in the\n"
+    "UpSet and Network sections, so direct comparison is easy.\n"
+)
+
+_CLUSTER_CODE = (
+    "# Cluster heatmap for the 5-set MSigDB pathway dataset.\n"
+    "# linkage='average' is UPGMA; rows + cols share the same leaf order so\n"
+    "# the diagonal stays at 1.0 even after reordering.\n"
+    "from venn_diagram_lab.render.svg import render_cluster_heatmap_svg\n\n"
+    "render_cluster_heatmap_svg(r_5, linkage='average')"
+)
+
+_FINAL_DECISION_MD = (
+    "## Closing decision: four families, four questions\n\n"
+    "| Plot | Answers... | Best at | Limits |\n"
+    "|------|-----------|---------|--------|\n"
+    "| Venn | *Which items are in this exact subset?* | 2-4 sets | Crowded at N>=5 |\n"
+    "| UpSet | *Which intersections are largest?* | 5-9 sets | Loses spatial context |\n"
+    "| Network | *Which pairs overlap most?* | Any N | Shows only pairwise edges |\n"
+    "| Cluster heatmap | *Which sets group together?* | N>=4 | Symmetric only |\n\n"
+    "Real publications often combine two or more: a Venn or UpSet as the\n"
+    "primary figure, plus a Cluster heatmap or Network in the supplement to\n"
+    "support the narrative.\n"
+)
+
 _NEXT_STEPS_MD = (
     "## Next steps\n\n"
     "- [`05_statistics_deep_dive.ipynb`](05_statistics_deep_dive.ipynb)"
@@ -203,6 +239,11 @@ CELLS = [
     ("md", _NETWORK_HEADER_MD),
     # 17. Render Network (5-set)
     ("code", _NETWORK_CODE),
+    # 17b. Cluster heatmap (v2.2.3)
+    ("md", _CLUSTER_HEADER_MD),
+    ("code", _CLUSTER_CODE),
+    # 17c. Final decision table covering all 4 plot families
+    ("md", _FINAL_DECISION_MD),
     # 18. Next steps
     ("md", _NEXT_STEPS_MD),
 ]

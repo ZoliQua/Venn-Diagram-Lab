@@ -98,6 +98,27 @@ const NOTEBOOKS: NotebookEntry[] = [
     length: 'long',
     description: 'Custom rendering, lxml post-processing, multi-format SVG / PNG / PDF export.',
   },
+  {
+    num: '09',
+    file: '09_cli_workflows.ipynb',
+    title: 'CLI Workflows from Python',
+    length: 'medium',
+    description: 'Drive the vdl CLI via subprocess: tree discovery, render, export, validate, workflow run-from, report zip.',
+  },
+  {
+    num: '10',
+    file: '10_enrichment_plots_comparison.ipynb',
+    title: 'Enrichment Plot Families',
+    length: 'medium',
+    description: 'All 5 plots side-by-side: bar, lollipop, heatmap, cluster heatmap, item share distribution.',
+  },
+  {
+    num: '11',
+    file: '11_data_validation_and_lookup.ipynb',
+    title: 'Data Validation & Item Lookup',
+    length: 'medium',
+    description: 'The vdl data subapp: validate (+ strict), describe, lookup, fit-model, convert — data-hygiene workflow.',
+  },
 ];
 
 function PythonLogo() {
@@ -394,9 +415,10 @@ vdl --help`}</CodeBlock>
       </div>
 
       <div className="companion-callout">
-        <strong>Next:</strong> open the <em>Notebooks</em> tab for eight
+        <strong>Next:</strong> open the <em>Notebooks</em> tab for eleven
         ready-to-run examples (Quickstart, real cancer driver case study,
-        statistics deep-dive, pipeline integration), or jump to{' '}
+        statistics deep-dive, pipeline integration, CLI workflows, plot
+        comparison, data validation), or jump to{' '}
         <em>Features</em> for a full breakdown of what's available.
       </div>
 
@@ -468,7 +490,7 @@ function PythonContent({ activeTab }: { activeTab: TabId }) {
         <div className="companion-badges">
           <span className="companion-badge companion-badge-stable">Stable · v2.0.3</span>
           <span className="companion-badge">Python ≥ 3.10</span>
-          <span className="companion-badge">8 example notebooks</span>
+          <span className="companion-badge">11 example notebooks</span>
           <span className="companion-badge">MIT License</span>
         </div>
       </div>
@@ -483,10 +505,10 @@ function PythonContent({ activeTab }: { activeTab: TabId }) {
     return (
       <div className="companion-section">
         <p className="companion-paragraph">
-          Eight self-contained Jupyter notebooks ship in the
+          Eleven self-contained Jupyter notebooks ship in the
           <code>python/examples/</code> directory of the repository. Each is
           fully reproducible — pick the closest match to your task and adapt.
-          All eight are CI-tested via <code>nbconvert --execute</code> on every
+          All eleven are CI-tested via <code>nbconvert --execute</code> on every
           pull request.
         </p>
         <p className="companion-note">
@@ -690,7 +712,7 @@ function PythonContent({ activeTab }: { activeTab: TabId }) {
         <LinkCard
           icon={'\u{1F4D2}'}
           title="Example Notebooks"
-          subtitle="python/examples/ — 8 notebooks"
+          subtitle="python/examples/ — 11 notebooks"
           cta="Browse"
           href={`${REPO_BASE}/tree/main/python/examples`}
         />

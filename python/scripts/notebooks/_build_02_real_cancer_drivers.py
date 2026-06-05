@@ -138,6 +138,38 @@ _HYPER_DISCUSS = (
     "effect sizes."
 )
 
+_V223_MD = (
+    "## v2.2.3 — Cluster patterns and core/accessory split\n\n"
+    "Two new render functions surface the dataset's *shape* in addition to its\n"
+    "pairwise statistics:\n\n"
+    "- **Item Share Distribution** -- how many genes appear in 1, 2, 3, 4 catalogs?\n"
+    "  The first bar (genes seen in exactly one catalog) is the **accessory** set;\n"
+    "  the last bar (genes in all four) is the **core** consensus.\n"
+    "- **Cluster heatmap** -- UPGMA-reordered Jaccard similarity matrix with\n"
+    "  L-shaped dendrograms; reveals which catalogs cluster together.\n"
+)
+
+_SHAREDIST_CODE = (
+    "from venn_diagram_lab.render.svg import render_share_distribution_svg\n\n"
+    "render_share_distribution_svg(ds)"
+)
+
+_CLUSTER_CODE = (
+    "from venn_diagram_lab.render.svg import render_cluster_heatmap_svg\n\n"
+    "render_cluster_heatmap_svg(result, linkage='average')"
+)
+
+_V223_INTERPRET_MD = (
+    "### Interpretation\n\n"
+    "The share distribution shows the catalogs disagree more than they agree:\n"
+    "many genes appear in only one or two of the four lists (the *accessory*\n"
+    "drivers), while a small core appears in all four (the highest-confidence\n"
+    "consensus drivers). The cluster heatmap places COSMIC_CGC and OncoKB as\n"
+    "the closest pair (large, broadly curated databases) while Vogelstein sits\n"
+    "apart -- its conservative high-confidence list shares fewer genes in\n"
+    "absolute terms even though most Vogelstein genes appear elsewhere.\n"
+)
+
 _CUSTOM_MD = (
     "## Customize names and colors\n\n"
     "Use `set_names` to apply publication-ready labels and `colors` to assign brand colors. "
@@ -251,6 +283,11 @@ CELLS = [
     ("code", "result.statistics.hypergeometric"),
     # 21. Hypergeometric discussion
     ("md", _HYPER_DISCUSS),
+    # 21b. v2.2.3 — Cluster patterns + core/accessory split
+    ("md", _V223_MD),
+    ("code", _SHAREDIST_CODE),
+    ("code", _CLUSTER_CODE),
+    ("md", _V223_INTERPRET_MD),
     # 22. Customize header
     ("md", _CUSTOM_MD),
     # 23. Customize render

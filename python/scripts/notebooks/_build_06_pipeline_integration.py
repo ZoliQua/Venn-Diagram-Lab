@@ -164,6 +164,71 @@ _NEXTFLOW_RUN_MD = (
     "over multiple input files -- each processed in parallel by a separate worker.\n"
 )
 
+_VDL_WORKFLOW_MD = (
+    "## `vdl workflow run-from` (v2.2.3 native YAML)\n\n"
+    "Snakemake and Nextflow are the right tool for multi-input, multi-rule\n"
+    "pipelines. For a single dataset that needs N outputs, `vdl workflow\n"
+    "run-from` is simpler: a small YAML config declares each output, and one\n"
+    "command produces them all. No external orchestrator required.\n\n"
+    "The config schema:\n\n"
+    "```yaml\n"
+    "version: 1\n"
+    "input: dataset_real_cancer_drivers_4   # sample name OR path to TSV/CSV\n"
+    "model: auto                            # or 'proportional'\n"
+    "outputs:\n"
+    "  - kind: venn       # or upset / network / heatmap / share-dist /\n"
+    "    out: out/v.svg   #   pdf / region-summary / matrix / statistics / cluster\n"
+    "  - kind: statistics\n"
+    "    out: out/s.tsv\n"
+    "```\n\n"
+    "`vdl workflow init <dir>` scaffolds a starter project with a runnable\n"
+    "default config. Below we build a small one inline and run it.\n"
+)
+
+_VDL_WORKFLOW_CODE = (
+    "import subprocess, tempfile\n"
+    "from pathlib import Path\n\n"
+    "tmp = Path(tempfile.mkdtemp(prefix='vdl_runfrom_'))\n"
+    "yaml_text = '''\\\n"
+    "version: 1\n"
+    "input: dataset_real_cancer_drivers_4\n"
+    "model: auto\n"
+    "outputs:\n"
+    "  - kind: venn\n"
+    "    out: ''' + str(tmp / 'venn.svg') + '''\n"
+    "  - kind: upset\n"
+    "    out: ''' + str(tmp / 'upset.svg') + '''\n"
+    "  - kind: network\n"
+    "    out: ''' + str(tmp / 'network.svg') + '''\n"
+    "  - kind: statistics\n"
+    "    out: ''' + str(tmp / 'statistics.tsv') + '''\n"
+    "  - kind: region-summary\n"
+    "    out: ''' + str(tmp / 'regions.tsv') + '''\n"
+    "'''\n"
+    "yaml_path = tmp / 'analysis.yaml'\n"
+    "yaml_path.write_text(yaml_text)\n\n"
+    "r = subprocess.run(\n"
+    "    [_vdl, 'workflow', 'run-from', str(yaml_path)],\n"
+    "    capture_output=True, text=True, check=True,\n"
+    ")\n"
+    "print(r.stdout)\n"
+    "print('Files in', tmp, ':')\n"
+    "for f in sorted(tmp.iterdir()):\n"
+    "    print(f'  {f.name:<25}  {f.stat().st_size:>8,} bytes')"
+)
+
+_THREE_WAY_COMPARE_MD = (
+    "### Snakemake vs Nextflow vs `vdl workflow run-from`\n\n"
+    "| Tool | Strength | Use when |\n"
+    "|------|----------|---------|\n"
+    "| **Snakemake** | Fine-grained DAG, file timestamp caching, conda envs | Multi-rule pipeline, many inputs, incremental rebuild matters |\n"
+    "| **Nextflow** | Native parallelism, container-first, cloud-ready | Many input files processed in parallel; HPC or cloud target |\n"
+    "| **`vdl workflow run-from`** | One config, one command, zero dependencies | Single dataset, N outputs, no external orchestrator needed |\n\n"
+    "Rule of thumb: start with `vdl workflow run-from` for a single analysis.\n"
+    "Promote to Snakemake when you have multiple datasets and want incremental\n"
+    "rebuild. Promote to Nextflow when you need cloud-scale parallelism.\n"
+)
+
 _NEXT_STEPS_MD = (
     "## Next steps\n\n"
     "- [`07_pdf_reports.ipynb`](07_pdf_reports.ipynb)"
@@ -215,6 +280,10 @@ CELLS = [
     ("code", _NEXTFLOW_CODE),
     # 19. Run instructions for Nextflow
     ("md", _NEXTFLOW_RUN_MD),
+    # 19b. vdl workflow run-from native YAML (v2.2.3)
+    ("md", _VDL_WORKFLOW_MD),
+    ("code", _VDL_WORKFLOW_CODE),
+    ("md", _THREE_WAY_COMPARE_MD),
     # 20. Next steps
     ("md", _NEXT_STEPS_MD),
 ]
