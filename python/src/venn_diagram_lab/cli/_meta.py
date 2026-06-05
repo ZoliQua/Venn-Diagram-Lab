@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any
 
 import typer
-from click import Group
 
 from venn_diagram_lab.cli._common import examples_epilog
 from venn_diagram_lab.version import __version__
@@ -27,15 +26,26 @@ _AUTHORS = [
 ]
 
 
+def _is_group(node: Any) -> bool:
+    """Duck-typed check for click.Group-shaped objects.
+
+    Avoids a direct `from click import Group` import — click is brought in
+    transitively by typer at runtime, but the explicit symbol import fails
+    on some CI matrix cells where the click wheel doesn't expose `Group`
+    at module load time. The `commands` attribute is the contract we need.
+    """
+    return hasattr(node, "commands") and isinstance(node.commands, dict)
+
+
 def _print_tree(app: typer.Typer, prefix: str = "vdl") -> None:
     """Walk the Typer app and print every command in a tree."""
     typer.echo(prefix)
-    click_app = cast(Group, typer.main.get_command(app))
+    click_app = typer.main.get_command(app)
     _walk(click_app, prefix, "")
 
 
-def _walk(node: Group, prefix: str, indent: str) -> None:
-    if isinstance(node, Group):
+def _walk(node: Any, prefix: str, indent: str) -> None:
+    if _is_group(node):
         names = sorted(node.commands.keys())
         for i, name in enumerate(names):
             is_last = i == len(names) - 1
@@ -45,7 +55,7 @@ def _walk(node: Group, prefix: str, indent: str) -> None:
                 (sub.help or "").splitlines()[0] if sub.help else ""
             )
             typer.echo(f"{indent}{connector}{name}" + (f"  — {short}" if short else ""))
-            if isinstance(sub, Group):
+            if _is_group(sub):
                 next_indent = indent + ("    " if is_last else "│   ")
                 _walk(sub, prefix, next_indent)
 
