@@ -320,18 +320,21 @@ vdl render venn --help         # extended help with "How to try it" examples
 
 ## Notebook gallery
 
-Eight executable notebooks live under [`python/examples/`](https://github.com/ZoliQua/Venn-Diagram-Lab/tree/main/python/examples):
+Eleven executable notebooks live under [`python/examples/`](https://github.com/ZoliQua/Venn-Diagram-Lab/tree/main/python/examples):
 
 | # | Notebook | Topic |
 |---|---|---|
 | 01 | `01_quickstart.ipynb` | First analysis in 10 cells |
-| 02 | `02_real_cancer_drivers.ipynb` | Biological walkthrough (cancer driver catalogs) |
+| 02 | `02_real_cancer_drivers.ipynb` | Biological walkthrough (cancer driver catalogs); v2.2.3 adds Item Share Distribution + Cluster Heatmap on the 4-catalog overlap |
 | 03 | `03_proportional_diagrams.ipynb` | Area-proportional 2/3-set demos |
-| 04 | `04_upset_vs_venn_vs_network.ipynb` | Choosing the right visualisation |
-| 05 | `05_statistics_deep_dive.ipynb` | Jaccard / Dice / Hypergeometric / BH-FDR |
-| 06 | `06_pipeline_integration.ipynb` | Snakemake + Nextflow templates |
-| 07 | `07_pdf_reports.ipynb` | Multi-page PDF reports |
+| 04 | `04_upset_vs_venn_vs_network.ipynb` | Choosing the right visualisation; v2.2.3 adds Cluster Heatmap as a 4th option + 4-row decision summary |
+| 05 | `05_statistics_deep_dive.ipynb` | Jaccard / Dice / Hypergeometric / BH-FDR + v2.2.3 bar/lollipop/cluster-heatmap side-by-side |
+| 06 | `06_pipeline_integration.ipynb` | Snakemake + Nextflow templates + `vdl workflow run-from` YAML config runner |
+| 07 | `07_pdf_reports.ipynb` | Multi-page PDF reports, with `cluster_heatmap=True` opt-in |
 | 08 | `08_custom_styling_and_export.ipynb` | lxml SVG post-processing + multi-format export |
+| 09 | `09_cli_workflows.ipynb` | **New (v2.2.3)** — Drive the `vdl` CLI from Python notebooks via `subprocess`; demo of 6 representative commands + decision table |
+| 10 | `10_enrichment_plots_comparison.ipynb` | **New (v2.2.3)** — Bar / Lollipop / Heatmap / Cluster Heatmap / Item Share Distribution side-by-side comparison + metric switching |
+| 11 | `11_data_validation_and_lookup.ipynb` | **New (v2.2.3)** — Data-hygiene workflow: `vdl data validate` (JSON+text+strict), batch `vdl data lookup` over a gene list, `describe` / `fit-model` / `convert` |
 
 Each notebook is built from a `python/scripts/notebooks/_build_NN_*.py` script and executed nightly on CI to prevent bit-rot.
 
