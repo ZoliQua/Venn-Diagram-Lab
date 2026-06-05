@@ -143,6 +143,47 @@ test_that(".build_about_page returns a ggplot containing methodology text", {
     expect_true(inherits(page, "ggplot"))
 })
 
+test_that(".build_about_pages returns a non-empty list of ggplots", {
+    skip_on_cran()
+    pages <- .build_about_pages()
+    expect_type(pages, "list")
+    expect_true(length(pages) >= 1L)
+    expect_true(all(vapply(pages, function(p) inherits(p, "ggplot"),
+                            logical(1L))))
+})
+
+test_that(".ABOUT_SECTIONS includes the v2.2.3 Credits and Cite footer", {
+    titles <- vapply(.ABOUT_SECTIONS, function(s) s$title, character(1L))
+    expect_true("Credits and Cite" %in% titles)
+    expect_true("Venn Diagram Lab" %in% titles)
+    expect_true("Plots" %in% titles)
+    expect_true("Statistics" %in% titles)
+    credits <- .ABOUT_SECTIONS[[which(titles == "Credits and Cite")]]
+    # Body must mention the Zenodo DOI verbatim.
+    expect_true(grepl("10.5281/zenodo.19510813", credits$body, fixed = TRUE))
+    # Body must mention the web tool URL.
+    expect_true(grepl("venndiagramlab.org", credits$body, fixed = TRUE))
+})
+
+test_that("to_pdf_report PDF text contains the Credits and Cite section", {
+    skip_on_cran()
+    skip_if_not_installed("pdftools")
+    skip_if(getRversion() < "4.6", "PDF integration tests require R >= 4.6 (patchwork+ComplexUpset+ggplot2 interaction breaks on older R)")
+    ds <- methods::new("VennDataset",
+        set_names = c("A", "B"),
+        items = list(A = c("g1", "g2"), B = c("g2", "g3")),
+        item_order = c("g1", "g2", "g3"),
+        universe_size = 3L, source_path = NULL, format = "csv"
+    )
+    res <- analyze(ds)
+    tmp <- tempfile(fileext = ".pdf")
+    on.exit(unlink(tmp))
+    to_pdf_report(res, tmp)
+    text <- paste(pdftools::pdf_text(tmp), collapse = "\n")
+    expect_match(text, "Credits and Cite", fixed = TRUE)
+    expect_match(text, "10.5281/zenodo.19510813", fixed = TRUE)
+})
+
 # ---------------------------------------------------------------------------
 # to_pdf_report integration tests (C1)
 # ---------------------------------------------------------------------------
@@ -180,8 +221,9 @@ test_that("to_pdf_report produces a PDF with expected page count", {
     on.exit(unlink(tmp))
     to_pdf_report(res, tmp)
     info <- pdftools::pdf_info(tmp)
-    # Default: overview + venn+upset + statistics(1, n<=4) + network + about = 5 pages
-    expect_equal(info$pages, 5L)
+    # Default: overview + venn+upset + statistics(1, n<=4) + network + about (1+ pages).
+    # v2.2.3 unified About+Credits text may paginate to 2-3 pages, so allow >= 5.
+    expect_gte(info$pages, 5L)
 })
 
 test_that("to_pdf_report omits network/about pages when flags are FALSE", {
@@ -239,6 +281,7 @@ test_that("to_pdf_report works on bundled cancer drivers sample", {
     on.exit(unlink(tmp))
     to_pdf_report(res, tmp)
     info <- pdftools::pdf_info(tmp)
-    # 4 sets: overview + venn+upset + statistics(1) + network + about = 5
-    expect_equal(info$pages, 5L)
+    # 4 sets: overview + venn+upset + statistics(1) + network + about (1+ pages).
+    # v2.2.3 unified About+Credits text may paginate to 2-3 pages, so allow >= 5.
+    expect_gte(info$pages, 5L)
 })

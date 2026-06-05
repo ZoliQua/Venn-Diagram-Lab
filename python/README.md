@@ -186,6 +186,13 @@ Sørensen-Dice, Intersection Enrichment) and a `README.txt` with
 provenance + the full *About This Report* methodology text — closing
 the parity gap with the webtool's *Download Everything* button.
 
+The PDF report's final pages now carry the unified *About This Report*
+appendix — the same 12 structured sections used by the webtool and the
+R companion (intro + Plots + Statistics blocks) — and end with a
+*Credits and Cite* footer listing authors, package URLs, and the
+Zenodo DOI. Titles render in bold; bodies in plain weight; the content
+auto-paginates across as many landscape pages as it needs.
+
 ## Export to TSV (matches the web tool byte-for-byte)
 
 ```python

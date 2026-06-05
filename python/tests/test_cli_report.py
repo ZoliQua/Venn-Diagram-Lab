@@ -156,3 +156,75 @@ def test_to_excel_workbook_3_sheets(tmp_path: Path) -> None:
     to_excel_workbook(result, target)
     wb = load_workbook(target, read_only=True)
     assert set(wb.sheetnames) >= {"Jaccard", "Sørensen-Dice", "Enrichment"}
+
+
+# ----- v2.2.3 About + Credits unification -----------------------------------
+
+
+def test_about_sections_include_credits_and_cite() -> None:
+    """The structured About sections must include the v2.2.3 Credits footer."""
+    from venn_diagram_lab.render.pdf import _ABOUT_SECTIONS  # noqa: PLC0415
+
+    titles = [t for t, _ in _ABOUT_SECTIONS]
+    assert "Venn Diagram Lab" in titles
+    assert "Plots" in titles
+    assert "Statistics" in titles
+    assert "Credits and Cite" in titles
+    # Verify the credits body carries the Zenodo DOI + web tool URL verbatim.
+    credits_body = next(b for t, b in _ABOUT_SECTIONS if t == "Credits and Cite")
+    assert "10.5281/zenodo.19510813" in credits_body
+    assert "venndiagramlab.org" in credits_body
+
+
+def test_about_sections_titles_match_webtool() -> None:
+    """Structured Python About sections must mirror the webtool catalog 1:1."""
+    from venn_diagram_lab.render.pdf import _ABOUT_SECTIONS  # noqa: PLC0415
+
+    expected_titles = [
+        "Venn Diagram Lab",
+        "Plots",
+        "1. Venn Diagrams",
+        "2. UpSet Plots",
+        "3. Set Relationship Network",
+        "Statistics",
+        "1. Pairwise Jaccard Index",
+        "2. Sorensen-Dice Index",
+        "3. Intersection Enrichment (Hypergeometric Test)",
+        "4. Bar chart",
+        "5. Lollipop chart",
+        "6. Heatmap",
+        "7. Item Share Distribution",
+        "8. Cluster Heatmap",
+        "Credits and Cite",
+    ]
+    assert [t for t, _ in _ABOUT_SECTIONS] == expected_titles
+
+
+def test_build_about_pages_returns_at_least_one_figure() -> None:
+    """``_build_about_pages`` returns a non-empty list of matplotlib Figures."""
+    from matplotlib.figure import Figure  # noqa: PLC0415
+
+    from venn_diagram_lab.render.pdf import _build_about_pages  # noqa: PLC0415
+
+    pages = _build_about_pages()
+    assert len(pages) >= 1
+    assert all(isinstance(p, Figure) for p in pages)
+    # Clean up so matplotlib doesn't warn about too many open figures.
+    import matplotlib.pyplot as plt  # noqa: PLC0415
+    for fig in pages:
+        plt.close(fig)
+
+
+# Floor for the v2.2.3 PDF: at least the v2.2.2 share-dist baseline plus the
+# multi-section About + Credits payload (text on landscape A4 adds ~10-30 KB).
+_MIN_PDF_SIZE_WITH_ABOUT_CREDITS = 60_000
+
+
+def test_report_pdf_includes_about_credits(tmp_path: Path) -> None:
+    """The v2.2.3 PDF report must embed the unified About + Credits content."""
+    target = tmp_path / "ac.pdf"
+    res = runner.invoke(app, ["report", "pdf", SAMPLE, "--out", str(target)])
+    assert res.exit_code == 0, res.output
+    assert target.exists()
+    # Size floor: about-credits multi-page block must produce non-trivial PDF.
+    assert target.stat().st_size > _MIN_PDF_SIZE_WITH_ABOUT_CREDITS

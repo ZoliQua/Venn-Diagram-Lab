@@ -194,4 +194,8 @@ def _build_readme_text(
         f"  report.pdf                          Multi-page PDF report\n"
         f"  README.txt                          This file\n\n"
     )
-    return header + _ABOUT_TEXT
+    # v2.2.3: prepend an "About This Report" banner so the README mirrors the
+    # PDF appendix header. _ABOUT_TEXT itself now starts with the structured
+    # "Venn Diagram Lab" section, not the banner (it's a flattening of the
+    # _ABOUT_SECTIONS list which groups intro/plots/statistics/credits).
+    return header + "About This Report\n\n" + _ABOUT_TEXT

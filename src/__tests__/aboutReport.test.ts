@@ -46,4 +46,11 @@ describe('ABOUT_REPORT_SECTIONS', () => {
       }
     }
   });
+
+  it('ends with a Credits and Cite section carrying the Zenodo DOI', () => {
+    const last = ABOUT_REPORT_SECTIONS[ABOUT_REPORT_SECTIONS.length - 1];
+    expect(last.title).toBe('Credits and Cite');
+    expect(last.text).toContain('10.5281/zenodo.19510813');
+    expect(last.text).toContain('venndiagramlab.org');
+  });
 });
