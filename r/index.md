@@ -46,8 +46,7 @@ Python package down to the byte.
 
 ### 2.1. From CRAN (recommended)
 
-`vennDiagramLab` is on CRAN as of **2026-05-18** (current version:
-**2.2.2**):
+`vennDiagramLab` is on CRAN (current version: **2.4.0**):
 
 ``` r
 
@@ -114,6 +113,13 @@ See
 [`vignette("v01_quickstart")`](https://zoliqua.github.io/Venn-Diagram-Lab/r/articles/v01_quickstart.md)
 for the full intro and `browseVignettes("vennDiagramLab")` for the
 complete eight-vignette gallery.
+
+### 3.1 Complete User Guide
+
+You can reach the complete
+[`USER GUIDE`](https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/r/user-guide/USER_GUIDE.md)
+here in markdown format or downlad it as a
+[`PDF File`](https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/r/user-guide/USER_GUIDE.pdf).
 
 ## 4. Statistics surfaces
 
@@ -275,6 +281,8 @@ reference style:
     https://CRAN.R-project.org/package=vennDiagramLab
     DOI: 10.32614/CRAN.package.vennDiagramLab
 
+[![DOI](http://www.venndiagramlab.org/zenodo.19510813.svg)](https://doi.org/10.5281/zenodo.19510813)
+
 ## 10. Contributing + bug reports
 
 - Issues: <https://github.com/ZoliQua/Venn-Diagram-Lab/issues>
@@ -285,4 +293,4 @@ reference style:
 ## 11. License
 
 MIT — see
-[LICENSE](https://zoliqua.github.io/Venn-Diagram-Lab/r/LICENSE).
+[LICENSE](https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/r/LICENSE).
