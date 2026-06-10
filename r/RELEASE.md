@@ -25,6 +25,7 @@ combined pretest gauntlet:
 | v2.0.3 | 2026-05-08 | 10-minute checktime budget — `skip_on_cran()` on slow tests |
 | v2.0.4 | 2026-05-12 | DESCRIPTION single-quoting per reviewer feedback |
 | v2.0.5 | 2026-05-12 | `inst/CITATION` pre-install NA crash + finish vignette skip |
+| v2.4.2 | 2026-06-10 | Checktime NOTE again (23 min on r-devel-windows): vectorised the quadratic CSV/TSV loader + `skip_on_cran()` on heavy PDF tests |
 
 The Bioc track runs independently via the `r/` subtree mirror at
 [`ZoliQua/vennDiagramLab`](https://github.com/ZoliQua/vennDiagramLab),
