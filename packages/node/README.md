@@ -51,8 +51,10 @@ vdl render enrichment-bar     genes.tsv --out bar.svg --metric foldEnrichment
 vdl render enrichment-lollipop genes.tsv --out lollipop.svg
 vdl render upset              genes.tsv --out upset.svg
 vdl render proportional       two_set.tsv --out proportional.svg   # 2-3 sets only
+vdl render venn               genes.tsv --model venn-4-set --out venn.svg
 ```
 
-Network, Item-Share-Distribution, Enrichment (bar / lollipop), UpSet, and area-proportional SVGs
-are byte-identical to the web tool's (shared builders). The 44 templated Venn models and PNG/PDF
-rasterisation land in later releases.
+Network, Item-Share-Distribution, Enrichment (bar / lollipop), UpSet, area-proportional, and
+templated Venn SVGs are byte-identical to the web tool's (shared builders). Use
+`listVennModels()` to get the full list of available model names. PNG/PDF rasterisation lands
+in a later release.

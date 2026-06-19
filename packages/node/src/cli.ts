@@ -6,7 +6,7 @@ import {
   analyzeGmtText, analyzeGmxText, analyzeCsvText,
   toMatrixTsv, toRegionSummaryTsv, toStatisticsTsv,
   toNetworkSvg, toShareDistributionSvg, toEnrichmentBarSvg, toEnrichmentLollipopSvg, toUpsetSvg,
-  toProportionalSvg,
+  toProportionalSvg, toVennSvg,
 } from './api.ts';
 
 const program = new Command();
@@ -39,12 +39,13 @@ program
 
 program
   .command('render')
-  .description('Render an SVG figure (network | share-dist | enrichment-bar | enrichment-lollipop | upset | proportional).')
-  .argument('<kind>', 'network | share-dist | enrichment-bar | enrichment-lollipop | upset | proportional')
+  .description('Render an SVG figure (network | share-dist | enrichment-bar | enrichment-lollipop | upset | proportional | venn).')
+  .argument('<kind>', 'network | share-dist | enrichment-bar | enrichment-lollipop | upset | proportional | venn')
   .argument('<input>', 'input CSV/TSV/GMT/GMX path')
   .option('--out <path>', 'write the SVG here (default: stdout)')
   .option('--metric <metric>', 'edge/enrichment metric')
-  .action((kind: string, input: string, opts: { out?: string; metric?: string }) => {
+  .option('--model <name>', 'Venn model template (for kind=venn), e.g. venn-4-set')
+  .action((kind: string, input: string, opts: { out?: string; metric?: string; model?: string }) => {
     const text = readFileSync(input, 'utf8');
     const fmt = detectGeneSetFormat(input);
     const result =
@@ -59,6 +60,14 @@ program
       case 'enrichment-lollipop': svg = opts.metric ? toEnrichmentLollipopSvg(result, opts.metric as never) : toEnrichmentLollipopSvg(result); break;
       case 'upset': svg = toUpsetSvg(result); break;
       case 'proportional': svg = toProportionalSvg(result); break;
+      case 'venn':
+        if (!opts.model) {
+          process.stderr.write('render venn requires --model <name> (e.g. --model venn-4-set)\n');
+          process.exitCode = 1;
+          return;
+        }
+        svg = toVennSvg(result, opts.model);
+        break;
       default:
         process.stderr.write(`Unknown render kind: ${kind}\n`);
         process.exitCode = 1;

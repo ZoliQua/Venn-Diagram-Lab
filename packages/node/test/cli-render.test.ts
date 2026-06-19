@@ -33,3 +33,19 @@ describe('vdl render proportional', () => {
     expect(svg.trimEnd().endsWith('</svg>')).toBe(true);
   });
 });
+
+describe('vdl render venn', () => {
+  const SAMPLE = join(PKG, '..', '..', 'data', 'dataset_real_cancer_drivers_4.tsv');
+  it('renders a templated Venn to a file', () => {
+    const out = join(mkdtempSync(join(tmpdir(), 'vdl-')), 'venn.svg');
+    execFileSync('node', [CLI, 'render', 'venn', SAMPLE, '--model', 'venn-4-set', '--out', out], { encoding: 'utf8' });
+    const svg = readFileSync(out, 'utf8');
+    expect(svg).toContain('<svg');
+    expect(svg.trimEnd().endsWith('</svg>')).toBe(true);
+  });
+
+  it('errors when --model is omitted for venn', () => {
+    const input = join(PKG, '..', '..', 'data', 'dataset_real_cancer_drivers_4.tsv');
+    expect(() => execFileSync('node', [CLI, 'render', 'venn', input], { encoding: 'utf8', stdio: 'pipe' })).toThrow();
+  });
+});
