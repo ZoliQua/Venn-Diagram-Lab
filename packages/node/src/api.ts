@@ -1,3 +1,4 @@
+import { fillVennTemplate, loadVennTemplate } from './vennTemplate.ts';
 import {
   buildEnrichmentBarSvg,
   buildEnrichmentLollipopSvg,
@@ -136,6 +137,15 @@ export function toEnrichmentLollipopSvg(result: AnalyzeResult, metric: Enrichmen
 export function toUpsetSvg(result: AnalyzeResult): string {
   const data = upsetDataFromVennResult(result.venn, result.columns.length);
   return buildUpsetSvgString(data, result.setNames);
+}
+
+/** Render the analysis result into a bundled Venn model template (by filename, ".svg" optional). */
+export function toVennSvg(result: AnalyzeResult, model: string): string {
+  const template = loadVennTemplate(model);
+  return fillVennTemplate(template, {
+    setNames: result.setNames,
+    counts: result.venn.exclusive,
+  });
 }
 
 /**
