@@ -6,7 +6,7 @@ const MODELS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets',
 
 /** Filenames of all bundled Venn model templates (e.g. "venn-4-set.svg"). */
 export function listVennModels(): string[] {
-  return readdirSync(MODELS_DIR).filter(f => f.endsWith('.svg')).sort();
+  return readdirSync(MODELS_DIR).filter(f => f.startsWith('venn') && f.endsWith('.svg')).sort();
 }
 
 /** Read a bundled template by filename (".svg" optional). Throws if unknown. */
@@ -39,9 +39,10 @@ export interface VennFill {
   title?: string;
   setNames: string[];
   counts: ReadonlyMap<string, number>;
+  countSums?: ReadonlyMap<string, number>;
 }
 
-/** Fill a Venn model template's Title / Name<L> / Count_<label> placeholders. Pure. */
+/** Fill a Venn model template's Title / Name<L> / Count_<label> / CountSUM_<label> placeholders. Pure. */
 export function fillVennTemplate(svg: string, fill: VennFill): string {
   let out = svg;
   if (fill.title !== undefined) out = setElementText(out, 'Title', fill.title);
@@ -50,6 +51,11 @@ export function fillVennTemplate(svg: string, fill: VennFill): string {
   });
   for (const [label, count] of fill.counts) {
     out = setElementText(out, `Count_${label}`, String(count));
+  }
+  if (fill.countSums) {
+    for (const [label, sum] of fill.countSums) {
+      out = setElementText(out, `CountSUM_${label}`, String(sum));
+    }
   }
   return out;
 }

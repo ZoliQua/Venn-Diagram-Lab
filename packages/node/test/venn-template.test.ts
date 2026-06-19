@@ -4,8 +4,9 @@ import { fillVennTemplate, listVennModels, loadVennTemplate } from '../src/vennT
 describe('venn template loader', () => {
   it('lists the bundled model filenames', () => {
     const models = listVennModels();
-    expect(models.length).toBeGreaterThanOrEqual(44);
+    expect(models).toHaveLength(44);
     expect(models).toContain('venn-4-set.svg');
+    expect(models).not.toContain('names-bar.svg');
   });
 
   it('loads a template by filename (with or without .svg)', () => {
@@ -56,5 +57,20 @@ describe('fillVennTemplate', () => {
   it('leaves placeholders for labels not in counts', () => {
     const out = fillVennTemplate(tpl, { setNames: ['A', 'B'], counts: new Map([['A', 1]]) });
     expect(out).toContain('id="Count_B" style="z">B<');
+  });
+
+  it('fills CountSUM_<label> when countSums provided', () => {
+    const tplWithSum = [
+      '<svg xmlns="http://www.w3.org/2000/svg">',
+      '<text id="NameA" style="y">NameA</text>',
+      '<text id="CountSUM_A" style="s">CountSUM_A</text>',
+      '</svg>',
+    ].join('\n');
+    const out = fillVennTemplate(tplWithSum, {
+      setNames: ['X'],
+      counts: new Map(),
+      countSums: new Map([['A', 42]]),
+    });
+    expect(out).toContain('id="CountSUM_A" style="s">42<');
   });
 });

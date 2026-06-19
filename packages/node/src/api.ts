@@ -142,9 +142,15 @@ export function toUpsetSvg(result: AnalyzeResult): string {
 /** Render the analysis result into a bundled Venn model template (by filename, ".svg" optional). */
 export function toVennSvg(result: AnalyzeResult, model: string): string {
   const template = loadVennTemplate(model);
+  const modelSets = (template.match(/id="Name[A-I]"/g) ?? []).length;
+  if (modelSets !== result.columns.length) {
+    throw new Error(`Model ${model} has ${modelSets} sets but the data has ${result.columns.length}.`);
+  }
+  const letters = LETTERS.slice(0, result.columns.length).split('');
   return fillVennTemplate(template, {
     setNames: result.setNames,
     counts: result.venn.exclusive,
+    countSums: new Map(letters.map(l => [l, result.venn.inclusive.get(l) ?? 0])),
   });
 }
 
