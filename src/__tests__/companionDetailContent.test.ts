@@ -22,14 +22,21 @@ const R_CARD_IDS = [
   'r-tid-ggplot', 'r-tid-broom',
   'r-doc-vignettes', 'r-doc-pkgdown', 'r-doc-ci',
 ];
+const NODE_CARD_IDS = [
+  'nd-viz-templates', 'nd-viz-proportional', 'nd-viz-upset', 'nd-viz-network', 'nd-viz-raster',
+  'nd-stats-methods',
+  'nd-export-tsv', 'nd-export-png', 'nd-export-pdf',
+  'nd-tool-cli', 'nd-tool-types',
+];
 
 // Keys wired to clickable cells/groups in CompanionPackageDialog.tsx.
 const PYTHON_KEYS: DetailKey[] = ['analysis', 'stats', 'viz', 'export', 'tooling'];
 const R_KEYS: DetailKey[] = ['analysis', 'stats', 'viz', 'export', 'tidyverse'];
+const NODE_KEYS: DetailKey[] = ['analysis', 'stats', 'viz', 'export', 'tooling'];
 
 describe('COMPANION_DETAIL_PANELS', () => {
-  it('exposes a python and an r panel set', () => {
-    expect(Object.keys(COMPANION_DETAIL_PANELS).sort()).toEqual(['python', 'r']);
+  it('exposes a python, r, and node panel set', () => {
+    expect(Object.keys(COMPANION_DETAIL_PANELS).sort()).toEqual(['node', 'python', 'r']);
   });
 
   it('defines every key the dialog can open', () => {
@@ -39,10 +46,13 @@ describe('COMPANION_DETAIL_PANELS', () => {
     for (const key of R_KEYS) {
       expect(getDetailPanel('r', key)).toBeDefined();
     }
+    for (const key of NODE_KEYS) {
+      expect(getDetailPanel('node', key)).toBeDefined();
+    }
   });
 
   it('keeps every panel self-consistent (key matches, prose + code present)', () => {
-    for (const kind of ['python', 'r'] as const) {
+    for (const kind of ['python', 'r', 'node'] as const) {
       for (const [key, panel] of Object.entries(COMPANION_DETAIL_PANELS[kind])) {
         expect(panel.key).toBe(key);
         expect(panel.title.length).toBeGreaterThan(0);
@@ -91,9 +101,10 @@ describe('COMPANION_DETAIL_PANELS', () => {
   });
 
   it('returns undefined for keys not defined for a kind', () => {
-    // 'tooling' is Python-only; 'tidyverse' is R-only.
+    // 'tidyverse' is R-only; 'tooling' is Python + Node but not R.
     expect(getDetailPanel('r', 'tooling')).toBeUndefined();
     expect(getDetailPanel('python', 'tidyverse')).toBeUndefined();
+    expect(getDetailPanel('node', 'tidyverse')).toBeUndefined();
   });
 });
 
@@ -105,15 +116,19 @@ describe('COMPANION_CARD_PANELS (per-card Features panels)', () => {
     for (const id of R_CARD_IDS) {
       expect(getCardPanel('r', id), id).toBeDefined();
     }
+    for (const id of NODE_CARD_IDS) {
+      expect(getCardPanel('node', id), id).toBeDefined();
+    }
   });
 
   it('has no extra/orphan card panels beyond the wired ids', () => {
     expect(Object.keys(COMPANION_CARD_PANELS.python).sort()).toEqual([...PYTHON_CARD_IDS].sort());
     expect(Object.keys(COMPANION_CARD_PANELS.r).sort()).toEqual([...R_CARD_IDS].sort());
+    expect(Object.keys(COMPANION_CARD_PANELS.node).sort()).toEqual([...NODE_CARD_IDS].sort());
   });
 
   it('keeps every card panel rich: longer prose + a runnable block', () => {
-    for (const kind of ['python', 'r'] as const) {
+    for (const kind of ['python', 'r', 'node'] as const) {
       for (const [id, panel] of Object.entries(COMPANION_CARD_PANELS[kind])) {
         expect(panel.title.length, id).toBeGreaterThan(0);
         expect(panel.blurb.length, id).toBeGreaterThan(80);
@@ -135,6 +150,7 @@ describe('COMPANION_CARD_PANELS (per-card Features panels)', () => {
   it('grounds a few card snippets in their headline function', () => {
     const py = (id: string) => getCardPanel('python', id)!.blocks.map(b => b.code).join('\n');
     const r = (id: string) => getCardPanel('r', id)!.blocks.map(b => b.code).join('\n');
+    const nd = (id: string) => getCardPanel('node', id)!.blocks.map(b => b.code).join('\n');
 
     expect(py('py-viz-templates')).toContain('list_models(');
     expect(py('py-viz-upset')).toContain('render_upset(');
@@ -142,5 +158,15 @@ describe('COMPANION_CARD_PANELS (per-card Features panels)', () => {
     expect(r('r-viz-proportional')).toContain('solve_2set(');
     expect(r('r-tid-broom')).toContain('augment(result)');
     expect(r('r-doc-vignettes')).toContain('browseVignettes(');
+
+    expect(nd('nd-viz-templates')).toContain('listVennModels(');
+    expect(nd('nd-viz-templates')).toContain('toVennSvg(');
+    expect(nd('nd-viz-upset')).toContain('toUpsetSvg(');
+    expect(nd('nd-viz-network')).toContain('toNetworkSvg(');
+    expect(nd('nd-viz-raster')).toContain('svgToPng(');
+    expect(nd('nd-export-tsv')).toContain('toRegionSummaryTsv(');
+    expect(nd('nd-export-pdf')).toContain('svgToPdf(');
+    expect(nd('nd-tool-cli')).toContain('vdl ');
+    expect(nd('nd-tool-types')).toContain('analyzeCsvText(');
   });
 });

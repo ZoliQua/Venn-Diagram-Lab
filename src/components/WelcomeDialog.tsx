@@ -43,7 +43,7 @@ function OrcidLink({ id, name }: { id: string; name: string }) {
 export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour }: WelcomeDialogProps) {
   const [showCredits, setShowCredits] = useState(false);
   const [showAboutVenn, setShowAboutVenn] = useState(false);
-  const [companionDialog, setCompanionDialog] = useState<'python' | 'r' | null>(null);
+  const [companionDialog, setCompanionDialog] = useState<'python' | 'r' | 'node' | null>(null);
   const [showCitation, setShowCitation] = useState(false);
 
   if (!isOpen) return null;
@@ -234,6 +234,16 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour }: 
             <span className="welcome-companion-btn-text">
               <span className="welcome-companion-btn-title">R Package</span>
               <span className="welcome-companion-btn-sub">vennDiagramLab · on CRAN</span>
+            </span>
+          </button>
+          <button
+            className="btn welcome-summary-btn welcome-companion-btn"
+            onClick={() => setCompanionDialog('node')}
+          >
+            <span className="welcome-companion-btn-icon welcome-companion-btn-icon-node" aria-hidden="true">JS</span>
+            <span className="welcome-companion-btn-text">
+              <span className="welcome-companion-btn-title">Node Package</span>
+              <span className="welcome-companion-btn-sub">venn-diagram-lab · on npm</span>
             </span>
           </button>
         </div>

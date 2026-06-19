@@ -2,6 +2,31 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.4.1 — 2026-06-19 — Node companion package dialog
+
+### Web tool
+
+- **Node Package companion dialog added.** A third companion button ("Node
+  Package · venn-diagram-lab · on npm") now appears in the Welcome screen
+  alongside the Python and R buttons.
+- The `CompanionPackageDialog` supports a new `'node'` kind with four tabs
+  (Overview, Install & Quickstart, Features, Links) mirroring the R dialog's
+  structure. Content is grounded in the real `venn-diagram-lab` npm exports:
+  `analyzeCsvText` / `analyzeGmtText` / `analyzeGmxText` / `analyzeCsv`,
+  `toRegionSummaryTsv` / `toMatrixTsv` / `toStatisticsTsv`,
+  `toVennSvg` / `toProportionalSvg` / `toUpsetSvg` / `toNetworkSvg` /
+  `toShareDistributionSvg` / `toEnrichmentBarSvg` / `toEnrichmentLollipopSvg`,
+  `svgToPng` / `svgToPdf`, `listSamples` / `loadSampleText` /
+  `listVennModels` / `loadVennTemplate`, and the `vdl` CLI.
+- 11 `nd-*` per-card code panels added to `companionDetailPanels.ts`
+  (`nd-viz-templates`, `nd-viz-proportional`, `nd-viz-upset`, `nd-viz-network`,
+  `nd-viz-raster`, `nd-stats-methods`, `nd-export-tsv`, `nd-export-png`,
+  `nd-export-pdf`, `nd-tool-cli`, `nd-tool-types`).
+- `CompanionKind` extended to `'python' | 'r' | 'node'`. All existing Python
+  and R paths are unchanged.
+- Tests in `companionDetailContent.test.ts` extended to cover `node`
+  card-ids, keys, no-orphan check, and API-grounding assertions.
+
 ## v2.4.0 — 2026-06-06 — Per-card code panels on the companion Features tab
 
 ### Web tool

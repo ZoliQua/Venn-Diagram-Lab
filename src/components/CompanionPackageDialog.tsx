@@ -34,6 +34,13 @@ const R_TABS: TabSpec[] = [
   { id: 'links', label: 'Links' },
 ];
 
+const NODE_TABS: TabSpec[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'install', label: 'Install & Quickstart' },
+  { id: 'features', label: 'Features' },
+  { id: 'links', label: 'Links' },
+];
+
 const REPO_BASE = 'https://github.com/ZoliQua/Venn-Diagram-Lab';
 const NB_BASE_GITHUB = `${REPO_BASE}/blob/main/python/examples`;
 const NB_BASE_NBVIEWER = 'https://nbviewer.org/github/ZoliQua/Venn-Diagram-Lab/blob/main/python/examples';
@@ -178,6 +185,30 @@ function RLogo() {
         fill="url(#rRed)"
         d="M30 65 L30 18 L55 18 C68 18 75 24 75 32 C75 40 68 44 60 44 L48 44 L70 65 L57 65 L40 44 L40 65 Z M40 25 L40 38 L52 38 C58 38 62 35 62 32 C62 28 58 25 52 25 Z"
       />
+    </svg>
+  );
+}
+
+function NodeLogo() {
+  return (
+    <svg viewBox="0 0 80 80" width="44" height="44" aria-hidden="true" className="companion-logo-svg">
+      <defs>
+        <linearGradient id="ndGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#57A846" />
+          <stop offset="100%" stopColor="#3D8B37" />
+        </linearGradient>
+        <linearGradient id="ndDark" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#333333" />
+          <stop offset="100%" stopColor="#1A1A1A" />
+        </linearGradient>
+      </defs>
+      {/* Hexagon background */}
+      <polygon points="40,4 73,22 73,58 40,76 7,58 7,22" fill="url(#ndGreen)" />
+      {/* npm-style squares representing the node logo mark */}
+      <rect x="17" y="30" width="46" height="20" fill="url(#ndDark)" rx="2" />
+      <rect x="23" y="36" width="8" height="14" fill="url(#ndGreen)" rx="1" />
+      <rect x="36" y="36" width="8" height="8" fill="url(#ndGreen)" rx="1" />
+      <rect x="49" y="36" width="8" height="14" fill="url(#ndGreen)" rx="1" />
     </svg>
   );
 }
@@ -1297,25 +1328,332 @@ function RContent({ activeTab, onOpen }: { activeTab: TabId; onOpen: OpenPanel }
   );
 }
 
+function NodeInstallTab() {
+  return (
+    <div className="companion-section">
+      <div className="companion-install-intro">
+        <p className="companion-paragraph">
+          From a clean Node.js 18+ environment to your first rendered Venn
+          diagram in under a minute. The package ships ESM + CJS builds,
+          TypeScript declarations, all 44 SVG templates, five sample datasets,
+          and the <code>vdl</code> CLI — no extra setup needed for SVG-only
+          workflows.
+        </p>
+      </div>
+
+      <div className="companion-install-board">
+
+        <div className="companion-install-step">
+          <div className="companion-install-step-num">1</div>
+          <div className="companion-install-step-body">
+            <div className="companion-install-step-title">Install from npm</div>
+            <p className="companion-install-step-hint">
+              Installs the library, the bundled assets, and the{' '}
+              <code>vdl</code> CLI binary. Requires Node.js 18 or newer.
+            </p>
+            <CodeBlock label="Shell">npm install venn-diagram-lab</CodeBlock>
+          </div>
+        </div>
+
+        <div className="companion-install-step companion-install-step-verify">
+          <div className="companion-install-step-num companion-install-step-num-check" aria-hidden="true">{'✓'}</div>
+          <div className="companion-install-step-body">
+            <div className="companion-install-step-title">Verify the install</div>
+            <CodeBlock label="Shell">{`npx vdl --version
+# 2.4.0`}</CodeBlock>
+          </div>
+        </div>
+
+      </div>
+
+      <div className="companion-section-divider">
+        <span className="companion-section-divider-label">Quickstart paths</span>
+      </div>
+      <p className="companion-paragraph">
+        Three common entry points. Pick the one that matches how your data
+        arrives.
+      </p>
+
+      <div className="companion-quickstart-grid">
+
+        <div className="companion-quickstart-card" data-quickstart="sample">
+          <div className="companion-quickstart-card-header">
+            <span className="companion-quickstart-card-badge">30-second</span>
+            <h4 className="companion-quickstart-card-title">Bundled sample → TSV + SVG + PNG</h4>
+          </div>
+          <p className="companion-quickstart-card-desc">
+            Five curated datasets ship inside the package — no external files
+            needed.
+          </p>
+          <CodeBlock label="TypeScript">{`import { writeFileSync } from 'node:fs';
+import {
+  loadSampleText,
+  analyzeCsvText,
+  toRegionSummaryTsv,
+  toVennSvg,
+  svgToPng,
+} from 'venn-diagram-lab';
+
+const result = analyzeCsvText(
+  loadSampleText('dataset_real_cancer_drivers_4')
+);
+// result.setNames → ['Vogelstein', 'COSMIC_CGC', 'OncoKB', 'IntOGen']
+
+writeFileSync('summary.tsv', toRegionSummaryTsv(result), 'utf8');
+
+const svg = toVennSvg(result, 'venn-4-set');
+writeFileSync('venn.svg', svg, 'utf8');
+
+const png = svgToPng(svg, { fitWidth: 1200 });
+writeFileSync('venn.png', png);`}</CodeBlock>
+        </div>
+
+        <div className="companion-quickstart-card" data-quickstart="data">
+          <div className="companion-quickstart-card-header">
+            <span className="companion-quickstart-card-badge">Your data</span>
+            <h4 className="companion-quickstart-card-title">Load CSV / TSV / GMT / GMX</h4>
+          </div>
+          <p className="companion-quickstart-card-desc">
+            Four input formats, same auto-detection as the web tool — binary
+            0/1 matrix or aggregated (column = set, cells = items).
+          </p>
+          <CodeBlock label="TypeScript">{`import { readFileSync } from 'node:fs';
+import {
+  analyzeCsvText,
+  analyzeGmtText,
+  analyzeGmxText,
+  toRegionSummaryTsv,
+  toMatrixTsv,
+  toStatisticsTsv,
+} from 'venn-diagram-lab';
+
+// CSV / TSV — auto-detects binary vs. aggregated
+const result = analyzeCsvText(
+  readFileSync('genes.tsv', 'utf8')
+);
+
+// GMT / GMX gene-set formats
+const gmtResult = analyzeGmtText(readFileSync('hallmark.gmt', 'utf8'));
+const gmxResult = analyzeGmxText(readFileSync('hallmark.gmx', 'utf8'));
+
+// Export all three TSVs
+writeFileSync('summary.tsv',    toRegionSummaryTsv(result), 'utf8');
+writeFileSync('items.tsv',      toMatrixTsv(result),        'utf8');
+writeFileSync('statistics.tsv', toStatisticsTsv(result),    'utf8');`}</CodeBlock>
+        </div>
+
+        <div className="companion-quickstart-card" data-quickstart="cli">
+          <div className="companion-quickstart-card-header">
+            <span className="companion-quickstart-card-badge">CLI</span>
+            <h4 className="companion-quickstart-card-title">One-shot from the shell</h4>
+          </div>
+          <p className="companion-quickstart-card-desc">
+            No Node session required — <code>vdl</code> ships with the package
+            and covers all analysis and render surfaces.
+          </p>
+          <CodeBlock label="Shell">{`# Use without a global install
+npx vdl analyze genes.tsv
+npx vdl render venn genes.tsv --model venn-4-set --out venn.svg
+
+# Or install globally
+npm install -g venn-diagram-lab
+vdl render network genes.tsv --metric jaccard --out network.png
+vdl --help`}</CodeBlock>
+        </div>
+
+      </div>
+
+      <div className="companion-callout">
+        <strong>Next:</strong> jump to the <em>Features</em> tab for a full
+        breakdown of every render kind, export format, and CLI flag, or visit
+        the <em>Links</em> tab for the npm page and the full User Guide.
+      </div>
+
+    </div>
+  );
+}
+
+function NodeContent({ activeTab, onOpen }: { activeTab: TabId; onOpen: OpenPanel }) {
+  const CAT = COMPANION_DETAIL_PANELS.node;
+  const CARD = COMPANION_CARD_PANELS.node;
+
+  if (activeTab === 'overview') {
+    return (
+      <div className="companion-section">
+        <p className="companion-paragraph">
+          <strong>venn-diagram-lab</strong> is the headless Node.js/TypeScript
+          companion to the Venn Diagram Lab web tool. It shares the same core
+          analysis math, the same 44 SVG templates, and a byte-equivalent TSV
+          export contract with the web tool and with the Python and R companion
+          packages — but runs entirely in Node.js without a browser.
+        </p>
+        <p className="companion-paragraph">
+          The package ships ESM + CJS builds with full TypeScript type
+          declarations, making it a drop-in for TypeScript scripts, CI jobs,
+          and server-side pipelines. Outputs are <em>byte-identical</em> to the
+          web tool's TSV exports — every release is parity-tested across all
+          four surfaces, so a Node script and the browser produce the same
+          files. Requires Node.js ≥ 18.
+        </p>
+
+        <h3 className="companion-h3">What you get <span className="companion-h3-hint">— click a card for code</span></h3>
+        <div className="companion-feature-grid">
+          <FeatureCellButton category="analysis" panel={CAT.analysis} icon={'\u{1F4C2}'} title="Analysis" onOpen={onOpen}>
+            Load CSV / TSV / GMT / GMX. Compute set sizes, all 2<sup>n</sup>−1 intersections, auto-detect binary vs. aggregated mode.
+          </FeatureCellButton>
+          <FeatureCellButton category="stats" panel={CAT.stats} icon={'\u{1F9EE}'} title="Statistics" onOpen={onOpen}>
+            Pairwise Jaccard, Dice, fold enrichment, hypergeometric p-values with BH-FDR — byte-equivalent to the web tool.
+          </FeatureCellButton>
+          <FeatureCellButton category="viz" panel={CAT.viz} icon={'\u{1F3A8}'} title="Visualization" onOpen={onOpen}>
+            7 SVG renderers: 44 templates, area-proportional 2/3-set, UpSet, network, share-dist, enrichment bar & lollipop.
+          </FeatureCellButton>
+          <FeatureCellButton category="export" panel={CAT.export} icon={'\u{1F4C4}'} title={<>Reports &amp; Export</>} onOpen={onOpen}>
+            Byte-equivalent TSV exports + PNG (sync) and single-page PDF (async) via svgToPng / svgToPdf.
+          </FeatureCellButton>
+        </div>
+
+        <div className="companion-badges">
+          <span className="companion-badge companion-badge-stable">Stable · v2.4.0</span>
+          <span className="companion-badge">Node ≥ 18</span>
+          <span className="companion-badge">ESM + CJS + TS types</span>
+          <span className="companion-badge">MIT License</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeTab === 'install') {
+    return <NodeInstallTab />;
+  }
+
+  if (activeTab === 'features') {
+    return (
+      <div className="companion-section">
+        <div className="companion-feature-board">
+
+          <div className="companion-feature-group" data-category="viz">
+            <FeatureGroupHeader title="Visualization" count="7 renderers" panel={CAT.viz} onOpen={onOpen} />
+            <div className="companion-feature-cards">
+              <FeatureCard panel={CARD['nd-viz-templates']} icon={'\u{1F3A8}'} title="44 SVG templates"
+                desc="Every model from the web tool, 2-set to 9-set, bundled in the npm package. toVennSvg() fills them with counts and names." onOpen={onOpen} />
+              <FeatureCard panel={CARD['nd-viz-proportional']} icon={'\u{2696}\u{FE0F}'} title="Area-proportional"
+                desc="toProportionalSvg() draws circles scaled to region sizes. Analytical 2-set layout; approximate 3-set." onOpen={onOpen} />
+              <FeatureCard panel={CARD['nd-viz-upset']} icon={'\u{1F4CA}'} title="UpSet plots"
+                desc="toUpsetSvg() — print-optimized matrix + intersection bars, up to 20 columns." onOpen={onOpen} />
+              <FeatureCard panel={CARD['nd-viz-network']} icon={'\u{1F578}\u{FE0F}'} title="Force-directed network"
+                desc="toNetworkSvg() — pairwise edge weighting: intersection, jaccard, foldEnrichment, overlapCoeff." onOpen={onOpen} />
+              <FeatureCard panel={CARD['nd-viz-raster']} icon={'\u{1F5BC}\u{FE0F}'} title={<>PNG &amp; PDF output</>}
+                desc="svgToPng() (sync) and svgToPdf() (async) — rasterize any SVG render with fitWidth scaling." onOpen={onOpen} />
+            </div>
+          </div>
+
+          <div className="companion-feature-group" data-category="stats">
+            <FeatureGroupHeader title="Analysis & Statistics" count="parity-tested" panel={CAT.stats} onOpen={onOpen} />
+            <div className="companion-feature-cards companion-feature-cards-single">
+              <FeatureCard panel={CARD['nd-stats-methods']} wide icon={'\u{1F9EE}'} title="Statistical methods"
+                desc={(
+                  <>
+                    Set sizes, all 2<sup>n</sup>−1 intersections, pairwise
+                    Jaccard, Sørensen-Dice, fold enrichment, hypergeometric
+                    p-values with Benjamini-Hochberg FDR correction. Same
+                    algorithms and rounding as the web tool.
+                  </>
+                )} onOpen={onOpen} />
+            </div>
+          </div>
+
+          <div className="companion-feature-group" data-category="export">
+            <FeatureGroupHeader title="Export" count="3 TSV + raster" panel={CAT.export} onOpen={onOpen} />
+            <div className="companion-feature-cards">
+              <FeatureCard panel={CARD['nd-export-tsv']} icon={'\u{1F4CB}'} title="Byte-equivalent TSV"
+                desc="toRegionSummaryTsv · toMatrixTsv · toStatisticsTsv — identical bytes to the web tool's Export buttons." onOpen={onOpen} />
+              <FeatureCard panel={CARD['nd-export-png']} icon={'\u{1F4F7}'} title="PNG (sync)"
+                desc="svgToPng(svg, { fitWidth? }) — synchronous, returns Uint8Array via @resvg/resvg-js." onOpen={onOpen} />
+              <FeatureCard panel={CARD['nd-export-pdf']} icon={'\u{1F4C4}'} title="PDF (async, single-page)"
+                desc="svgToPdf(svg, { fitWidth? }) — async Promise<Uint8Array>; page sized to SVG dimensions." onOpen={onOpen} />
+            </div>
+          </div>
+
+          <div className="companion-feature-group" data-category="tooling">
+            <FeatureGroupHeader title="Developer Tooling" count="2 surfaces" panel={CAT.tooling} onOpen={onOpen} />
+            <div className="companion-feature-cards">
+              <FeatureCard panel={CARD['nd-tool-cli']} icon={'\u{2328}\u{FE0F}'} title={<>CLI <code>vdl</code></>}
+                desc="Bundled binary: analyze + 7 render kinds; .svg/.png/.pdf inferred from --out extension." onOpen={onOpen} />
+              <FeatureCard panel={CARD['nd-tool-types']} icon={'\u{1F4D0}'} title="TypeScript types & ESM/CJS"
+                desc="Full type declarations + ESM and CJS builds; works in import and require() environments (Node ≥ 18)." onOpen={onOpen} />
+            </div>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="companion-section">
+      <div className="companion-link-grid">
+        <LinkCard
+          icon={'\u{1F4E6}'}
+          title="npm — venn-diagram-lab"
+          subtitle="npmjs.com/package/venn-diagram-lab"
+          cta="Install"
+          variant="primary"
+          href="https://www.npmjs.com/package/venn-diagram-lab"
+        />
+        <LinkCard
+          icon={'\u{1F4BB}'}
+          title="GitHub — packages/node"
+          subtitle="ZoliQua/Venn-Diagram-Lab · packages/node"
+          cta="Source"
+          href={`${REPO_BASE}/tree/main/packages/node`}
+        />
+        <LinkCard
+          icon={'\u{1F4D6}'}
+          title="User Guide"
+          subtitle="packages/node/user-guide/USER_GUIDE.md"
+          cta="Read"
+          href={`${REPO_BASE}/blob/main/packages/node/user-guide/USER_GUIDE.md`}
+        />
+        <LinkCard
+          icon={'\u{1F4D2}'}
+          title="README"
+          subtitle="packages/node/README.md"
+          cta="Read"
+          href={`${REPO_BASE}/blob/main/packages/node/README.md`}
+        />
+        <LinkCard
+          icon={'\u{1F41B}'}
+          title="Issues & Feature Requests"
+          subtitle="GitHub issue tracker"
+          cta="Report"
+          href={`${REPO_BASE}/issues`}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function CompanionPackageDialog({ isOpen, onClose, kind }: CompanionPackageDialogProps) {
-  const tabs = kind === 'python' ? PYTHON_TABS : R_TABS;
+  const tabs = kind === 'python' ? PYTHON_TABS : kind === 'r' ? R_TABS : NODE_TABS;
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [detailPanel, setDetailPanel] = useState<DetailPanel | null>(null);
 
   if (!isOpen) return null;
 
-  const title = kind === 'python' ? 'Python Package' : 'R Package';
-  const packageName = kind === 'python' ? 'venn-diagram-lab' : 'vennDiagramLab';
+  const title = kind === 'python' ? 'Python Package' : kind === 'r' ? 'R Package' : 'Node Package';
+  const packageName = kind === 'python' ? 'venn-diagram-lab' : kind === 'r' ? 'vennDiagramLab' : 'venn-diagram-lab';
   const tagline = kind === 'python'
     ? 'Headless Venn diagram analysis & rendering for Python'
-    : 'Headless Venn diagram analysis & rendering for R';
+    : kind === 'r'
+      ? 'Headless Venn diagram analysis & rendering for R'
+      : 'Headless Node.js/TypeScript companion — venn-diagram-lab · on npm';
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div className="welcome-dialog companion-dialog" onClick={e => e.stopPropagation()}>
         <div className="companion-header">
           <div className="companion-header-icon">
-            {kind === 'python' ? <PythonLogo /> : <RLogo />}
+            {kind === 'python' ? <PythonLogo /> : kind === 'r' ? <RLogo /> : <NodeLogo />}
           </div>
           <div className="companion-header-text">
             <h1 className="welcome-title companion-title">{title}: {packageName}</h1>
@@ -1341,7 +1679,9 @@ export function CompanionPackageDialog({ isOpen, onClose, kind }: CompanionPacka
         <div className="companion-body">
           {kind === 'python'
             ? <PythonContent activeTab={activeTab} onOpen={setDetailPanel} />
-            : <RContent activeTab={activeTab} onOpen={setDetailPanel} />}
+            : kind === 'r'
+              ? <RContent activeTab={activeTab} onOpen={setDetailPanel} />
+              : <NodeContent activeTab={activeTab} onOpen={setDetailPanel} />}
         </div>
 
         {detailPanel && (

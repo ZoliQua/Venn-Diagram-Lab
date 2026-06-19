@@ -8,7 +8,7 @@
 //   - R:      r/NAMESPACE (export(...)) + slot accessors
 // Do not introduce function names that are not actually exported.
 
-export type CompanionKind = 'python' | 'r';
+export type CompanionKind = 'python' | 'r' | 'node';
 
 /** A category key shared by the Overview cells and the Features groups. */
 export type DetailKey = 'analysis' | 'stats' | 'viz' | 'export' | 'tooling' | 'tidyverse';
@@ -376,7 +376,191 @@ augment(result)   # item-level membership matrix`,
   },
 };
 
+// ---------------------------------------------------------------------------
+// Node
+// ---------------------------------------------------------------------------
+
+const NODE_PANELS: Record<string, DetailPanel> = {
+  analysis: {
+    key: 'analysis',
+    title: 'Analysis',
+    blurb:
+      'Load a CSV / TSV / GMT / GMX string or a bundled sample, then call analyzeCsvText() (or the format-specific variant) to enumerate every region. The AnalyzeResult carries set names, column indices, all 2^n−1 region counts + item lists, and the auto-detected mode.',
+    blocks: [
+      {
+        label: 'TypeScript',
+        code: `import {
+  loadSampleText,
+  analyzeCsvText,
+  analyzeGmtText,
+  analyzeGmxText,
+} from 'venn-diagram-lab';
+
+// From a bundled sample (5 real + mock datasets bundled)
+const text = loadSampleText('dataset_real_cancer_drivers_4');
+const result = analyzeCsvText(text);
+// result.mode      → 'binary'
+// result.setNames  → ['Vogelstein', 'COSMIC_CGC', 'OncoKB', 'IntOGen']
+
+// From your own file
+import { readFileSync } from 'node:fs';
+const result2 = analyzeCsvText(readFileSync('genes.tsv', 'utf8'));
+
+// GMT / GMX formats (one gene-set per line / column-oriented)
+const gmtResult = analyzeGmtText(readFileSync('hallmark.gmt', 'utf8'));
+const gmxResult = analyzeGmxText(readFileSync('hallmark.gmx', 'utf8'));`,
+      },
+    ],
+  },
+  stats: {
+    key: 'stats',
+    title: 'Statistics',
+    blurb:
+      'toStatisticsTsv() produces the byte-equivalent of the web tool\'s Statistics export — pairwise Jaccard, Sørensen-Dice, fold enrichment, and hypergeometric p-values with BH-FDR correction. The TSV is returned as a UTF-8 string ready to write to disk.',
+    blocks: [
+      {
+        label: 'TypeScript',
+        code: `import { writeFileSync } from 'node:fs';
+import {
+  loadSampleText,
+  analyzeCsvText,
+  toStatisticsTsv,
+} from 'venn-diagram-lab';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+// Pairwise statistics: Jaccard, Dice, fold enrichment, hypergeometric + BH-FDR
+const stats = toStatisticsTsv(result);
+writeFileSync('statistics.tsv', stats, 'utf8');`,
+      },
+    ],
+  },
+  viz: {
+    key: 'viz',
+    title: 'Visualization',
+    blurb:
+      'Seven SVG renderers driven from the AnalyzeResult: 44 templated Venn models, an area-proportional layout (2–3 sets), a print-optimized UpSet plot, a force-directed network, a share-distribution histogram, and two enrichment charts (bar and lollipop). All return SVG strings; pass them to svgToPng() or svgToPdf() for raster / PDF output.',
+    blocks: [
+      {
+        label: 'TypeScript',
+        code: `import { writeFileSync } from 'node:fs';
+import {
+  loadSampleText,
+  analyzeCsvText,
+  toVennSvg,
+  toUpsetSvg,
+  toNetworkSvg,
+  toProportionalSvg,
+  toShareDistributionSvg,
+  toEnrichmentBarSvg,
+  toEnrichmentLollipopSvg,
+  svgToPng,
+  svgToPdf,
+} from 'venn-diagram-lab';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+// Templated Venn (model name must match set count)
+const vennSvg = toVennSvg(result, 'venn-4-set');
+writeFileSync('venn.svg', vennSvg, 'utf8');
+
+// UpSet + network
+writeFileSync('upset.svg', toUpsetSvg(result), 'utf8');
+writeFileSync('network.svg', toNetworkSvg(result, 'jaccard'), 'utf8');
+
+// Enrichment charts
+writeFileSync('bar.svg', toEnrichmentBarSvg(result, 'neglog10fdr'), 'utf8');
+writeFileSync('lollipop.svg', toEnrichmentLollipopSvg(result, 'foldEnrichment'), 'utf8');
+
+// Rasterize any SVG → PNG (sync) or PDF (async)
+const png = svgToPng(vennSvg, { fitWidth: 1200 });
+writeFileSync('venn.png', png);
+const pdf = await svgToPdf(vennSvg, { fitWidth: 1200 });
+writeFileSync('venn.pdf', pdf);`,
+      },
+    ],
+  },
+  export: {
+    key: 'export',
+    title: 'Reports & Export',
+    blurb:
+      'Three TSV writers reproduce the web tool\'s Export buttons byte-for-byte (parity-tested on every release): Region Summary, Item Matrix, and the pairwise Statistics table. svgToPng() and svgToPdf() rasterize any rendered SVG to PNG (sync) or single-page PDF (async).',
+    blocks: [
+      {
+        label: 'TypeScript',
+        code: `import { writeFileSync } from 'node:fs';
+import {
+  loadSampleText,
+  analyzeCsvText,
+  toRegionSummaryTsv,
+  toMatrixTsv,
+  toStatisticsTsv,
+  toVennSvg,
+  svgToPng,
+  svgToPdf,
+} from 'venn-diagram-lab';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+// Byte-equivalent TSV exports (same files the web tool's Export buttons produce)
+writeFileSync('summary.tsv',    toRegionSummaryTsv(result), 'utf8');
+writeFileSync('items.tsv',      toMatrixTsv(result),        'utf8');
+writeFileSync('statistics.tsv', toStatisticsTsv(result),    'utf8');
+
+// Rasterize the Venn SVG to PNG and PDF
+const svg = toVennSvg(result, 'venn-4-set');
+writeFileSync('venn.png', svgToPng(svg, { fitWidth: 1200 }));
+writeFileSync('venn.pdf', await svgToPdf(svg, { fitWidth: 1200 }));`,
+      },
+    ],
+  },
+  tooling: {
+    key: 'tooling',
+    title: 'Developer Tooling',
+    blurb:
+      'The vdl CLI ships as a binary with the npm package — install globally or use npx. It covers every library surface: analyze, render (7 kinds), and bundled asset discovery. TypeScript types ship with the package (ESM + CJS + type declarations).',
+    blocks: [
+      {
+        label: 'Shell',
+        code: `# Install globally or use npx without a global install
+npm install -g venn-diagram-lab
+npx vdl --help
+
+# Analyze: print Region Summary or write all three TSVs
+vdl analyze genes.tsv
+vdl analyze genes.tsv \\
+  --region-summary summary.tsv \\
+  --matrix         matrix.tsv \\
+  --statistics     stats.tsv
+
+# Render (output format inferred from --out extension)
+vdl render venn               genes.tsv --model venn-4-set --out venn.svg
+vdl render upset              genes.tsv --out upset.png
+vdl render network            genes.tsv --metric jaccard --out network.svg
+vdl render proportional       two_sets.tsv --out proportional.svg
+vdl render share-dist         genes.tsv --out share.svg
+vdl render enrichment-bar     genes.tsv --out bar.svg
+vdl render enrichment-lollipop genes.tsv --metric foldEnrichment --out lollipop.pdf`,
+      },
+      {
+        label: 'TypeScript',
+        code: `// Discover bundled assets at runtime
+import { listSamples, loadSampleText, listVennModels, loadVennTemplate } from 'venn-diagram-lab';
+
+listSamples();
+// ['dataset_real_cancer_drivers_4', 'dataset_real_msigdb_cancer_pathways', ...]
+
+listVennModels();
+// ['venn-2-set.svg', 'venn-3-set.svg', ..., 'edwards-9-set.svg']  (44 models)
+
+const svgTemplate = loadVennTemplate('venn-4-set');   // raw SVG template string`,
+      },
+    ],
+  },
+};
+
 export const COMPANION_DETAIL_PANELS: Record<CompanionKind, Record<string, DetailPanel>> = {
+  node: NODE_PANELS,
   python: PYTHON_PANELS,
   r: R_PANELS,
 };
@@ -924,7 +1108,268 @@ devtools::check()`,
   ),
 };
 
+const NODE_CARD_PANELS: Record<string, DetailPanel> = {
+  'nd-viz-templates': card(
+    'nd-viz-templates',
+    '44 SVG templates',
+    'All 44 Venn diagram models bundled in the web tool ship inside the npm package as SVG template strings. toVennSvg() fills the chosen template with counts and set names, returning a UTF-8 SVG string.\n\nlistVennModels() returns the sorted array of 44 filenames; pass any name (with or without the .svg extension) to loadVennTemplate() to retrieve the raw template, or to toVennSvg() to render it with data.',
+    [
+      {
+        label: 'TypeScript',
+        code: `import { listVennModels, loadVennTemplate, analyzeCsvText, loadSampleText, toVennSvg } from 'venn-diagram-lab';
+import { writeFileSync } from 'node:fs';
+
+// Browse the 44 bundled models
+listVennModels();
+// ['venn-2-set.svg', 'venn-3-set.svg', ..., 'edwards-9-set.svg']
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+// Pin a model by name (set count must match result.columns.length)
+const svg = toVennSvg(result, 'venn-4-set');
+writeFileSync('venn.svg', svg, 'utf8');`,
+      },
+    ],
+  ),
+  'nd-viz-proportional': card(
+    'nd-viz-proportional',
+    'Area-proportional (2 / 3 sets)',
+    'toProportionalSvg() draws circles scaled so each area is proportional to the region item count. The 2-set layout is solved analytically; the 3-set layout is an approximation (no circle arrangement can satisfy all three areas simultaneously).\n\nPassing a result with more than 3 sets throws an error.',
+    [
+      {
+        label: 'TypeScript',
+        code: `import { analyzeCsvText, toProportionalSvg } from 'venn-diagram-lab';
+import { writeFileSync } from 'node:fs';
+
+const result = analyzeCsvText(
+  'SetA\tSetB\ng1\tg1\ng2\tg3\ng3\t'   // inline aggregated TSV (2 sets)
+);
+
+const svg = toProportionalSvg(result);  // 2 or 3 sets only
+writeFileSync('proportional.svg', svg, 'utf8');`,
+      },
+    ],
+  ),
+  'nd-viz-upset': card(
+    'nd-viz-upset',
+    'UpSet plots',
+    'toUpsetSvg() produces a print-optimized UpSet plot (matrix dots + intersection bars + set-size bars) as an SVG string. It handles up to 20 columns, making it practical for high-set-count comparisons where a classic Venn would be unreadable.\n\nPass the SVG to svgToPng() or svgToPdf() to get raster or PDF output.',
+    [
+      {
+        label: 'TypeScript',
+        code: `import { analyzeCsvText, loadSampleText, toUpsetSvg, svgToPng } from 'venn-diagram-lab';
+import { writeFileSync } from 'node:fs';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_msigdb_cancer_pathways'));
+
+const svg = toUpsetSvg(result);
+writeFileSync('upset.svg', svg, 'utf8');
+
+// Rasterize
+const png = svgToPng(svg, { fitWidth: 1400 });
+writeFileSync('upset.png', png);`,
+      },
+    ],
+  ),
+  'nd-viz-network': card(
+    'nd-viz-network',
+    'Force-directed network',
+    'toNetworkSvg() renders the set-relationship graph as an SVG: nodes are sets (sized by cardinality), edges are pairwise overlaps weighted by the chosen metric, and edges are coloured by significance.\n\nFour edge metrics are available: intersection (raw count, default), jaccard, foldEnrichment, and overlapCoeff.',
+    [
+      {
+        label: 'TypeScript',
+        code: `import { analyzeCsvText, loadSampleText, toNetworkSvg } from 'venn-diagram-lab';
+import { writeFileSync } from 'node:fs';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+// Default metric: 'intersection'
+writeFileSync('network.svg', toNetworkSvg(result), 'utf8');
+
+// Jaccard-weighted edges
+writeFileSync('network-jac.svg', toNetworkSvg(result, 'jaccard'), 'utf8');
+
+// Other available metrics: 'foldEnrichment' | 'overlapCoeff'`,
+      },
+    ],
+  ),
+  'nd-viz-raster': card(
+    'nd-viz-raster',
+    'PNG & PDF rasterization',
+    'svgToPng() is a synchronous function that rasterizes any SVG string to a Uint8Array via @resvg/resvg-js. svgToPdf() is an async variant producing a single-page PDF sized to the image.\n\nBoth accept a fitWidth option to scale the output to a target pixel width (height is preserved proportionally). Text rendering depends on system fonts.',
+    [
+      {
+        label: 'TypeScript',
+        code: `import { analyzeCsvText, loadSampleText, toVennSvg, svgToPng, svgToPdf } from 'venn-diagram-lab';
+import { writeFileSync } from 'node:fs';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+const svg = toVennSvg(result, 'venn-4-set');
+
+// Synchronous PNG
+const png = svgToPng(svg, { fitWidth: 1200 });
+writeFileSync('venn.png', png);
+
+// Async single-page PDF
+const pdf = await svgToPdf(svg, { fitWidth: 1200 });
+writeFileSync('venn.pdf', pdf);`,
+      },
+    ],
+  ),
+  'nd-stats-methods': card(
+    'nd-stats-methods',
+    'Statistical methods',
+    'toStatisticsTsv() produces the pairwise statistics table: Jaccard similarity, Sørensen-Dice coefficient, fold enrichment, and hypergeometric p-values with Benjamini-Hochberg FDR correction — byte-identical to the web tool\'s Statistics export and to the Python / R packages (parity-tested on every release).\n\nAll values are computed from the AnalyzeResult returned by the analyze functions.',
+    [
+      {
+        label: 'TypeScript',
+        code: `import { analyzeCsvText, loadSampleText, toStatisticsTsv } from 'venn-diagram-lab';
+import { writeFileSync } from 'node:fs';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+// Pairwise table: Jaccard, Dice, fold enrichment, hypergeometric p + BH-FDR
+const stats = toStatisticsTsv(result);
+writeFileSync('statistics.tsv', stats, 'utf8');`,
+      },
+    ],
+  ),
+  'nd-export-tsv': card(
+    'nd-export-tsv',
+    'Byte-equivalent TSV exports',
+    'Three export functions reproduce the web tool\'s Export menu buttons byte-for-byte: toRegionSummaryTsv() lists every region with its count and item names, toMatrixTsv() writes the item × set binary membership matrix, and toStatisticsTsv() writes the pairwise statistics table.\n\nAll three return UTF-8 strings with LF line endings. Write them with fs.writeFileSync(path, tsv, \'utf8\').',
+    [
+      {
+        label: 'TypeScript',
+        code: `import { analyzeCsvText, loadSampleText, toRegionSummaryTsv, toMatrixTsv, toStatisticsTsv } from 'venn-diagram-lab';
+import { writeFileSync } from 'node:fs';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+// Byte-identical to the web tool's Export → Region Summary
+writeFileSync('summary.tsv', toRegionSummaryTsv(result), 'utf8');
+
+// Item Matrix (item × set binary membership)
+writeFileSync('items.tsv', toMatrixTsv(result), 'utf8');
+
+// Pairwise statistics (Jaccard, Dice, fold enrichment, BH-FDR)
+writeFileSync('statistics.tsv', toStatisticsTsv(result), 'utf8');`,
+      },
+    ],
+  ),
+  'nd-export-png': card(
+    'nd-export-png',
+    'PNG rasterization',
+    'svgToPng() converts any SVG string to a PNG Uint8Array synchronously using @resvg/resvg-js. The fitWidth option scales the canvas to a target pixel width; height follows proportionally. Use this after any of the seven render functions to get a raster image.\n\nWrite the result directly with fs.writeFileSync — no Buffer conversion needed.',
+    [
+      {
+        label: 'TypeScript',
+        code: `import { analyzeCsvText, loadSampleText, toUpsetSvg, toNetworkSvg, svgToPng } from 'venn-diagram-lab';
+import { writeFileSync } from 'node:fs';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_msigdb_cancer_pathways'));
+
+// UpSet → PNG
+const upsetPng = svgToPng(toUpsetSvg(result), { fitWidth: 1400 });
+writeFileSync('upset.png', upsetPng);
+
+// Network → PNG
+const networkPng = svgToPng(toNetworkSvg(result, 'jaccard'), { fitWidth: 900 });
+writeFileSync('network.png', networkPng);`,
+      },
+    ],
+  ),
+  'nd-export-pdf': card(
+    'nd-export-pdf',
+    'PDF export (single-page)',
+    'svgToPdf() converts an SVG string to a single-page PDF asynchronously, returning a Promise<Uint8Array>. The page is sized to the SVG\'s natural dimensions (or to fitWidth if specified). Use it after any render function to produce a publishable vector-quality output.\n\nNote: the Node package produces single-page PDFs per SVG; multi-page reports are available in the Python companion.',
+    [
+      {
+        label: 'TypeScript',
+        code: `import { analyzeCsvText, loadSampleText, toVennSvg, toUpsetSvg, svgToPdf } from 'venn-diagram-lab';
+import { writeFileSync } from 'node:fs';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+// Venn → PDF
+const vennPdf = await svgToPdf(toVennSvg(result, 'venn-4-set'), { fitWidth: 1200 });
+writeFileSync('venn.pdf', vennPdf);
+
+// UpSet → PDF
+const upsetPdf = await svgToPdf(toUpsetSvg(result));
+writeFileSync('upset.pdf', upsetPdf);`,
+      },
+      {
+        label: 'Shell',
+        code: `# CLI: format inferred from --out extension
+vdl render venn  genes.tsv --model venn-4-set --out venn.pdf
+vdl render upset genes.tsv --out upset.pdf`,
+      },
+    ],
+  ),
+  'nd-tool-cli': card(
+    'nd-tool-cli',
+    'CLI · vdl',
+    'The vdl command ships with the npm package — install globally or use npx. It mirrors every library surface: analyze (all three TSV outputs), render (7 kinds: venn, proportional, upset, network, share-dist, enrichment-bar, enrichment-lollipop), and bundled asset discovery.\n\nOutput format is inferred from the --out extension (.svg, .png, or .pdf). Edge metric for network is set with --metric; enrichment metric with --metric.',
+    [
+      {
+        label: 'Shell',
+        code: `# Install or use without installing
+npm install -g venn-diagram-lab
+# or:  npx vdl --help
+
+# Analyze
+vdl analyze genes.tsv                          # Region Summary → stdout
+vdl analyze genes.tsv \\
+  --region-summary summary.tsv \\
+  --matrix matrix.tsv \\
+  --statistics stats.tsv
+
+# Render (7 kinds; .svg / .png / .pdf inferred from --out)
+vdl render venn               genes.tsv --model venn-4-set --out venn.svg
+vdl render venn               genes.tsv --model venn-4-set --out venn.png
+vdl render venn               genes.tsv --model venn-4-set --out venn.pdf
+vdl render proportional       two_sets.tsv --out proportional.svg
+vdl render upset              genes.tsv --out upset.png
+vdl render network            genes.tsv --metric jaccard --out network.svg
+vdl render share-dist         genes.tsv --out share.svg
+vdl render enrichment-bar     genes.tsv --metric neglog10fdr --out bar.svg
+vdl render enrichment-lollipop genes.tsv --metric foldEnrichment --out lollipop.pdf`,
+      },
+    ],
+  ),
+  'nd-tool-types': card(
+    'nd-tool-types',
+    'TypeScript types & module formats',
+    'The package ships full TypeScript type declarations alongside ESM and CJS builds, so it works in both import and require() environments without extra configuration. Node.js 18 or newer is required.\n\nKey types: AnalyzeResult, CsvData, VennResult — all exported from the package root.',
+    [
+      {
+        label: 'TypeScript',
+        code: `import type { AnalyzeResult } from 'venn-diagram-lab';
+import {
+  analyzeCsvText,
+  toVennSvg,
+  svgToPng,
+  loadSampleText,
+} from 'venn-diagram-lab';
+
+// Full type inference — result is typed as AnalyzeResult
+const result: AnalyzeResult = analyzeCsvText(
+  loadSampleText('dataset_real_cancer_drivers_4')
+);
+// result.setNames: string[]
+// result.mode:     'binary' | 'aggregated'
+// result.venn:     VennResult  (region counts + exclusive items)
+
+// ESM and CJS builds both ship; no extra bundler config needed
+// const { analyzeCsvText } = require('venn-diagram-lab');  // CJS`,
+      },
+    ],
+  ),
+};
+
 export const COMPANION_CARD_PANELS: Record<CompanionKind, Record<string, DetailPanel>> = {
+  node: NODE_CARD_PANELS,
   python: PYTHON_CARD_PANELS,
   r: R_CARD_PANELS,
 };
