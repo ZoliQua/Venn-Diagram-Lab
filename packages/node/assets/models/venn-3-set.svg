@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by Zoltan Dul in 2026 - free to use with MIT license. Part of Venn Diagram Lab Module - https://github.com/ZoliQua/Venn-Diagram-Lab - SVG Version: 3.0.0 -->
+<svg xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink"
+	 version="1.1"
+	 x="0px"
+	 y="0px"
+	 style="enable-background:new 0 0 700 700;"
+	 xml:space="preserve" viewBox="0 0 700 700">
+<g id="Shapes">
+	<circle id="ShapeA" style="opacity:0.2;fill:#FFF200;stroke:#000000;stroke-width:3;stroke-miterlimit:10;" cx="255.6" cy="276.8" r="173.8"/>
+	<circle id="ShapeB" style="opacity:0.2;fill:#2E3192;stroke:#000000;stroke-width:3;stroke-miterlimit:10;" cx="430.2" cy="276.5" r="173.8"/>
+	<circle id="ShapeC" style="opacity:0.2;fill:#ED1C24;stroke:#000000;stroke-width:3;stroke-miterlimit:10;" cx="342" cy="427.5" r="173.8"/>
+</g>
+<g id="Texts">
+	<g id="Header">
+		<text id="Title" transform="matrix(1 0 0 1 294 24.6)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:14;">Venn 3-set diagram</text>
+	</g>
+	<g id="Group_Names">
+		<text id="NameA" transform="matrix(1 0 0 1 195 66)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:30;">NameA</text>
+		<text id="NameB" transform="matrix(1 0 0 1 410.2 66)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:30;">NameB</text>
+		<text id="NameC" transform="matrix(1 0 0 1 297.5 640.5)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:30;">NameC</text>
+	</g>
+	<g id="Group_Values">
+		<text id="Count_A" transform="matrix(1 0 0 1 169.8 250)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:48;text-anchor:middle;">A</text>
+		<text id="Count_B" transform="matrix(1 0 0 1 522.3 250)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:48;text-anchor:middle;">B</text>
+		<text id="Count_C" transform="matrix(1 0 0 1 345.1 532)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:48;text-anchor:middle;">C</text>
+		<text id="Count_AB" transform="matrix(1 0 0 1 339.3 220.1)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:48;text-anchor:middle;">AB</text>
+		<text id="Count_AC" transform="matrix(1 0 0 1 229.7 409.2)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:48;text-anchor:middle;">AC</text>
+		<text id="Count_BC" transform="matrix(1 0 0 1 445.2 409.2)" style="fill:#262262;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:48;text-anchor:middle;">BC</text>
+		<text id="Count_ABC" transform="matrix(1 0 0 1 348.8 339.2)" style="fill:#FFFFFF;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;font-family:'Tahoma';font-size:48;text-anchor:middle;">ABC</text>
+	</g>
+	<g id="Group_CountSums">
+		<text id="CountSUM_A" transform="matrix(1 0 0 1 241.9 88)" style="fill:#262262;font-family:'Tahoma';font-size:18;text-anchor:middle;">CountSUM_A</text>
+		<text id="CountSUM_B" transform="matrix(1 0 0 1 459.5 87.9)" style="fill:#262262;font-family:'Tahoma';font-size:18;text-anchor:middle;">CountSUM_B</text>
+		<text id="CountSUM_C" transform="matrix(1 0 0 1 346.1 663.8)" style="fill:#262262;font-family:'Tahoma';font-size:18;text-anchor:middle;">CountSUM_C</text>
+	</g>
+</g>
+<g id="Group_Bullets" style="display:none;">
+	<circle id="BulletA" style="opacity:0.2;fill:#FFF200;stroke:#010101;stroke-width:2;" cx="59.2" cy="75.2" r="6.9"/>
+	<circle id="BulletB" style="opacity:0.2;fill:#2E3192;stroke:#010101;stroke-width:2;" cx="59.2" cy="93.9" r="6.9"/>
+	<circle id="BulletC" style="opacity:0.2;fill:#ED1C24;stroke:#010101;stroke-width:2;" cx="59.2" cy="112.6" r="6.9"/>
+</g>
+</svg>
