@@ -49,3 +49,20 @@ describe('vdl render venn', () => {
     expect(() => execFileSync('node', [CLI, 'render', 'venn', input], { encoding: 'utf8', stdio: 'pipe' })).toThrow();
   });
 });
+
+describe('render error handling', () => {
+  it('reports a clean error (no raw stack) for a model/data set-count mismatch', () => {
+    const input = join(PKG, '..', '..', 'data', 'dataset_real_cancer_drivers_4.tsv');
+    let stderr = '';
+    let code = 0;
+    try {
+      execFileSync('node', [CLI, 'render', 'venn', input, '--model', 'venn-3-set'], { encoding: 'utf8', stdio: 'pipe' });
+    } catch (e: any) {
+      stderr = String(e.stderr ?? '');
+      code = e.status ?? 1;
+    }
+    expect(code).not.toBe(0);
+    expect(stderr).toMatch(/sets|model/i);
+    expect(stderr).not.toMatch(/\n\s+at /); // no Node.js stack-trace frames
+  });
+});
