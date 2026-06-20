@@ -3,26 +3,42 @@
   "version": "0.0.0",
   "description": "Headless Venn diagram analysis & rendering for Node — companion to the Venn Diagram Lab web tool.",
   "author": "Zoltán Dul",
-  "repository": { "type": "git", "url": "https://github.com/ZoliQua/Venn-Diagram-Lab.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZoliQua/Venn-Diagram-Lab.git"
+  },
   "homepage": "https://venndiagramlab.org/",
   "type": "module",
   "license": "MIT",
-  "bin": { "vdl": "./dist/cli.js" },
+  "bin": {
+    "vdl": "./dist/cli.js"
+  },
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js", "require": "./dist/index.cjs" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "assets"],
-  "engines": { "node": ">=18" },
+  "files": [
+    "dist",
+    "assets"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest run"
   },
   "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@venn-diagram-lab/core": "*",
-    "commander": "^12.0.0"
+    "commander": "^12.0.0",
+    "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
