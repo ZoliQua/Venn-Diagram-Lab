@@ -56,5 +56,13 @@ vdl render venn               genes.tsv --model venn-4-set --out venn.svg
 
 Network, Item-Share-Distribution, Enrichment (bar / lollipop), UpSet, area-proportional, and
 templated Venn SVGs are byte-identical to the web tool's (shared builders). Use
-`listVennModels()` to get the full list of available model names. PNG/PDF rasterisation lands
-in a later release.
+`listVennModels()` to get the full list of available model names.
+
+Output format is inferred from `--out`'s extension: `.svg` (default), `.png`, or `.pdf`.
+
+```bash
+vdl render upset genes.tsv --out upset.png
+vdl render venn  genes.tsv --model venn-4-set --out venn.pdf
+```
+
+Multi-page PDF reports (with statistics tables and UpSet plot) remain a later release.

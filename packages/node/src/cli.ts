@@ -8,6 +8,7 @@ import {
   toNetworkSvg, toShareDistributionSvg, toEnrichmentBarSvg, toEnrichmentLollipopSvg, toUpsetSvg,
   toProportionalSvg, toVennSvg,
 } from './api.ts';
+import { svgToPng, svgToPdf } from './raster.ts';
 
 const program = new Command();
 
@@ -45,7 +46,7 @@ program
   .option('--out <path>', 'write the SVG here (default: stdout)')
   .option('--metric <metric>', 'edge/enrichment metric')
   .option('--model <name>', 'Venn model template (for kind=venn), e.g. venn-4-set')
-  .action((kind: string, input: string, opts: { out?: string; metric?: string; model?: string }) => {
+  .action(async (kind: string, input: string, opts: { out?: string; metric?: string; model?: string }) => {
     const text = readFileSync(input, 'utf8');
     const fmt = detectGeneSetFormat(input);
     const result =
@@ -73,8 +74,15 @@ program
         process.exitCode = 1;
         return;
     }
-    if (opts.out) writeFileSync(opts.out, svg, 'utf8');
-    else process.stdout.write(svg + '\n');
+    if (opts.out && /\.png$/i.test(opts.out)) {
+      writeFileSync(opts.out, svgToPng(svg));
+    } else if (opts.out && /\.pdf$/i.test(opts.out)) {
+      writeFileSync(opts.out, await svgToPdf(svg));
+    } else if (opts.out) {
+      writeFileSync(opts.out, svg, 'utf8');
+    } else {
+      process.stdout.write(svg + '\n');
+    }
   });
 
 program.parse();
