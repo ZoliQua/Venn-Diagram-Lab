@@ -7,4 +7,5 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   shims: true,
+  noExternal: ['@venn-diagram-lab/core'],
 });
