@@ -1,6 +1,6 @@
 {
   "name": "venn-diagram-lab",
-  "version": "0.0.0",
+  "version": "2.4.0",
   "description": "Headless Venn diagram analysis & rendering for Node — companion to the Venn Diagram Lab web tool.",
   "author": "Zoltán Dul",
   "repository": {
@@ -8,6 +8,9 @@
     "url": "https://github.com/ZoliQua/Venn-Diagram-Lab.git"
   },
   "homepage": "https://venndiagramlab.org/",
+  "keywords": ["venn", "venn-diagram", "upset", "bioinformatics", "set-analysis", "svg", "cli"],
+  "bugs": { "url": "https://github.com/ZoliQua/Venn-Diagram-Lab/issues" },
+  "publishConfig": { "access": "public", "provenance": true },
   "type": "module",
   "license": "MIT",
   "bin": {
