@@ -1,0 +1,26 @@
+name: npm-publish
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['npm-v*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - run: npm run build -w @venn-diagram-lab/core
+      - run: npm run build -w venn-diagram-lab
+      - run: npm test -w venn-diagram-lab
+      - run: npm publish -w venn-diagram-lab --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
