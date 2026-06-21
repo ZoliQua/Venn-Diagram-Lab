@@ -5,16 +5,29 @@
   "author": "Zoltán Dul",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ZoliQua/Venn-Diagram-Lab.git"
+    "url": "git+https://github.com/ZoliQua/Venn-Diagram-Lab.git"
   },
   "homepage": "https://venndiagramlab.org/",
-  "keywords": ["venn", "venn-diagram", "upset", "bioinformatics", "set-analysis", "svg", "cli"],
-  "bugs": { "url": "https://github.com/ZoliQua/Venn-Diagram-Lab/issues" },
-  "publishConfig": { "access": "public", "provenance": true },
+  "keywords": [
+    "venn",
+    "venn-diagram",
+    "upset",
+    "bioinformatics",
+    "set-analysis",
+    "svg",
+    "cli"
+  ],
+  "bugs": {
+    "url": "https://github.com/ZoliQua/Venn-Diagram-Lab/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "type": "module",
   "license": "MIT",
   "bin": {
-    "vdl": "./dist/cli.js"
+    "vdl": "dist/cli.js"
   },
   "exports": {
     ".": {
