@@ -36,6 +36,7 @@ export interface AnalyzeResult {
   columns: number[];
   setNames: string[];
   venn: VennResult;
+  mode: 'binary' | 'aggregated';
 }
 
 /** Analyse an already-parsed CsvData, auto-detecting binary vs aggregated mode. */
@@ -43,12 +44,12 @@ export function analyzeCsv(csv: CsvData): AnalyzeResult {
   const binaryColumns = getBinaryColumns(csv);
   if (binaryColumns.length >= 2) {
     const setNames = binaryColumns.map(i => csv.headers[i]);
-    return { csv, columns: binaryColumns, setNames, venn: calculateVennCounts(csv, binaryColumns) };
+    return { csv, columns: binaryColumns, setNames, venn: calculateVennCounts(csv, binaryColumns), mode: 'binary' as const };
   }
   // Aggregated: every column is a set, cells hold the items.
   const columns = csv.headers.map((_, i) => i);
   const setNames = columns.map(i => csv.headers[i]);
-  return { csv, columns, setNames, venn: calculateVennCountsFromAggregated(csv, columns) };
+  return { csv, columns, setNames, venn: calculateVennCountsFromAggregated(csv, columns), mode: 'aggregated' as const };
 }
 
 /** Parse raw CSV/TSV text and analyse it (auto binary vs aggregated). */

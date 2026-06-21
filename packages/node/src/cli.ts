@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync } from 'node:fs';
 import { Command } from 'commander';
-import { detectGeneSetFormat } from '@venn-diagram-lab/core';
+import { detectGeneSetFormat, type EdgeWeightMetric, type EnrichmentMetric } from '@venn-diagram-lab/core';
+
+const EDGE_METRICS = ['intersection', 'jaccard', 'foldEnrichment', 'overlapCoeff'] as const;
+const ENRICH_METRICS = ['neglog10fdr', 'foldEnrichment'] as const;
 import {
   analyzeGmtText, analyzeGmxText, analyzeCsvText,
   toMatrixTsv, toRegionSummaryTsv, toStatisticsTsv,
@@ -55,10 +58,34 @@ program
       analyzeCsvText(text);
     let svg: string;
     switch (kind) {
-      case 'network': svg = opts.metric ? toNetworkSvg(result, opts.metric as never) : toNetworkSvg(result); break;
+      case 'network': {
+        const m = opts.metric;
+        if (m && !(EDGE_METRICS as readonly string[]).includes(m)) {
+          process.stderr.write(`Unknown --metric '${m}' for network. Valid: ${EDGE_METRICS.join(', ')}\n`);
+          process.exitCode = 1; return;
+        }
+        svg = toNetworkSvg(result, m as EdgeWeightMetric | undefined);
+        break;
+      }
       case 'share-dist': svg = toShareDistributionSvg(result); break;
-      case 'enrichment-bar': svg = opts.metric ? toEnrichmentBarSvg(result, opts.metric as never) : toEnrichmentBarSvg(result); break;
-      case 'enrichment-lollipop': svg = opts.metric ? toEnrichmentLollipopSvg(result, opts.metric as never) : toEnrichmentLollipopSvg(result); break;
+      case 'enrichment-bar': {
+        const m = opts.metric;
+        if (m && !(ENRICH_METRICS as readonly string[]).includes(m)) {
+          process.stderr.write(`Unknown --metric '${m}' for enrichment-bar. Valid: ${ENRICH_METRICS.join(', ')}\n`);
+          process.exitCode = 1; return;
+        }
+        svg = toEnrichmentBarSvg(result, m as EnrichmentMetric | undefined);
+        break;
+      }
+      case 'enrichment-lollipop': {
+        const m = opts.metric;
+        if (m && !(ENRICH_METRICS as readonly string[]).includes(m)) {
+          process.stderr.write(`Unknown --metric '${m}' for enrichment-lollipop. Valid: ${ENRICH_METRICS.join(', ')}\n`);
+          process.exitCode = 1; return;
+        }
+        svg = toEnrichmentLollipopSvg(result, m as EnrichmentMetric | undefined);
+        break;
+      }
       case 'upset': svg = toUpsetSvg(result); break;
       case 'proportional': svg = toProportionalSvg(result); break;
       case 'venn':
