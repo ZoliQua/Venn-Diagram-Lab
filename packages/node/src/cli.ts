@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Command } from 'commander';
 import { detectGeneSetFormat, type EdgeWeightMetric, type EnrichmentMetric } from '@venn-diagram-lab/core';
-
-const EDGE_METRICS = ['intersection', 'jaccard', 'foldEnrichment', 'overlapCoeff'] as const;
-const ENRICH_METRICS = ['neglog10fdr', 'foldEnrichment'] as const;
 import {
   analyzeGmtText, analyzeGmxText, analyzeCsvText,
   toMatrixTsv, toRegionSummaryTsv, toStatisticsTsv,
@@ -13,12 +12,19 @@ import {
 } from './api.ts';
 import { svgToPng, svgToPdf } from './raster.ts';
 
+const PKG_VERSION = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'),
+).version as string;
+
+const EDGE_METRICS = ['intersection', 'jaccard', 'foldEnrichment', 'overlapCoeff'] as const;
+const ENRICH_METRICS = ['neglog10fdr', 'foldEnrichment'] as const;
+
 const program = new Command();
 
 program
   .name('vdl')
   .description('Headless Venn Diagram Lab — analysis & export from the shell.')
-  .version('0.0.0');
+  .version(PKG_VERSION);
 
 program
   .command('analyze')
