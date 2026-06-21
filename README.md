@@ -1,6 +1,6 @@
 # Venn Diagram Lab
 
-Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite. Ships with two officially published companion packages providing the same 44-model analysis and rendering pipeline headlessly: the **Python** [`venn-diagram-lab`](python/README.md) on PyPI and the **R** [`vennDiagramLab`](r/README.md) on CRAN — both byte-equivalent to the web tool's exports.
+Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite. Ships with three officially published companion packages providing the same 44-model analysis and rendering pipeline headlessly: the **Python** [`venn-diagram-lab`](python/README.md) on PyPI, the **R** [`vennDiagramLab`](r/README.md) on CRAN, and the **Node** [`venn-diagram-lab`](packages/node/README.md) on npm — all byte-equivalent to the web tool's exports.
 
 [![Version](https://img.shields.io/badge/version-2.2.2-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -13,12 +13,13 @@ Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, coverin
 [![PyPI version](https://img.shields.io/pypi/v/venn-diagram-lab.svg?v=2)](https://pypi.org/project/venn-diagram-lab/)
 [![Python versions](https://img.shields.io/pypi/pyversions/venn-diagram-lab.svg?v=2)](https://pypi.org/project/venn-diagram-lab/)
 [![CRAN status](https://www.r-pkg.org/badges/version/vennDiagramLab)](https://CRAN.R-project.org/package=vennDiagramLab)
+[![npm version](https://img.shields.io/npm/v/venn-diagram-lab.svg)](https://www.npmjs.com/package/venn-diagram-lab)
 
 <img width="1728" height="964" alt="Venn Diagram Lab - Home View" src="https://www.venndiagramlab.org/screenshots/screenshot_vdl_1_home.png" />
 
-## Headless companion Python and R packages
+## Headless companion packages (Python, R, Node)
 
-For headless analysis without a browser, two officially-published packages
+For headless analysis without a browser, three officially-published packages
 share the web tool's 44 SVG models, statistics, and byte-equivalent TSV
 exports:
 
@@ -27,11 +28,13 @@ exports:
 | Python (PyPI) | `pip install venn-diagram-lab` | live |
 | R (CRAN) | `install.packages("vennDiagramLab")` | live |
 | R (Bioconductor) | `BiocManager::install("vennDiagramLab")` | submission pending |
+| Node (npm) | `npm install venn-diagram-lab` | live |
 
-See [`python/README.md`](python/README.md) and [`r/README.md`](r/README.md) for
-each package's quickstart, notebook / vignette galleries, and CLI reference.
+See [`python/README.md`](python/README.md), [`r/README.md`](r/README.md), and
+[`packages/node/README.md`](packages/node/README.md) for each package's quickstart,
+notebook / vignette galleries, and CLI reference.
 Cross-implementation parity (byte-equivalent TSV exports across web / Python /
-R) is verified by ~30 fixture-based tests on every release.
+R / Node) is verified by ~30 fixture-based tests on every release.
 
 The Python `vdl` CLI contains 5 commands to 30+ commands across
 6 subapps (`render`, `export`, `report`, `data`, `model`, `workflow`) plus
