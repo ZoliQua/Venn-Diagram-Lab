@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { VennResult } from '../utils/csvParser.ts';
+import type { VennResult, Delimiter } from '../utils/csvParser.ts';
 import type { VennDocument } from '../types.ts';
 import type { ProportionalAccuracy } from '../utils/proportionalLayout.ts';
 import type { EnrichmentPlotSettings } from '../utils/enrichmentPlotStyle.ts';
@@ -17,6 +17,12 @@ interface ZipReportDialogProps {
   filename: string;
   title: string;
   modelName: string;
+  columnMapping: number[];
+  fileType: 'binary' | 'aggregated';
+  itemDelimiter: Delimiter;
+  shapeColors: Record<string, string>;
+  enrichmentMetric: 'neglog10fdr' | 'foldEnrichment';
+  sessionJson?: string;
   proportionalAccuracy?: ProportionalAccuracy | null;
   enrichmentPlotSettings?: EnrichmentPlotSettings;
 }
@@ -24,7 +30,8 @@ interface ZipReportDialogProps {
 export function ZipReportDialog({
   isOpen, onClose,
   vennResult, doc, n, setNames, totalItems, totalFileRows,
-  filename, title, modelName, proportionalAccuracy,
+  filename, title, modelName, columnMapping, fileType, itemDelimiter,
+  shapeColors, enrichmentMetric, sessionJson, proportionalAccuracy,
   enrichmentPlotSettings,
 }: ZipReportDialogProps) {
   const [step, setStep] = useState('Preparing...');
@@ -39,8 +46,9 @@ export function ZipReportDialog({
       try {
         const blob = await generateZipReport({
           doc, vennResult, n, setNames, totalItems, totalFileRows,
-          filename, title, modelName, proportionalAccuracy,
-          enrichmentPlotSettings,
+          filename, title, modelName, columnMapping, fileType,
+          itemDelimiter, shapeColors, enrichmentMetric, sessionJson,
+          proportionalAccuracy, enrichmentPlotSettings,
           onProgress: (label, pct) => {
             if (cancelled) return;
             setStep(label);

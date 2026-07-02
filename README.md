@@ -2,14 +2,14 @@
 
 Interactive viewer and editor for Venn diagrams — from 2-set to 9-set, covering all known construction methods. Built with React, TypeScript, and Vite. Ships with three officially published companion packages providing the same 44-model analysis and rendering pipeline headlessly: the **Python** [`venn-diagram-lab`](python/README.md) on PyPI, the **R** [`vennDiagramLab`](r/README.md) on CRAN, and the **Node** [`venn-diagram-lab`](packages/node/README.md) on npm — all byte-equivalent to the web tool's exports.
 
-[![Version](https://img.shields.io/badge/version-2.2.2-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.5.0-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![DOI (Zenodo concept)](http://www.venndiagramlab.org/zenodo.19510813.svg)](https://doi.org/10.5281/zenodo.19510813)
 [![Models](https://img.shields.io/badge/models-44_SVG_+_proportional-green.svg)](#diagram-models)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg?logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8-646cff.svg?logo=vite&logoColor=white)](https://vite.dev/)
-[![Tests](https://img.shields.io/badge/tests-623_passing-brightgreen.svg)](#development)
+[![Tests](https://img.shields.io/badge/tests-757_passing-brightgreen.svg)](#development)
 [![PyPI version](https://img.shields.io/pypi/v/venn-diagram-lab.svg?v=2)](https://pypi.org/project/venn-diagram-lab/)
 [![Python versions](https://img.shields.io/pypi/pyversions/venn-diagram-lab.svg?v=2)](https://pypi.org/project/venn-diagram-lab/)
 [![CRAN status](https://www.r-pkg.org/badges/version/vennDiagramLab)](https://CRAN.R-project.org/package=vennDiagramLab)

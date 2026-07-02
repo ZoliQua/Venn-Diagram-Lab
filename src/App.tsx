@@ -31,7 +31,11 @@ import { calculateVennCounts, calculateVennCountsFromAggregated } from './utils/
 import type { CsvData, FileType, Delimiter, CsvImportResult, VennResult, GeneSetFormat, GeneSetMeta } from './utils/csvParser.ts';
 import { truncateName } from './utils/truncateName.ts';
 import { detectGeneSetFormat } from './utils/csvParser.ts';
-import { exportRegionSummaryTsv, exportMatrixTsv, downloadFile } from './utils/exportData.ts';
+import {
+  exportRegionSummaryTsv, exportMatrixTsv, downloadFile,
+  generatePythonScript, generateRScript, generateNpmScript,
+  type ScriptExportParams,
+} from './utils/exportData.ts';
 import { UpsetPlot } from './components/UpsetPlot.tsx';
 import type { UpsetColorMode, UpsetSortMode } from './components/UpsetPlot.tsx';
 import { upsetDataFromRegionData, upsetDataFromVennResult } from './utils/upsetData.ts';
@@ -53,7 +57,20 @@ import { TourOverlay } from './components/TourOverlay.tsx';
 import { TOUR_STEPS } from './utils/tourSteps.ts';
 import type { TourAction } from './utils/tourSteps.ts';
 import { TOUR_DATASET } from './utils/tourMock.ts';
-import { parseCsvWithDelimiter } from './utils/csvParser.ts';
+import { parseCsvWithDelimiter, parseExcelFile, listExcelSheets } from './utils/csvParser.ts';
+import {
+  saveSession,
+  loadSession,
+  clearSession,
+  isSessionCompatible,
+  mapToRecord,
+  recordToMap,
+  serializeVennResult,
+  deserializeVennResult,
+  exportSessionToFile,
+  importSessionFromFile,
+} from './utils/session.ts';
+import type { AppSession } from './utils/session.ts';
 
 const PROPORTIONAL_MODEL = '__proportional__';
 import { SampleDataDialog } from './components/SampleDataDialog.tsx';
@@ -104,7 +121,7 @@ export default function App() {
   const [dataMoveNames, setDataMoveNames] = useState(false);
   const [dataMoveNumbers, setDataMoveNumbers] = useState(false);
   const [proportionalAccuracy, setProportionalAccuracy] = useState<ProportionalAccuracy | null>(null);
-  const [hoverColor, setHoverColor] = useState('#00ff88');
+  const [hoverColor, setHoverColor] = useState('#a33333');
   const [dataRightPanel, setDataRightPanel] = useState<'properties' | 'statistics'>('properties');
   const [regionData, setRegionData] = useState<RegionData | null>(null);
   const [summaryOpen, setSummaryOpen] = useState(false);
@@ -118,8 +135,18 @@ export default function App() {
   const [pasteDialog, setPasteDialog] = useState(false);
   const [urlDialog, setUrlDialog] = useState(false);
   const [modeSwitchTarget, setModeSwitchTarget] = useState<AppMode | null>(null);
-  const [dataOpenDialog, setDataOpenDialog] = useState(false);
-  const [csvImportDialog, setCsvImportDialog] = useState<{ rawText: string; filename: string; geneSetFormat?: GeneSetFormat; defaultFileType?: 'binary' | 'aggregated' } | null>(null);
+  const [csvImportDialog, setCsvImportDialog] = useState<{
+    rawText: string;
+    filename: string;
+    geneSetFormat?: GeneSetFormat;
+    defaultFileType?: 'binary' | 'aggregated';
+    sourceFormat?: 'csv' | 'excel' | 'gmt' | 'gmx';
+    sheetNames?: string[];
+    initialSheet?: string;
+    excelBuffer?: ArrayBuffer;
+    csvData?: CsvData;
+    initialError?: string;
+  } | null>(null);
   const [validationDialog, setValidationDialog] = useState<{ filename: string; content: string } | null>(null);
   const [originalSvgContent, setOriginalSvgContent] = useState<string | null>(null);
 
@@ -197,9 +224,11 @@ export default function App() {
   const [textTool, setTextTool] = useState<'move' | 'rotate' | 'resize' | null>('move');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const pendingSelectedRegionRef = useRef<string | null>(null);
 
   // Viewer region detection
   const regionDetection = useRegionDetection(doc);
+  const setSelectByLabelRef = useRef(regionDetection.setSelectByLabel);
 
   const setViewStyle = useCallback((style: ViewStyle) => {
     setViewStyleRaw(style);
@@ -533,6 +562,35 @@ export default function App() {
     svgDoc.markSaved();
   }, [doc, svgDoc, mode, viewStyle, testPlotEditState]);
 
+  const handleExportScript = useCallback((kind: 'python' | 'r' | 'npm') => {
+    if (!testCsvData || !testModel || testColumnMapping.length < 2 || !testVennResult) return;
+    const setNames = testColumnMapping.map(i => testCsvData.headers[i] ?? '');
+    const params: ScriptExportParams = {
+      filename: testCsvFilename ?? 'data.csv',
+      fileType: testFileType,
+      delimiter: testItemDelimiter,
+      columnMapping: testColumnMapping,
+      setNames,
+      model: testModel,
+      shapeColors: testShapeColors,
+      enrichmentMetric: testEnrichmentMetric,
+      n: testColumnMapping.length,
+    };
+    if (kind === 'python') {
+      const script = generatePythonScript(params);
+      downloadFile(script, `venn_${testColumnMapping.length}set_analysis.py`, 'text/x-python', false);
+      trackEvent('export_script', 'export', 'python');
+    } else if (kind === 'r') {
+      const script = generateRScript(params);
+      downloadFile(script, `venn_${testColumnMapping.length}set_analysis.R`, 'text/x-r', false);
+      trackEvent('export_script', 'export', 'r');
+    } else {
+      const script = generateNpmScript(params);
+      downloadFile(script, `venn_${testColumnMapping.length}set_analysis.mjs`, 'text/javascript', false);
+      trackEvent('export_script', 'export', 'npm');
+    }
+  }, [testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testModel, testShapeColors, testEnrichmentMetric, testVennResult]);
+
   const handleExportImage = useCallback((format: 'png' | 'jpg') => {
     trackEvent('export_image', 'export', format);
 
@@ -794,7 +852,35 @@ export default function App() {
     }
   }, []);
 
-  const handleTestFileUpload = useCallback((file: File) => {
+  const handleTestFileUpload = useCallback(async (file: File) => {
+    if (file.name.toLowerCase().endsWith('.xlsx')) {
+      try {
+        const buffer = await file.arrayBuffer();
+        const sheets = await listExcelSheets(buffer);
+        const firstSheet = sheets[0]?.name ?? '';
+        let csvData: CsvData | null = null;
+        let initialError: string | null = null;
+        try {
+          csvData = await parseExcelFile(buffer, { sheet: firstSheet });
+        } catch (e) {
+          initialError = `Failed to parse Excel file: ${e instanceof Error ? e.message : String(e)}`;
+        }
+        setCsvImportDialog({
+          rawText: '',
+          filename: file.name,
+          sourceFormat: 'excel',
+          sheetNames: sheets.map(s => s.name),
+          initialSheet: firstSheet,
+          excelBuffer: buffer,
+          csvData: csvData ?? undefined,
+          initialError: initialError ?? undefined,
+        });
+      } catch (e) {
+        setTestError(`Failed to read Excel file: ${e instanceof Error ? e.message : String(e)}`);
+      }
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       setCsvImportDialog({ rawText: reader.result as string, filename: file.name, geneSetFormat: detectGeneSetFormat(file.name) });
@@ -815,8 +901,34 @@ export default function App() {
     setTestOriginalColumns(cols);
   }, []);
 
-  const handleUrlImportLoad = useCallback((rawText: string, filename: string, geneSetFormat?: GeneSetFormat) => {
+  const handleUrlImportLoad = useCallback(async (rawText: string, filename: string, geneSetFormat?: GeneSetFormat, buffer?: ArrayBuffer) => {
     setUrlDialog(false);
+    if (filename.toLowerCase().endsWith('.xlsx') && buffer) {
+      try {
+        const sheets = await listExcelSheets(buffer);
+        const firstSheet = sheets[0]?.name ?? '';
+        let csvData: CsvData | null = null;
+        let initialError: string | null = null;
+        try {
+          csvData = await parseExcelFile(buffer, { sheet: firstSheet });
+        } catch (e) {
+          initialError = `Failed to parse Excel file: ${e instanceof Error ? e.message : String(e)}`;
+        }
+        setCsvImportDialog({
+          rawText: '',
+          filename,
+          sourceFormat: 'excel',
+          sheetNames: sheets.map(s => s.name),
+          initialSheet: firstSheet,
+          excelBuffer: buffer,
+          csvData: csvData ?? undefined,
+          initialError: initialError ?? undefined,
+        });
+      } catch (e) {
+        setTestError(`Failed to read Excel file from URL: ${e instanceof Error ? e.message : String(e)}`);
+      }
+      return;
+    }
     setCsvImportDialog({ rawText, filename, geneSetFormat });
   }, []);
 
@@ -837,6 +949,7 @@ export default function App() {
   }, [csvImportDialog]);
 
   const dataFileInputRef = useRef<HTMLInputElement>(null);
+  const sessionFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDataClose = useCallback(() => {
     // Initial screen (no data loaded) — return to welcome.
@@ -862,7 +975,151 @@ export default function App() {
     svgDoc.clearDoc();
     setCurrentModel(null);
     setRegionData(null);
+    clearSession();
   }, [svgDoc, testCsvData]);
+
+  // Session restore
+  const restoreDataSession = useCallback((session: AppSession) => {
+    const data = session.data;
+
+    setTestCsvData(data.csvData);
+    setTestCsvFilename(data.filename || null);
+    setTestFileType(data.fileType);
+    setTestItemDelimiter(data.itemDelimiter);
+    setTestColumnMapping(data.columnMapping);
+    setTestOriginalColumns(data.originalColumns);
+    setTestGeneSetMeta(data.geneSetMeta);
+    setTestModel(data.model || null);
+    setTestCalculated(data.calculated);
+    setTestVennResult(data.vennResult ? deserializeVennResult(data.vennResult) : null);
+    setTestExclusiveItems(data.exclusiveItems ? recordToMap(data.exclusiveItems) : null);
+    setTestInclusiveItems(data.inclusiveItems ? recordToMap(data.inclusiveItems) : null);
+    setTestError(data.error);
+    setTestShowTitle(data.showTitle);
+    setTestShowNames(data.showNames);
+    setTestShowSums(data.showSums);
+    setTestNameFontSize(data.nameFontSize);
+    setTestNameFontFamily(data.nameFontFamily);
+    setTestTitleFontSize(data.titleFontSize);
+    setTestTitleFontFamily(data.titleFontFamily);
+    setTestNameMaxChars(data.nameMaxChars);
+    setTestShapeOpacity(data.shapeOpacity);
+    setTestShapeColors(data.shapeColors);
+    setViewStyleRaw(data.viewStyle);
+    setCutColorMode(data.cutColorMode);
+    setHeatmapColors(data.heatmapColors);
+    setHeatmapLegendPosition(data.heatmapLegendPosition);
+    setUpsetColorMode(data.upsetColorMode);
+    setUpsetSortMode(data.upsetSortMode);
+    setUpsetThreshold(data.upsetThreshold);
+    setUpsetCustomColor(data.upsetCustomColor);
+    setNetworkMetric(data.networkMetric);
+    setNetworkSigOnly(data.networkSigOnly);
+    setNetworkEdgeLabels(data.networkEdgeLabels);
+    setNetworkNodeSizes(data.networkNodeSizes);
+    setNetworkMinWeight(data.networkMinWeight);
+    setNetworkMoveNodes(data.networkMoveNodes);
+    setPlotBackground(data.plotBackground);
+    setDataMoveNames(data.dataMoveNames);
+    setDataMoveNumbers(data.dataMoveNumbers);
+    setTestEnrichmentMetric(data.enrichmentMetric);
+    setTestEnrichmentPlotSettings(data.enrichmentPlotSettings);
+
+    if (session.theme) setTheme(session.theme);
+
+    pendingSelectedRegionRef.current = data.selectedRegionLabel;
+    setMode('data');
+    setWelcomeOpen(false);
+    setTestPendingCalculate(true);
+  }, []);
+
+  const handleRestoreSession = useCallback(() => {
+    const session = loadSession();
+    if (!isSessionCompatible(session)) {
+      console.warn('Saved session is incompatible or missing');
+      return;
+    }
+    restoreDataSession(session);
+  }, [restoreDataSession]);
+
+  const buildAppSession = useCallback((): AppSession | null => {
+    if (!testCsvData) return null;
+    return {
+      version: '1',
+      savedAt: new Date().toISOString(),
+      mode: 'data',
+      theme,
+      data: {
+        csvData: testCsvData,
+        filename: testCsvFilename ?? '',
+        fileType: testFileType,
+        itemDelimiter: testItemDelimiter,
+        columnMapping: testColumnMapping,
+        originalColumns: testOriginalColumns,
+        geneSetMeta: testGeneSetMeta,
+        model: testModel ?? '',
+        calculated: testCalculated,
+        vennResult: testVennResult ? serializeVennResult(testVennResult) : null,
+        exclusiveItems: testExclusiveItems ? mapToRecord(testExclusiveItems) : null,
+        inclusiveItems: testInclusiveItems ? mapToRecord(testInclusiveItems) : null,
+        error: testError,
+        showTitle: testShowTitle,
+        showNames: testShowNames,
+        showSums: testShowSums,
+        nameFontSize: testNameFontSize,
+        nameFontFamily: testNameFontFamily,
+        titleFontSize: testTitleFontSize,
+        titleFontFamily: testTitleFontFamily,
+        nameMaxChars: testNameMaxChars,
+        shapeOpacity: testShapeOpacity,
+        shapeColors: testShapeColors,
+        viewStyle,
+        cutColorMode,
+        heatmapColors,
+        heatmapLegendPosition,
+        upsetColorMode,
+        upsetSortMode,
+        upsetThreshold,
+        upsetCustomColor,
+        networkMetric,
+        networkSigOnly,
+        networkEdgeLabels,
+        networkNodeSizes,
+        networkMinWeight,
+        networkMoveNodes,
+        plotBackground,
+        dataMoveNames,
+        dataMoveNumbers,
+        enrichmentMetric: testEnrichmentMetric,
+        enrichmentPlotSettings: testEnrichmentPlotSettings,
+        selectedRegionLabel: regionDetection.selectedRegion?.label ?? null,
+      },
+    };
+  }, [theme, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testVennResult, testExclusiveItems, testInclusiveItems, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label]);
+
+  const handleExportSessionToFile = useCallback(() => {
+    const session = buildAppSession();
+    if (!session) return;
+    exportSessionToFile(session);
+    trackEvent('export_session', 'export', 'json');
+  }, [buildAppSession]);
+
+  const handleImportSessionFromFile = useCallback(async (file: File) => {
+    try {
+      const session = await importSessionFromFile(file);
+      restoreDataSession(session);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to import session.';
+      setTestError(`Session import failed: ${message}`);
+    }
+  }, [restoreDataSession]);
+
+  const [hasSavedSession, setHasSavedSession] = useState(false);
+  useEffect(() => {
+    if (welcomeOpen) {
+      setHasSavedSession(isSessionCompatible(loadSession()));
+    }
+  }, [welcomeOpen]);
 
   // ═══════ Guided tour glue ═══════
   const handleStartTour = useCallback(async () => {
@@ -1153,6 +1410,79 @@ export default function App() {
     if (testNameMaxChars > ceiling) setTestNameMaxChars(ceiling);
   }, [testColumnMapping, testCsvData, testNameMaxChars]);
 
+  // Debounced session save for Data mode
+  useEffect(() => {
+    if (mode !== 'data' || !testCsvData) return;
+    const timeout = setTimeout(() => {
+      const session: AppSession = {
+        version: '1',
+        savedAt: new Date().toISOString(),
+        mode: 'data',
+        theme,
+        data: {
+          csvData: testCsvData,
+          filename: testCsvFilename ?? '',
+          fileType: testFileType,
+          itemDelimiter: testItemDelimiter,
+          columnMapping: testColumnMapping,
+          originalColumns: testOriginalColumns,
+          geneSetMeta: testGeneSetMeta,
+          model: testModel ?? '',
+          calculated: testCalculated,
+          vennResult: testVennResult ? serializeVennResult(testVennResult) : null,
+          exclusiveItems: testExclusiveItems ? mapToRecord(testExclusiveItems) : null,
+          inclusiveItems: testInclusiveItems ? mapToRecord(testInclusiveItems) : null,
+          error: testError,
+          showTitle: testShowTitle,
+          showNames: testShowNames,
+          showSums: testShowSums,
+          nameFontSize: testNameFontSize,
+          nameFontFamily: testNameFontFamily,
+          titleFontSize: testTitleFontSize,
+          titleFontFamily: testTitleFontFamily,
+          nameMaxChars: testNameMaxChars,
+          shapeOpacity: testShapeOpacity,
+          shapeColors: testShapeColors,
+          viewStyle,
+          cutColorMode,
+          heatmapColors,
+          heatmapLegendPosition,
+          upsetColorMode,
+          upsetSortMode,
+          upsetThreshold,
+          upsetCustomColor,
+          networkMetric,
+          networkSigOnly,
+          networkEdgeLabels,
+          networkNodeSizes,
+          networkMinWeight,
+          networkMoveNodes,
+          plotBackground,
+          dataMoveNames,
+          dataMoveNumbers,
+          enrichmentMetric: testEnrichmentMetric,
+          enrichmentPlotSettings: testEnrichmentPlotSettings,
+          selectedRegionLabel: regionDetection.selectedRegion?.label ?? null,
+        },
+      };
+      saveSession(session);
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [mode, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testVennResult, testExclusiveItems, testInclusiveItems, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, theme]);
+
+  // Keep a stable ref to the latest setSelectByLabel for the restore effect
+  useEffect(() => {
+    setSelectByLabelRef.current = regionDetection.setSelectByLabel;
+  }, [regionDetection.setSelectByLabel]);
+
+  // Restore selected region after session recalculation finishes
+  useEffect(() => {
+    if (testCalculated && pendingSelectedRegionRef.current && currentModel) {
+      setSelectByLabelRef.current(pendingSelectedRegionRef.current);
+      pendingSelectedRegionRef.current = null;
+    }
+  }, [testCalculated, currentModel]);
+
   // Binary item × set matrix derived from the Venn result's exclusive-items
   // partition. Works uniformly for binary and aggregated input modes.
   // Used by the Item Share Distribution card in the Statistics panel.
@@ -1189,12 +1519,22 @@ export default function App() {
 
   const modelsBySet = useMemo(() => getModelsBySetCount(), []);
 
+  const sessionJson = useMemo(() => {
+    const session = buildAppSession();
+    return session ? JSON.stringify(session, null, 2) : undefined;
+  }, [buildAppSession]);
+
   return (
     <div className="app">
       <input ref={fileInputRef} type="file" accept=".svg" style={{ display: 'none' }} onChange={handleFileChange} />
-      <input ref={dataFileInputRef} type="file" accept=".csv,.tsv,.txt,.gmt,.gmx" style={{ display: 'none' }} onChange={(e) => {
+      <input ref={dataFileInputRef} type="file" accept=".csv,.tsv,.txt,.xlsx,.gmt,.gmx" style={{ display: 'none' }} onChange={(e) => {
         const file = e.target.files?.[0];
         if (file) handleTestFileUpload(file);
+        e.target.value = '';
+      }} />
+      <input ref={sessionFileInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) handleImportSessionFromFile(file);
         e.target.value = '';
       }} />
 
@@ -1242,15 +1582,22 @@ export default function App() {
           setRegionData(null);
           if (mode === 'view') setWelcomeOpen(true);
         }}
-        onDataOpen={() => setDataOpenDialog(true)}
-        onDataSave={handleSave}
+        onDataOpenSample={() => setSampleDataDialog(true)}
+        onDataOpenUpload={() => dataFileInputRef.current?.click()}
+        onDataOpenPaste={() => setPasteDialog(true)}
+        onDataOpenUrl={() => setUrlDialog(true)}
+        onDataOpenSession={() => sessionFileInputRef.current?.click()}
+        onDataSaveSession={handleExportSessionToFile}
+        onDataSaveSvg={handleSave}
+        onDataSavePng={() => handleExportImage('png')}
+        onDataSaveJpg={() => handleExportImage('jpg')}
         onDataClose={handleDataClose}
         hasDataFile={!!testCsvData}
         isCalculated={testCalculated}
         onUndo={svgDoc.undo}
         onRedo={svgDoc.redo}
         onReport={() => setReportOpen(true)}
-        onDataReport={() => { setPdfReportOpen(true); trackEvent('export_pdf', 'export'); }}
+        onDataReportPdf={() => { setPdfReportOpen(true); trackEvent('export_pdf', 'export'); }}
         onDataReportZip={() => { setZipReportOpen(true); trackEvent('export_zip', 'export'); }}
         onGoMain={() => { setWelcomeOpen(true); }}
         theme={theme}
@@ -1421,7 +1768,7 @@ export default function App() {
               setTestNameMaxChars(null);
               setTestTitleFontSize(24);
               setTestTitleFontFamily('Tahoma');
-              setHoverColor('#00ff88');
+              setHoverColor('#a33333');
               setTestShowTitle(true);
               setTestShowNames(true);
               setTestShowSums(true);
@@ -1431,6 +1778,9 @@ export default function App() {
             }}
             onSaveSvg={handleSave}
             onExportImage={handleExportImage}
+            onExportPython={() => handleExportScript('python')}
+            onExportR={() => handleExportScript('r')}
+            onExportNpm={() => handleExportScript('npm')}
             plotEditState={testPlotEditState}
             enrichmentMetric={testEnrichmentMetric}
             enrichmentPlotSettings={testEnrichmentPlotSettings}
@@ -1796,8 +2146,8 @@ export default function App() {
                       <label className="data-import-card" style={{ cursor: 'pointer' }}>
                         <div className="data-import-card-icon">{'\u{1F4C2}'}</div>
                         <div className="data-import-card-title">Upload Custom File</div>
-                        <div className="data-import-card-desc">CSV, TSV, GMT, or GMX format</div>
-                        <input type="file" accept=".csv,.tsv,.txt,.gmt,.gmx" style={{ display: 'none' }} onChange={(e) => {
+                        <div className="data-import-card-desc">CSV, TSV, Excel, GMT, or GMX format</div>
+                        <input type="file" accept=".csv,.tsv,.txt,.xlsx,.gmt,.gmx" style={{ display: 'none' }} onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) handleTestFileUpload(file);
                           e.target.value = '';
@@ -1940,6 +2290,8 @@ export default function App() {
         onSelectMode={(m) => { setMode(m); setWelcomeOpen(false); }}
         onSummary={() => { setSummarySelectMode(false); setSummaryFromWelcome(true); setSummaryOpen(true); setWelcomeOpen(false); }}
         onStartTour={handleStartTour}
+        hasSavedSession={hasSavedSession}
+        onRestoreSession={handleRestoreSession}
       />
 
       <HelpDialog
@@ -1960,23 +2312,6 @@ export default function App() {
         dispatchAction={dispatchTourAction}
       />
 
-      {/* Data Open dialog */}
-      {dataOpenDialog && (
-        <div className="dialog-overlay" onClick={() => setDataOpenDialog(false)}>
-          <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
-            <h3 className="confirm-title">Open Data</h3>
-            <p className="confirm-text">Choose a data source for Venn diagram calculation.</p>
-            <div className="confirm-actions">
-              <button className="btn btn-accent" onClick={() => { setDataOpenDialog(false); setSampleDataDialog(true); }}>Load Sample Data</button>
-              <button className="btn" onClick={() => { setDataOpenDialog(false); dataFileInputRef.current?.click(); }}>Upload Custom File</button>
-              <button className="btn" onClick={() => { setDataOpenDialog(false); setPasteDialog(true); }}>Paste Lists</button>
-              <button className="btn" onClick={() => { setDataOpenDialog(false); setUrlDialog(true); }}>Load from URL</button>
-              <button className="btn" onClick={() => setDataOpenDialog(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* CSV Import Dialog */}
       {csvImportDialog && (
         <CsvImportDialog
@@ -1985,6 +2320,12 @@ export default function App() {
           filename={csvImportDialog.filename}
           geneSetFormat={csvImportDialog.geneSetFormat}
           defaultFileType={csvImportDialog.defaultFileType}
+          sourceFormat={csvImportDialog.sourceFormat}
+          sheetNames={csvImportDialog.sheetNames}
+          initialSheet={csvImportDialog.initialSheet}
+          excelBuffer={csvImportDialog.excelBuffer}
+          csvData={csvImportDialog.csvData}
+          initialError={csvImportDialog.initialError}
           onLoad={handleCsvImportLoad}
           onCancel={() => setCsvImportDialog(null)}
         />
@@ -2044,6 +2385,12 @@ export default function App() {
           filename={testCsvFilename ?? 'data'}
           title={doc.texts.header?.content ?? testCsvFilename ?? 'Venn Diagram Report'}
           modelName={testModel ?? ''}
+          columnMapping={testColumnMapping}
+          fileType={testFileType}
+          itemDelimiter={testItemDelimiter}
+          shapeColors={testShapeColors}
+          enrichmentMetric={testEnrichmentMetric}
+          sessionJson={sessionJson}
           proportionalAccuracy={proportionalAccuracy}
           enrichmentPlotSettings={testEnrichmentPlotSettings}
         />

@@ -2,6 +2,30 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.5.0 — 2026-07-14 — Excel import, session persistence, Python/R script export
+
+### Added
+
+- **Excel import (.xlsx)** in Data mode. Users can now upload `.xlsx` files or load them from a URL. The first worksheet is used by default; if multiple worksheets are present, a selector appears in the import dialog. The `exceljs` library is lazy-loaded.
+- **Session save/restore** for Data mode. The current Data-mode state (dataset, column mapping, selected model, colors, view settings, enrichment plot settings) is automatically saved to `localStorage`. A "Restore last session" button appears on the Welcome dialog when a compatible saved session exists.
+- **Session file export/import** in Data mode. Users can save the current Data-mode session to a timestamped `.json` file and load it back later via the Data-mode toolbar. Exported sessions are validated on import and restore the full analysis state.
+- **Data-mode Save dropdown** replaces the single Save toolbar button with a menu offering Save Session, Save as SVG, Save as PNG, and Save as JPG.
+- **Python/R script export** from the Data mode sidebar. Users can download a reproducible `.py` or `.R` script that recreates the current analysis with the `venn-diagram-lab` Python package or the `vennDiagramLab` R package.
+- **Full Report (zip)** now bundles `analysis_script.py`, `analysis_script.R`, and `session.json` alongside the existing artefacts.
+- **Session export/import** in Data mode. The current Data-mode session can be exported to and imported from a `.json` file via the Data-mode Save dropdown and the Load Session button.
+- **Data-mode Save dropdown** with Save Session, Save as SVG, Save as PNG, and Save as JPG options.
+
+### Changed
+
+- WelcomeDialog widened to prevent button overflow; added "Repository Packages" section label; restyled "Restore last session" button.
+- Data Open dialog buttons now wrap correctly instead of overflowing.
+
+### Internals
+
+- New `@venn-diagram-lab/core` module: `excelParser.ts`.
+- New web utilities: `src/utils/session.ts`, `src/utils/scriptExport.ts`.
+- Extended `CsvImportResult` with optional `sourceFormat` field.
+
 ## v2.4.1 — 2026-06-19 — Node companion package dialog
 
 ### Web tool

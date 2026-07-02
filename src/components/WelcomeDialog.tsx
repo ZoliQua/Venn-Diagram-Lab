@@ -10,6 +10,8 @@ interface WelcomeDialogProps {
   onSelectMode: (mode: AppMode) => void;
   onSummary: () => void;
   onStartTour?: () => void;
+  hasSavedSession?: boolean;
+  onRestoreSession?: () => void;
 }
 
 const REPO_URL = 'https://github.com/ZoliQua/Venn-Diagram-Lab';
@@ -40,7 +42,7 @@ function OrcidLink({ id, name }: { id: string; name: string }) {
   );
 }
 
-export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour }: WelcomeDialogProps) {
+export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour, hasSavedSession, onRestoreSession }: WelcomeDialogProps) {
   const [showCredits, setShowCredits] = useState(false);
   const [showAboutVenn, setShowAboutVenn] = useState(false);
   const [companionDialog, setCompanionDialog] = useState<'python' | 'r' | 'node' | null>(null);
@@ -201,6 +203,15 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour }: 
           )}
         </div>
 
+        {hasSavedSession && onRestoreSession && (
+          <div className="welcome-restore-section">
+            <button className="btn btn-accent welcome-restore-btn" onClick={onRestoreSession}>
+              <span className="welcome-restore-icon" aria-hidden="true">{'\u{1F504}'}</span>
+              Restore last session
+            </button>
+          </div>
+        )}
+
         <div className="welcome-bottom-buttons">
           <button className="btn welcome-summary-btn" onClick={() => setShowAboutVenn(true)}>
             About Venn Diagrams
@@ -214,6 +225,8 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour }: 
         </div>
 
         <div className="welcome-section-separator" aria-hidden="true" />
+
+        <div className="welcome-section-label">Repository Packages</div>
 
         <div className="welcome-bottom-buttons welcome-companion-buttons">
           <button

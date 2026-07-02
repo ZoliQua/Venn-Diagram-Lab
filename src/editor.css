@@ -1694,7 +1694,7 @@ html, body, #root {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  min-width: 120px;
+  min-width: 180px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -1713,6 +1713,7 @@ html, body, #root {
   font-size: 13px;
   text-align: left;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .mode-dropdown-item:hover {
@@ -1723,6 +1724,12 @@ html, body, #root {
   background: var(--accent) !important;
   color: var(--text-inverse) !important;
   font-weight: bold;
+}
+
+.toolbar-dropdown-separator {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
 }
 
 .btn-mode-active {
@@ -2346,7 +2353,8 @@ html, body, #root {
   border-radius: 12px;
   padding: 40px;
   text-align: center;
-  max-width: 700px;
+  min-width: 760px;
+  max-width: 900px;
   width: 90vw;
 }
 
@@ -2390,7 +2398,7 @@ html, body, #root {
 .welcome-about {
   font-size: 13px;
   color: var(--text-secondary);
-  margin: 0 0 24px;
+  margin: 0 auto 24px;
   line-height: 1.6;
   max-width: 560px;
   text-align: center;
@@ -2452,6 +2460,45 @@ html, body, #root {
   display: flex;
   gap: 12px;
   justify-content: center;
+}
+
+.welcome-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 4px 0 12px;
+}
+
+.welcome-restore-section {
+  margin-bottom: 24px;
+}
+
+.welcome-restore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+}
+
+.welcome-restore-btn:hover {
+  border-color: var(--accent);
+  background: var(--bg-tertiary);
+  transform: translateY(-2px);
+}
+
+.welcome-restore-icon {
+  font-size: 18px;
 }
 
 /* ---- Credits Dialog ---- */
@@ -2801,6 +2848,12 @@ html, body, #root {
 }
 
 @media (max-width: 640px) {
+  .welcome-dialog {
+    min-width: auto;
+    max-width: 100%;
+    padding: 24px 16px;
+  }
+
   .welcome-bottom-buttons,
   .about-venn-header,
   .about-venn-thumbs {
@@ -3747,6 +3800,18 @@ html, body, #root {
   justify-content: flex-end;
 }
 
+.data-open-dialog .confirm-actions {
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.data-open-dialog .confirm-actions .btn {
+  flex: 1 1 auto;
+  min-width: 160px;
+  justify-content: center;
+}
+
 /* ---- Sidebar sections (shared) ---- */
 .sidebar-section {
   padding: 8px 0;
@@ -3858,6 +3923,16 @@ html, body, #root {
 
 .btn-accent:hover {
   background: var(--accent-hover) !important;
+}
+
+.btn-close-data {
+  background: var(--danger) !important;
+  color: var(--text-inverse) !important;
+  border-color: var(--danger) !important;
+}
+
+.btn-close-data:hover {
+  filter: brightness(1.1);
 }
 
 /* ============================================================================

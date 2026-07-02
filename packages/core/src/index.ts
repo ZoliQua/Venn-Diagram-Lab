@@ -1,4 +1,5 @@
 export * from './csvParser.ts';
+export * from './excelParser.ts';
 export * from './statistics.ts';
 export * from './exportData.ts';
 export * from './networkData.ts';

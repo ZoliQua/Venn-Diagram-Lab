@@ -123,6 +123,9 @@ interface TestSidebarProps {
   onExportMatrix?: () => void;
   onSaveSvg?: () => void;
   onExportImage?: (format: 'png' | 'jpg') => void;
+  onExportPython?: () => void;
+  onExportR?: () => void;
+  onExportNpm?: () => void;
   // Enrichment plot editor (v1.11.0) — optional, backward-compatible
   plotEditState?: PlotEditState | null;
   enrichmentMetric?: EnrichmentMetric;
@@ -172,6 +175,7 @@ export function TestSidebar({
   onResetDefaults,
   onExportRegionSummary, onExportMatrix,
   onSaveSvg, onExportImage,
+  onExportPython, onExportR, onExportNpm,
   plotEditState = null,
   enrichmentMetric,
   enrichmentPlotSettings,
@@ -616,6 +620,16 @@ export function TestSidebar({
                   </button>
                   <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportMatrix}>
                     Item Matrix (TSV)
+                  </button>
+                  <div className="data-summary-hint" style={{ marginTop: 8 }}>Reproducible analysis scripts</div>
+                  <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportPython} disabled={!isCalculated}>
+                    Export Python script
+                  </button>
+                  <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportR} disabled={!isCalculated}>
+                    Export R script
+                  </button>
+                  <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportNpm} disabled={!isCalculated}>
+                    Export NPM script
                   </button>
                 </>
               )}

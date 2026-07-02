@@ -1,6 +1,6 @@
 {
   "name": "@venn-diagram-lab/core",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "private": true,
   "description": "Pure, isomorphic core for Venn Diagram Lab (parse / regions / statistics / TSV export).",
   "author": "Zoltán Dul",

@@ -9,7 +9,9 @@ import {
   getBinaryColumns,
   parseGmt,
   parseGmx,
+  parseExcelFile,
 } from '../utils/csvParser.ts';
+import type { CsvData } from '../utils/csvParser.ts';
 
 interface CsvImportDialogProps {
   isOpen: boolean;
@@ -17,6 +19,12 @@ interface CsvImportDialogProps {
   filename: string;
   geneSetFormat?: GeneSetFormat;
   defaultFileType?: 'binary' | 'aggregated';
+  sourceFormat?: 'csv' | 'excel' | 'gmt' | 'gmx';
+  sheetNames?: string[];
+  initialSheet?: string;
+  excelBuffer?: ArrayBuffer;
+  csvData?: CsvData;
+  initialError?: string;
   onLoad: (result: CsvImportResult) => void;
   onCancel: () => void;
 }
@@ -47,8 +55,9 @@ function parseRowSpec(spec: string): Set<number> {
   return result;
 }
 
-export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defaultFileType, onLoad, onCancel }: CsvImportDialogProps) {
+export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defaultFileType, sourceFormat, sheetNames, initialSheet, excelBuffer, csvData, initialError, onLoad, onCancel }: CsvImportDialogProps) {
   const isGeneSet = !!geneSetFormat;
+  const isExcel = sourceFormat === 'excel';
   const detectedDelimiter = useMemo(() => detectDelimiter(rawText), [rawText]);
 
   // Pre-parse GMT/GMX
@@ -70,28 +79,34 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
   const [rowMode, setRowMode] = useState<'all' | 'selected'>('all');
   const [selectedRowsSpec, setSelectedRowsSpec] = useState('');
   const [skippingRowsSpec, setSkippingRowsSpec] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError ?? null);
+  const [excelCsv, setExcelCsv] = useState<CsvData | null>(csvData ?? null);
+  const [selectedSheet, setSelectedSheet] = useState<string>(initialSheet ?? sheetNames?.[0] ?? '');
 
   // Re-parse preview when delimiter or header changes
   const preview = useMemo(() => {
     if (geneSetParsed) {
       return { headers: geneSetParsed.csv.headers, rows: geneSetParsed.csv.rows.slice(0, 5) };
     }
+    if (isExcel && excelCsv) {
+      return { headers: excelCsv.headers, rows: excelCsv.rows.slice(0, 5) };
+    }
     try {
       return getPreviewRows(rawText, rowDelimiter, 5);
     } catch {
       return { headers: [], rows: [] };
     }
-  }, [rawText, rowDelimiter, geneSetParsed]);
+  }, [rawText, rowDelimiter, geneSetParsed, isExcel, excelCsv]);
 
   const fullCsv = useMemo(() => {
     if (geneSetParsed) return geneSetParsed.csv;
+    if (isExcel) return excelCsv;
     try {
       return parseCsvWithDelimiter(rawText, rowDelimiter, hasHeader);
     } catch {
       return null;
     }
-  }, [rawText, rowDelimiter, hasHeader, geneSetParsed]);
+  }, [rawText, rowDelimiter, hasHeader, geneSetParsed, isExcel, excelCsv]);
 
   const colCount = preview.headers.length;
 
@@ -127,6 +142,34 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
   useEffect(() => {
     setRowDelimiter(detectedDelimiter);
   }, [detectedDelimiter]);
+
+  // Excel workbooks always use the first non-empty row as the header
+  useEffect(() => {
+    if (isExcel) {
+      setHasHeader(true);
+    }
+  }, [isExcel]);
+
+  // Re-parse the active Excel worksheet when the selected sheet changes
+  useEffect(() => {
+    if (!isExcel || !excelBuffer || !selectedSheet) return;
+    if (selectedSheet === initialSheet && csvData) {
+      setExcelCsv(csvData);
+      return;
+    }
+    let cancelled = false;
+    setError(null);
+    parseExcelFile(excelBuffer, { sheet: selectedSheet })
+      .then(data => {
+        if (!cancelled) setExcelCsv(data);
+      })
+      .catch(err => {
+        if (!cancelled) {
+          setError(`Failed to parse sheet: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      });
+    return () => { cancelled = true; };
+  }, [isExcel, excelBuffer, selectedSheet, initialSheet, csvData]);
 
   const headers = hasHeader ? preview.headers : customHeaders.slice(0, colCount);
   const previewRows = hasHeader ? preview.rows : (() => {
@@ -215,6 +258,7 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
       itemDelimiter: fileType === 'aggregated' ? itemDelimiter : undefined,
       hasHeader,
       geneSetMeta: geneSetParsed?.meta,
+      sourceFormat,
     });
   };
 
@@ -242,6 +286,8 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
               </label>
               {isGeneSet ? (
                 <div className="csv-import-detected">{geneSetFormat?.toUpperCase()} file detected — auto-configured as aggregated gene set format</div>
+              ) : isExcel ? (
+                <div className="csv-import-detected-neutral">Excel workbook (.xlsx) detected</div>
               ) : (
                 <div className="csv-import-detected-neutral">
                   {filename.toLowerCase().endsWith('.tsv') ? 'TSV' : filename.toLowerCase().endsWith('.txt') ? 'TXT' : 'CSV'} file detected
@@ -250,34 +296,55 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
             </div>
           </div>
 
-          {/* 2. Delimiters */}
-          <div className="csv-import-section">
-            <div className="csv-import-section-title">2. Delimiters</div>
-            <div className="csv-import-delimiter-row">
-              <label>Row delimiter:</label>
-              <select className="csv-import-select" value={rowDelimiter} onChange={e => setRowDelimiter(e.target.value as Delimiter)} disabled={isGeneSet}>
-                {DELIMITER_OPTIONS.map(d => (
-                  <option key={d.value} value={d.value}>{d.label}</option>
-                ))}
-              </select>
-            </div>
-            {fileType === 'aggregated' && (
+          {/* 2. Worksheet (Excel only) */}
+          {isExcel && sheetNames && sheetNames.length > 1 && (
+            <div className="csv-import-section">
+              <div className="csv-import-section-title">2. Worksheet</div>
               <div className="csv-import-delimiter-row">
-                <label>Item delimiter:</label>
-                <select className="csv-import-select" value={itemDelimiter} onChange={e => setItemDelimiter(e.target.value as Delimiter)}>
+                <label>Sheet:</label>
+                <select
+                  className="csv-import-select"
+                  value={selectedSheet}
+                  onChange={e => setSelectedSheet(e.target.value)}
+                >
+                  {sheetNames.map(name => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* 2. Delimiters */}
+          {!isExcel && (
+            <div className="csv-import-section">
+              <div className="csv-import-section-title">2. Delimiters</div>
+              <div className="csv-import-delimiter-row">
+                <label>Row delimiter:</label>
+                <select className="csv-import-select" value={rowDelimiter} onChange={e => setRowDelimiter(e.target.value as Delimiter)} disabled={isGeneSet}>
                   {DELIMITER_OPTIONS.map(d => (
                     <option key={d.value} value={d.value}>{d.label}</option>
                   ))}
                 </select>
               </div>
-            )}
-          </div>
+              {fileType === 'aggregated' && (
+                <div className="csv-import-delimiter-row">
+                  <label>Item delimiter:</label>
+                  <select className="csv-import-select" value={itemDelimiter} onChange={e => setItemDelimiter(e.target.value as Delimiter)}>
+                    {DELIMITER_OPTIONS.map(d => (
+                      <option key={d.value} value={d.value}>{d.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 3. Header */}
           <div className="csv-import-section">
             <div className="csv-import-section-title">3. Header</div>
             <label className="csv-import-checkbox-label">
-              <input type="checkbox" checked={hasHeader} onChange={e => setHasHeader(e.target.checked)} disabled={isGeneSet} />
+              <input type="checkbox" checked={hasHeader} onChange={e => setHasHeader(e.target.checked)} disabled={isGeneSet || isExcel} />
               First row is header
             </label>
             {!hasHeader && colCount > 0 && (

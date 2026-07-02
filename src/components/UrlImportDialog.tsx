@@ -4,11 +4,11 @@ import { detectGeneSetFormat } from '../utils/csvParser.ts';
 
 interface UrlImportDialogProps {
   isOpen: boolean;
-  onLoad: (rawText: string, filename: string, geneSetFormat?: GeneSetFormat) => void;
+  onLoad: (rawText: string, filename: string, geneSetFormat?: GeneSetFormat, buffer?: ArrayBuffer) => void;
   onCancel: () => void;
 }
 
-const ALLOWED_EXT = ['.csv', '.tsv', '.txt', '.gmt', '.gmx', '.tab'];
+const ALLOWED_EXT = ['.csv', '.tsv', '.txt', '.xlsx', '.gmt', '.gmx', '.tab'];
 
 interface ValidationStep {
   label: string;
@@ -20,6 +20,8 @@ export function UrlImportDialog({ isOpen, onLoad, onCancel }: UrlImportDialogPro
   const [url, setUrl] = useState('');
   const [status, setStatus] = useState<'idle' | 'fetching' | 'success' | 'error'>('idle');
   const [fetchedText, setFetchedText] = useState<string | null>(null);
+  const [fetchedBuffer, setFetchedBuffer] = useState<ArrayBuffer | null>(null);
+  const [fetchedExt, setFetchedExt] = useState<string>('');
   const [fileInfo, setFileInfo] = useState<{ lines: number; bytes: number; detectedType: string } | null>(null);
   const [previewLines, setPreviewLines] = useState<string[]>([]);
   const [steps, setSteps] = useState<ValidationStep[]>([]);
@@ -27,6 +29,8 @@ export function UrlImportDialog({ isOpen, onLoad, onCancel }: UrlImportDialogPro
 
   const handleFetch = useCallback(async () => {
     setFetchedText(null);
+    setFetchedBuffer(null);
+    setFetchedExt('');
     setFileInfo(null);
     setPreviewLines([]);
 
@@ -88,6 +92,34 @@ export function UrlImportDialog({ isOpen, onLoad, onCancel }: UrlImportDialogPro
         return;
       }
 
+      const isExcel = ext === '.xlsx';
+      setFetchedExt(ext);
+
+      if (isExcel) {
+        const buffer = await response.arrayBuffer();
+        const bytes = buffer.byteLength;
+
+        if (bytes > 50 * 1024 * 1024) {
+          initialSteps[3] = { label: 'File too large', status: 'error', detail: `${(bytes / 1024 / 1024).toFixed(1)} MB (max 50 MB)` };
+          setSteps([...initialSteps]);
+          setStatus('error');
+          return;
+        }
+
+        const sizeLabel = bytes > 1024 * 1024
+          ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
+          : `${(bytes / 1024).toFixed(0)} KB`;
+        initialSteps[3] = { label: `Fetched: ${sizeLabel}`, status: 'ok' };
+        initialSteps[4] = { label: 'Excel workbook (.xlsx) detected', status: 'ok' };
+
+        setSteps([...initialSteps]);
+        setFetchedBuffer(buffer);
+        setFileInfo({ lines: 0, bytes, detectedType: 'Excel (.xlsx)' });
+        setPreviewLines([]);
+        setStatus('success');
+        return;
+      }
+
       const text = await response.text();
       const bytes = new Blob([text]).size;
 
@@ -141,13 +173,19 @@ export function UrlImportDialog({ isOpen, onLoad, onCancel }: UrlImportDialogPro
   }, [url]);
 
   const handleImport = useCallback(() => {
-    if (!fetchedText) return;
     const urlObj = new URL(url.trim());
     const pathParts = urlObj.pathname.split('/');
     const filename = pathParts[pathParts.length - 1] || 'url-data.txt';
     const geneSetFormat = detectGeneSetFormat(filename);
+
+    if (fetchedExt === '.xlsx' && fetchedBuffer) {
+      onLoad('', filename, undefined, fetchedBuffer);
+      return;
+    }
+
+    if (!fetchedText) return;
     onLoad(fetchedText, filename, geneSetFormat ?? undefined);
-  }, [fetchedText, url, onLoad]);
+  }, [fetchedText, fetchedBuffer, fetchedExt, url, onLoad]);
 
   if (!isOpen) return null;
 
@@ -179,7 +217,7 @@ export function UrlImportDialog({ isOpen, onLoad, onCancel }: UrlImportDialogPro
       >
         <h3 style={{ margin: '0 0 4px', fontSize: 16 }}>Load Data from URL</h3>
         <p style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--text-secondary)' }}>
-          Enter a direct link to a CSV, TSV, GMT, or GMX file.
+          Enter a direct link to a CSV, TSV, Excel, GMT, or GMX file.
         </p>
 
         {/* URL input */}

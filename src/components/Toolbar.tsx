@@ -25,15 +25,22 @@ interface ToolbarProps {
   onToggleValidation: () => void;
   onOpen?: () => void;
   onClose?: () => void;
-  onDataOpen?: () => void;
-  onDataSave?: () => void;
+  onDataSaveSession?: () => void;
+  onDataSaveSvg?: () => void;
+  onDataSavePng?: () => void;
+  onDataSaveJpg?: () => void;
+  onDataOpenSample?: () => void;
+  onDataOpenUpload?: () => void;
+  onDataOpenPaste?: () => void;
+  onDataOpenUrl?: () => void;
+  onDataOpenSession?: () => void;
   onDataClose?: () => void;
   hasDataFile?: boolean;
   isCalculated?: boolean;
   onUndo: () => void;
   onRedo: () => void;
   onReport: () => void;
-  onDataReport?: () => void;
+  onDataReportPdf?: () => void;
   onDataReportZip?: () => void;
   onGoMain?: () => void;
   theme: ThemeMode;
@@ -47,15 +54,20 @@ export function Toolbar({
   onZoomIn, onZoomOut, onZoomReset,
   showValidation,
   onToggleGrid, onToggleValidation,
-  onOpen, onClose, onDataOpen, onDataSave, onDataClose, hasDataFile, isCalculated,
-  onUndo, onRedo, onReport, onDataReport, onDataReportZip,
+  onOpen, onClose,
+  onDataSaveSession, onDataSaveSvg, onDataSavePng, onDataSaveJpg,
+  onDataOpenSample, onDataOpenUpload, onDataOpenPaste, onDataOpenUrl, onDataOpenSession,
+  onDataClose, hasDataFile, isCalculated,
+  onUndo, onRedo, onReport, onDataReportPdf, onDataReportZip,
   onGoMain,
   theme, onToggleTheme,
 }: ToolbarProps) {
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
+  const [dataMenu, setDataMenu] = useState<'open' | 'save' | 'report' | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dataMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
+  // Close mode dropdown on outside click
   useEffect(() => {
     if (!modeDropdownOpen) return;
     const handler = (e: MouseEvent) => {
@@ -66,6 +78,18 @@ export function Toolbar({
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [modeDropdownOpen]);
+
+  // Close data menus on outside click
+  useEffect(() => {
+    if (!dataMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (dataMenuRef.current && !dataMenuRef.current.contains(e.target as Node)) {
+        setDataMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [dataMenu]);
 
   return (
     <div className="toolbar">
@@ -128,14 +152,120 @@ export function Toolbar({
         {mode === 'data' && (
           <>
             <span className="toolbar-sep" />
-            <button className="btn btn-toolbar" data-tour="toolbar-data-open" onClick={onDataOpen}>Open</button>
-            <button className="btn btn-toolbar" onClick={onDataSave} disabled={!hasDataFile}>Save</button>
-            <button className="btn btn-toolbar" onClick={onDataClose}>Close</button>
-            <span className="toolbar-sep" />
-            <span className="toolbar-group" data-tour="toolbar-reports">
-              <button className="btn btn-toolbar" onClick={onDataReport} disabled={!isCalculated}>Report PDF</button>
-              <button className="btn btn-toolbar" onClick={onDataReportZip} disabled={!isCalculated || !onDataReportZip}>Full Report (zip)</button>
-            </span>
+            <div className="toolbar-data-menus" ref={dataMenuRef} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div className="mode-dropdown">
+                <button
+                  className="btn btn-toolbar"
+                  data-tour="toolbar-data-open"
+                  onClick={() => setDataMenu(m => m === 'open' ? null : 'open')}
+                >
+                  Open ▾
+                </button>
+                {dataMenu === 'open' && (
+                  <div className="mode-dropdown-menu">
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataOpenSession?.(); setDataMenu(null); }}
+                    >
+                      Load previous session
+                    </button>
+                    <div className="toolbar-dropdown-separator" />
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataOpenSample?.(); setDataMenu(null); }}
+                    >
+                      Load Sample Data
+                    </button>
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataOpenUpload?.(); setDataMenu(null); }}
+                    >
+                      Upload Custom File
+                    </button>
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataOpenPaste?.(); setDataMenu(null); }}
+                    >
+                      Paste Lists
+                    </button>
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataOpenUrl?.(); setDataMenu(null); }}
+                    >
+                      Load from URL
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="mode-dropdown">
+                <button
+                  className="btn btn-toolbar"
+                  onClick={() => setDataMenu(m => m === 'save' ? null : 'save')}
+                >
+                  Save ▾
+                </button>
+                {dataMenu === 'save' && (
+                  <div className="mode-dropdown-menu">
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataSaveSession?.(); setDataMenu(null); }}
+                      disabled={!hasDataFile}
+                    >
+                      Save Session
+                    </button>
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataSaveSvg?.(); setDataMenu(null); }}
+                      disabled={!filename}
+                    >
+                      Save as SVG
+                    </button>
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataSavePng?.(); setDataMenu(null); }}
+                      disabled={!filename}
+                    >
+                      Save as PNG
+                    </button>
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataSaveJpg?.(); setDataMenu(null); }}
+                      disabled={!filename}
+                    >
+                      Save as JPG
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="mode-dropdown" data-tour="toolbar-reports">
+                <button
+                  className="btn btn-toolbar"
+                  onClick={() => setDataMenu(m => m === 'report' ? null : 'report')}
+                  disabled={!isCalculated}
+                >
+                  Report ▾
+                </button>
+                {dataMenu === 'report' && (
+                  <div className="mode-dropdown-menu">
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataReportPdf?.(); setDataMenu(null); }}
+                      disabled={!isCalculated}
+                    >
+                      Report as PDF
+                    </button>
+                    <button
+                      className="mode-dropdown-item"
+                      onClick={() => { onDataReportZip?.(); setDataMenu(null); }}
+                      disabled={!isCalculated}
+                    >
+                      Full Report (ZIP)
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button className="btn btn-toolbar btn-close-data" onClick={onDataClose}>Close</button>
+            </div>
           </>
         )}
       </div>

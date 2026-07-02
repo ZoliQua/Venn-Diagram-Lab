@@ -1,6 +1,6 @@
 {
   "name": "venn-diagram-lab",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Headless Venn diagram analysis & rendering for Node — companion to the Venn Diagram Lab web tool.",
   "author": "Zoltán Dul",
   "repository": {

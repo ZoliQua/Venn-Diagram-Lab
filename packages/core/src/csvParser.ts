@@ -19,6 +19,7 @@ export interface CsvImportResult {
   itemDelimiter?: Delimiter;
   hasHeader: boolean;
   geneSetMeta?: GeneSetMeta;
+  sourceFormat?: 'csv' | 'excel' | 'gmt' | 'gmx' | 'paste' | 'url';
 }
 
 /** Split a CSV line respecting quoted fields, with configurable delimiter */

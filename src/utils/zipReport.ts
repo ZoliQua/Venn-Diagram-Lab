@@ -9,7 +9,7 @@
  * libraries are fetched only when the user clicks "Report (zip)".
  */
 import type { VennDocument } from '../types.ts';
-import type { VennResult } from './csvParser.ts';
+import type { VennResult, Delimiter } from './csvParser.ts';
 import type { ProportionalAccuracy } from './proportionalLayout.ts';
 import type { PairwiseStat } from './statistics.ts';
 import type { EnrichmentPlotSettings } from './enrichmentPlotStyle.ts';
@@ -20,6 +20,8 @@ import { DEFAULT_SHARE_DIST_STYLE } from './shareDistributionSvgBuilder.ts';
 import { svgStringToDataUrl } from './svgToImage.ts';
 import { generatePdfReport } from './pdfReport.ts';
 import { ABOUT_REPORT_SECTIONS } from './aboutReport.ts';
+import { generatePythonScript, generateRScript, generateNpmScript } from './scriptExport.ts';
+import type { ScriptExportParams } from './scriptExport.ts';
 import { APP_VERSION } from '../version.ts';
 
 export interface ZipReportParams {
@@ -32,12 +34,18 @@ export interface ZipReportParams {
   filename: string;
   title: string;
   modelName: string;
+  columnMapping: number[];
+  fileType: 'binary' | 'aggregated';
+  itemDelimiter: Delimiter;
+  shapeColors: Record<string, string>;
+  enrichmentMetric: 'neglog10fdr' | 'foldEnrichment';
+  sessionJson?: string;
   proportionalAccuracy?: ProportionalAccuracy | null;
   enrichmentPlotSettings?: EnrichmentPlotSettings;
   onProgress?: (step: string, percent: number) => void;
 }
 
-const STEP_COUNT = 8;
+const STEP_COUNT = 9;
 function progress(params: ZipReportParams, stepIndex: number, label: string): void {
   const pct = Math.round((stepIndex / STEP_COUNT) * 100);
   params.onProgress?.(label, pct);
@@ -88,6 +96,10 @@ function buildReadme(params: ZipReportParams, stats: PairwiseStat[]): string {
   lines.push(`  stat_bar_chart.svg                      Enrichment bar chart (\u2212log10(FDR))`);
   lines.push(`  stat_lollipop_chart.svg                 Enrichment lollipop chart (stick = \u2212log10(FDR), dot = intersection)`);
   lines.push(`  stat_heatmap_chart.svg                  Pairwise \u2212log10(FDR) heatmap`);
+  lines.push(`  analysis_script.py                      Reproducible Python script (venn-diagram-lab package)`);
+  lines.push(`  analysis_script.R                       Reproducible R script (vennDiagramLab package)`);
+  lines.push(`  analysis_script.mjs                     Reproducible Node.js/npm script (venn-diagram-lab package)`);
+  lines.push(`  session.json                            Full Data-mode session (same format as Save Session)`);
   lines.push(`  README.txt                              This file`);
   lines.push('');
   lines.push(`Zip root filename: venn_report_${baseName}.zip`);
@@ -285,9 +297,29 @@ export async function generateZipReport(params: ZipReportParams): Promise<Blob> 
   // 7. README
   zip.file('README.txt', buildReadme(params, pairwiseStats));
 
-  // 8. Assemble zip
-  progress(params, 7, 'Assembling zip...');
+  // 8. Analysis scripts (same output as the dedicated Python/R export buttons)
+  progress(params, 7, 'Writing analysis scripts...');
+  const scriptParams: ScriptExportParams = {
+    filename: params.filename,
+    fileType: params.fileType,
+    delimiter: params.itemDelimiter,
+    columnMapping: params.columnMapping,
+    setNames: params.setNames,
+    model: params.modelName,
+    shapeColors: params.shapeColors,
+    enrichmentMetric: params.enrichmentMetric,
+    n,
+  };
+  zip.file('analysis_script.py', generatePythonScript(scriptParams));
+  zip.file('analysis_script.R', generateRScript(scriptParams));
+  zip.file('analysis_script.mjs', generateNpmScript(scriptParams));
+  if (params.sessionJson) {
+    zip.file('session.json', params.sessionJson);
+  }
+
+  // 9. Assemble zip
+  progress(params, 8, 'Assembling zip...');
   const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-  progress(params, 8, 'Done.');
+  progress(params, 9, 'Done.');
   return blob;
 }

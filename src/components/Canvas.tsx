@@ -158,14 +158,14 @@ function TextElement({
     : `translate(${t.x}, ${t.y})`;
 
   const isCut = isCutView && !errorHighlight;
-  const hc = hoverColor || '#00ff88';
+  const hc = hoverColor || '#a33333';
   const fillColor = errorHighlight ? '#ff0000' : viewerHighlight ? hc : isCut ? '#ffffff' : styleObj['fill'];
   const strokeColor = errorHighlight ? '#ff0000' : viewerHighlight ? hc : isCut ? 'none' : styleObj['stroke'];
 
   return (
     <g>
       {viewerHighlight && (
-        <HighlightRect targetId={t.id} />
+        <HighlightRect targetId={t.id} x={t.x} y={t.y} hoverColor={hoverColor} />
       )}
       <text
         id={t.id}
@@ -203,16 +203,17 @@ function TextElement({
 
 const EMPTY_INVALID_IDS = new Set<string>();
 
-function HighlightRect({ targetId }: { targetId: string }) {
+function HighlightRect({ targetId, x, y, hoverColor }: { targetId: string; x: number; y: number; hoverColor?: string }) {
   const rectRef = useRef<SVGRectElement>(null);
+  const color = hoverColor || '#a33333';
   useEffect(() => {
     const el = document.getElementById(targetId);
     if (!el || !rectRef.current) return;
     try {
       const bbox = (el as unknown as SVGGraphicsElement).getBBox();
       const rect = rectRef.current;
-      rect.setAttribute('x', String(bbox.x - 4));
-      rect.setAttribute('y', String(bbox.y - 4));
+      rect.setAttribute('x', String(bbox.x + x - 4));
+      rect.setAttribute('y', String(bbox.y + y - 4));
       rect.setAttribute('width', String(bbox.width + 8));
       rect.setAttribute('height', String(bbox.height + 8));
     } catch { /* skip */ }
@@ -220,8 +221,9 @@ function HighlightRect({ targetId }: { targetId: string }) {
   return (
     <rect
       ref={rectRef}
-      fill="rgba(0, 255, 136, 0.2)"
-      stroke="#00ff88"
+      fill={color}
+      fillOpacity="0.2"
+      stroke={color}
       strokeWidth="2"
       rx="3"
       pointerEvents="none"
