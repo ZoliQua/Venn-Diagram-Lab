@@ -184,3 +184,53 @@ describe('ScriptExportParams provenance plumbing', () => {
     expect(script).toContain('open(FILE');
   });
 });
+
+// Task 2: generators use import provenance to reproduce the app for every import path.
+describe('Task 2: import-path parity', () => {
+  const base = (over: Partial<ScriptExportParams>): ScriptExportParams => ({
+    filename: 'data.csv', fileType: 'binary', delimiter: ',', columnMapping: [1, 2],
+    setNames: ['A', 'B'], model: 'venn2', shapeColors: { A: '#FFF200', B: '#2E3192' },
+    enrichmentMetric: 'neglog10fdr', n: 2, sourceKind: 'file', hasHeader: true,
+    sheetIndex: 0, headers: ['id', 'A', 'B'], rawData: [['g1', '1', '0']], ...over,
+  });
+
+  it('no-header import: script does NOT skip the first row', () => {
+    const py = generatePythonScript(base({ hasHeader: false }));
+    expect(py).not.toContain('next(reader)  # skip header');
+  });
+
+  it('multi-sheet Excel: script reads the selected sheet index', () => {
+    const py = generatePythonScript(base({ filename: 'x.xlsx', sheetIndex: 2 }));
+    expect(py).toContain('sheet_name=2');
+    const r = generateRScript(base({ filename: 'x.xlsx', sheetIndex: 2 }));
+    expect(r).toContain('sheet = 3');   // R is 1-based
+  });
+
+  it('npm aggregated export preserves items containing commas', () => {
+    const js = generateNpmScript(base({ fileType: 'aggregated', delimiter: ';' }));
+    // must NOT re-join on a bare comma (which would split "Smith, John")
+    expect(js).not.toContain("].map(s => s.trim()).filter(Boolean).join(',')");
+  });
+
+  it('paste source embeds data inline and never reads a file', () => {
+    for (const gen of [generatePythonScript, generateRScript, generateNpmScript]) {
+      const s = gen(base({ sourceKind: 'paste', rawData: [['g1', '1', '0']] }));
+      expect(s).toContain('g1');
+      expect(s.toLowerCase()).not.toMatch(/open\(file|readlines\(file|readfilesync/);
+    }
+  });
+
+  it('no dead hex-lowercase regex applied to set names', () => {
+    const py = generatePythonScript(base({ setNames: ['Sales #1', 'Ops'] }));
+    expect(py).toContain('Sales #1');   // set name text untouched
+  });
+
+  it('gmt gene-set files embed inline instead of misparsing the file', () => {
+    const py = generatePythonScript(base({
+      filename: 'sets.gmt', fileType: 'aggregated', delimiter: ',',
+      rawData: [['geneA', 'geneB']], headers: ['SetOne', 'SetTwo'],
+    }));
+    expect(py).toContain('geneA');
+    expect(py).not.toContain('open(FILE');
+  });
+});

@@ -73,6 +73,42 @@ function isExcelFilename(filename: string): boolean {
   return filename.toLowerCase().endsWith('.xlsx');
 }
 
+function isGeneSetFilename(filename: string): boolean {
+  const lower = filename.toLowerCase();
+  return lower.endsWith('.gmt') || lower.endsWith('.gmx');
+}
+
+/**
+ * Decide whether the generated script must embed the parsed rows inline instead of
+ * re-reading the on-disk file. Inline is required when the original file cannot be
+ * reproduced by a simple CSV/Excel reader: paste/url sources have no local file, and
+ * .gmt/.gmx gene-set files are transposed/tab-shaped and would misparse. `rawData` is
+ * the app's already-parsed, header-stripped rows, so the inline branch never skips a header.
+ */
+function shouldEmbedInline(params: ScriptExportParams): boolean {
+  return params.sourceKind === 'paste'
+    || params.sourceKind === 'url'
+    || isGeneSetFilename(params.filename);
+}
+
+/** Emit rows as an inline Python literal so paste/url/gmt data needs no file. */
+function embedRowsPython(rows: string[][]): string {
+  const body = rows.map(r => '    ' + toPythonStringList(r)).join(',\n');
+  return `rows = [\n${body}\n]`;
+}
+
+/** Emit rows as an inline R literal (list of character vectors). */
+function embedRowsR(rows: string[][]): string {
+  const rowLits = rows.map(r => `c(${r.map(quoteR).join(', ')})`);
+  return `rows <- list(\n    ${rowLits.join(',\n    ')}\n)`;
+}
+
+/** Emit rows as an inline JS literal (array of string arrays). */
+function embedRowsJs(rows: string[][]): string {
+  const body = rows.map(r => '  [' + r.map(quoteJs).join(', ') + ']').join(',\n');
+  return `const rows = [\n${body}\n];`;
+}
+
 export function generatePythonScript(params: ScriptExportParams): string {
   const { filename, fileType, delimiter, columnMapping, setNames, model, shapeColors, enrichmentMetric, n } = params;
   const timestamp = new Date().toISOString();
@@ -102,27 +138,36 @@ export function generatePythonScript(params: ScriptExportParams): string {
     '',
   );
 
-  if (isExcelFilename(filename)) {
+  if (shouldEmbedInline(params)) {
     lines.push(
-      '# Excel file: install pandas and openpyxl (pip install pandas openxlsx)',
+      `# Data embedded inline (source: ${params.sourceKind}); already parsed and`,
+      `# header-stripped by ${APP_NAME}, so no file is read here.`,
+      embedRowsPython(params.rawData),
+      '',
+    );
+  } else if (isExcelFilename(filename)) {
+    lines.push(
+      '# Excel file: install pandas and openpyxl (pip install pandas openpyxl)',
       'import pandas as pd',
       '',
-      'df = pd.read_excel(FILE, sheet_name=0, dtype=str, keep_default_na=False)',
+      `df = pd.read_excel(FILE, sheet_name=${params.sheetIndex}, dtype=str, keep_default_na=False)`,
       'rows = df.values.tolist()',
       '',
     );
   } else {
     const fileDelimiter = inferFileDelimiter(filename);
     const isTsv = fileDelimiter === '\\t';
-    lines.push(
+    const readerLines = [
       'import csv',
       '',
       `with open(FILE, newline="", encoding="utf-8") as f:`,
       `    reader = csv.reader(f, delimiter=${quotePython(isTsv ? '\t' : ',')})`,
-      '    _ = next(reader)  # skip header',
-      '    rows = list(reader)',
-      '',
-    );
+    ];
+    if (params.hasHeader) {
+      readerLines.push('    _ = next(reader)  # skip header');
+    }
+    readerLines.push('    rows = list(reader)', '');
+    lines.push(...readerLines);
   }
 
   if (fileType === 'binary') {
@@ -183,7 +228,7 @@ export function generatePythonScript(params: ScriptExportParams): string {
     'venn_svg = render_venn_svg(',
     '    result,',
     `    model=${quotePython(effectiveModel)},`,
-    `    set_names=${toPythonColorMap(setNamesMap, n).replace(/: #[0-9A-Fa-f]{6}/g, (m) => m.toLowerCase())},`,
+    `    set_names=${toPythonColorMap(setNamesMap, n)},`,
     `    colors=${toPythonColorMap(colorsMap, n)},`,
     '    title="",',
     ')',
@@ -234,20 +279,56 @@ export function generateRScript(params: ScriptExportParams): string {
     '',
   );
 
-  if (isExcelFilename(filename)) {
+  if (shouldEmbedInline(params)) {
+    lines.push(
+      `# Data embedded inline (source: ${params.sourceKind}); already parsed and`,
+      `# header-stripped by ${APP_NAME}, so no file is read here.`,
+      embedRowsR(params.rawData),
+      '',
+    );
+  } else if (isExcelFilename(filename)) {
     lines.push(
       '# Excel file: install openxlsx (install.packages("openxlsx"))',
-      'df <- openxlsx::read.xlsx(FILE, sheet = 1, colNames = TRUE)',
-      'rows <- as.matrix(df)',
+      `df <- openxlsx::read.xlsx(FILE, sheet = ${params.sheetIndex + 1}, colNames = ${params.hasHeader ? 'TRUE' : 'FALSE'})`,
+      'rows <- lapply(seq_len(nrow(df)), function(i) as.character(df[i, ]))',
       '',
     );
   } else {
     const isTsv = filename.toLowerCase().endsWith('.tsv');
     lines.push(
+      '# Quote-aware line splitter (mirrors the app CSV parser: honors "..." and escaped "").',
+      'split_csv_line <- function(line, delimiter) {',
+      '    chars <- strsplit(line, "", fixed = TRUE)[[1]]',
+      '    result <- character(0)',
+      '    current <- ""',
+      '    in_quotes <- FALSE',
+      '    i <- 1L',
+      '    n <- length(chars)',
+      '    while (i <= n) {',
+      '        ch <- chars[i]',
+      '        if (ch == "\\"") {',
+      '            if (in_quotes && i < n && chars[i + 1L] == "\\"") {',
+      '                current <- paste0(current, "\\"")',
+      '                i <- i + 1L',
+      '            } else {',
+      '                in_quotes <- !in_quotes',
+      '            }',
+      '        } else if (ch == delimiter && !in_quotes) {',
+      '            result <- c(result, trimws(current))',
+      '            current <- ""',
+      '        } else {',
+      '            current <- paste0(current, ch)',
+      '        }',
+      '        i <- i + 1L',
+      '    }',
+      '    c(result, trimws(current))',
+      '}',
+      '',
+      `DELIMITER <- ${quoteR(isTsv ? '\t' : ',')}`,
       `raw <- readLines(FILE, warn = FALSE, encoding = "UTF-8")`,
       `lines <- raw[nzchar(trimws(raw))]`,
-      `parsed <- strsplit(lines, ${quoteR(isTsv ? '\t' : ',')}, fixed = TRUE)`,
-      `rows <- lapply(parsed[-1], trimws)`,
+      `parsed <- lapply(lines, split_csv_line, delimiter = DELIMITER)`,
+      params.hasHeader ? 'rows <- parsed[-1]' : 'rows <- parsed',
       '',
     );
   }
@@ -365,6 +446,7 @@ export function generateNpmScript(params: ScriptExportParams): string {
   const effectiveModel = model === '__proportional__' ? 'proportional' : model;
   const fileDelimiter = inferFileDelimiter(filename);
   const isTsv = fileDelimiter === '\\t';
+  const inline = shouldEmbedInline(params);
 
   const lines: string[] = [
     `// Generated by ${APP_NAME} v${APP_VERSION} on ${timestamp}`,
@@ -383,7 +465,7 @@ export function generateNpmScript(params: ScriptExportParams): string {
 
   lines.push(
     '',
-    'import { readFileSync, writeFileSync } from \'node:fs\';',
+    `import { ${inline ? '' : 'readFileSync, '}writeFileSync } from 'node:fs';`,
     'import {',
     '  analyzeCsv,',
     '  toVennSvg,',
@@ -395,40 +477,70 @@ export function generateNpmScript(params: ScriptExportParams): string {
     '  toProportionalSvg,',
     '} from \'venn-diagram-lab\';',
     '',
-    `const FILE = ${quoteJs(filename)};`,
     `const COLUMNS = ${toJsArray(columnMapping)};`,
     `const MODEL = ${quoteJs(effectiveModel)};`,
     '',
   );
 
-  if (isExcelFilename(filename)) {
+  if (inline) {
     lines.push(
-      '// Excel file: convert to CSV first, e.g. with the xlsx package:',
-      '//   import xlsx from \'xlsx\';',
-      '//   const workbook = xlsx.readFile(FILE);',
-      '//   const worksheet = workbook.Sheets[workbook.SheetNames[0]];',
-      '//   const csv = xlsx.utils.sheet_to_csv(worksheet);',
-      '//   writeFileSync(\'converted.csv\', csv);',
-      '// Then update FILE to point to the converted CSV file.',
+      `// Data embedded inline (source: ${params.sourceKind}); already parsed and`,
+      `// header-stripped by ${APP_NAME}, so no file is read here.`,
+      embedRowsJs(params.rawData),
+      `const headers = ${toJsArray(params.headers)};`,
+      '',
+    );
+  } else {
+    lines.push(`const FILE = ${quoteJs(filename)};`, '');
+    if (isExcelFilename(filename)) {
+      lines.push(
+        `// Excel file: convert to CSV first (using worksheet index ${params.sheetIndex}, 0-based), e.g. with the xlsx package:`,
+        '//   import xlsx from \'xlsx\';',
+        '//   const workbook = xlsx.readFile(FILE);',
+        `//   const worksheet = workbook.Sheets[workbook.SheetNames[${params.sheetIndex}]];`,
+        '//   const csv = xlsx.utils.sheet_to_csv(worksheet);',
+        '//   writeFileSync(\'converted.csv\', csv);',
+        '// Then update FILE to point to the converted CSV file.',
+        '',
+      );
+    }
+    lines.push(
+      `const FILE_DELIMITER = ${quoteJs(isTsv ? '\t' : ',')};`,
+      '',
+      '// Quote-aware line splitter (mirrors the app CSV parser: honors "..." and escaped "").',
+      'function splitCsvLine(line, delimiter) {',
+      '  const result = [];',
+      '  let current = \'\';',
+      '  let inQuotes = false;',
+      '  for (let i = 0; i < line.length; i++) {',
+      '    const ch = line[i];',
+      '    if (ch === \'"\') {',
+      '      if (inQuotes && line[i + 1] === \'"\') { current += \'"\'; i++; }',
+      '      else { inQuotes = !inQuotes; }',
+      '    } else if (ch === delimiter && !inQuotes) {',
+      '      result.push(current.trim());',
+      '      current = \'\';',
+      '    } else {',
+      '      current += ch;',
+      '    }',
+      '  }',
+      '  result.push(current.trim());',
+      '  return result;',
+      '}',
+      '',
+      'function parseCsvFile(path, delimiter) {',
+      '  const text = readFileSync(path, \'utf-8\');',
+      '  const lines = text.replace(/\\r\\n/g, \'\\n\').replace(/\\r/g, \'\\n\').trim().split(\'\\n\').filter(l => l.trim() !== \'\');',
+      `  const dataStart = ${params.hasHeader ? '1' : '0'};`,
+      `  const headers = ${params.hasHeader ? 'splitCsvLine(lines[0], delimiter)' : `${toJsArray(params.headers)}`};`,
+      '  const rows = lines.slice(dataStart).map(line => splitCsvLine(line, delimiter));',
+      '  return { headers, rows };',
+      '}',
+      '',
+      'const { headers, rows } = parseCsvFile(FILE, FILE_DELIMITER);',
       '',
     );
   }
-
-  lines.push(
-    `const FILE_DELIMITER = ${quoteJs(isTsv ? '\t' : ',')};`,
-    '',
-    'function parseCsvFile(path, delimiter) {',
-    '  const text = readFileSync(path, \'utf-8\');',
-    '  const lines = text.replace(/\\r\\n/g, \'\\n\').replace(/\\r/g, \'\\n\').trim().split(\'\\n\').filter(l => l.trim() !== \'\');',
-    '  if (lines.length < 2) throw new Error(\'CSV file must have a header and at least one data row\');',
-    '  const headers = lines[0].split(delimiter).map(h => h.trim());',
-    '  const rows = lines.slice(1).map(line => line.split(delimiter).map(c => c.trim()));',
-    '  return { headers, rows };',
-    '}',
-    '',
-    'const { headers, rows } = parseCsvFile(FILE, FILE_DELIMITER);',
-    '',
-  );
 
   if (fileType === 'binary') {
     lines.push(
@@ -444,12 +556,22 @@ export function generateNpmScript(params: ScriptExportParams): string {
       `const ITEM_DELIMITER = ${quoteJs(itemDelimiter)};`,
       '',
       '// Aggregated mode: each selected column is a set, cells contain delimiter-separated items.',
+      '// NOTE (package limitation): the published `venn-diagram-lab` `analyzeCsv` splits aggregated',
+      '// cells on a hardcoded comma and exposes no delimiter override. When ITEM_DELIMITER is not a',
+      '// comma we re-split on the true delimiter and re-join with a comma. That is lossless ONLY if',
+      '// no item itself contains a comma; the guard below throws rather than silently splitting an',
+      '// item such as "Smith, John" into two. (Comma-in-item aggregated data cannot round-trip',
+      '// through the npm package — export a comma-delimited file, or use the Python/R script.)',
       'const csv = {',
       '  headers: COLUMNS.map(i => headers[i] ?? `Column ${i + 1}`),',
       '  rows: rows.map(row => COLUMNS.map(i => {',
       '    const cell = row[i] ?? \'\';',
       '    if (ITEM_DELIMITER === \',\') return cell;',
-      '    return cell.split(ITEM_DELIMITER).map(s => s.trim()).filter(Boolean).join(\',\');',
+      '    const parts = cell.split(ITEM_DELIMITER).map(s => s.trim()).filter(Boolean);',
+      '    if (parts.some(p => p.includes(\',\'))) {',
+      '      throw new Error(\'An aggregated item contains a comma; venn-diagram-lab splits cells on commas and cannot represent it losslessly.\');',
+      '    }',
+      '    return parts.join(\',\');',
       '  })),',
       '};',
     );
