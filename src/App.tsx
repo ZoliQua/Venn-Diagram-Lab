@@ -158,6 +158,9 @@ export default function App() {
   const [testOriginalColumns, setTestOriginalColumns] = useState<number[]>([]);
   const [testFileType, setTestFileType] = useState<FileType>('binary');
   const [testItemDelimiter, setTestItemDelimiter] = useState<Delimiter>(',');
+  const [testHasHeader, setTestHasHeader] = useState(true);
+  const [testSheetIndex, setTestSheetIndex] = useState(0);
+  const [testSourceKind, setTestSourceKind] = useState<'file' | 'sample' | 'paste' | 'url'>('file');
   const [testGeneSetMeta, setTestGeneSetMeta] = useState<GeneSetMeta | null>(null);
   const [testCalculated, setTestCalculated] = useState(false);
   const [testPendingCalculate, setTestPendingCalculate] = useState(false);
@@ -575,6 +578,11 @@ export default function App() {
       shapeColors: testShapeColors,
       enrichmentMetric: testEnrichmentMetric,
       n: testColumnMapping.length,
+      sourceKind: testSourceKind,
+      hasHeader: testHasHeader,
+      sheetIndex: testSheetIndex,
+      headers: testCsvData.headers,
+      rawData: testCsvData.rows,
     };
     if (kind === 'python') {
       const script = generatePythonScript(params);
@@ -589,7 +597,7 @@ export default function App() {
       downloadFile(script, `venn_${testColumnMapping.length}set_analysis.mjs`, 'text/javascript', false);
       trackEvent('export_script', 'export', 'npm');
     }
-  }, [testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testModel, testShapeColors, testEnrichmentMetric, testVennResult]);
+  }, [testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testModel, testShapeColors, testEnrichmentMetric, testVennResult, testSourceKind, testHasHeader, testSheetIndex]);
 
   const handleExportImage = useCallback((format: 'png' | 'jpg') => {
     trackEvent('export_image', 'export', format);
@@ -842,6 +850,7 @@ export default function App() {
   // Data mode handlers
   const handleLoadSampleDataset = useCallback(async (dataset: SampleDataset) => {
     setSampleDataDialog(false);
+    setTestSourceKind('sample');
     try {
       const resp = await fetch(`./data/${dataset.filename}`);
       const text = await resp.text();
@@ -853,6 +862,7 @@ export default function App() {
   }, []);
 
   const handleTestFileUpload = useCallback(async (file: File) => {
+    setTestSourceKind('file');
     if (file.name.toLowerCase().endsWith('.xlsx')) {
       try {
         const buffer = await file.arrayBuffer();
@@ -896,6 +906,9 @@ export default function App() {
     setTestGeneSetMeta(null);
     setTestError(null);
     setTestCalculated(false);
+    setTestSourceKind('paste');
+    setTestHasHeader(result.hasHeader);
+    setTestSheetIndex(0);
     const cols = result.selectedColumns.slice(0, 9);
     setTestColumnMapping(cols);
     setTestOriginalColumns(cols);
@@ -903,6 +916,7 @@ export default function App() {
 
   const handleUrlImportLoad = useCallback(async (rawText: string, filename: string, geneSetFormat?: GeneSetFormat, buffer?: ArrayBuffer) => {
     setUrlDialog(false);
+    setTestSourceKind('url');
     if (filename.toLowerCase().endsWith('.xlsx') && buffer) {
       try {
         const sheets = await listExcelSheets(buffer);
@@ -942,6 +956,8 @@ export default function App() {
     setTestGeneSetMeta(result.geneSetMeta ?? null);
     setTestError(null);
     setTestCalculated(false);
+    setTestHasHeader(result.hasHeader);
+    setTestSheetIndex(result.sheetIndex ?? 0);
     // For aggregated: selectedColumns are the set columns; for binary: column indices
     const cols = result.selectedColumns.slice(0, 9);
     setTestColumnMapping(cols);
@@ -1138,6 +1154,9 @@ export default function App() {
       setTestGeneSetMeta(null);
       setTestError(null);
       setTestCalculated(false);
+      setTestSourceKind('sample');
+      setTestHasHeader(true);
+      setTestSheetIndex(0);
       setTestColumnMapping(TOUR_DATASET.preferredColumns);
       setTestOriginalColumns(TOUR_DATASET.preferredColumns);
       setTestModel(TOUR_DATASET.preferredModel);

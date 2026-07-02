@@ -309,6 +309,17 @@ export async function generateZipReport(params: ZipReportParams): Promise<Blob> 
     shapeColors: params.shapeColors,
     enrichmentMetric: params.enrichmentMetric,
     n,
+    // TODO(v2.5.0 review-fixes Task 2 follow-up): ZipReportParams does not yet carry import
+    // provenance (source kind / header flag / sheet index / raw rows). Until it does, the
+    // bundled scripts assume a re-openable local file with a header row and sheet 0 — the
+    // same assumption the dedicated export buttons made before Task 1. Not a regression, but
+    // paste/URL/no-header/multi-sheet imports won't get correct bundled scripts until this is
+    // threaded through ZipReportDialog -> ZipReportParams the same way handleExportScript does.
+    sourceKind: 'file',
+    hasHeader: true,
+    sheetIndex: 0,
+    headers: params.setNames,
+    rawData: [],
   };
   zip.file('analysis_script.py', generatePythonScript(scriptParams));
   zip.file('analysis_script.R', generateRScript(scriptParams));

@@ -14,6 +14,14 @@ const baseParams: ScriptExportParams = {
   },
   enrichmentMetric: 'neglog10fdr',
   n: 4,
+  sourceKind: 'file',
+  hasHeader: true,
+  sheetIndex: 0,
+  headers: ['ID', 'Vogelstein', 'COSMIC_CGC', 'OncoKB', 'IntOGen'],
+  rawData: [
+    ['g1', '1', '1', '0', '0'],
+    ['g2', '1', '0', '1', '0'],
+  ],
 };
 
 describe('generatePythonScript', () => {
@@ -147,5 +155,32 @@ describe('generateNpmScript', () => {
     const script = generateNpmScript({ ...baseParams, filename: 'my_data.xlsx' });
     expect(script).toContain('Excel file: convert to CSV first');
     expect(script).toContain('xlsx.readFile');
+  });
+});
+
+// Task 1: plumbing only. ScriptExportParams gains sourceKind/hasHeader/sheetIndex/headers/rawData
+// so Task 2's generators can act on import provenance. The generators themselves do not yet use
+// these fields — that behavior (inline embedding for paste/url, skipping open(FILE), etc.) is
+// implemented in Task 2 and tested there.
+describe('ScriptExportParams provenance plumbing', () => {
+  const pasteParams: ScriptExportParams = {
+    filename: 'pasted-data', fileType: 'aggregated', delimiter: ',',
+    columnMapping: [0, 1], setNames: ['A', 'B'], model: 'venn2',
+    shapeColors: { A: '#FFF200', B: '#2E3192' }, enrichmentMetric: 'neglog10fdr',
+    n: 2, sourceKind: 'paste', hasHeader: true, sheetIndex: 0,
+    headers: ['A', 'B'], rawData: [['g1;g2', 'g2;g3']],
+  };
+
+  it('accepts sourceKind, hasHeader, sheetIndex, headers and rawData', () => {
+    expect(pasteParams.sourceKind).toBe('paste');
+    expect(pasteParams.hasHeader).toBe(true);
+    expect(pasteParams.sheetIndex).toBe(0);
+    expect(pasteParams.headers).toEqual(['A', 'B']);
+    expect(pasteParams.rawData).toEqual([['g1;g2', 'g2;g3']]);
+  });
+
+  it('generator behavior for sourceKind: "file" is unchanged (still opens FILE) — Task 2 implements the divergence', () => {
+    const script = generatePythonScript(baseParams); // baseParams.sourceKind === 'file'
+    expect(script).toContain('open(FILE');
   });
 });

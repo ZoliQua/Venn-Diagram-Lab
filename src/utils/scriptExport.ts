@@ -10,6 +10,17 @@ export interface ScriptExportParams {
   shapeColors: Record<string, string>;
   enrichmentMetric: 'neglog10fdr' | 'foldEnrichment';
   n: number;
+  /** Where the data came from. 'file'/'sample' → a real local file the script can re-open;
+   *  'paste'/'url' → no local file, data must be embedded inline. */
+  sourceKind: 'file' | 'sample' | 'paste' | 'url';
+  /** Whether the source file's first row is a header (mirrors the import dialog checkbox). */
+  hasHeader: boolean;
+  /** 0-based worksheet index for .xlsx sources. */
+  sheetIndex: number;
+  /** Column headers (already resolved). */
+  headers: string[];
+  /** The parsed data rows (post-import), used for inline embedding of paste/url sources. */
+  rawData: string[][];
 }
 
 const LETTERS = 'ABCDEFGHI';

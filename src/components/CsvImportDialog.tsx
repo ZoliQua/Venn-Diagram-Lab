@@ -259,6 +259,7 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
       hasHeader,
       geneSetMeta: geneSetParsed?.meta,
       sourceFormat,
+      sheetIndex: isExcel ? Math.max(0, sheetNames?.indexOf(selectedSheet) ?? 0) : undefined,
     });
   };
 

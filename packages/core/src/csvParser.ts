@@ -20,6 +20,8 @@ export interface CsvImportResult {
   hasHeader: boolean;
   geneSetMeta?: GeneSetMeta;
   sourceFormat?: 'csv' | 'excel' | 'gmt' | 'gmx' | 'paste' | 'url';
+  /** 0-based worksheet index, set for Excel (.xlsx) imports. Undefined for non-Excel sources. */
+  sheetIndex?: number;
 }
 
 /** Split a CSV line respecting quoted fields, with configurable delimiter */
