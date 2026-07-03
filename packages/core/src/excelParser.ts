@@ -1,12 +1,24 @@
 import type { CsvData } from './csvParser.ts';
-import type { Workbook, Worksheet } from 'exceljs';
+import type { Cell, Workbook, Worksheet } from 'exceljs';
 
 export interface ExcelSheetInfo {
   name: string;
   index: number;
 }
 
-function cellToString(cell: { text: string }): string {
+function cellToString(cell: Cell): string {
+  // Merged non-anchor cells: exceljs reports the master's value at every covered
+  // position. Only the master (address === master.address) should carry the text.
+  if (cell.isMerged && cell.master && cell.address !== cell.master.address) return '';
+  const v = cell.value;
+  if (v instanceof Date) {
+    // ISO calendar date; avoids Date.prototype.toString() (locale/timezone verbose form).
+    return v.toISOString().slice(0, 10);
+  }
+  if (v && typeof v === 'object' && 'result' in v) {
+    // Formula cell: use cached result, coerced to string.
+    return String((v as { result: unknown }).result ?? '').trim();
+  }
   return (cell.text ?? '').trim();
 }
 

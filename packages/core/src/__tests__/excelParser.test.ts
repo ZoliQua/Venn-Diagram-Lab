@@ -120,4 +120,29 @@ describe('parseExcelFile', () => {
       ['4', '', '6'],
     ]);
   });
+
+  it('reads a date-typed cell as an ISO date, not a verbose JS Date string', async () => {
+    const buffer = await buildBuffer((wb) => {
+      const ws = wb.addWorksheet('S1');
+      ws.addRow(['id', 'A']);
+      const r = ws.addRow(['x', null]);
+      r.getCell(2).value = new Date(Date.UTC(2024, 5, 12)); // simulates SEPT2 -> date
+    });
+
+    const { rows } = await parseExcelFile(buffer);
+    expect(rows[0][1]).toBe('2024-06-12');
+    expect(rows[0][1]).not.toMatch(/GMT|Coordinated/);
+  });
+
+  it('does not duplicate a merged header across the span', async () => {
+    const buffer = await buildBuffer((wb) => {
+      const ws = wb.addWorksheet('S1');
+      ws.addRow(['id', 'Group', '']);
+      ws.mergeCells('B1:C1');
+      ws.addRow(['x', '1', '0']);
+    });
+
+    const { headers } = await parseExcelFile(buffer);
+    expect(headers.filter(h => h === 'Group').length).toBe(1);
+  });
 });
