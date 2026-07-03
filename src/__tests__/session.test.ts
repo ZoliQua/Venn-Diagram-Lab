@@ -302,6 +302,15 @@ describe('session localStorage lifecycle', () => {
   });
 });
 
+function makeValidSession(): AppSession {
+  return {
+    version: '1',
+    savedAt: new Date().toISOString(),
+    mode: 'data',
+    data: makeSampleDataSession(),
+  };
+}
+
 describe('isSessionCompatible', () => {
   it('accepts a valid version 1 data session', () => {
     const session: AppSession = {
@@ -311,6 +320,58 @@ describe('isSessionCompatible', () => {
       data: makeSampleDataSession(),
     };
     expect(isSessionCompatible(session)).toBe(true);
+  });
+
+  it('accepts a session built by makeValidSession', () => {
+    expect(isSessionCompatible(makeValidSession())).toBe(true);
+  });
+
+  it('rejects a session missing heatmapColors (would crash TestSidebar)', () => {
+    const s = makeValidSession();
+    delete (s.data as Record<string, unknown>).heatmapColors;
+    expect(isSessionCompatible(s)).toBe(false);
+  });
+
+  it('rejects a session with malformed heatmapColors (missing low)', () => {
+    const s = makeValidSession();
+    (s.data as unknown as { heatmapColors: unknown }).heatmapColors = { mid: '#fff', high: '#000' };
+    expect(isSessionCompatible(s)).toBe(false);
+  });
+
+  it('rejects a session missing shapeColors', () => {
+    const s = makeValidSession();
+    delete (s.data as Record<string, unknown>).shapeColors;
+    expect(isSessionCompatible(s)).toBe(false);
+  });
+
+  it('rejects a session missing enrichmentPlotSettings', () => {
+    const s = makeValidSession();
+    delete (s.data as Record<string, unknown>).enrichmentPlotSettings;
+    expect(isSessionCompatible(s)).toBe(false);
+  });
+
+  it('rejects a session missing shapeOpacity', () => {
+    const s = makeValidSession();
+    delete (s.data as Record<string, unknown>).shapeOpacity;
+    expect(isSessionCompatible(s)).toBe(false);
+  });
+
+  it('rejects a session missing nameFontSize', () => {
+    const s = makeValidSession();
+    delete (s.data as Record<string, unknown>).nameFontSize;
+    expect(isSessionCompatible(s)).toBe(false);
+  });
+
+  it('accepts a session with geneSetMeta null (legitimately nullable field)', () => {
+    const s = makeValidSession();
+    (s.data as unknown as { geneSetMeta: unknown }).geneSetMeta = null;
+    expect(isSessionCompatible(s)).toBe(true);
+  });
+
+  it('accepts a session with nameMaxChars null (legitimately nullable field)', () => {
+    const s = makeValidSession();
+    (s.data as unknown as { nameMaxChars: unknown }).nameMaxChars = null;
+    expect(isSessionCompatible(s)).toBe(true);
   });
 
   it('rejects null session', () => {

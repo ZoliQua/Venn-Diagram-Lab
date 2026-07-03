@@ -237,5 +237,13 @@ export function isSessionCompatible(session: AppSession | null): session is AppS
   if (!Array.isArray(d.columnMapping)) return false;
   if (!Array.isArray(d.originalColumns)) return false;
 
+  // Fields consumed without guards during restore — reject if missing/malformed.
+  const hc = d.heatmapColors;
+  if (!hc || typeof hc.low !== 'string' || typeof hc.mid !== 'string' || typeof hc.high !== 'string') return false;
+  if (!d.shapeColors || typeof d.shapeColors !== 'object') return false;
+  if (!d.enrichmentPlotSettings || typeof d.enrichmentPlotSettings !== 'object') return false;
+  if (typeof d.shapeOpacity !== 'number') return false;
+  if (typeof d.nameFontSize !== 'number') return false;
+
   return true;
 }
