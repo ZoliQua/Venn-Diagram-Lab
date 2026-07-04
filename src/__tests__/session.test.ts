@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { CsvData } from '../utils/csvParser.ts';
-import type { AppSession, DataSession } from '../utils/session.ts';
+import type { AppSession, DataSession, DataSessionInput } from '../utils/session.ts';
 import {
   SESSION_STORAGE_KEY,
   mapToRecord,
@@ -13,6 +13,7 @@ import {
   isSessionCompatible,
   exportSessionToFile,
   importSessionFromFile,
+  buildDataSession,
 } from '../utils/session.ts';
 
 class MockStorage implements Storage {
@@ -202,6 +203,94 @@ function makeSampleDataSession(): DataSession {
     selectedRegionLabel: 'AB',
   };
 }
+
+/**
+ * Raw (pre-serialization) state bag matching what App.tsx's `buildAppSession`
+ * and the debounced autosave effect assemble from component state.
+ */
+function sampleStateBag(): DataSessionInput {
+  const sample = makeSampleDataSession();
+  return {
+    csvData: sample.csvData,
+    filename: sample.filename,
+    fileType: sample.fileType,
+    itemDelimiter: sample.itemDelimiter,
+    columnMapping: sample.columnMapping,
+    originalColumns: sample.originalColumns,
+    geneSetMeta: sample.geneSetMeta,
+    model: sample.model,
+    calculated: sample.calculated,
+    vennResult: sample.vennResult ? deserializeVennResult(sample.vennResult) : null,
+    exclusiveItems: sample.exclusiveItems ? recordToMap(sample.exclusiveItems) : null,
+    inclusiveItems: sample.inclusiveItems ? recordToMap(sample.inclusiveItems) : null,
+    error: sample.error,
+    showTitle: sample.showTitle,
+    showNames: sample.showNames,
+    showSums: sample.showSums,
+    nameFontSize: sample.nameFontSize,
+    nameFontFamily: sample.nameFontFamily,
+    titleFontSize: sample.titleFontSize,
+    titleFontFamily: sample.titleFontFamily,
+    nameMaxChars: sample.nameMaxChars,
+    shapeOpacity: sample.shapeOpacity,
+    shapeColors: sample.shapeColors,
+    viewStyle: sample.viewStyle,
+    cutColorMode: sample.cutColorMode,
+    heatmapColors: sample.heatmapColors,
+    heatmapLegendPosition: sample.heatmapLegendPosition,
+    upsetColorMode: sample.upsetColorMode,
+    upsetSortMode: sample.upsetSortMode,
+    upsetThreshold: sample.upsetThreshold,
+    upsetCustomColor: sample.upsetCustomColor,
+    networkMetric: sample.networkMetric,
+    networkSigOnly: sample.networkSigOnly,
+    networkEdgeLabels: sample.networkEdgeLabels,
+    networkNodeSizes: sample.networkNodeSizes,
+    networkMinWeight: sample.networkMinWeight,
+    networkMoveNodes: sample.networkMoveNodes,
+    plotBackground: sample.plotBackground,
+    dataMoveNames: sample.dataMoveNames,
+    dataMoveNumbers: sample.dataMoveNumbers,
+    enrichmentMetric: sample.enrichmentMetric,
+    enrichmentPlotSettings: sample.enrichmentPlotSettings,
+    selectedRegionLabel: sample.selectedRegionLabel,
+  };
+}
+
+describe('buildDataSession', () => {
+  it('includes every DataSession key', () => {
+    const ds = buildDataSession(sampleStateBag());
+    const requiredKeys: (keyof DataSession)[] = [
+      'csvData', 'filename', 'fileType', 'itemDelimiter', 'columnMapping',
+      'originalColumns', 'geneSetMeta', 'model', 'calculated', 'vennResult',
+      'exclusiveItems', 'inclusiveItems', 'error', 'showTitle', 'showNames',
+      'showSums', 'nameFontSize', 'nameFontFamily', 'titleFontSize',
+      'titleFontFamily', 'nameMaxChars', 'shapeOpacity', 'shapeColors',
+      'viewStyle', 'cutColorMode', 'heatmapColors', 'heatmapLegendPosition',
+      'upsetColorMode', 'upsetSortMode', 'upsetThreshold', 'upsetCustomColor',
+      'networkMetric', 'networkSigOnly', 'networkEdgeLabels', 'networkNodeSizes',
+      'networkMinWeight', 'networkMoveNodes', 'plotBackground', 'dataMoveNames',
+      'dataMoveNumbers', 'enrichmentMetric', 'enrichmentPlotSettings',
+      'selectedRegionLabel',
+    ];
+    for (const k of requiredKeys) expect(k in ds).toBe(true);
+  });
+
+  it('produces a DataSession deep-equal to a manually-serialized equivalent', () => {
+    const bag = sampleStateBag();
+    const ds = buildDataSession(bag);
+    expect(ds).toEqual(makeSampleDataSession());
+  });
+
+  it('defaults null filename/model to empty string, like the App.tsx call sites', () => {
+    const bag = sampleStateBag();
+    bag.filename = null;
+    bag.model = null;
+    const ds = buildDataSession(bag);
+    expect(ds.filename).toBe('');
+    expect(ds.model).toBe('');
+  });
+});
 
 describe('session serialization helpers', () => {
   beforeEach(installMockStorage);

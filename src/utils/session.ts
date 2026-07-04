@@ -74,6 +74,111 @@ export interface AppSession {
   theme?: ThemeMode;
 }
 
+/**
+ * Raw (pre-serialization) Data-mode state used to build a {@link DataSession}.
+ * Mirrors component state shapes (e.g. `Map` instead of `Record`, nullable
+ * filename/model) so callers can pass their state as-is.
+ */
+export interface DataSessionInput {
+  csvData: CsvData;
+  filename: string | null;
+  fileType: FileType;
+  itemDelimiter: Delimiter;
+  columnMapping: number[];
+  originalColumns: number[];
+  geneSetMeta: GeneSetMeta | null;
+  model: string | null;
+  calculated: boolean;
+  vennResult: VennResult | null;
+  exclusiveItems: Map<string, string[]> | null;
+  inclusiveItems: Map<string, string[]> | null;
+  error: string | null;
+  showTitle: boolean;
+  showNames: boolean;
+  showSums: boolean;
+  nameFontSize: number;
+  nameFontFamily: string;
+  titleFontSize: number;
+  titleFontFamily: string;
+  nameMaxChars: number | null;
+  shapeOpacity: number;
+  shapeColors: Record<string, string>;
+  viewStyle: ViewStyle;
+  cutColorMode: 'depth' | 'heatmap';
+  heatmapColors: { low: string; mid: string; high: string };
+  heatmapLegendPosition: string;
+  upsetColorMode: UpsetColorMode;
+  upsetSortMode: UpsetSortMode;
+  upsetThreshold: number;
+  upsetCustomColor: string;
+  networkMetric: EdgeWeightMetric;
+  networkSigOnly: boolean;
+  networkEdgeLabels: boolean;
+  networkNodeSizes: boolean;
+  networkMinWeight: number;
+  networkMoveNodes: boolean;
+  plotBackground: 'dark' | 'white';
+  dataMoveNames: boolean;
+  dataMoveNumbers: boolean;
+  enrichmentMetric: EnrichmentMetric;
+  enrichmentPlotSettings: EnrichmentPlotSettings;
+  selectedRegionLabel: string | null;
+}
+
+/**
+ * Build the persisted {@link DataSession} object from raw Data-mode state.
+ * Single source of truth used by both manual session export
+ * (`buildAppSession`) and the debounced autosave effect in `App.tsx`, so a
+ * field added to one path can't silently be missing from the other.
+ */
+export function buildDataSession(input: DataSessionInput): DataSession {
+  return {
+    csvData: input.csvData,
+    filename: input.filename ?? '',
+    fileType: input.fileType,
+    itemDelimiter: input.itemDelimiter,
+    columnMapping: input.columnMapping,
+    originalColumns: input.originalColumns,
+    geneSetMeta: input.geneSetMeta,
+    model: input.model ?? '',
+    calculated: input.calculated,
+    vennResult: input.vennResult ? serializeVennResult(input.vennResult) : null,
+    exclusiveItems: input.exclusiveItems ? mapToRecord(input.exclusiveItems) : null,
+    inclusiveItems: input.inclusiveItems ? mapToRecord(input.inclusiveItems) : null,
+    error: input.error,
+    showTitle: input.showTitle,
+    showNames: input.showNames,
+    showSums: input.showSums,
+    nameFontSize: input.nameFontSize,
+    nameFontFamily: input.nameFontFamily,
+    titleFontSize: input.titleFontSize,
+    titleFontFamily: input.titleFontFamily,
+    nameMaxChars: input.nameMaxChars,
+    shapeOpacity: input.shapeOpacity,
+    shapeColors: input.shapeColors,
+    viewStyle: input.viewStyle,
+    cutColorMode: input.cutColorMode,
+    heatmapColors: input.heatmapColors,
+    heatmapLegendPosition: input.heatmapLegendPosition,
+    upsetColorMode: input.upsetColorMode,
+    upsetSortMode: input.upsetSortMode,
+    upsetThreshold: input.upsetThreshold,
+    upsetCustomColor: input.upsetCustomColor,
+    networkMetric: input.networkMetric,
+    networkSigOnly: input.networkSigOnly,
+    networkEdgeLabels: input.networkEdgeLabels,
+    networkNodeSizes: input.networkNodeSizes,
+    networkMinWeight: input.networkMinWeight,
+    networkMoveNodes: input.networkMoveNodes,
+    plotBackground: input.plotBackground,
+    dataMoveNames: input.dataMoveNames,
+    dataMoveNumbers: input.dataMoveNumbers,
+    enrichmentMetric: input.enrichmentMetric,
+    enrichmentPlotSettings: input.enrichmentPlotSettings,
+    selectedRegionLabel: input.selectedRegionLabel,
+  };
+}
+
 /** Convert a Map of string arrays to a plain Record for JSON serialization. */
 export function mapToRecord(map: Map<string, string[]> | null): Record<string, string[]> {
   if (!map) return {};
