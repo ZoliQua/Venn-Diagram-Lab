@@ -9,6 +9,9 @@ export const SESSION_STORAGE_KEY = 'vdl-session-v1';
 export const SESSION_VERSION = '1';
 const MAX_SESSION_SIZE = 5 * 1024 * 1024; // 5 MB
 
+/** Origin of the currently loaded Data-mode dataset. */
+export type DataSourceKind = 'file' | 'sample' | 'paste' | 'url';
+
 /** JSON-serializable counterpart of {@link VennResult}. */
 export interface SerializableVennResult {
   inclusive: Record<string, number>;
@@ -29,9 +32,6 @@ export interface DataSession {
   geneSetMeta: GeneSetMeta | null;
   model: string;
   calculated: boolean;
-  vennResult: SerializableVennResult | null;
-  exclusiveItems: Record<string, string[]> | null;
-  inclusiveItems: Record<string, string[]> | null;
   error: string | null;
   showTitle: boolean;
   showNames: boolean;
@@ -63,6 +63,10 @@ export interface DataSession {
   enrichmentMetric: EnrichmentMetric;
   enrichmentPlotSettings: EnrichmentPlotSettings;
   selectedRegionLabel: string | null;
+  // Import provenance (optional so pre-2.5.0 saved sessions still restore).
+  sourceKind?: DataSourceKind;
+  hasHeader?: boolean;
+  sheetIndex?: number;
 }
 
 /** Top-level session envelope. */
@@ -89,9 +93,6 @@ export interface DataSessionInput {
   geneSetMeta: GeneSetMeta | null;
   model: string | null;
   calculated: boolean;
-  vennResult: VennResult | null;
-  exclusiveItems: Map<string, string[]> | null;
-  inclusiveItems: Map<string, string[]> | null;
   error: string | null;
   showTitle: boolean;
   showNames: boolean;
@@ -123,6 +124,9 @@ export interface DataSessionInput {
   enrichmentMetric: EnrichmentMetric;
   enrichmentPlotSettings: EnrichmentPlotSettings;
   selectedRegionLabel: string | null;
+  sourceKind?: DataSourceKind;
+  hasHeader?: boolean;
+  sheetIndex?: number;
 }
 
 /**
@@ -142,9 +146,6 @@ export function buildDataSession(input: DataSessionInput): DataSession {
     geneSetMeta: input.geneSetMeta,
     model: input.model ?? '',
     calculated: input.calculated,
-    vennResult: input.vennResult ? serializeVennResult(input.vennResult) : null,
-    exclusiveItems: input.exclusiveItems ? mapToRecord(input.exclusiveItems) : null,
-    inclusiveItems: input.inclusiveItems ? mapToRecord(input.inclusiveItems) : null,
     error: input.error,
     showTitle: input.showTitle,
     showNames: input.showNames,
@@ -176,6 +177,9 @@ export function buildDataSession(input: DataSessionInput): DataSession {
     enrichmentMetric: input.enrichmentMetric,
     enrichmentPlotSettings: input.enrichmentPlotSettings,
     selectedRegionLabel: input.selectedRegionLabel,
+    sourceKind: input.sourceKind,
+    hasHeader: input.hasHeader,
+    sheetIndex: input.sheetIndex,
   };
 }
 

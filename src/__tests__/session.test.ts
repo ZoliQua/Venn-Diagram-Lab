@@ -80,27 +80,18 @@ function makeSampleDataSession(): DataSession {
     fileType: 'binary',
     itemDelimiter: ',',
     columnMapping: [0, 1, 2],
-    originalColumns: [0, 1, 2],
+    originalColumns: [2, 1, 0],
     geneSetMeta: null,
     model: 'venn-3-set.svg',
     calculated: true,
-    vennResult: {
-      inclusive: { A: 2, B: 2, C: 2, AB: 1, AC: 1, BC: 1, ABC: 0 },
-      exclusive: { A: 1, B: 1, C: 1, AB: 1, AC: 1, BC: 1, ABC: 0 },
-      inclusiveItems: { A: ['x'], B: ['y'], C: ['z'], AB: ['w'], AC: ['v'], BC: ['u'], ABC: [] },
-      exclusiveItems: { A: ['x'], B: ['y'], C: ['z'], AB: ['w'], AC: ['v'], BC: ['u'], ABC: [] },
-      totalUniqueItems: 6,
-    },
-    exclusiveItems: { A: ['x'], B: ['y'], C: ['z'] },
-    inclusiveItems: { A: ['x'], B: ['y'], C: ['z'], AB: ['w'] },
     error: null,
     showTitle: true,
-    showNames: true,
+    showNames: false,
     showSums: true,
     nameFontSize: 24,
     nameFontFamily: 'Tahoma',
-    titleFontSize: 24,
-    titleFontFamily: 'Tahoma',
+    titleFontSize: 30,
+    titleFontFamily: 'Arial',
     nameMaxChars: null,
     shapeOpacity: 0.2,
     shapeColors: { A: '#FFF200', B: '#2E3192', C: '#ED1C24' },
@@ -110,17 +101,17 @@ function makeSampleDataSession(): DataSession {
     heatmapLegendPosition: 'bottom-left',
     upsetColorMode: 'depth',
     upsetSortMode: 'size',
-    upsetThreshold: 0,
+    upsetThreshold: 2,
     upsetCustomColor: '#4a90d9',
     networkMetric: 'intersection',
     networkSigOnly: false,
     networkEdgeLabels: true,
     networkNodeSizes: true,
-    networkMinWeight: 0,
+    networkMinWeight: 5,
     networkMoveNodes: true,
     plotBackground: 'dark',
     dataMoveNames: false,
-    dataMoveNumbers: false,
+    dataMoveNumbers: true,
     enrichmentMetric: 'neglog10fdr',
     enrichmentPlotSettings: {
       bar: {
@@ -201,6 +192,9 @@ function makeSampleDataSession(): DataSession {
       },
     },
     selectedRegionLabel: 'AB',
+    sourceKind: 'url',
+    hasHeader: false,
+    sheetIndex: 2,
   };
 }
 
@@ -220,9 +214,6 @@ function sampleStateBag(): DataSessionInput {
     geneSetMeta: sample.geneSetMeta,
     model: sample.model,
     calculated: sample.calculated,
-    vennResult: sample.vennResult ? deserializeVennResult(sample.vennResult) : null,
-    exclusiveItems: sample.exclusiveItems ? recordToMap(sample.exclusiveItems) : null,
-    inclusiveItems: sample.inclusiveItems ? recordToMap(sample.inclusiveItems) : null,
     error: sample.error,
     showTitle: sample.showTitle,
     showNames: sample.showNames,
@@ -254,6 +245,9 @@ function sampleStateBag(): DataSessionInput {
     enrichmentMetric: sample.enrichmentMetric,
     enrichmentPlotSettings: sample.enrichmentPlotSettings,
     selectedRegionLabel: sample.selectedRegionLabel,
+    sourceKind: sample.sourceKind,
+    hasHeader: sample.hasHeader,
+    sheetIndex: sample.sheetIndex,
   };
 }
 
@@ -262,8 +256,8 @@ describe('buildDataSession', () => {
     const ds = buildDataSession(sampleStateBag());
     const requiredKeys: (keyof DataSession)[] = [
       'csvData', 'filename', 'fileType', 'itemDelimiter', 'columnMapping',
-      'originalColumns', 'geneSetMeta', 'model', 'calculated', 'vennResult',
-      'exclusiveItems', 'inclusiveItems', 'error', 'showTitle', 'showNames',
+      'originalColumns', 'geneSetMeta', 'model', 'calculated',
+      'error', 'showTitle', 'showNames',
       'showSums', 'nameFontSize', 'nameFontFamily', 'titleFontSize',
       'titleFontFamily', 'nameMaxChars', 'shapeOpacity', 'shapeColors',
       'viewStyle', 'cutColorMode', 'heatmapColors', 'heatmapLegendPosition',
@@ -271,7 +265,7 @@ describe('buildDataSession', () => {
       'networkMetric', 'networkSigOnly', 'networkEdgeLabels', 'networkNodeSizes',
       'networkMinWeight', 'networkMoveNodes', 'plotBackground', 'dataMoveNames',
       'dataMoveNumbers', 'enrichmentMetric', 'enrichmentPlotSettings',
-      'selectedRegionLabel',
+      'selectedRegionLabel', 'sourceKind', 'hasHeader', 'sheetIndex',
     ];
     for (const k of requiredKeys) expect(k in ds).toBe(true);
   });
@@ -289,6 +283,24 @@ describe('buildDataSession', () => {
     const ds = buildDataSession(bag);
     expect(ds.filename).toBe('');
     expect(ds.model).toBe('');
+  });
+
+  it('session payload excludes recomputed derived fields', () => {
+    const ds = buildDataSession(sampleStateBag());
+    expect('vennResult' in ds).toBe(false);
+    expect('exclusiveItems' in ds).toBe(false);
+    expect('inclusiveItems' in ds).toBe(false);
+  });
+
+  it('round-trips import provenance fields (sourceKind/hasHeader/sheetIndex)', () => {
+    const bag = sampleStateBag();
+    bag.sourceKind = 'paste';
+    bag.hasHeader = false;
+    bag.sheetIndex = 3;
+    const ds = buildDataSession(bag);
+    expect(ds.sourceKind).toBe('paste');
+    expect(ds.hasHeader).toBe(false);
+    expect(ds.sheetIndex).toBe(3);
   });
 });
 

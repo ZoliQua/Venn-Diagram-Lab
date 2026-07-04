@@ -63,8 +63,6 @@ import {
   loadSession,
   clearSession,
   isSessionCompatible,
-  recordToMap,
-  deserializeVennResult,
   exportSessionToFile,
   importSessionFromFile,
   buildDataSession,
@@ -1006,9 +1004,9 @@ export default function App() {
     setTestGeneSetMeta(data.geneSetMeta);
     setTestModel(data.model || null);
     setTestCalculated(data.calculated);
-    setTestVennResult(data.vennResult ? deserializeVennResult(data.vennResult) : null);
-    setTestExclusiveItems(data.exclusiveItems ? recordToMap(data.exclusiveItems) : null);
-    setTestInclusiveItems(data.inclusiveItems ? recordToMap(data.inclusiveItems) : null);
+    setTestSourceKind(data.sourceKind ?? 'file');
+    setTestHasHeader(data.hasHeader ?? true);
+    setTestSheetIndex(data.sheetIndex ?? 0);
     setTestError(data.error);
     setTestShowTitle(data.showTitle);
     setTestShowNames(data.showNames);
@@ -1069,9 +1067,6 @@ export default function App() {
       geneSetMeta: testGeneSetMeta,
       model: testModel,
       calculated: testCalculated,
-      vennResult: testVennResult,
-      exclusiveItems: testExclusiveItems,
-      inclusiveItems: testInclusiveItems,
       error: testError,
       showTitle: testShowTitle,
       showNames: testShowNames,
@@ -1103,6 +1098,9 @@ export default function App() {
       enrichmentMetric: testEnrichmentMetric,
       enrichmentPlotSettings: testEnrichmentPlotSettings,
       selectedRegionLabel: regionDetection.selectedRegion?.label ?? null,
+      sourceKind: testSourceKind,
+      hasHeader: testHasHeader,
+      sheetIndex: testSheetIndex,
     };
     return {
       version: '1',
@@ -1111,7 +1109,7 @@ export default function App() {
       theme,
       data: buildDataSession(dataSessionInput),
     };
-  }, [theme, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testVennResult, testExclusiveItems, testInclusiveItems, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label]);
+  }, [theme, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, testSourceKind, testHasHeader, testSheetIndex]);
 
   const handleExportSessionToFile = useCallback(() => {
     const session = buildAppSession();
@@ -1443,9 +1441,6 @@ export default function App() {
         geneSetMeta: testGeneSetMeta,
         model: testModel,
         calculated: testCalculated,
-        vennResult: testVennResult,
-        exclusiveItems: testExclusiveItems,
-        inclusiveItems: testInclusiveItems,
         error: testError,
         showTitle: testShowTitle,
         showNames: testShowNames,
@@ -1477,6 +1472,9 @@ export default function App() {
         enrichmentMetric: testEnrichmentMetric,
         enrichmentPlotSettings: testEnrichmentPlotSettings,
         selectedRegionLabel: regionDetection.selectedRegion?.label ?? null,
+        sourceKind: testSourceKind,
+        hasHeader: testHasHeader,
+        sheetIndex: testSheetIndex,
       };
       const session: AppSession = {
         version: '1',
@@ -1488,7 +1486,7 @@ export default function App() {
       saveSession(session);
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [mode, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testVennResult, testExclusiveItems, testInclusiveItems, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, theme]);
+  }, [mode, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, theme, testSourceKind, testHasHeader, testSheetIndex]);
 
   // Keep a stable ref to the latest setSelectByLabel for the restore effect
   useEffect(() => {
