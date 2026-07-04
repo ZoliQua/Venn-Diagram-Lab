@@ -19,6 +19,9 @@
     "build": "tsup",
     "test": "vitest run"
   },
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  },
   "devDependencies": {
     "tsup": "^8.0.0",
     "typescript": "^5.9.0",
