@@ -15,6 +15,7 @@ import {
   importSessionFromFile,
   buildDataSession,
   nextCutColorMode,
+  shouldWarnBeforeDiscard,
 } from '../utils/session.ts';
 
 class MockStorage implements Storage {
@@ -261,6 +262,20 @@ describe('nextCutColorMode', () => {
   it('defaults to heatmap for a fresh (non-restore) calculate', () => {
     expect(nextCutColorMode(false, 'depth')).toBe('heatmap');
     expect(nextCutColorMode(false, 'heatmap')).toBe('heatmap');
+  });
+});
+
+describe('shouldWarnBeforeDiscard', () => {
+  it('warns before discarding unsaved edit work on restore', () => {
+    expect(shouldWarnBeforeDiscard(true, 'edit')).toBe(true);
+    expect(shouldWarnBeforeDiscard(false, 'edit')).toBe(false);
+  });
+
+  it('does not warn for view or data mode, regardless of isModified', () => {
+    expect(shouldWarnBeforeDiscard(true, 'view')).toBe(false);
+    expect(shouldWarnBeforeDiscard(false, 'view')).toBe(false);
+    expect(shouldWarnBeforeDiscard(true, 'data')).toBe(false);
+    expect(shouldWarnBeforeDiscard(false, 'data')).toBe(false);
   });
 });
 

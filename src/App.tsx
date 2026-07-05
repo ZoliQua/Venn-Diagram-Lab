@@ -67,6 +67,7 @@ import {
   importSessionFromFile,
   buildDataSession,
   nextCutColorMode,
+  shouldWarnBeforeDiscard,
 } from './utils/session.ts';
 import type { AppSession, DataSessionInput } from './utils/session.ts';
 
@@ -970,7 +971,16 @@ export default function App() {
   const dataFileInputRef = useRef<HTMLInputElement>(null);
   const sessionFileInputRef = useRef<HTMLInputElement>(null);
 
+  // Guards restore/import/close paths against silently discarding unsaved
+  // Edit-mode SVG work. Mirrors the toolbar mode-switcher's confirm (see
+  // `onClose` below) — same predicate, same message.
+  const confirmDiscardIfModified = useCallback((): boolean => {
+    if (!shouldWarnBeforeDiscard(svgDoc.isModified, mode)) return true;
+    return confirm('You have unsaved changes. Close anyway?');
+  }, [svgDoc.isModified, mode]);
+
   const handleDataClose = useCallback(() => {
+    if (!confirmDiscardIfModified()) return;
     // Initial screen (no data loaded) — return to welcome.
     if (!testCsvData) {
       setWelcomeOpen(true);
@@ -995,7 +1005,7 @@ export default function App() {
     setCurrentModel(null);
     setRegionData(null);
     clearSession();
-  }, [svgDoc, testCsvData]);
+  }, [svgDoc, testCsvData, confirmDiscardIfModified]);
 
   // Session restore
   const restoreDataSession = useCallback((session: AppSession) => {
@@ -1054,13 +1064,14 @@ export default function App() {
   }, []);
 
   const handleRestoreSession = useCallback(() => {
+    if (!confirmDiscardIfModified()) return;
     const session = loadSession();
     if (!isSessionCompatible(session)) {
       console.warn('Saved session is incompatible or missing');
       return;
     }
     restoreDataSession(session);
-  }, [restoreDataSession]);
+  }, [restoreDataSession, confirmDiscardIfModified]);
 
   const buildAppSession = useCallback((): AppSession | null => {
     if (!testCsvData) return null;
@@ -1126,6 +1137,7 @@ export default function App() {
   }, [buildAppSession]);
 
   const handleImportSessionFromFile = useCallback(async (file: File) => {
+    if (!confirmDiscardIfModified()) return;
     try {
       const session = await importSessionFromFile(file);
       restoreDataSession(session);
@@ -1133,7 +1145,7 @@ export default function App() {
       const message = e instanceof Error ? e.message : 'Failed to import session.';
       setTestError(`Session import failed: ${message}`);
     }
-  }, [restoreDataSession]);
+  }, [restoreDataSession, confirmDiscardIfModified]);
 
   const [hasSavedSession, setHasSavedSession] = useState(false);
   useEffect(() => {

@@ -197,6 +197,18 @@ export function nextCutColorMode(
   return isRestoring ? restored : 'heatmap';
 }
 
+/**
+ * Decide whether an unsaved-changes warning is needed before discarding the
+ * current document (restore session, import session, or Data-mode close).
+ * Mirrors the guard already used by the toolbar mode-switcher: only
+ * in-progress Edit-mode SVG work is at risk of silent loss (Data-mode state
+ * lives in `testCsvData` and is rebuilt from the new source, so it doesn't
+ * need this guard).
+ */
+export function shouldWarnBeforeDiscard(isModified: boolean, mode: AppMode): boolean {
+  return mode === 'edit' && isModified;
+}
+
 /** Convert a Map of string arrays to a plain Record for JSON serialization. */
 export function mapToRecord(map: Map<string, string[]> | null): Record<string, string[]> {
   if (!map) return {};
