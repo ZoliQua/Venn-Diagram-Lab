@@ -183,6 +183,20 @@ export function buildDataSession(input: DataSessionInput): DataSession {
   };
 }
 
+/**
+ * Decide the Cut View color mode to apply after a Data-mode calculate.
+ * A fresh calculate always defaults to `'heatmap'`. A calculate triggered by
+ * session restore must instead preserve the mode that was restored from the
+ * saved session (`restored`), or a `'depth'` session would always flip to
+ * `'heatmap'` on load.
+ */
+export function nextCutColorMode(
+  isRestoring: boolean,
+  restored: 'depth' | 'heatmap',
+): 'depth' | 'heatmap' {
+  return isRestoring ? restored : 'heatmap';
+}
+
 /** Convert a Map of string arrays to a plain Record for JSON serialization. */
 export function mapToRecord(map: Map<string, string[]> | null): Record<string, string[]> {
   if (!map) return {};

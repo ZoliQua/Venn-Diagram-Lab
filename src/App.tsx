@@ -66,6 +66,7 @@ import {
   exportSessionToFile,
   importSessionFromFile,
   buildDataSession,
+  nextCutColorMode,
 } from './utils/session.ts';
 import type { AppSession, DataSessionInput } from './utils/session.ts';
 
@@ -225,6 +226,11 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const pendingSelectedRegionRef = useRef<string | null>(null);
+  // True while the pending auto-calculate was triggered by session restore
+  // rather than a fresh user calculate — read (and cleared) by
+  // handleTestCalculate so it can preserve the restored cutColorMode instead
+  // of forcing the 'heatmap' default.
+  const restoringRef = useRef(false);
 
   // Viewer region detection
   const regionDetection = useRegionDetection(doc);
@@ -1043,6 +1049,7 @@ export default function App() {
     pendingSelectedRegionRef.current = data.selectedRegionLabel;
     setMode('data');
     setWelcomeOpen(false);
+    restoringRef.current = true;
     setTestPendingCalculate(true);
   }, []);
 
@@ -1360,14 +1367,15 @@ export default function App() {
 
       setTestCalculated(true);
       trackEvent('calculate', 'data', `${testModel}_${testColumnMapping.length}set`);
-      setCutColorMode('heatmap');
+      setCutColorMode(nextCutColorMode(restoringRef.current, cutColorMode));
+      restoringRef.current = false;
       regionDetection.clearSelection();
     } catch (e) {
       setTestError(`Calculation failed: ${e}`);
     } finally {
       setIsCalculating(false);
     }
-  }, [testCsvData, testModel, testColumnMapping, svgDoc, zoomPan, regionDetection, testShapeColors, testShapeOpacity, testFileType, testItemDelimiter, testNameFontSize, testNameFontFamily, testNameMaxChars, testTitleFontSize, testTitleFontFamily, testShowTitle, testShowNames, testShowSums]);
+  }, [testCsvData, testModel, testColumnMapping, svgDoc, zoomPan, regionDetection, testShapeColors, testShapeOpacity, testFileType, testItemDelimiter, testNameFontSize, testNameFontFamily, testNameMaxChars, testTitleFontSize, testTitleFontFamily, testShowTitle, testShowNames, testShowSums, cutColorMode]);
 
   // Auto-calculate when model is selected in Data mode
   useEffect(() => {

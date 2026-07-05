@@ -14,6 +14,7 @@ import {
   exportSessionToFile,
   importSessionFromFile,
   buildDataSession,
+  nextCutColorMode,
 } from '../utils/session.ts';
 
 class MockStorage implements Storage {
@@ -250,6 +251,18 @@ function sampleStateBag(): DataSessionInput {
     sheetIndex: sample.sheetIndex,
   };
 }
+
+describe('nextCutColorMode', () => {
+  it('preserves the restored cut color mode when restoring', () => {
+    expect(nextCutColorMode(true, 'depth')).toBe('depth');
+    expect(nextCutColorMode(true, 'heatmap')).toBe('heatmap');
+  });
+
+  it('defaults to heatmap for a fresh (non-restore) calculate', () => {
+    expect(nextCutColorMode(false, 'depth')).toBe('heatmap');
+    expect(nextCutColorMode(false, 'heatmap')).toBe('heatmap');
+  });
+});
 
 describe('buildDataSession', () => {
   it('includes every DataSession key', () => {
