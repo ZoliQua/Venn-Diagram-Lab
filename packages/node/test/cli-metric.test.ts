@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, type SpawnSyncReturns } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -12,7 +12,11 @@ describe('vdl render --metric validation', () => {
     let stderr = '', code = 0;
     try {
       execFileSync('node', [CLI, 'render', 'network', SAMPLE, '--metric', 'bogus'], { encoding: 'utf8', stdio: 'pipe' });
-    } catch (e: any) { stderr = String(e.stderr ?? ''); code = e.status ?? 1; }
+    } catch (e) {
+      const err = e as Error & SpawnSyncReturns<string>;
+      stderr = String(err.stderr ?? '');
+      code = err.status ?? 1;
+    }
     expect(code).not.toBe(0);
     expect(stderr).toMatch(/metric/i);
     expect(stderr).not.toMatch(/\n\s+at /);

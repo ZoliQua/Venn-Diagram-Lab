@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, type SpawnSyncReturns } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -57,9 +57,10 @@ describe('render error handling', () => {
     let code = 0;
     try {
       execFileSync('node', [CLI, 'render', 'venn', input, '--model', 'venn-3-set'], { encoding: 'utf8', stdio: 'pipe' });
-    } catch (e: any) {
-      stderr = String(e.stderr ?? '');
-      code = e.status ?? 1;
+    } catch (e) {
+      const err = e as Error & SpawnSyncReturns<string>;
+      stderr = String(err.stderr ?? '');
+      code = err.status ?? 1;
     }
     expect(code).not.toBe(0);
     expect(stderr).toMatch(/sets|model/i);

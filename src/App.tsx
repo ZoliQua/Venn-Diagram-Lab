@@ -1148,11 +1148,15 @@ export default function App() {
   }, [restoreDataSession, confirmDiscardIfModified]);
 
   const [hasSavedSession, setHasSavedSession] = useState(false);
-  useEffect(() => {
+  // Recompute when `welcomeOpen` transitions (mirrors the old effect's
+  // dependency array) without setting state from inside an effect body.
+  const [prevWelcomeOpenForSession, setPrevWelcomeOpenForSession] = useState(!welcomeOpen);
+  if (welcomeOpen !== prevWelcomeOpenForSession) {
+    setPrevWelcomeOpenForSession(welcomeOpen);
     if (welcomeOpen) {
       setHasSavedSession(isSessionCompatible(loadSession()));
     }
-  }, [welcomeOpen]);
+  }
 
   // ═══════ Guided tour glue ═══════
   const handleStartTour = useCallback(async () => {

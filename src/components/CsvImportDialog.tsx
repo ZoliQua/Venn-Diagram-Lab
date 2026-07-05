@@ -143,12 +143,16 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
     setRowDelimiter(detectedDelimiter);
   }, [detectedDelimiter]);
 
-  // Excel workbooks always use the first non-empty row as the header
-  useEffect(() => {
+  // Excel workbooks always use the first non-empty row as the header.
+  // Adjusted during render (not in an effect) when `isExcel` transitions,
+  // mirroring the previous effect's dependency array exactly.
+  const [prevIsExcelForHeader, setPrevIsExcelForHeader] = useState(isExcel);
+  if (isExcel !== prevIsExcelForHeader) {
+    setPrevIsExcelForHeader(isExcel);
     if (isExcel) {
       setHasHeader(true);
     }
-  }, [isExcel]);
+  }
 
   // Re-parse the active Excel worksheet when the selected sheet changes
   useEffect(() => {

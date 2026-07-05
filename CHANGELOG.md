@@ -12,8 +12,6 @@ All notable changes to the Venn Diagram Lab project.
 - **Data-mode Save dropdown** replaces the single Save toolbar button with a menu offering Save Session, Save as SVG, Save as PNG, and Save as JPG.
 - **Python/R script export** from the Data mode sidebar. Users can download a reproducible `.py` or `.R` script that recreates the current analysis with the `venn-diagram-lab` Python package or the `vennDiagramLab` R package.
 - **Full Report (zip)** now bundles `analysis_script.py`, `analysis_script.R`, and `session.json` alongside the existing artefacts.
-- **Session export/import** in Data mode. The current Data-mode session can be exported to and imported from a `.json` file via the Data-mode Save dropdown and the Load Session button.
-- **Data-mode Save dropdown** with Save Session, Save as SVG, Save as PNG, and Save as JPG options.
 
 ### Changed
 
