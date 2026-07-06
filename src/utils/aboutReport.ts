@@ -71,6 +71,6 @@ export const ABOUT_REPORT_SECTIONS: AboutReportSection[] = [
   },
   {
     title: 'Credits and Cite',
-    text: 'Venn Diagram Lab is developed and maintained by Zoltán Dul, Márton Ölbei, N. Shaun B. Thomas, Azeddine Si Ammour, and Attila Csikász-Nagy. The tool is open-source and free to use under the MIT License.\n\nWeb tool:    https://venndiagramlab.org/\nGitHub:      https://github.com/ZoliQua/Venn-Diagram-Lab\nPyPI:        https://pypi.org/project/venn-diagram-lab/\nCRAN:        https://CRAN.R-project.org/package=vennDiagramLab\nZenodo DOI:  10.5281/zenodo.19510813\n\nCitation:\nDul Z., Ölbei M., Thomas N.S.B., Si Ammour A., Csikász-Nagy A. (2026). Venn Diagram Lab — Headless Venn diagram analysis and rendering. https://venndiagramlab.org/  doi:10.5281/zenodo.19510813',
+    text: 'Venn Diagram Lab is developed and maintained by Zoltán Dul, Márton Ölbei, N. Shaun B. Thomas, Azeddine Si Ammour, and Attila Csikász-Nagy. The tool is open-source and free to use under the MIT License.\n\nWeb tool:    https://venndiagramlab.org/\nGitHub:      https://github.com/ZoliQua/Venn-Diagram-Lab\nPyPI:        https://pypi.org/project/venn-diagram-lab/\nCRAN:        https://CRAN.R-project.org/package=vennDiagramLab\nnpm:         https://www.npmjs.com/package/venn-diagram-lab\nZenodo DOI:  10.5281/zenodo.19510813\n\nCitation:\nDul Z., Ölbei M., Thomas N.S.B., Si Ammour A., Csikász-Nagy A. (2026). Venn Diagram Lab — Headless Venn diagram analysis and rendering. https://venndiagramlab.org/  doi:10.5281/zenodo.19510813',
   },
 ];

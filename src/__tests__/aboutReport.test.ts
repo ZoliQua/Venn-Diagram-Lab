@@ -53,4 +53,11 @@ describe('ABOUT_REPORT_SECTIONS', () => {
     expect(last.text).toContain('10.5281/zenodo.19510813');
     expect(last.text).toContain('venndiagramlab.org');
   });
+
+  it('Credits section lists the npm package', () => {
+    const credits = ABOUT_REPORT_SECTIONS.find(s => s.title === 'Credits and Cite');
+    expect(credits).toBeTruthy();
+    expect(credits!.text).toContain('npm:');
+    expect(credits!.text).toContain('https://www.npmjs.com/package/venn-diagram-lab');
+  });
 });
