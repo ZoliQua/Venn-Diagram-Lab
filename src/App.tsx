@@ -2435,6 +2435,11 @@ export default function App() {
           sessionJson={sessionJson}
           proportionalAccuracy={proportionalAccuracy}
           enrichmentPlotSettings={testEnrichmentPlotSettings}
+          sourceKind={testSourceKind}
+          hasHeader={testHasHeader}
+          sheetIndex={testSheetIndex}
+          headers={testCsvData.headers}
+          rawData={testCsvData.rows}
         />
       )}
 

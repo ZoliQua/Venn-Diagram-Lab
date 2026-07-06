@@ -95,6 +95,11 @@ const baseParams: ZipReportParams = {
   itemDelimiter: ',',
   shapeColors: { A: '#FFF200', B: '#2E3192' },
   enrichmentMetric: 'neglog10fdr',
+  sourceKind: 'file',
+  hasHeader: true,
+  sheetIndex: 0,
+  headers: ['Group A', 'Group B'],
+  rawData: [['item1', '1', '0'], ['item2', '0', '1'], ['item3', '1', '1']],
 };
 
 describe('generateZipReport', () => {
@@ -137,6 +142,29 @@ describe('generateZipReport', () => {
     expect(py).toContain('edwards-4');
     expect(r).toContain('dataset_real_cancer_drivers_4.tsv');
     expect(r).toContain('edwards-4');
+  });
+
+  it('threads paste import provenance into the bundled Python script (no file re-open, data embedded inline)', async () => {
+    await generateZipReport({
+      ...baseParams,
+      sourceKind: 'paste',
+      hasHeader: false,
+      headers: ['Group A', 'Group B'],
+      rawData: [['item1', '1', '0'], ['item2', '0', '1'], ['item3', '1', '1']],
+    });
+
+    const py = capturedFiles.find(f => f.name === 'analysis_script.py')?.content as string;
+    const r = capturedFiles.find(f => f.name === 'analysis_script.R')?.content as string;
+    const js = capturedFiles.find(f => f.name === 'analysis_script.mjs')?.content as string;
+
+    expect(py).not.toContain('open(FILE');
+    expect(py).toContain('rows = [');
+    expect(py).toContain('item1');
+
+    expect(r).not.toContain('readLines(FILE');
+    expect(r).toContain('item1');
+
+    expect(js).toContain('item1');
   });
 
   it('keeps legacy zip contents unchanged', async () => {

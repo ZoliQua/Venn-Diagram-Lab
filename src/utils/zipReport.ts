@@ -43,6 +43,17 @@ export interface ZipReportParams {
   proportionalAccuracy?: ProportionalAccuracy | null;
   enrichmentPlotSettings?: EnrichmentPlotSettings;
   onProgress?: (step: string, percent: number) => void;
+  /** Where the data came from. 'file'/'sample' → a real local file the script can re-open;
+   *  'paste'/'url' → no local file, data must be embedded inline. */
+  sourceKind: 'file' | 'sample' | 'paste' | 'url';
+  /** Whether the source file's first row is a header (mirrors the import dialog checkbox). */
+  hasHeader: boolean;
+  /** 0-based worksheet index for .xlsx sources. */
+  sheetIndex: number;
+  /** Column headers (already resolved). */
+  headers: string[];
+  /** The parsed data rows (post-import), used for inline embedding of paste/url sources. */
+  rawData: string[][];
 }
 
 const STEP_COUNT = 9;
@@ -309,17 +320,11 @@ export async function generateZipReport(params: ZipReportParams): Promise<Blob> 
     shapeColors: params.shapeColors,
     enrichmentMetric: params.enrichmentMetric,
     n,
-    // TODO(v2.5.0 review-fixes Task 2 follow-up): ZipReportParams does not yet carry import
-    // provenance (source kind / header flag / sheet index / raw rows). Until it does, the
-    // bundled scripts assume a re-openable local file with a header row and sheet 0 — the
-    // same assumption the dedicated export buttons made before Task 1. Not a regression, but
-    // paste/URL/no-header/multi-sheet imports won't get correct bundled scripts until this is
-    // threaded through ZipReportDialog -> ZipReportParams the same way handleExportScript does.
-    sourceKind: 'file',
-    hasHeader: true,
-    sheetIndex: 0,
-    headers: params.setNames,
-    rawData: [],
+    sourceKind: params.sourceKind,
+    hasHeader: params.hasHeader,
+    sheetIndex: params.sheetIndex,
+    headers: params.headers,
+    rawData: params.rawData,
   };
   zip.file('analysis_script.py', generatePythonScript(scriptParams));
   zip.file('analysis_script.R', generateRScript(scriptParams));

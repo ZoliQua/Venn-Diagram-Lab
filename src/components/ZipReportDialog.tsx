@@ -25,6 +25,11 @@ interface ZipReportDialogProps {
   sessionJson?: string;
   proportionalAccuracy?: ProportionalAccuracy | null;
   enrichmentPlotSettings?: EnrichmentPlotSettings;
+  sourceKind: 'file' | 'sample' | 'paste' | 'url';
+  hasHeader: boolean;
+  sheetIndex: number;
+  headers: string[];
+  rawData: string[][];
 }
 
 export function ZipReportDialog({
@@ -32,7 +37,7 @@ export function ZipReportDialog({
   vennResult, doc, n, setNames, totalItems, totalFileRows,
   filename, title, modelName, columnMapping, fileType, itemDelimiter,
   shapeColors, enrichmentMetric, sessionJson, proportionalAccuracy,
-  enrichmentPlotSettings,
+  enrichmentPlotSettings, sourceKind, hasHeader, sheetIndex, headers, rawData,
 }: ZipReportDialogProps) {
   const [step, setStep] = useState('Preparing...');
   const [percent, setPercent] = useState(0);
@@ -49,6 +54,7 @@ export function ZipReportDialog({
           filename, title, modelName, columnMapping, fileType,
           itemDelimiter, shapeColors, enrichmentMetric, sessionJson,
           proportionalAccuracy, enrichmentPlotSettings,
+          sourceKind, hasHeader, sheetIndex, headers, rawData,
           onProgress: (label, pct) => {
             if (cancelled) return;
             setStep(label);
