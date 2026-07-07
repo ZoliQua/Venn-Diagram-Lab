@@ -174,6 +174,7 @@ def test_about_sections_include_credits_and_cite() -> None:
     credits_body = next(b for t, b in _ABOUT_SECTIONS if t == "Credits and Cite")
     assert "10.5281/zenodo.19510813" in credits_body
     assert "venndiagramlab.org" in credits_body
+    assert "https://www.npmjs.com/package/venn-diagram-lab" in credits_body
 
 
 def test_about_sections_titles_match_webtool() -> None:
