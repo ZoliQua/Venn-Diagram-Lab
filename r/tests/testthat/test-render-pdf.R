@@ -233,6 +233,8 @@ test_that(".ABOUT_SECTIONS includes the v2.2.3 Credits and Cite footer", {
     expect_true(grepl("10.5281/zenodo.19510813", credits$body, fixed = TRUE))
     # Body must mention the web tool URL.
     expect_true(grepl("venndiagramlab.org", credits$body, fixed = TRUE))
+    # Body must mention the npm package.
+    expect_true(grepl("https://www.npmjs.com/package/venn-diagram-lab", credits$body, fixed = TRUE))
 })
 
 test_that("to_pdf_report PDF text contains the Credits and Cite section", {

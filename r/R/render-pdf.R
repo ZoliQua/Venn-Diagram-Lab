@@ -841,6 +841,7 @@ NULL
             "GitHub:      https://github.com/ZoliQua/Venn-Diagram-Lab\n",
             "PyPI:        https://pypi.org/project/venn-diagram-lab/\n",
             "CRAN:        https://CRAN.R-project.org/package=vennDiagramLab\n",
+            "npm:         https://www.npmjs.com/package/venn-diagram-lab\n",
             "Zenodo DOI:  10.5281/zenodo.19510813\n\n",
             "Citation:\n",
             "Dul Z., \u00d6lbei M., Thomas N.S.B., Si Ammour A., ",
