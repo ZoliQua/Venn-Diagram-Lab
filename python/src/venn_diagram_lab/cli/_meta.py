@@ -15,6 +15,7 @@ _GITHUB_URL = "https://github.com/ZoliQua/Venn-Diagram-Lab"
 _ZENODO_CONCEPT_DOI = "10.5281/zenodo.19510813"
 _PYPI_URL = "https://pypi.org/project/venn-diagram-lab/"
 _CRAN_URL = "https://CRAN.R-project.org/package=vennDiagramLab"
+_NPM_URL = "https://www.npmjs.com/package/venn-diagram-lab"
 
 # Authors in canonical order (matches r/inst/CITATION + cikk).
 _AUTHORS = [
@@ -109,6 +110,7 @@ def _print_credits() -> None:
     typer.echo(f"  github:   {_GITHUB_URL}")
     typer.echo(f"  pypi:     {_PYPI_URL}")
     typer.echo(f"  cran:     {_CRAN_URL}")
+    typer.echo(f"  npm:      {_NPM_URL}")
     typer.echo(f"  zenodo:   https://doi.org/{_ZENODO_CONCEPT_DOI}")
     typer.echo("")
     typer.echo("CITATION (BibTeX-friendly)")
@@ -158,11 +160,11 @@ def register(app: typer.Typer) -> None:
         epilog=examples_epilog("  vdl credits    # no sample data needed"),
     )
     def cmd_credits() -> None:
-        """Show authors, citation, and links to the webtool / Zenodo / PyPI / CRAN.
+        """Show authors, citation, and links to the webtool / Zenodo / PyPI / CRAN / npm.
 
         Prints the canonical author list (in the order used by the R
         CITATION file and the manuscript), a BibTeX-friendly citation
-        line, and links to the webtool, GitHub, PyPI, CRAN, and the
+        line, and links to the webtool, GitHub, PyPI, CRAN, npm, and the
         Zenodo concept DOI.
         """
         _print_credits()

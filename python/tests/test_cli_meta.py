@@ -62,3 +62,9 @@ def test_credits_includes_links() -> None:
     assert "github.com/ZoliQua/Venn-Diagram-Lab" in out
     assert "pypi.org/project/venn-diagram-lab" in out
     assert "CRAN.R-project.org/package=vennDiagramLab" in out
+
+
+def test_credits_includes_npm_link() -> None:
+    res = runner.invoke(app, ["credits"])
+    assert res.exit_code == 0
+    assert "npmjs.com/package/venn-diagram-lab" in res.output
