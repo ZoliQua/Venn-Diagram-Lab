@@ -495,10 +495,13 @@ Requires Python 3 with `shapely` installed.
 | Region computation | Python + Shapely |
 | Python module | `venn-diagram-lab` on PyPI — see [`python/README.md`](python/README.md) |
 | R package | `vennDiagramLab` on CRAN — see [`r/README.md`](r/README.md) |
+| Node module | `venn-diagram-lab` on npm — see [`packages/node/README.md`](packages/node/README.md) |
 
 No external UI libraries — pure React + custom CSS. Heavy export libraries (jsPDF, jszip, exceljs) are lazy-loaded on demand so the main bundle stays lean.
 
-## Authors
+## Credits and Cite
+
+Venn Diagram Lab is developed and maintained by:
 
 - **Zoltán Dul** ([ORCID 0000-0002-9523-3450](https://orcid.org/0000-0002-9523-3450))
 - **Márton Ölbei** ([ORCID 0000-0002-4903-6237](https://orcid.org/0000-0002-4903-6237))
@@ -506,6 +509,32 @@ No external UI libraries — pure React + custom CSS. Heavy export libraries (js
 - **Azeddine Si Ammour** ([ORCID 0000-0002-5504-4444](https://orcid.org/0000-0002-5504-4444))
 - **Attila Csikász-Nagy** ([ORCID 0000-0002-2919-5601](https://orcid.org/0000-0002-2919-5601))
 
-## License
+### All packages
+
+| Surface | Package / URL |
+|---|---|
+| Web | <https://venndiagramlab.org/> |
+| Python | [`venn-diagram-lab` on PyPI](https://pypi.org/project/venn-diagram-lab/) |
+| R | [`vennDiagramLab` on CRAN](https://CRAN.R-project.org/package=vennDiagramLab) |
+| Node.js | [`venn-diagram-lab` on npm](https://www.npmjs.com/package/venn-diagram-lab) |
+
+All packages share the same core math and produce byte-identical TSV exports.
+
+### Citation
+
+If you use this software in research, please cite it using the Zenodo concept (all-versions) DOI — it always resolves to the latest archived release, so there is nothing to update per version:
+
+```
+Dul Z., Ölbei M., Thomas N. S. B., Si Ammour A., Csikász-Nagy A. (2026).
+Venn Diagram Lab — interactive Venn / UpSet diagrams.
+https://venndiagramlab.org/
+DOI: 10.5281/zenodo.19510813 (concept, all versions)
+```
+
+[![DOI](http://www.venndiagramlab.org/zenodo.19510813.svg)](https://doi.org/10.5281/zenodo.19510813)
+
+See [`CITATION.cff`](CITATION.cff) for machine-readable citation metadata.
+
+### License
 
 MIT — free to use. See SVG file headers for details.
