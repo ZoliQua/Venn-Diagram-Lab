@@ -169,10 +169,11 @@ items <- exclusive_items(result, c("A", "B"))
 
 ## 8. Related projects
 
-`vennDiagramLab` is one of three coordinated implementations sharing the same SVG model library, statistics, and byte-equivalent TSV outputs:
+`vennDiagramLab` is one of four coordinated implementations sharing the same SVG model library, statistics, and byte-equivalent TSV outputs:
 
 * **Web tool** — interactive viewer, editor, and visual analysis: <https://www.venndiagramlab.org/>
 * **Python package** (`venn-diagram-lab` on PyPI): <https://pypi.org/project/venn-diagram-lab/>
+* **Node.js package** (`venn-diagram-lab` on npm): <https://www.npmjs.com/package/venn-diagram-lab>
 * **R package** (this package — `vennDiagramLab` on CRAN + Bioconductor)
 
 ### 9. Source repositories

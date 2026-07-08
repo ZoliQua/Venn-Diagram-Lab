@@ -498,4 +498,5 @@ See [`CITATION.cff`](https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/CITAT
 | Typescript | Web | <https://www.venndiagramlab.org/> | live |
 | Python | PyPi | [`venn-diagram-lab` on PyPI](https://pypi.org/project/venn-diagram-lab/) | live |
 | R | CRAN | [`vennDiagramLab` on CRAN](https://CRAN.R-project.org/package=vennDiagramLab) | live |
+| Node.js | npm | [`venn-diagram-lab` on npm](https://www.npmjs.com/package/venn-diagram-lab) | live |
 | R | Bioconductor | [`vennDiagramLab` on Bioconductor](https://bioconductor.org/packages/vennDiagramLab) | submission pending |
