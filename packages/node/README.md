@@ -243,8 +243,39 @@ for complete CLI reference, all flag details, and extended code examples.
 | **Web tool** | [venndiagramlab.org](https://venndiagramlab.org/) | live |
 | **Python (PyPI)** | `pip install venn-diagram-lab` | live |
 | **R (CRAN)** | `install.packages("vennDiagramLab")` | live |
+| **Node.js (npm)** | `npm install venn-diagram-lab` | live |
 
 All packages share the same core math and produce byte-identical TSV exports.
+
+---
+
+## Credits and Cite
+
+Venn Diagram Lab is developed and maintained by **Zoltán Dul, Márton Ölbei, N. Shaun B. Thomas, Azeddine Si Ammour, and Attila Csikász-Nagy**. Open-source under the MIT License.
+
+### All packages
+
+| Surface | Package / URL |
+|---|---|
+| Web | <https://venndiagramlab.org/> |
+| Python | [`venn-diagram-lab` on PyPI](https://pypi.org/project/venn-diagram-lab/) |
+| R | [`vennDiagramLab` on CRAN](https://CRAN.R-project.org/package=vennDiagramLab) |
+| Node.js | [`venn-diagram-lab` on npm](https://www.npmjs.com/package/venn-diagram-lab) |
+
+All packages share the same core math and produce byte-identical TSV exports.
+
+### Citation
+
+If you use this package in research, please cite via the Zenodo concept (all-versions) DOI:
+
+```
+Dul Z., Ölbei M., Thomas N. S. B., Si Ammour A., Csikász-Nagy A. (2026).
+Venn Diagram Lab — interactive Venn / UpSet diagrams.
+https://venndiagramlab.org/
+DOI: 10.5281/zenodo.19510813 (concept, all versions)
+```
+
+[![DOI](http://www.venndiagramlab.org/zenodo.19510813.svg)](https://doi.org/10.5281/zenodo.19510813)
 
 ---
 
