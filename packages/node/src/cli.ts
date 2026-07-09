@@ -11,6 +11,7 @@ import {
   toProportionalSvg, toVennSvg,
 } from './api.ts';
 import { svgToPng, svgToPdf } from './raster.ts';
+import { renderPdfReport } from './report/report.ts';
 
 const PKG_VERSION = JSON.parse(
   readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'),
@@ -116,6 +117,34 @@ program
     } else {
       process.stdout.write(svg + '\n');
     }
+  });
+
+program
+  .command('report')
+  .description('Generate a multi-page PDF report from a CSV/TSV/GMT/GMX analysis.')
+  .argument('<input>', 'input CSV/TSV/GMT/GMX path')
+  .option('--out <path>', 'write the PDF report here (required, must end in .pdf)')
+  .option('--model <id>', 'Venn model template to use in the report, e.g. venn-4-set')
+  .option('--title <text>', 'report title shown in the Data Overview block')
+  .action(async (input: string, opts: { out?: string; model?: string; title?: string }) => {
+    if (!opts.out) {
+      process.stderr.write('report requires --out <path.pdf>\n');
+      process.exitCode = 1;
+      return;
+    }
+    if (!/\.pdf$/i.test(opts.out)) {
+      process.stderr.write(`--out must end in .pdf (got '${opts.out}')\n`);
+      process.exitCode = 1;
+      return;
+    }
+    const text = readFileSync(input, 'utf8');
+    const fmt = detectGeneSetFormat(input);
+    const result =
+      fmt === 'gmt' ? analyzeGmtText(text) :
+      fmt === 'gmx' ? analyzeGmxText(text) :
+      analyzeCsvText(text);
+    const pdf = await renderPdfReport(result, { title: opts.title, vennModel: opts.model });
+    writeFileSync(opts.out, pdf);
   });
 
 program.parseAsync().catch((err: unknown) => {
