@@ -2,3 +2,4 @@ export { analyzeCsv, analyzeCsvText, analyzeGmtText, analyzeGmxText, toEnrichmen
 export { listSamples, loadSampleText } from './samples.ts';
 export { listVennModels, loadVennTemplate } from './vennTemplate.ts';
 export { svgToPng, svgToPdf, type PngOptions, type PdfOptions } from './raster.ts';
+export { renderPdfReport, type RenderPdfReportOptions } from './report/report.ts';
