@@ -157,6 +157,51 @@ fs.writeFileSync('diagram.pdf', pdf);
 
 ---
 
+## PDF report
+
+```ts
+import { renderPdfReport } from 'venn-diagram-lab';
+```
+
+`renderPdfReport(result, opts?)` composes a multi-page PDF report from an `AnalyzeResult`
+and returns `Promise<Uint8Array>`:
+
+```ts
+import { writeFileSync } from 'node:fs';
+import { loadSampleText, analyzeCsvText, renderPdfReport } from 'venn-diagram-lab';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+const pdf = await renderPdfReport(result, {
+  title: 'Cancer Drivers — 4-Set Overlap',
+  model: 'dataset_real_cancer_drivers_4.tsv',
+});
+
+writeFileSync('report.pdf', pdf);
+```
+
+`RenderPdfReportOptions` (all optional):
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `title` | `string` | `'Data Report'` | Report title shown in the Data Overview block |
+| `model` | `string` | `'(in-memory data)'` | Source-file label shown in the Data Overview block |
+| `vennModel` | `string` | auto-picked by set count | Bundled Venn model filename to render on the Plots page (`.svg` optional) |
+
+If `vennModel` is omitted, a bundled template whose set count matches the data is chosen
+automatically (preferring the canonical `venn-N-set.svg`).
+
+The report is multi-page: a Data Overview + Set Sizes page, a Plots page (Venn diagram +
+UpSet plot), a Set Relationship Network page with its significant-edges list, Statistics
+tables (Jaccard, Sørensen–Dice, hypergeometric Enrichment), an Enrichment Visualisations
+page (bar chart + lollipop chart), an Item Share Distribution histogram, and a final
+**About + Credits & Cite** page listing the Web, Python, R, and Node.js packages. All
+figures are rasterised via `@resvg/resvg-js` and embedded as PNG images.
+
+The same report is available from the shell as `vdl report` — see **CLI → Report** below.
+
+---
+
 ## Bundled assets
 
 ### 5 sample datasets
@@ -229,6 +274,22 @@ vdl render enrichment-lollipop genes.tsv --out lollipop.svg --metric foldEnrichm
 vdl render upset genes.tsv --out upset.png
 vdl render venn  genes.tsv --model venn-4-set --out venn.pdf
 ```
+
+### Report
+
+```bash
+vdl report genes.tsv --out report.pdf
+vdl report genes.tsv --out report.pdf --model venn-4-set --title "Cancer Drivers"
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `--out <path>` | yes | Output path; must end in `.pdf` |
+| `--model <id>` | no | Venn model filename to use in the report, e.g. `venn-4-set` |
+| `--title <text>` | no | Report title shown in the Data Overview block |
+
+`<input>` is a CSV/TSV/GMT/GMX path (format auto-detected, same rule as `vdl analyze` /
+`vdl render`).
 
 See the [Full User Guide](./user-guide/USER_GUIDE.md)
 ([GitHub](https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/packages/node/user-guide/USER_GUIDE.md))

@@ -379,6 +379,126 @@ interface PdfOptions {
 }
 ```
 
+# PDF report
+
+`renderPdfReport(result, opts?)` composes a full multi-page PDF report from an
+`AnalyzeResult`, mirroring the page-by-page layout of the web tool's PDF report
+(`src/utils/pdfReport.ts`) and its Python/R equivalents.
+
+```ts
+import { writeFileSync } from 'node:fs';
+import { loadSampleText, analyzeCsvText, renderPdfReport } from 'venn-diagram-lab';
+
+const result = analyzeCsvText(loadSampleText('dataset_real_cancer_drivers_4'));
+
+const pdf = await renderPdfReport(result, {
+  title: 'Cancer Drivers — 4-Set Overlap',
+  model: 'dataset_real_cancer_drivers_4.tsv',
+  vennModel: 'venn-4-set',
+});
+
+writeFileSync('report.pdf', pdf);
+```
+
+## Signature
+
+```ts
+function renderPdfReport(
+  result: AnalyzeResult,
+  opts?: RenderPdfReportOptions,
+): Promise<Uint8Array>;
+
+interface RenderPdfReportOptions {
+  title?: string;      // report title, shown in the Data Overview block. Default: 'Data Report'
+  model?: string;      // source-file label, shown in the Data Overview block
+  vennModel?: string;  // Venn model filename ('.svg' optional); auto-picked by set count if omitted
+}
+```
+
+`opts` and every field on it is optional. If `vennModel` is omitted, the function calls
+the same set-count-matching logic as `toVennSvg` selection: it prefers the canonical
+`venn-N-set.svg` template for the data's set count, falling back to any bundled template
+whose name-label count matches. It throws if no bundled model matches.
+
+All embedded figures are rasterised to PNG via `@resvg/resvg-js` (the same rasteriser
+used by `svgToPng`) before being placed on the page, so the same system-font caveat
+applies (see [Rasterization](#rasterization)).
+
+## Page-by-page layout
+
+The report is built with a fixed page order. For 2–6 sets, the three Statistics tables
+share one page; for 7–9 sets, each Statistics table gets its own page (there are simply
+more rows to fit).
+
+1. **Data Overview + Set Sizes** — a key/value block (Title, Source, Venn model, Number
+   of sets, Background universe, Items assigned to regions, Total regions, Filled
+   regions, Core intersection, Largest exclusive region) followed by a **Set Sizes**
+   table: one row per set with Size, Exclusive count, Shared count, and percentage share
+   of the inclusive total.
+2. **Plots** — the **Venn Diagram** (filled `vennModel` template) and the **UpSet Plot**
+   (top 20 intersections by size, same builder as `toUpsetSvg`).
+3. **Set Relationship Network** — the force-directed network (`toNetworkSvg`, weighted by
+   Jaccard index) plus a text line listing every pair with FDR < 0.05 and its Jaccard
+   value, when any exist.
+4. **Statistics** —
+   - **Pairwise Jaccard Index**: Pair, Intersection, Union, Jaccard, Overlap Coefficient.
+   - **Sørensen–Dice Index**: Pair, Dice.
+   - **Intersection Enrichment (Hypergeometric Test)**: Pair, Observed, Expected, Fold
+     Enrichment, p-value, FDR, and a significance marker (`***` FDR<0.001, `**` FDR<0.01,
+     `*` FDR<0.05, `ns` otherwise).
+5. **Statistics: Enrichment Visualisations** — the **Bar chart** (`toEnrichmentBarSvg`)
+   and the **Lollipop chart** (`toEnrichmentLollipopSvg`), both using the default
+   `neglog10fdr` metric.
+6. **Item Share Distribution** — the histogram (`toShareDistributionSvg`) showing how
+   many items belong to exactly 1, 2, 3, … sets.
+7. **About This Report** — closing page(s) of methodology text shared verbatim across
+   the Web, Python, R, and Node reports: short explanations of Venn diagrams, UpSet
+   plots, the Set Relationship Network, the Jaccard index, the Sørensen–Dice index, the
+   hypergeometric enrichment test, and the bar/lollipop charts and item-share
+   distribution shown earlier in the report. This shared text also briefly documents two
+   concepts used elsewhere in the Venn Diagram Lab suite (Heatmap and Cluster Heatmap)
+   that are **not** rendered as figures in this Node PDF report — their numeric
+   equivalents live in the Intersection Enrichment table above.
+
+   The **final section is "Credits and Cite"**: authorship, MIT license note, and a
+   table linking all four packages (Web, PyPI, CRAN, npm) plus the GitHub repository,
+   Zenodo DOI, and full citation string — identical content to the
+   [Credits and Cite](../README.md#credits-and-cite) section of this package's README.
+
+## CLI
+
+```bash
+vdl report <input> --out <path.pdf> [--model <id>] [--title <text>]
+```
+
+| Argument / flag | Required | Description |
+|---|---|---|
+| `<input>` | yes | Path to the input file (CSV, TSV, GMT, GMX); format auto-detected |
+| `--out <path>` | yes | Output PDF path; **must** end in `.pdf` (validated before running) |
+| `--model <id>` | no | Venn model filename to use in the report, e.g. `venn-4-set` (maps to `vennModel`) |
+| `--title <text>` | no | Report title shown in the Data Overview block |
+
+**Examples:**
+
+```bash
+# Minimal: auto-picked Venn model, default title
+vdl report genes.tsv --out report.pdf
+
+# Explicit model and title
+vdl report genes.tsv --out report.pdf --model venn-4-set --title "Cancer Drivers"
+
+# GMT input
+vdl report gene_sets.gmt --out report.pdf
+```
+
+**Error behaviour:**
+
+- **Missing `--out`** — message to stderr, exit code 1.
+- **`--out` not ending in `.pdf`** — message to stderr, exit code 1.
+- **No bundled Venn model matches the data's set count** (only possible when `--model`
+  is omitted and the data has an unusual set count) — `renderPdfReport` throws; the
+  error message is written to stderr, exit code 1.
+
 # Bundled assets
 
 ## Sample datasets
@@ -430,12 +550,13 @@ bundled set.
 
 # CLI reference
 
-The `vdl` CLI exposes two commands: `analyze` and `render`.
+The `vdl` CLI exposes three commands: `analyze`, `render`, and `report`.
 
 ```
 vdl [--version] [--help]
 vdl analyze <input> [options]
 vdl render  <kind>  <input> [options]
+vdl report  <input> [options]
 ```
 
 ## `vdl analyze`
@@ -548,6 +669,38 @@ vdl render venn gene_sets.gmt --model venn-4-set --out venn.svg
 - **`kind=proportional` with n ≠ 2 or 3** — `toProportionalSvg` throws; error to stderr,
   exit code 1.
 
+## `vdl report`
+
+Generate the multi-page PDF report from a CSV/TSV/GMT/GMX analysis. See the
+[PDF report](#pdf-report) section above for the full page-by-page description of what
+this command produces.
+
+```
+vdl report <input> --out <path.pdf> [--model <id>] [--title <text>]
+```
+
+| Argument / flag | Description |
+|---|---|
+| `<input>` | Path to the input file (CSV, TSV, GMT, GMX) |
+| `--out <path>` | Required. Output path for the PDF; must end in `.pdf` |
+| `--model <id>` | Venn model filename used on the Plots page, e.g. `venn-4-set`. Auto-picked by set count if omitted |
+| `--title <text>` | Report title shown in the Data Overview block |
+
+**Examples:**
+
+```bash
+vdl report genes.tsv --out report.pdf
+vdl report genes.tsv --out report.pdf --model venn-4-set --title "Cancer Drivers"
+vdl report gene_sets.gmt --out report.pdf
+```
+
+### Error behaviour
+
+- **Missing `--out`** — message to stderr, exit code 1.
+- **`--out` not ending in `.pdf`** — message to stderr, exit code 1.
+- **No bundled Venn model matches the data's set count** (when `--model` is omitted) —
+  `renderPdfReport` throws; error to stderr, exit code 1.
+
 # API reference
 
 ## Analysis
@@ -585,6 +738,12 @@ vdl render venn gene_sets.gmt --model venn-4-set --out venn.svg
 |---|---|---|
 | `svgToPng` | `(svg: string, opts?: PngOptions) => Uint8Array` | PNG bytes (sync) |
 | `svgToPdf` | `(svg: string, opts?: PdfOptions) => Promise<Uint8Array>` | PDF bytes (async) |
+
+## PDF report
+
+| Function | Signature | Returns |
+|---|---|---|
+| `renderPdfReport` | `(result: AnalyzeResult, opts?: RenderPdfReportOptions) => Promise<Uint8Array>` | Multi-page PDF report bytes |
 
 ## Bundled data
 
