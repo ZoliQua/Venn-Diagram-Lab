@@ -143,7 +143,7 @@ program
       fmt === 'gmt' ? analyzeGmtText(text) :
       fmt === 'gmx' ? analyzeGmxText(text) :
       analyzeCsvText(text);
-    const pdf = await renderPdfReport(result, { title: opts.title, vennModel: opts.model });
+    const pdf = await renderPdfReport(result, { title: opts.title, vennModel: opts.model, model: input });
     writeFileSync(opts.out, pdf);
   });
 
