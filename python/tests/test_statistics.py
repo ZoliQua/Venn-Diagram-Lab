@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 import pytest
 
 from venn_diagram_lab.statistics import (
@@ -9,10 +11,15 @@ from venn_diagram_lab.statistics import (
     bh_fdr,
     compute_pairwise,
     dice,
+    dice_ci,
     fold_enrichment,
     hypergeometric_p_value,
     jaccard,
+    jaccard_ci,
+    log_choose,
     overlap_coefficient,
+    two_sided_fisher,
+    wilson_interval,
 )
 
 
@@ -174,7 +181,9 @@ class TestComputePairwise:
         df = result.hypergeometric
         assert list(df.columns) == [
             "set_a", "set_b", "intersection", "expected",
-            "p_value", "p_adjusted", "significant", "highly_significant",
+            "p_value", "p_two_sided",
+            "jaccard_ci_low", "jaccard_ci_high", "dice_ci_low", "dice_ci_high",
+            "p_adjusted", "p_bonferroni", "significant", "highly_significant",
         ]
         assert len(df) == 1  # C(2, 2) = 1 pair
         row = df.iloc[0]
@@ -225,3 +234,106 @@ class TestComputePairwise:
         # Same answer as the canonical-order key test
         assert result.jaccard.loc["SetA", "SetB"] == pytest.approx(0.25)
         assert result.hypergeometric.iloc[0]["intersection"] == 10  # noqa: PLR2004
+
+    def test_bonferroni_min_one_times_m(self) -> None:
+        """Bonferroni = min(1, p * m), m = number of pairwise tests (C(3, 2) = 3)."""
+        result = compute_pairwise(
+            set_names=["A", "B", "C"],
+            inclusive_sizes={"A": 100, "B": 100, "C": 100},
+            pairwise_intersections={
+                ("A", "B"): 90, ("A", "C"): 50, ("B", "C"): 10,
+            },
+            universe_size=100,
+        )
+        df = result.hypergeometric
+        for _, row in df.iterrows():
+            expected = min(1.0, float(row["p_value"]) * 3)
+            assert row["p_bonferroni"] == pytest.approx(expected)
+            assert row["p_bonferroni"] <= 1.0
+
+    def test_new_columns_present(self) -> None:
+        result = compute_pairwise(**self._two_set_input())
+        row = result.hypergeometric.iloc[0]
+        # inter=10, union=40 -> Jaccard Wilson CI = wilson_interval(10, 40)
+        assert row["jaccard_ci_low"] == pytest.approx(0.14187118639096302)
+        assert row["jaccard_ci_high"] == pytest.approx(0.40193961420768026)
+        # inter=10, sizeA+sizeB=50 -> dice_ci(10, 30, 20)
+        assert row["dice_ci_low"] == pytest.approx(0.2248750003155222)
+        assert row["dice_ci_high"] == pytest.approx(0.6607421186445084)
+        assert 0.0 <= row["p_two_sided"] <= 1.0
+
+
+class TestLogChoose:
+    """log_choose ports statistics.ts logChoose (explicit-loop, not gammaln)."""
+
+    def test_basic(self) -> None:
+        # C(5, 2) = 10 -> log(10)
+        assert log_choose(5, 2) == pytest.approx(2.302585092994046)
+
+    def test_edges(self) -> None:
+        assert log_choose(10, 0) == 0.0
+        assert log_choose(10, 10) == 0.0
+
+    def test_out_of_range(self) -> None:
+        assert log_choose(5, 6) == -math.inf
+        assert log_choose(5, -1) == -math.inf
+
+
+class TestTwoSidedFisher:
+    """Manual log-space port of statistics.ts twoSidedFisher (NOT scipy.fisher_exact)."""
+
+    def test_reference_value(self) -> None:
+        # Spec reference: twoSidedFisher(20, 8, 6, 5) = 700/38760 = 0.01805985552115583
+        assert two_sided_fisher(20, 8, 6, 5) == pytest.approx(0.01805985552115583, abs=1e-15)
+
+    def test_invalid_inputs_return_one(self) -> None:
+        assert two_sided_fisher(0, 0, 0, 0) == 1.0
+        assert two_sided_fisher(-1, 8, 6, 5) == 1.0
+
+    def test_out_of_support_returns_one(self) -> None:
+        # k outside [max(0, K+n-N) .. min(K, n)] -> 1.0
+        assert two_sided_fisher(20, 8, 6, 7) == 1.0
+
+    def test_clamped_to_unit_interval(self) -> None:
+        p = two_sided_fisher(100, 50, 50, 25)
+        assert 0.0 <= p <= 1.0
+
+
+class TestWilsonInterval:
+    def test_reference_value(self) -> None:
+        low, high = wilson_interval(10, 40)
+        assert low == pytest.approx(0.14187118639096302, abs=1e-15)
+        assert high == pytest.approx(0.40193961420768026, abs=1e-15)
+
+    def test_zero_trials(self) -> None:
+        assert wilson_interval(0, 0) == (0.0, 0.0)
+        assert wilson_interval(5, -1) == (0.0, 0.0)
+
+    def test_bounds_clamped(self) -> None:
+        low, high = wilson_interval(40, 40)  # phat = 1.0
+        assert 0.0 <= low <= 1.0
+        assert 0.0 <= high <= 1.0
+
+
+class TestJaccardAndDiceCI:
+    def test_jaccard_ci(self) -> None:
+        low, high = jaccard_ci(10, 40)
+        assert low == pytest.approx(0.14187118639096302, abs=1e-15)
+        assert high == pytest.approx(0.40193961420768026, abs=1e-15)
+
+    def test_jaccard_ci_zero_union(self) -> None:
+        assert jaccard_ci(0, 0) == (0.0, 0.0)
+
+    def test_dice_ci_reference(self) -> None:
+        # dice_ci(10, 20, 30): inter=10, sizeA+sizeB=50
+        low, high = dice_ci(10, 20, 30)
+        assert low == pytest.approx(0.2248750003155222, abs=1e-15)
+        assert high == pytest.approx(0.6607421186445084, abs=1e-15)
+
+    def test_dice_ci_zero_denominator(self) -> None:
+        assert dice_ci(0, 0, 0) == (0.0, 0.0)
+
+    def test_dice_ci_bounds_clamped_to_one(self) -> None:
+        low, high = dice_ci(10, 5, 5)  # 2*wilson bounds can exceed 1 -> clamped
+        assert low <= 1.0
+        assert high <= 1.0

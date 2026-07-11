@@ -467,13 +467,17 @@ class RegionResult:
         """Write the pairwise Statistics TSV (matches DataSummaryPanel.handleExportStats).
 
         Columns: Set_A, Set_B, Name_A, Name_B, Size_A, Size_B, Intersection, Union,
-        Jaccard, Overlap_Coeff, Dice, Expected, Fold_Enrichment, P_value, FDR, Significant.
+        Jaccard, Overlap_Coeff, Dice, Expected, Fold_Enrichment, P_value, FDR,
+        Bonferroni, P_two_sided, Jaccard_CI_low, Jaccard_CI_high, Dice_CI_low,
+        Dice_CI_high, Significant.
 
         Float formatting mirrors the webapp byte-for-byte:
         * Jaccard / Overlap_Coeff / Dice: 4 decimals
         * Expected: 2 decimals
         * Fold_Enrichment: 3 decimals
-        * P_value / FDR: scientific (JS style) if < 0.001, else 6 decimals
+        * P_value / FDR / Bonferroni / P_two_sided: scientific (JS style) if < 0.001,
+          else 6 decimals
+        * Jaccard_CI_low/high, Dice_CI_low/high: 4 decimals
         * Significant: one of "***", "**", "*", "ns"
 
         Rows are sorted by P_value ascending (matches statistics.hypergeometric ordering).
@@ -494,7 +498,10 @@ class RegionResult:
         _stats_header = "\t".join([
             "Set_A", "Set_B", "Name_A", "Name_B", "Size_A", "Size_B",
             "Intersection", "Union", "Jaccard", "Overlap_Coeff", "Dice",
-            "Expected", "Fold_Enrichment", "P_value", "FDR", "Significant",
+            "Expected", "Fold_Enrichment", "P_value", "FDR",
+            "Bonferroni", "P_two_sided",
+            "Jaccard_CI_low", "Jaccard_CI_high", "Dice_CI_low", "Dice_CI_high",
+            "Significant",
         ])
         _p_scientific_threshold = 0.001
         _fdr_triple_star = 0.001
@@ -531,6 +538,12 @@ class RegionResult:
             fe = fold_enrichment(universe, size_a, size_b, inter)
             p_val = float(row["p_value"])
             fdr = float(row["p_adjusted"])
+            bonferroni = float(row["p_bonferroni"])
+            p_two_sided = float(row["p_two_sided"])
+            jaccard_ci_low = float(row["jaccard_ci_low"])
+            jaccard_ci_high = float(row["jaccard_ci_high"])
+            dice_ci_low = float(row["dice_ci_low"])
+            dice_ci_high = float(row["dice_ci_high"])
 
             if fdr < _fdr_triple_star:
                 sig_label = "***"
@@ -547,7 +560,11 @@ class RegionResult:
                 str(inter), str(union_size),
                 js_to_fixed(jac, 4), js_to_fixed(oc, 4), js_to_fixed(dic, 4),
                 js_to_fixed(expected, 2), js_to_fixed(fe, 3),
-                fmt_p(p_val), fmt_p(fdr), sig_label,
+                fmt_p(p_val), fmt_p(fdr),
+                fmt_p(bonferroni), fmt_p(p_two_sided),
+                js_to_fixed(jaccard_ci_low, 4), js_to_fixed(jaccard_ci_high, 4),
+                js_to_fixed(dice_ci_low, 4), js_to_fixed(dice_ci_high, 4),
+                sig_label,
             ])
             rows.append((p_val, line))
 

@@ -151,7 +151,10 @@ class TestStatisticsTsv:
         assert lines[0] == (
             "Set_A\tSet_B\tName_A\tName_B\tSize_A\tSize_B\t"
             "Intersection\tUnion\tJaccard\tOverlap_Coeff\tDice\t"
-            "Expected\tFold_Enrichment\tP_value\tFDR\tSignificant"
+            "Expected\tFold_Enrichment\tP_value\tFDR\t"
+            "Bonferroni\tP_two_sided\t"
+            "Jaccard_CI_low\tJaccard_CI_high\tDice_CI_low\tDice_CI_high\t"
+            "Significant"
         )
 
         # 3 data rows for n=3 (3 pairs).
@@ -191,10 +194,16 @@ class TestStatisticsTsv:
         # Find the S1/S2 row (A\tB prefix).
         ab = next(r for r in out.read_text("utf-8").split("\n")[1:] if r.startswith("A\tB\t"))
         cells = ab.split("\t")
-        # S1/S2 overlap is strongly significant -> *** (FDR << 0.001).
-        assert cells[15] in {"***", "**", "*"}
+        # Significant is now the last (22nd) column -> index 21.
+        assert cells[21] in {"***", "**", "*"}
         # P_value column (cells[13]) must use JS-style scientific notation (p << 0.001).
         assert "e-" in cells[13] or "e+" in cells[13]
+        # Bonferroni (cells[15]) and P_two_sided (cells[16]) columns exist and are p-like.
+        assert cells[15] != ""
+        assert cells[16] != ""
+        # Wilson CI columns are 4-decimal fixed (cells[17..20]).
+        for idx in range(17, 21):
+            assert "." in cells[idx]
 
     def test_no_pairs_when_n_lt_2(self, tmp_path: Path) -> None:
         # Edge case: dataset with min sets (=2) is the smallest valid; just ensure no crash.

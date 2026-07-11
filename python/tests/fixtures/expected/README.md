@@ -2,8 +2,8 @@
 
 **Do not edit by hand.** Regenerate via `npm run fixtures:parity` from the repo root.
 
-**Webapp version:** 2.0.0 (commit bee637f)
-**Generated:** 2026-05-31T22:48:10.225Z
+**Webapp version:** 2.5.0 (commit 28542fb)
+**Generated:** 2026-07-15T12:37:32.676Z
 
 ## Files
 

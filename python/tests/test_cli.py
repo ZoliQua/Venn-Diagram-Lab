@@ -174,7 +174,10 @@ class TestCliStatisticsTsvFormat:
         assert header == (
             "Set_A\tSet_B\tName_A\tName_B\tSize_A\tSize_B\t"
             "Intersection\tUnion\tJaccard\tOverlap_Coeff\tDice\t"
-            "Expected\tFold_Enrichment\tP_value\tFDR\tSignificant"
+            "Expected\tFold_Enrichment\tP_value\tFDR\t"
+            "Bonferroni\tP_two_sided\t"
+            "Jaccard_CI_low\tJaccard_CI_high\tDice_CI_low\tDice_CI_high\t"
+            "Significant"
         )
 
 
