@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { escapeSpreadsheetCell, exportMatrixTsv, exportRegionSummaryTsv } from '../utils/exportData.ts';
+import { escapeSpreadsheetCell, exportMatrixTsv, exportRegionSummaryTsv, exportStatisticsTsv } from '../utils/exportData.ts';
 import type { VennResult } from '../utils/csvParser.ts';
 
 function makeResult(): VennResult {
@@ -57,6 +57,28 @@ describe('exportRegionSummaryTsv', () => {
     expect(lines[1]).toBe("A\t'=Set A\t1\t1\t2\t50.00\tsafe");
     expect(lines[2]).toBe("B\t'@Set B\t1\t0\t1\t0.00\t");
     expect(lines[3]).toBe("AB\t'=Set A ∩ '@Set B\t2\t1\t1\t50.00\t'=SUM(A1:A2);'@shared");
+  });
+});
+
+describe('exportStatisticsTsv', () => {
+  it('emits the new columns in order: FDR, Bonferroni, P_two_sided, CI bounds, then Significant last', () => {
+    const tsv = exportStatisticsTsv(makeResult(), 2, 3, ['SetA', 'SetB']);
+    const lines = tsv.split('\n');
+    expect(lines[0]).toBe([
+      'Set_A', 'Set_B', 'Name_A', 'Name_B', 'Size_A', 'Size_B',
+      'Intersection', 'Union', 'Jaccard', 'Overlap_Coeff', 'Dice',
+      'Expected', 'Fold_Enrichment', 'P_value', 'FDR',
+      'Bonferroni', 'P_two_sided',
+      'Jaccard_CI_low', 'Jaccard_CI_high', 'Dice_CI_low', 'Dice_CI_high',
+      'Significant',
+    ].join('\t'));
+    // One data row (single pair AB); Significant stays the final column.
+    const cols = lines[1].split('\t');
+    expect(cols).toHaveLength(22);
+    expect(cols[cols.length - 1]).toMatch(/^(\*{1,3}|ns)$/);
+    // CI columns are 4-dp fixed.
+    expect(cols[17]).toMatch(/^\d\.\d{4}$/); // Jaccard_CI_low
+    expect(cols[20]).toMatch(/^\d\.\d{4}$/); // Dice_CI_high
   });
 });
 

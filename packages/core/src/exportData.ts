@@ -96,18 +96,26 @@ export function exportStatisticsTsv(
   setNames: string[],
 ): string {
   const pairStats = pairwiseStatistics(vennResult, n, totalItems, setNames);
+  const fmtP = (p: number) => (p < 0.001 ? p.toExponential(2) : p.toFixed(6));
   const header = [
     'Set_A', 'Set_B', 'Name_A', 'Name_B', 'Size_A', 'Size_B',
     'Intersection', 'Union', 'Jaccard', 'Overlap_Coeff', 'Dice',
-    'Expected', 'Fold_Enrichment', 'P_value', 'FDR', 'Significant',
+    'Expected', 'Fold_Enrichment', 'P_value', 'FDR',
+    'Bonferroni', 'P_two_sided',
+    'Jaccard_CI_low', 'Jaccard_CI_high', 'Dice_CI_low', 'Dice_CI_high',
+    'Significant',
   ].join('\t');
   const rows = pairStats.map(s => [
     s.a, s.b, s.nameA, s.nameB, s.sizeA, s.sizeB,
     s.intersection, s.union,
     s.jaccard.toFixed(4), s.overlapCoeff.toFixed(4), s.dice.toFixed(4),
     s.expected.toFixed(2), s.foldEnrichment.toFixed(3),
-    s.pValue < 0.001 ? s.pValue.toExponential(2) : s.pValue.toFixed(6),
-    s.fdr < 0.001 ? s.fdr.toExponential(2) : s.fdr.toFixed(6),
+    fmtP(s.pValue),
+    fmtP(s.fdr),
+    fmtP(s.bonferroni),
+    fmtP(s.pTwoSided),
+    s.jaccardCiLow.toFixed(4), s.jaccardCiHigh.toFixed(4),
+    s.diceCiLow.toFixed(4), s.diceCiHigh.toFixed(4),
     sigLabel(s.fdr),
   ].join('\t'));
   return [header, ...rows].join('\n');

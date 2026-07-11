@@ -5,6 +5,10 @@ import {
   foldEnrichment,
   adjustPValues,
   pairwiseStatistics,
+  twoSidedFisher,
+  jaccardCI,
+  diceCI,
+  wilsonInterval,
 } from '../utils/statistics.ts';
 import type { VennResult } from '../utils/csvParser.ts';
 
@@ -105,6 +109,50 @@ describe('adjustPValues (Benjamini-Hochberg)', () => {
   });
 });
 
+describe('twoSidedFisher', () => {
+  it('matches hand-computed 2x2 (N=20, K=8, n=6, k=5)', () => {
+    // Support i in [0..6]; C(20,6)=38760. Point masses:
+    //   i=0:924  i=1:6336  i=2:13860  i=3:12320  i=4:4620  i=5:672  i=6:28
+    // Observed i=5 -> mass 672. Two-sided sums masses <= 672: i=5 (672) + i=6 (28) = 700.
+    expect(twoSidedFisher(20, 8, 6, 5)).toBeCloseTo(700 / 38760, 12);
+  });
+
+  it('sums the whole support to 1 when observed is the modal cell', () => {
+    // Modal cell has the largest mass, so every point mass is <= observed -> p = 1.
+    expect(twoSidedFisher(20, 8, 6, 2)).toBeCloseTo(1.0, 12);
+  });
+
+  it('returns 1.0 for invalid inputs', () => {
+    expect(twoSidedFisher(0, 0, 0, 0)).toBe(1.0);
+    expect(twoSidedFisher(-1, 8, 6, 5)).toBe(1.0);
+  });
+});
+
+describe('Wilson score confidence intervals', () => {
+  it('wilsonInterval matches hand-computed value (x=10, nn=40)', () => {
+    const [lo, hi] = wilsonInterval(10, 40);
+    expect(lo).toBeCloseTo(0.14187118639096302, 12);
+    expect(hi).toBeCloseTo(0.40193961420768026, 12);
+  });
+
+  it('jaccardCI(inter=10, union=40) uses Wilson on the proportion directly', () => {
+    const [lo, hi] = jaccardCI(10, 40);
+    expect(lo).toBeCloseTo(0.14187118639096302, 12);
+    expect(hi).toBeCloseTo(0.40193961420768026, 12);
+  });
+
+  it('diceCI(inter=10, sizeA=20, sizeB=30) doubles the Wilson bounds', () => {
+    const [lo, hi] = diceCI(10, 20, 30);
+    expect(lo).toBeCloseTo(0.2248750003155222, 12);
+    expect(hi).toBeCloseTo(0.6607421186445084, 12);
+  });
+
+  it('returns [0,0] for zero-denominator', () => {
+    expect(jaccardCI(0, 0)).toEqual([0, 0]);
+    expect(diceCI(0, 0, 0)).toEqual([0, 0]);
+  });
+});
+
 describe('pairwiseStatistics', () => {
   it('computes correct stats for 2-set case', () => {
     const vennResult: VennResult = {
@@ -129,6 +177,15 @@ describe('pairwiseStatistics', () => {
     expect(s.foldEnrichment).toBeGreaterThan(0);
     expect(s.pValue).toBeGreaterThan(0);
     expect(s.pValue).toBeLessThanOrEqual(1);
+    // m = 1 pair -> Bonferroni == pValue (both clamped to 1).
+    expect(s.bonferroni).toBeCloseTo(Math.min(1, s.pValue), 12);
+    expect(s.pTwoSided).toBeCloseTo(twoSidedFisher(40, 30, 20, 10), 12);
+    // Jaccard CI: Wilson on inter=10, union=40.
+    expect(s.jaccardCiLow).toBeCloseTo(0.14187118639096302, 12);
+    expect(s.jaccardCiHigh).toBeCloseTo(0.40193961420768026, 12);
+    // Dice CI: 2x Wilson on inter=10, sizeA+sizeB=50.
+    expect(s.diceCiLow).toBeCloseTo(0.2248750003155222, 12);
+    expect(s.diceCiHigh).toBeCloseTo(0.6607421186445084, 12);
   });
 
   it('computes correct number of pairs for 4 sets', () => {
@@ -147,5 +204,9 @@ describe('pairwiseStatistics', () => {
     const vr: VennResult = { inclusive: inc, exclusive: exc, inclusiveItems: incI, exclusiveItems: excI, totalUniqueItems: 100 };
     const stats = pairwiseStatistics(vr, 4, 100, ['A', 'B', 'C', 'D']);
     expect(stats).toHaveLength(6); // C(4,2) = 6
+    // Bonferroni multiplies each raw p by m = 6 pairs, clamped to 1.
+    for (const s of stats) {
+      expect(s.bonferroni).toBeCloseTo(Math.min(1, s.pValue * 6), 12);
+    }
   });
 });
