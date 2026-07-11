@@ -390,7 +390,8 @@ NULL
 #' @noRd
 # Format p-value: scientific (.js_to_exponential_2) for <0.001, else 6 decimals.
 .fmt_pdf_p <- function(x) {
-    if (x < .SIG_VERY_THRESHOLD) .js_to_exponential_2(x) else .js_to_fixed(x, 6L)
+    if (x == 0) "< 1e-300"
+    else if (x < .SIG_VERY_THRESHOLD) .js_to_exponential_2(x) else .js_to_fixed(x, 6L)
 }
 
 #' @noRd

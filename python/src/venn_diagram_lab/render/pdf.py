@@ -318,6 +318,8 @@ _FULL_PAGE_RECT = (0.05, 0.05, 0.9, 0.85)
 
 def _format_p(p: float) -> str:
     """Format a p-value: scientific notation if very small, else 3 decimal places."""
+    if p == 0:
+        return "< 1e-300"
     if p < _HIGHLY_SIG_THRESHOLD:
         return f"{p:.2e}"
     return f"{p:.3f}"

@@ -15,8 +15,22 @@ from venn_diagram_lab.render.pdf import (
     _build_overview_page,
     _build_statistics_pages,
     _build_venn_upset_page,
+    _format_p,
     render_pdf_report,
 )
+
+
+class TestFormatP:
+    """Display-only p-value formatting (Feature 5: underflow floor annotation)."""
+
+    def test_floors_exact_zero_to_underflow_annotation(self) -> None:
+        assert _format_p(0.0) == "< 1e-300"
+
+    def test_keeps_scientific_notation_for_small_nonzero_p(self) -> None:
+        assert _format_p(5e-20) == f"{5e-20:.2e}"
+
+    def test_keeps_fixed_format_for_p_at_or_above_threshold(self) -> None:
+        assert _format_p(0.0234) == f"{0.0234:.3f}"
 
 
 class TestBuildOverviewPage:

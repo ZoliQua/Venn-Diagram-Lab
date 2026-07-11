@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { generateZipReport } from '../utils/zipReport.ts';
+import { generateZipReport, formatP } from '../utils/zipReport.ts';
 import type { ZipReportParams } from '../utils/zipReport.ts';
 import type { VennDocument } from '../types.ts';
 import type { VennResult } from '../utils/csvParser.ts';
@@ -181,5 +181,19 @@ describe('generateZipReport', () => {
     expect(names).toContain('stat_lollipop_chart.svg');
     expect(names).toContain('stat_heatmap_chart.svg');
     expect(names).toContain('README.txt');
+  });
+});
+
+describe('zipReport formatP (display-only)', () => {
+  it('floors an exact-zero p-value to the underflow annotation', () => {
+    expect(formatP(0)).toBe('< 1e-300');
+  });
+
+  it('keeps the existing scientific-notation format for small nonzero p', () => {
+    expect(formatP(5e-20)).toBe((5e-20).toExponential(2));
+  });
+
+  it('keeps the existing fixed format for p >= 0.001', () => {
+    expect(formatP(0.0234)).toBe((0.0234).toFixed(4));
   });
 });

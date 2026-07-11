@@ -58,7 +58,8 @@ const CONTENT_W = PAGE_W - M.left - M.right;
 // Font: helvetica (best Unicode support and consistent spacing in jsPDF)
 const FONT = 'helvetica';
 
-function formatP(p: number): string {
+export function formatP(p: number): string {
+  if (p === 0) return '< 1e-300';
   if (p < 0.001) return p.toExponential(1);
   return p.toFixed(4);
 }

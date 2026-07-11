@@ -108,6 +108,15 @@ test_that(".sig_label returns ***/**/*/ns based on FDR thresholds", {
     expect_equal(.sig_label(0.5),    "ns")
 })
 
+test_that(".fmt_pdf_p floors an exact-zero p-value to the underflow annotation (display-only)", {
+    skip_on_cran()
+    expect_equal(.fmt_pdf_p(0), "< 1e-300")
+    # Small nonzero p keeps the existing scientific-notation format, unchanged.
+    expect_equal(.fmt_pdf_p(5e-20), .js_to_exponential_2(5e-20))
+    # p at/above threshold keeps the existing fixed-decimal format, unchanged.
+    expect_equal(.fmt_pdf_p(0.0234), .js_to_fixed(0.0234, 6L))
+})
+
 test_that(".build_statistics_pages returns at least one ggplot/patchwork", {
     skip_on_cran()
     ds <- methods::new("VennDataset",

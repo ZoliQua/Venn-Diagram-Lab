@@ -149,7 +149,8 @@ function wrap(text: string, width: number): string[] {
   return out;
 }
 
-function formatP(p: number): string {
+export function formatP(p: number): string {
+  if (p === 0) return '< 1e-300';
   if (p < 0.001) return p.toExponential(2);
   return p.toFixed(4);
 }

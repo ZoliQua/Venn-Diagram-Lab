@@ -23,7 +23,8 @@ interface DataSummaryPanelProps {
   forceEnrichmentPlotsOpen?: boolean;
 }
 
-function formatP(p: number): string {
+export function formatP(p: number): string {
+  if (p === 0) return '< 1e-300';
   if (p < 0.001) return p.toExponential(1);
   return p.toFixed(4);
 }
