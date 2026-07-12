@@ -21,6 +21,17 @@ describe('formatJsonNumber', () => {
   it('rounds tiny values below 1e-6 to 0', () => {
     expect(formatJsonNumber(1e-20)).toBe('0');
   });
+  // Guard the 1e-6..1e-4 band: JS keeps these as plain decimals, but Python's
+  // str(float(...)) / R's default formatting switch to exponential here. The
+  // shared rule (string-strip on the fixed-6dp form) must keep them decimal so
+  // the Python/R ports stay byte-identical. Real goldens contain such Bonferroni
+  // values (e.g. 0.000083).
+  it('keeps small decimals in the 1e-6..1e-4 band as plain decimals (never exponential)', () => {
+    expect(formatJsonNumber(0.000083)).toBe('0.000083');
+    expect(formatJsonNumber(0.000001)).toBe('0.000001');
+    expect(formatJsonNumber(0.00001)).toBe('0.00001');
+    expect(formatJsonNumber(0.000713)).toBe('0.000713');
+  });
 });
 
 function makeResult(): VennResult {
