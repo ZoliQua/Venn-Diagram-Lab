@@ -106,6 +106,86 @@ bh_fdr <- function(p_values) {
     stats::p.adjust(p_values, method = "BH")
 }
 
+# Internal: exact 97.5% normal quantile — shared with web/Python so all surfaces
+# produce byte-identical Wilson score intervals.
+.Z_WILSON <- 1.959963984540054
+
+#' @noRd
+# Overflow-safe log binomial coefficient log(C(n, k)). Manual summation loop
+# sum(log(n - i) - log(i + 1)) ported byte-for-byte from the web tool's
+# ``logChoose`` (statistics.ts) and Python's ``log_choose`` — deliberately NOT
+# ``lchoose()``, so the floating-point arithmetic matches the TS source exactly
+# and downstream .js_to_* formatting produces identical bytes.
+.log_choose <- function(n, k) {
+    if (k > n || k < 0) return(-Inf)
+    if (k == 0 || k == n) return(0)
+    kk <- min(k, n - k)
+    result <- 0
+    for (i in 0:(kk - 1L)) {
+        result <- result + log(n - i) - log(i + 1)
+    }
+    result
+}
+
+#' @noRd
+# Two-sided Fisher's exact test for the 2x2 table derived from (N, K, n, k).
+# Manual log-space point-mass port of the web tool's ``twoSidedFisher``: sums
+# every hypergeometric point mass P(X=i) over the support
+# i in [max(0, K+n-N) .. min(K, n)] whose log-probability is <= logP_obs + 1e-7
+# (a log-space tie tolerance). Result clamped to [0, 1]. Deliberately does NOT
+# call stats::fisher.test (its tie convention may differ and break byte parity).
+.two_sided_fisher <- function(N, K, n, k) {
+    if (N < 1 || K < 0 || n < 0 || k < 0) return(1.0)
+    K <- min(K, N)
+    n <- min(n, N)
+    lo <- max(0, K + n - N)
+    hi <- min(K, n)
+    if (k < lo || k > hi) return(1.0)
+    log_denom <- .log_choose(N, n)
+    log_p_obs <- .log_choose(K, k) + .log_choose(N - K, n - k) - log_denom
+    tol <- 1e-7
+    p <- 0
+    for (i in lo:hi) {
+        log_p <- .log_choose(K, i) + .log_choose(N - K, n - i) - log_denom
+        if (log_p <= log_p_obs + tol) {
+            p <- p + exp(log_p)
+        }
+    }
+    min(max(p, 0.0), 1.0)
+}
+
+#' @noRd
+# Wilson score 95% CI for a proportion phat = x / nn. Returns c(low, high)
+# clamped to [0, 1]. Zero/negative trials -> c(0, 0). Ported from the web tool's
+# ``wilsonInterval`` (statistics.ts) / Python's ``wilson_interval``.
+.wilson_interval <- function(x, nn) {
+    if (nn <= 0) return(c(0.0, 0.0))
+    phat <- x / nn
+    z2 <- .Z_WILSON * .Z_WILSON
+    denom <- 1 + z2 / nn
+    center <- (phat + z2 / (2 * nn)) / denom
+    half <- (.Z_WILSON * sqrt((phat * (1 - phat)) / nn + z2 / (4 * nn * nn))) / denom
+    low <- min(max(center - half, 0.0), 1.0)
+    high <- min(max(center + half, 0.0), 1.0)
+    c(low, high)
+}
+
+#' @noRd
+# Wilson 95% CI for the Jaccard index J = inter / union (proportion, union trials).
+.jaccard_ci <- function(intersection, union_size) {
+    .wilson_interval(intersection, union_size)
+}
+
+#' @noRd
+# Wilson 95% CI for the Dice coefficient D = 2*inter / (size_a + size_b): treats
+# p = inter / (size_a + size_b) as a proportion, then multiplies both bounds by 2
+# (clamped to [0, 1]). Denominator 0 -> c(0, 0).
+.dice_ci <- function(intersection, size_a, size_b) {
+    nn <- size_a + size_b
+    lohi <- .wilson_interval(intersection, nn)
+    c(min(2 * lohi[1L], 1.0), min(2 * lohi[2L], 1.0))
+}
+
 # Internal: build a square N x N named matrix from (set_a, set_b) -> value entries.
 .square_metric <- function(set_names, pair_values, diagonal_value) {
     n <- length(set_names)
@@ -146,11 +226,16 @@ compute_pairwise <- function(set_names, inclusive_sizes, pairwise_intersections,
     pair_oc      <- list()
     pair_fe      <- list()
 
-    rows_set_a        <- character()
-    rows_set_b        <- character()
-    rows_intersection <- integer()
-    rows_expected     <- numeric()
-    rows_p_value      <- numeric()
+    rows_set_a           <- character()
+    rows_set_b           <- character()
+    rows_intersection    <- integer()
+    rows_expected        <- numeric()
+    rows_p_value         <- numeric()
+    rows_p_two_sided     <- numeric()
+    rows_jaccard_ci_low  <- numeric()
+    rows_jaccard_ci_high <- numeric()
+    rows_dice_ci_low     <- numeric()
+    rows_dice_ci_high    <- numeric()
 
     pairs <- utils::combn(set_names, 2, simplify = FALSE)
     for (pair in pairs) {
@@ -173,16 +258,29 @@ compute_pairwise <- function(set_names, inclusive_sizes, pairwise_intersections,
         expected <- if (universe_size > 0) (ka * kb) / universe_size else 0
         p_val <- hypergeometric_p_value(universe_size, ka, kb, inter)
 
-        rows_set_a        <- c(rows_set_a, a)
-        rows_set_b        <- c(rows_set_b, b)
-        rows_intersection <- c(rows_intersection, inter)
-        rows_expected     <- c(rows_expected, expected)
-        rows_p_value      <- c(rows_p_value, p_val)
+        p_two <- .two_sided_fisher(universe_size, ka, kb, inter)
+        union_size <- ka + kb - inter
+        jac_ci  <- .jaccard_ci(inter, union_size)
+        dice_ci <- .dice_ci(inter, ka, kb)
+
+        rows_set_a           <- c(rows_set_a, a)
+        rows_set_b           <- c(rows_set_b, b)
+        rows_intersection    <- c(rows_intersection, inter)
+        rows_expected        <- c(rows_expected, expected)
+        rows_p_value         <- c(rows_p_value, p_val)
+        rows_p_two_sided     <- c(rows_p_two_sided, p_two)
+        rows_jaccard_ci_low  <- c(rows_jaccard_ci_low, jac_ci[1L])
+        rows_jaccard_ci_high <- c(rows_jaccard_ci_high, jac_ci[2L])
+        rows_dice_ci_low     <- c(rows_dice_ci_low, dice_ci[1L])
+        rows_dice_ci_high    <- c(rows_dice_ci_high, dice_ci[2L])
     }
 
     adjusted <- bh_fdr(rows_p_value)
     significant        <- adjusted < 0.05
     highly_significant <- adjusted < 0.001
+    # Bonferroni FWER control: min(1, p * m), m = number of pairwise tests.
+    m <- length(rows_p_value)
+    p_bonferroni <- pmin(1, rows_p_value * m)
 
     hyp <- data.frame(
         set_a              = rows_set_a,
@@ -191,6 +289,12 @@ compute_pairwise <- function(set_names, inclusive_sizes, pairwise_intersections,
         expected           = rows_expected,
         p_value            = rows_p_value,
         p_adjusted         = adjusted,
+        p_bonferroni       = p_bonferroni,
+        p_two_sided        = rows_p_two_sided,
+        jaccard_ci_low     = rows_jaccard_ci_low,
+        jaccard_ci_high    = rows_jaccard_ci_high,
+        dice_ci_low        = rows_dice_ci_low,
+        dice_ci_high       = rows_dice_ci_high,
         significant        = significant,
         highly_significant = highly_significant,
         stringsAsFactors   = FALSE

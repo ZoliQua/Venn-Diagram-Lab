@@ -170,7 +170,7 @@ test_that("to_matrix_tsv escapes formula-leading set names + items", {
     expect_match(lines[2L], "^'=evil\\t",  perl = TRUE)        # item escaped in row
 })
 
-test_that("to_statistics_tsv writes the 16-column header", {
+test_that("to_statistics_tsv writes the 22-column header", {
     ds <- methods::new("VennDataset",
         set_names = c("A", "B"),
         items = list(A = c("g1", "g2"), B = c("g2", "g3")),
@@ -188,7 +188,10 @@ test_that("to_statistics_tsv writes the 16-column header", {
     expect_equal(lines[1L], paste(c(
         "Set_A", "Set_B", "Name_A", "Name_B", "Size_A", "Size_B",
         "Intersection", "Union", "Jaccard", "Overlap_Coeff", "Dice",
-        "Expected", "Fold_Enrichment", "P_value", "FDR", "Significant"
+        "Expected", "Fold_Enrichment", "P_value", "FDR",
+        "Bonferroni", "P_two_sided",
+        "Jaccard_CI_low", "Jaccard_CI_high", "Dice_CI_low", "Dice_CI_high",
+        "Significant"
     ), collapse = "\t"))
     # 1 pair = 1 data row
     expect_length(lines, 2L)
@@ -228,8 +231,18 @@ test_that("to_statistics_tsv formats float columns with JS-style precision", {
     # Fold_Enrichment = 3 decimals
     expect_match(fields[13L], "^[0-9]+\\.[0-9]{3}$")
     # P_value / FDR: 6 decimals when >= 0.001 OR JS exponential when < 0.001
-    expect_true(grepl("^[0-9]+\\.[0-9]{6}$", fields[14L]) ||
-                grepl("^[0-9]+\\.[0-9]{2}e[-+][0-9]+$", fields[14L]))
-    # Significant in {***, **, *, ns}
-    expect_true(fields[16L] %in% c("***", "**", "*", "ns"))
+    p_like <- function(x) grepl("^[0-9]+\\.[0-9]{6}$", x) ||
+                          grepl("^[0-9]+\\.[0-9]{2}e[-+][0-9]+$", x)
+    expect_true(p_like(fields[14L]))   # P_value
+    expect_true(p_like(fields[15L]))   # FDR
+    # Bonferroni / P_two_sided: same p-value formatting rule
+    expect_true(p_like(fields[16L]))   # Bonferroni
+    expect_true(p_like(fields[17L]))   # P_two_sided
+    # Jaccard_CI_low/high, Dice_CI_low/high: 4 decimals
+    expect_match(fields[18L], "^[0-9]+\\.[0-9]{4}$")   # Jaccard_CI_low
+    expect_match(fields[19L], "^[0-9]+\\.[0-9]{4}$")   # Jaccard_CI_high
+    expect_match(fields[20L], "^[0-9]+\\.[0-9]{4}$")   # Dice_CI_low
+    expect_match(fields[21L], "^[0-9]+\\.[0-9]{4}$")   # Dice_CI_high
+    # Significant (now last column) in {***, **, *, ns}
+    expect_true(fields[22L] %in% c("***", "**", "*", "ns"))
 })
