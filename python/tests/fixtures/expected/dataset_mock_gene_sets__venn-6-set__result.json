@@ -1,0 +1,1264 @@
+{
+  "schemaVersion": "1",
+  "model": "venn-6-set",
+  "setNames": {
+    "A": "Pathway_A",
+    "B": "Pathway_B",
+    "C": "Pathway_C",
+    "D": "Pathway_D",
+    "E": "Pathway_E",
+    "F": "Pathway_F"
+  },
+  "universeSize": 180,
+  "regions": [
+    {
+      "label": "A",
+      "sets": [
+        "A"
+      ],
+      "depth": 1,
+      "exclusiveCount": 24,
+      "inclusiveCount": 97,
+      "exclusiveItems": [
+        "ARID1B",
+        "ASXL1",
+        "CBX4",
+        "DNMT1",
+        "DNMT3A",
+        "DNMT3B",
+        "DP1",
+        "E2F1",
+        "E2F4",
+        "EED",
+        "EZH2",
+        "JARID2",
+        "KDM5A",
+        "KDM6B",
+        "KMT2B",
+        "KMT2C",
+        "SKP2",
+        "SMARCA4",
+        "SMARCB1",
+        "SMARCC1",
+        "SP1",
+        "SUZ12",
+        "TET1",
+        "TET2"
+      ]
+    },
+    {
+      "label": "B",
+      "sets": [
+        "B"
+      ],
+      "depth": 1,
+      "exclusiveCount": 16,
+      "inclusiveCount": 89,
+      "exclusiveItems": [
+        "BAP1",
+        "CTCF",
+        "E2F2",
+        "EP300",
+        "IDH1",
+        "IDH2",
+        "KDM1A",
+        "KDM6A",
+        "KMT2A",
+        "PHC1",
+        "RBL1",
+        "RBL2",
+        "RING1",
+        "RNF2",
+        "TET3",
+        "TFDP1"
+      ]
+    },
+    {
+      "label": "C",
+      "sets": [
+        "C"
+      ],
+      "depth": 1,
+      "exclusiveCount": 14,
+      "inclusiveCount": 87,
+      "exclusiveItems": [
+        "ARID1A",
+        "BCOR",
+        "BMI1",
+        "CBX2",
+        "CBX7",
+        "CREBBP",
+        "E2F3",
+        "KDM5C",
+        "KMT2D",
+        "NSD1",
+        "NSD2",
+        "PHF8",
+        "SETD2",
+        "YY1"
+      ]
+    },
+    {
+      "label": "D",
+      "sets": [
+        "D"
+      ],
+      "depth": 1,
+      "exclusiveCount": 0,
+      "inclusiveCount": 73,
+      "exclusiveItems": []
+    },
+    {
+      "label": "E",
+      "sets": [
+        "E"
+      ],
+      "depth": 1,
+      "exclusiveCount": 0,
+      "inclusiveCount": 73,
+      "exclusiveItems": []
+    },
+    {
+      "label": "F",
+      "sets": [
+        "F"
+      ],
+      "depth": 1,
+      "exclusiveCount": 0,
+      "inclusiveCount": 73,
+      "exclusiveItems": []
+    },
+    {
+      "label": "AB",
+      "sets": [
+        "A",
+        "B"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "GINS1",
+        "GINS2"
+      ]
+    },
+    {
+      "label": "AC",
+      "sets": [
+        "A",
+        "C"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "GINS3",
+        "GINS4"
+      ]
+    },
+    {
+      "label": "AD",
+      "sets": [
+        "A",
+        "D"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "MCM10",
+        "SLD5"
+      ]
+    },
+    {
+      "label": "AE",
+      "sets": [
+        "A",
+        "E"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "DPB11",
+        "RECQL"
+      ]
+    },
+    {
+      "label": "AF",
+      "sets": [
+        "A",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "TOP1",
+        "TOP2A"
+      ]
+    },
+    {
+      "label": "BC",
+      "sets": [
+        "B",
+        "C"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "SMC1A",
+        "TOP2B"
+      ]
+    },
+    {
+      "label": "BD",
+      "sets": [
+        "B",
+        "D"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "RAD21",
+        "SMC3"
+      ]
+    },
+    {
+      "label": "BE",
+      "sets": [
+        "B",
+        "E"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "STAG1",
+        "STAG2"
+      ]
+    },
+    {
+      "label": "BF",
+      "sets": [
+        "B",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "NIPBL",
+        "WAPL"
+      ]
+    },
+    {
+      "label": "CD",
+      "sets": [
+        "C",
+        "D"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "PDS5A",
+        "PDS5B"
+      ]
+    },
+    {
+      "label": "CE",
+      "sets": [
+        "C",
+        "E"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "ESCO1",
+        "ESCO2"
+      ]
+    },
+    {
+      "label": "CF",
+      "sets": [
+        "C",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "HDAC1",
+        "HDAC2"
+      ]
+    },
+    {
+      "label": "DE",
+      "sets": [
+        "D",
+        "E"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "HDAC3",
+        "HDAC8"
+      ]
+    },
+    {
+      "label": "DF",
+      "sets": [
+        "D",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "SIRT1",
+        "SIRT2"
+      ]
+    },
+    {
+      "label": "EF",
+      "sets": [
+        "E",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "KAT2A",
+        "KAT2B"
+      ]
+    },
+    {
+      "label": "ABC",
+      "sets": [
+        "A",
+        "B",
+        "C"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "BLM",
+        "WRN"
+      ]
+    },
+    {
+      "label": "ABD",
+      "sets": [
+        "A",
+        "B",
+        "D"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "MRE11",
+        "NBN"
+      ]
+    },
+    {
+      "label": "ABE",
+      "sets": [
+        "A",
+        "B",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "EXO1",
+        "RAD50"
+      ]
+    },
+    {
+      "label": "ABF",
+      "sets": [
+        "A",
+        "B",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "DNA2",
+        "FEN1"
+      ]
+    },
+    {
+      "label": "ACD",
+      "sets": [
+        "A",
+        "C",
+        "D"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "LIG1",
+        "LIG3"
+      ]
+    },
+    {
+      "label": "ACE",
+      "sets": [
+        "A",
+        "C",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "PARP1",
+        "PARP2"
+      ]
+    },
+    {
+      "label": "ACF",
+      "sets": [
+        "A",
+        "C",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "POLB",
+        "XRCC1"
+      ]
+    },
+    {
+      "label": "ADE",
+      "sets": [
+        "A",
+        "D",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "PCNA",
+        "RFC1"
+      ]
+    },
+    {
+      "label": "ADF",
+      "sets": [
+        "A",
+        "D",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "RFC2",
+        "RFC3"
+      ]
+    },
+    {
+      "label": "AEF",
+      "sets": [
+        "A",
+        "E",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "RFC4",
+        "RFC5"
+      ]
+    },
+    {
+      "label": "BCD",
+      "sets": [
+        "B",
+        "C",
+        "D"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "POLD1",
+        "POLE"
+      ]
+    },
+    {
+      "label": "BCE",
+      "sets": [
+        "B",
+        "C",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "MCM2",
+        "MCM3"
+      ]
+    },
+    {
+      "label": "BCF",
+      "sets": [
+        "B",
+        "C",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "MCM4",
+        "MCM5"
+      ]
+    },
+    {
+      "label": "BDE",
+      "sets": [
+        "B",
+        "D",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "MCM6",
+        "MCM7"
+      ]
+    },
+    {
+      "label": "BDF",
+      "sets": [
+        "B",
+        "D",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "ORC1",
+        "ORC2"
+      ]
+    },
+    {
+      "label": "BEF",
+      "sets": [
+        "B",
+        "E",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "ORC3",
+        "ORC4"
+      ]
+    },
+    {
+      "label": "CDE",
+      "sets": [
+        "C",
+        "D",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "CDC6",
+        "ORC5"
+      ]
+    },
+    {
+      "label": "CDF",
+      "sets": [
+        "C",
+        "D",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "CDT1",
+        "GMNN"
+      ]
+    },
+    {
+      "label": "CEF",
+      "sets": [
+        "C",
+        "E",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "TIPIN",
+        "TOPBP1"
+      ]
+    },
+    {
+      "label": "DEF",
+      "sets": [
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "AND1",
+        "CLASPIN"
+      ]
+    },
+    {
+      "label": "ABCD",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "FANCA",
+        "FANCD2"
+      ]
+    },
+    {
+      "label": "ABCE",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "PALB2",
+        "XRCC3"
+      ]
+    },
+    {
+      "label": "ABCF",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "RAD51",
+        "RAD52"
+      ]
+    },
+    {
+      "label": "ABDE",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "RCC1",
+        "TNPO1"
+      ]
+    },
+    {
+      "label": "ABDF",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "CSE1L",
+        "KPNB1"
+      ]
+    },
+    {
+      "label": "ABEF",
+      "sets": [
+        "A",
+        "B",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "IPO7",
+        "KPNA2"
+      ]
+    },
+    {
+      "label": "ACDE",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "NUP98",
+        "XPO1"
+      ]
+    },
+    {
+      "label": "ACDF",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "NUP153",
+        "RAN"
+      ]
+    },
+    {
+      "label": "ACEF",
+      "sets": [
+        "A",
+        "C",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "BIRC5",
+        "TPX2"
+      ]
+    },
+    {
+      "label": "ADEF",
+      "sets": [
+        "A",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "INCENP",
+        "KIF11"
+      ]
+    },
+    {
+      "label": "BCDE",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "CENPE",
+        "TTK"
+      ]
+    },
+    {
+      "label": "BCDF",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "BUB1",
+        "MAD2L1"
+      ]
+    },
+    {
+      "label": "BCEF",
+      "sets": [
+        "B",
+        "C",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "AURKB",
+        "NEK2"
+      ]
+    },
+    {
+      "label": "BDEF",
+      "sets": [
+        "B",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "AURKA",
+        "PLK1"
+      ]
+    },
+    {
+      "label": "CDEF",
+      "sets": [
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 16,
+      "exclusiveItems": [
+        "CDC25B",
+        "CDC25C"
+      ]
+    },
+    {
+      "label": "ABCDE",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "depth": 5,
+      "exclusiveCount": 3,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "CDC25A",
+        "CHEK2",
+        "WEE1"
+      ]
+    },
+    {
+      "label": "ABCDF",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 3,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "ATM",
+        "ATR",
+        "CHEK1"
+      ]
+    },
+    {
+      "label": "ABCEF",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 3,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "CDKN1A",
+        "CDKN2A",
+        "MDM2"
+      ]
+    },
+    {
+      "label": "ABDEF",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 3,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "CCND1",
+        "CCNE1",
+        "CDK6"
+      ]
+    },
+    {
+      "label": "ACDEF",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 3,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "BRAF",
+        "CDK2",
+        "CDK4"
+      ]
+    },
+    {
+      "label": "BCDEF",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 3,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "AKT1",
+        "MTOR",
+        "PIK3CA"
+      ]
+    },
+    {
+      "label": "ABCDEF",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 6,
+      "exclusiveCount": 8,
+      "inclusiveCount": 8,
+      "exclusiveItems": [
+        "BRCA1",
+        "BRCA2",
+        "EGFR",
+        "KRAS",
+        "MYC",
+        "PTEN",
+        "RB1",
+        "TP53"
+      ]
+    }
+  ],
+  "setSizes": {
+    "A": 97,
+    "B": 89,
+    "C": 87,
+    "D": 73,
+    "E": 73,
+    "F": 73
+  },
+  "statistics": [
+    {
+      "a": "D",
+      "b": "E",
+      "jaccard": 0.403846,
+      "dice": 0.575342,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 104,
+      "expected": 29.605556,
+      "foldEnrichment": 1.418653,
+      "pValue": 0.000116,
+      "fdr": 0.00058,
+      "bonferroni": 0.001741,
+      "pTwoSided": 0.000188,
+      "significant": "***"
+    },
+    {
+      "a": "D",
+      "b": "F",
+      "jaccard": 0.403846,
+      "dice": 0.575342,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 104,
+      "expected": 29.605556,
+      "foldEnrichment": 1.418653,
+      "pValue": 0.000116,
+      "fdr": 0.00058,
+      "bonferroni": 0.001741,
+      "pTwoSided": 0.000188,
+      "significant": "***"
+    },
+    {
+      "a": "E",
+      "b": "F",
+      "jaccard": 0.403846,
+      "dice": 0.575342,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 104,
+      "expected": 29.605556,
+      "foldEnrichment": 1.418653,
+      "pValue": 0.000116,
+      "fdr": 0.00058,
+      "bonferroni": 0.001741,
+      "pTwoSided": 0.000188,
+      "significant": "***"
+    },
+    {
+      "a": "C",
+      "b": "D",
+      "jaccard": 0.355932,
+      "dice": 0.525,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 118,
+      "expected": 35.283333,
+      "foldEnrichment": 1.190364,
+      "pValue": 0.029365,
+      "fdr": 0.073412,
+      "bonferroni": 0.440471,
+      "pTwoSided": 0.048814,
+      "significant": "ns"
+    },
+    {
+      "a": "C",
+      "b": "E",
+      "jaccard": 0.355932,
+      "dice": 0.525,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 118,
+      "expected": 35.283333,
+      "foldEnrichment": 1.190364,
+      "pValue": 0.029365,
+      "fdr": 0.073412,
+      "bonferroni": 0.440471,
+      "pTwoSided": 0.048814,
+      "significant": "ns"
+    },
+    {
+      "a": "C",
+      "b": "F",
+      "jaccard": 0.355932,
+      "dice": 0.525,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 118,
+      "expected": 35.283333,
+      "foldEnrichment": 1.190364,
+      "pValue": 0.029365,
+      "fdr": 0.073412,
+      "bonferroni": 0.440471,
+      "pTwoSided": 0.048814,
+      "significant": "ns"
+    },
+    {
+      "a": "B",
+      "b": "D",
+      "jaccard": 0.35,
+      "dice": 0.518519,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 120,
+      "expected": 36.094444,
+      "foldEnrichment": 1.163614,
+      "pValue": 0.050239,
+      "fdr": 0.083732,
+      "bonferroni": 0.753584,
+      "pTwoSided": 0.094757,
+      "significant": "ns"
+    },
+    {
+      "a": "B",
+      "b": "E",
+      "jaccard": 0.35,
+      "dice": 0.518519,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 120,
+      "expected": 36.094444,
+      "foldEnrichment": 1.163614,
+      "pValue": 0.050239,
+      "fdr": 0.083732,
+      "bonferroni": 0.753584,
+      "pTwoSided": 0.094757,
+      "significant": "ns"
+    },
+    {
+      "a": "B",
+      "b": "F",
+      "jaccard": 0.35,
+      "dice": 0.518519,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 120,
+      "expected": 36.094444,
+      "foldEnrichment": 1.163614,
+      "pValue": 0.050239,
+      "fdr": 0.083732,
+      "bonferroni": 0.753584,
+      "pTwoSided": 0.094757,
+      "significant": "ns"
+    },
+    {
+      "a": "A",
+      "b": "D",
+      "jaccard": 0.328125,
+      "dice": 0.494118,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 128,
+      "expected": 39.338889,
+      "foldEnrichment": 1.067646,
+      "pValue": 0.255438,
+      "fdr": 0.319297,
+      "bonferroni": 1,
+      "pTwoSided": 0.449071,
+      "significant": "ns"
+    },
+    {
+      "a": "A",
+      "b": "E",
+      "jaccard": 0.328125,
+      "dice": 0.494118,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 128,
+      "expected": 39.338889,
+      "foldEnrichment": 1.067646,
+      "pValue": 0.255438,
+      "fdr": 0.319297,
+      "bonferroni": 1,
+      "pTwoSided": 0.449071,
+      "significant": "ns"
+    },
+    {
+      "a": "A",
+      "b": "F",
+      "jaccard": 0.328125,
+      "dice": 0.494118,
+      "overlapCoeff": 0.575342,
+      "intersection": 42,
+      "union": 128,
+      "expected": 39.338889,
+      "foldEnrichment": 1.067646,
+      "pValue": 0.255438,
+      "fdr": 0.319297,
+      "bonferroni": 1,
+      "pTwoSided": 0.449071,
+      "significant": "ns"
+    },
+    {
+      "a": "B",
+      "b": "C",
+      "jaccard": 0.313433,
+      "dice": 0.477273,
+      "overlapCoeff": 0.482759,
+      "intersection": 42,
+      "union": 134,
+      "expected": 43.016667,
+      "foldEnrichment": 0.976366,
+      "pValue": 0.674463,
+      "fdr": 0.778227,
+      "bonferroni": 1,
+      "pTwoSided": 0.767902,
+      "significant": "ns"
+    },
+    {
+      "a": "A",
+      "b": "C",
+      "jaccard": 0.295775,
+      "dice": 0.456522,
+      "overlapCoeff": 0.482759,
+      "intersection": 42,
+      "union": 142,
+      "expected": 46.883333,
+      "foldEnrichment": 0.895841,
+      "pValue": 0.946493,
+      "fdr": 0.973485,
+      "bonferroni": 1,
+      "pTwoSided": 0.178254,
+      "significant": "ns"
+    },
+    {
+      "a": "A",
+      "b": "B",
+      "jaccard": 0.291667,
+      "dice": 0.451613,
+      "overlapCoeff": 0.47191,
+      "intersection": 42,
+      "union": 144,
+      "expected": 47.961111,
+      "foldEnrichment": 0.875709,
+      "pValue": 0.973485,
+      "fdr": 0.973485,
+      "bonferroni": 1,
+      "pTwoSided": 0.099751,
+      "significant": "ns"
+    }
+  ]
+}

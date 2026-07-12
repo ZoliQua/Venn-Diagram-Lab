@@ -1,0 +1,4851 @@
+{
+  "schemaVersion": "1",
+  "model": "venn-8-set",
+  "setNames": {
+    "A": "Netflix",
+    "B": "HBO_Max",
+    "C": "Disney_Plus",
+    "D": "Amazon_Prime_Video",
+    "E": "Apple_TV_Plus",
+    "F": "Paramount_Plus",
+    "G": "Hulu",
+    "H": "Peacock"
+  },
+  "universeSize": 800,
+  "regions": [
+    {
+      "label": "A",
+      "sets": [
+        "A"
+      ],
+      "depth": 1,
+      "exclusiveCount": 65,
+      "inclusiveCount": 260,
+      "exclusiveItems": [
+        "Shadow and Bone",
+        "Red Notice",
+        "The Night Agent",
+        "Ginny & Georgia",
+        "The Queen's Gambit",
+        "Seven Dials",
+        "Inventing Anna",
+        "ONE HUNDRED YEARS OF SOLITUDE",
+        "Virgin River",
+        "Stranger Things",
+        "Narcos",
+        "Squid Game",
+        "The Sandman",
+        "Knives Out",
+        "Rebel Moon",
+        "Wednesday",
+        "Nouvelle Vague",
+        "The Lincoln Lawyer",
+        "Ripley",
+        "The Diplomat",
+        "Maestro",
+        "Mindhunter",
+        "The Watcher",
+        "Peaky Blinders: The Immortal Man",
+        "The Adam Project",
+        "Lupin",
+        "Senna",
+        "May December",
+        "Nimona",
+        "Heartstopper",
+        "Paddington in Peru",
+        "Kaos",
+        "The Umbrella Academy",
+        "Society of the Snow",
+        "Nyad",
+        "The Witcher",
+        "Rustin",
+        "Luther: The Fallen Sun",
+        "You",
+        "The Gray Man",
+        "Peaky Blinders",
+        "The Irishman",
+        "Nobody Wants This",
+        "Heart of Stone",
+        "The Crown",
+        "Roma",
+        "Extraction 2",
+        "Hit Man",
+        "Never Have I Ever",
+        "Leave the World Behind",
+        "Outer Banks",
+        "Extraction",
+        "Manifest",
+        "Enola Holmes 2",
+        "Ozark",
+        "Vikings: Valhalla",
+        "Glass Onion",
+        "Marriage Story",
+        "The Power of the Dog",
+        "Money Heist",
+        "One Piece",
+        "Maid",
+        "Lockerbie",
+        "The OA",
+        "3 Body Problem"
+      ]
+    },
+    {
+      "label": "B",
+      "sets": [
+        "B"
+      ],
+      "depth": 1,
+      "exclusiveCount": 63,
+      "inclusiveCount": 242,
+      "exclusiveItems": [
+        "Dune: Part Two",
+        "The Substance",
+        "Doom Patrol",
+        "Mare of Easttown",
+        "Boardwalk Empire",
+        "Silicon Valley",
+        "Godzilla x Kong: The New Empire",
+        "Aquaman and the Lost Kingdom",
+        "Twisters",
+        "Band of Brothers",
+        "The Batman",
+        "Lovecraft Country",
+        "The Rehearsal",
+        "Sinners",
+        "One Battle After Another",
+        "The Penguin",
+        "Winning Time",
+        "Oz",
+        "The Sex Lives of College Girls",
+        "Joker",
+        "Tokyo Vice",
+        "Dune: Prophecy",
+        "Ne Zha 2",
+        "The Outsider",
+        "Sorry Baby",
+        "Somebody Somewhere",
+        "House of the Dragon",
+        "Wonka",
+        "Oppenheimer",
+        "Chernobyl",
+        "Barbie",
+        "True Detective",
+        "Game of Thrones",
+        "The Gilded Age",
+        "The Wire",
+        "Harley Quinn",
+        "The White Lotus",
+        "Watchmen",
+        "Furiosa: A Mad Max Saga",
+        "Six Feet Under",
+        "Dune",
+        "Our Flag Means Death",
+        "Industry",
+        "Superman",
+        "Beetlejuice Beetlejuice",
+        "Hacks",
+        "Raised by Wolves",
+        "Westworld",
+        "Barry",
+        "Curb Your Enthusiasm",
+        "Welcome to Derry",
+        "Frankenstein",
+        "It Ends with Us",
+        "Evil Dead Rise",
+        "Euphoria",
+        "Trap",
+        "Veep",
+        "The Leftovers",
+        "The Last of Us",
+        "Succession",
+        "Peacemaker",
+        "The Sopranos",
+        "Joker: Folie a Deux"
+      ]
+    },
+    {
+      "label": "C",
+      "sets": [
+        "C"
+      ],
+      "depth": 1,
+      "exclusiveCount": 58,
+      "inclusiveCount": 227,
+      "exclusiveItems": [
+        "Skeleton Crew",
+        "Guardians of the Galaxy Vol. 3",
+        "The Marvels",
+        "Loki",
+        "Agatha All Along",
+        "Daredevil: Born Again",
+        "Luca",
+        "Willow",
+        "Star Wars: The Last Jedi",
+        "Soul",
+        "Encanto",
+        "WALL-E",
+        "Andor",
+        "Zootopia 2",
+        "Cruella",
+        "Inside Out 2",
+        "Alien: Romulus",
+        "Star Wars: The Force Awakens",
+        "The Book of Boba Fett",
+        "Haunted Mansion",
+        "Secret Invasion",
+        "Obi-Wan Kenobi",
+        "WandaVision",
+        "Big Shot",
+        "Frozen",
+        "Lilo & Stitch",
+        "Moon Knight",
+        "Hawkeye",
+        "Ant-Man and the Wasp: Quantumania",
+        "Echo",
+        "Star Wars: The Rise of Skywalker",
+        "Wish",
+        "The Mighty Ducks: Game Changers",
+        "Up",
+        "Ahsoka",
+        "Ironheart",
+        "Raya and the Last Dragon",
+        "Turning Red",
+        "Mufasa: The Lion King",
+        "Ms. Marvel",
+        "Frozen II",
+        "Kingdom of the Planet of the Apes",
+        "Percy Jackson and the Olympians",
+        "Deadpool & Wolverine",
+        "High School Musical: The Musical: The Series",
+        "Bluey",
+        "The Mandalorian",
+        "She-Hulk: Attorney at Law",
+        "Avatar: The Way of Water",
+        "Indiana Jones and the Dial of Destiny",
+        "The Little Mermaid",
+        "The Acolyte",
+        "Black Panther: Wakanda Forever",
+        "National Treasure: Edge of History",
+        "The Falcon and the Winter Soldier",
+        "Elemental",
+        "Moana 2",
+        "Coco"
+      ]
+    },
+    {
+      "label": "D",
+      "sets": [
+        "D"
+      ],
+      "depth": 1,
+      "exclusiveCount": 52,
+      "inclusiveCount": 292,
+      "exclusiveItems": [
+        "Tales from the Loop",
+        "The Wheel of Time",
+        "A Head Full of Ghosts",
+        "Megalopolis",
+        "The Power",
+        "Jack Ryan",
+        "Night Sky",
+        "Citadel",
+        "Mickey 17",
+        "The Wilds",
+        "The Rings of Power",
+        "Babygirl",
+        "Invincible",
+        "The Marvelous Mrs. Maisel",
+        "The Map of Tiny Perfect Things",
+        "Good Omens",
+        "Gen V",
+        "Black Bag",
+        "Homecoming",
+        "Carnival Row",
+        "Hunters",
+        "Road House",
+        "The Expanse",
+        "Terrifier 3",
+        "Air",
+        "Fallout",
+        "The Boys",
+        "Saltburn",
+        "Daisy Jones & The Six",
+        "Paper Girls",
+        "Fleabag",
+        "Outer Range",
+        "Reacher",
+        "Upload",
+        "Talk to Me",
+        "The Tomorrow War",
+        "Undone",
+        "Coming 2 America",
+        "Sound of Metal",
+        "Mr. & Mrs. Smith",
+        "Without Remorse",
+        "Marcel the Shell with Shoes On",
+        "Hanna",
+        "The Terminal List",
+        "My Spy",
+        "One Night in Miami",
+        "A League of Their Own",
+        "Creed III",
+        "Being the Ricardos",
+        "Borat Subsequent Moviefilm",
+        "The Peripheral",
+        "The Idea of You"
+      ]
+    },
+    {
+      "label": "E",
+      "sets": [
+        "E"
+      ],
+      "depth": 1,
+      "exclusiveCount": 44,
+      "inclusiveCount": 180,
+      "exclusiveItems": [
+        "Napoleon",
+        "Presumed Innocent",
+        "Ghosted",
+        "Bad Sisters",
+        "Physical",
+        "Emancipation",
+        "Tetris",
+        "Monarch: Legacy of Monsters",
+        "Ted Lasso",
+        "Lessons in Chemistry",
+        "Project Hail Mary",
+        "Dark Matter",
+        "Fly Me to the Moon",
+        "Finch",
+        "Lisey's Story",
+        "Disclaimer",
+        "Wolfs",
+        "Cherry",
+        "Severance",
+        "The Mosquito Coast",
+        "Mythic Quest",
+        "Shrinking",
+        "Slow Horses",
+        "The Banker",
+        "Little America",
+        "See",
+        "Foundation",
+        "Loot",
+        "The Afterparty",
+        "Masters of the Air",
+        "Servant",
+        "Killers of the Flower Moon",
+        "Pachinko",
+        "The Morning Show",
+        "Argylle",
+        "Invasion",
+        "Hijack",
+        "For All Mankind",
+        "Silo",
+        "Defending Jacob",
+        "Greyhound",
+        "Trying",
+        "CODA",
+        "Calls"
+      ]
+    },
+    {
+      "label": "F",
+      "sets": [
+        "F"
+      ],
+      "depth": 1,
+      "exclusiveCount": 39,
+      "inclusiveCount": 200,
+      "exclusiveItems": [
+        "Tulsa King",
+        "Halo",
+        "Dungeons & Dragons: Honor Among Thieves",
+        "Smile",
+        "Super Pumped",
+        "IF",
+        "George & Tammy",
+        "Star Trek: Discovery",
+        "Babylon",
+        "Landman",
+        "The Offer",
+        "Star Trek: Lower Decks",
+        "Top Gun: Maverick",
+        "Lawmen: Bass Reeves",
+        "Evil",
+        "Lioness",
+        "iCarly",
+        "A Quiet Place: Day One",
+        "Mission: Impossible - Dead Reckoning",
+        "Star Trek: Picard",
+        "Smile 2",
+        "Transformers: Rise of the Beasts",
+        "The Good Fight",
+        "The Man Who Fell to Earth",
+        "The Naked Gun",
+        "1883",
+        "Teenage Mutant Ninja Turtles: Mutant Mayhem",
+        "1923",
+        "Mayor of Kingstown",
+        "Rabbit Hole",
+        "Scream VI",
+        "Gladiator II",
+        "Grease: Rise of the Pink Ladies",
+        "Fatal Attraction",
+        "From",
+        "Frasier",
+        "Fight or Flight",
+        "Star Trek: Strange New Worlds",
+        "Sonic the Hedgehog 3"
+      ]
+    },
+    {
+      "label": "G",
+      "sets": [
+        "G"
+      ],
+      "depth": 1,
+      "exclusiveCount": 35,
+      "inclusiveCount": 230,
+      "exclusiveItems": [
+        "The Other Black Girl",
+        "Not Okay",
+        "Difficult People",
+        "Conversations with Friends",
+        "Good Luck to You, Leo Grande",
+        "The Secret Lives of Mormon Wives",
+        "Dopesick",
+        "Pam & Tommy",
+        "The Handmaid's Tale",
+        "Normal People",
+        "The Patient",
+        "The Path",
+        "Solar Opposites",
+        "Rosaline",
+        "The Old Man",
+        "Prey",
+        "Little Fires Everywhere",
+        "Reservation Dogs",
+        "The Great",
+        "Futurama",
+        "Fire Island",
+        "Nine Perfect Strangers",
+        "PEN15",
+        "Fleishman Is in Trouble",
+        "The Dropout",
+        "Under the Banner of Heaven",
+        "The Act",
+        "Looking for Alaska",
+        "Tell Me Lies",
+        "Shogun",
+        "Woke",
+        "Fresh",
+        "Under the Bridge",
+        "Castle Rock",
+        "No One Will Save You"
+      ]
+    },
+    {
+      "label": "H",
+      "sets": [
+        "H"
+      ],
+      "depth": 1,
+      "exclusiveCount": 31,
+      "inclusiveCount": 216,
+      "exclusiveItems": [
+        "Based on a True Story",
+        "Wicked",
+        "How to Train Your Dragon",
+        "Apples Never Fall",
+        "Twisted Metal",
+        "The Office",
+        "The Fall Guy",
+        "Renfield",
+        "The Resort",
+        "Abigail",
+        "Pitch Perfect: Bumper in Berlin",
+        "Five Nights at Freddy's",
+        "Mrs. Davis",
+        "Joe vs Carole",
+        "Bel-Air",
+        "M3GAN",
+        "Poker Face",
+        "One of Us Is Lying",
+        "Queer as Folk",
+        "The Continental",
+        "Dr. Death",
+        "Brave New World",
+        "Saved by the Bell",
+        "Ted",
+        "Cocaine Bear",
+        "The Traitors",
+        "Bupkis",
+        "Parks and Recreation",
+        "Vampire Academy",
+        "Jurassic World Rebirth",
+        "Wicked: For Good"
+      ]
+    },
+    {
+      "label": "AB",
+      "sets": [
+        "A",
+        "B"
+      ],
+      "depth": 2,
+      "exclusiveCount": 5,
+      "inclusiveCount": 90,
+      "exclusiveItems": [
+        "Ocean's Twelve",
+        "Friends",
+        "The Boy and the Heron",
+        "Ocean's Eleven",
+        "Ocean's Thirteen"
+      ]
+    },
+    {
+      "label": "AC",
+      "sets": [
+        "A",
+        "C"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 78,
+      "exclusiveItems": [
+        "Golden Hour"
+      ]
+    },
+    {
+      "label": "AD",
+      "sets": [
+        "A",
+        "D"
+      ],
+      "depth": 2,
+      "exclusiveCount": 9,
+      "inclusiveCount": 108,
+      "exclusiveItems": [
+        "Everything Everywhere All at Once",
+        "65",
+        "Past Lives",
+        "Breaking Bad",
+        "Venom: The Last Dance",
+        "Spider-Man: Across the Spider-Verse",
+        "The Walking Dead",
+        "Kraven the Hunter",
+        "Better Call Saul"
+      ]
+    },
+    {
+      "label": "AE",
+      "sets": [
+        "A",
+        "E"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 73,
+      "exclusiveItems": [
+        "Bugonia"
+      ]
+    },
+    {
+      "label": "AF",
+      "sets": [
+        "A",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 81,
+      "exclusiveItems": [
+        "NCIS"
+      ]
+    },
+    {
+      "label": "AG",
+      "sets": [
+        "A",
+        "G"
+      ],
+      "depth": 2,
+      "exclusiveCount": 11,
+      "inclusiveCount": 94,
+      "exclusiveItems": [
+        "Ferrari",
+        "Schitt's Creek",
+        "John Wick: Chapter 4",
+        "Fargo",
+        "Grey's Anatomy",
+        "The Hunger Games",
+        "John Wick",
+        "John Wick: Chapter 2",
+        "The Hunger Games: Catching Fire",
+        "John Wick: Chapter 3",
+        "It's Always Sunny in Philadelphia"
+      ]
+    },
+    {
+      "label": "AH",
+      "sets": [
+        "A",
+        "H"
+      ],
+      "depth": 2,
+      "exclusiveCount": 9,
+      "inclusiveCount": 89,
+      "exclusiveItems": [
+        "Shrek",
+        "The Good Place",
+        "Minions",
+        "The Blacklist",
+        "Shrek 2",
+        "The Super Mario Bros. Movie",
+        "Suits",
+        "Seinfeld",
+        "Despicable Me"
+      ]
+    },
+    {
+      "label": "BC",
+      "sets": [
+        "B",
+        "C"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 73,
+      "exclusiveItems": [
+        "Harbinger"
+      ]
+    },
+    {
+      "label": "BD",
+      "sets": [
+        "B",
+        "D"
+      ],
+      "depth": 2,
+      "exclusiveCount": 19,
+      "inclusiveCount": 111,
+      "exclusiveItems": [
+        "Blade Runner 2049",
+        "Dunkirk",
+        "The Zone of Interest",
+        "Horizon: An American Saga",
+        "The Dark Knight",
+        "The Conjuring",
+        "IT Chapter Two",
+        "The Shawshank Redemption",
+        "Batman Begins",
+        "Anora",
+        "The Dark Knight Rises",
+        "Tenet",
+        "Interstellar",
+        "Inception",
+        "The Matrix",
+        "Mad Max: Fury Road",
+        "Wonder Woman",
+        "A Minecraft Movie",
+        "IT"
+      ]
+    },
+    {
+      "label": "BE",
+      "sets": [
+        "B",
+        "E"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 73,
+      "exclusiveItems": [
+        "Labyrinth 2"
+      ]
+    },
+    {
+      "label": "BF",
+      "sets": [
+        "B",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 73,
+      "exclusiveItems": [
+        "South Park"
+      ]
+    },
+    {
+      "label": "BG",
+      "sets": [
+        "B",
+        "G"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 78,
+      "exclusiveItems": [
+        "Rick and Morty"
+      ]
+    },
+    {
+      "label": "BH",
+      "sets": [
+        "B",
+        "H"
+      ],
+      "depth": 2,
+      "exclusiveCount": 2,
+      "inclusiveCount": 82,
+      "exclusiveItems": [
+        "Fantastic Beasts: Crimes of Grindelwald",
+        "Fantastic Beasts and Where to Find Them"
+      ]
+    },
+    {
+      "label": "CD",
+      "sets": [
+        "C",
+        "D"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 83,
+      "exclusiveItems": [
+        "Avatar"
+      ]
+    },
+    {
+      "label": "CE",
+      "sets": [
+        "C",
+        "E"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 73,
+      "exclusiveItems": [
+        "Serpent's Path"
+      ]
+    },
+    {
+      "label": "CF",
+      "sets": [
+        "C",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 75,
+      "exclusiveItems": [
+        "Divergent: Legacy"
+      ]
+    },
+    {
+      "label": "CG",
+      "sets": [
+        "C",
+        "G"
+      ],
+      "depth": 2,
+      "exclusiveCount": 21,
+      "inclusiveCount": 104,
+      "exclusiveItems": [
+        "The Simpsons",
+        "The Menu",
+        "Aliens",
+        "Fight Club",
+        "Bohemian Rhapsody",
+        "American Horror Story",
+        "Die Hard 2",
+        "The Martian",
+        "Poor Things",
+        "Bob's Burgers",
+        "Family Guy",
+        "A Complete Unknown",
+        "Nosferatu",
+        "Alien",
+        "Atlanta",
+        "The Revenant",
+        "Die Hard",
+        "What We Do in the Shadows",
+        "Only Murders in the Building",
+        "Lost",
+        "The Bear"
+      ]
+    },
+    {
+      "label": "CH",
+      "sets": [
+        "C",
+        "H"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 74,
+      "exclusiveItems": [
+        "Crimson Tide"
+      ]
+    },
+    {
+      "label": "DE",
+      "sets": [
+        "D",
+        "E"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 73,
+      "exclusiveItems": [
+        "The Brutalist"
+      ]
+    },
+    {
+      "label": "DF",
+      "sets": [
+        "D",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 16,
+      "inclusiveCount": 96,
+      "exclusiveItems": [
+        "Pulp Fiction",
+        "Braveheart",
+        "Twin Peaks",
+        "Titanic",
+        "Forrest Gump",
+        "Dexter",
+        "The Godfather",
+        "Scream",
+        "The Affair",
+        "Gladiator",
+        "The Truman Show",
+        "Saving Private Ryan",
+        "The Godfather Part II",
+        "Ray Donovan",
+        "No Country for Old Men",
+        "Criminal Minds"
+      ]
+    },
+    {
+      "label": "DG",
+      "sets": [
+        "D",
+        "G"
+      ],
+      "depth": 2,
+      "exclusiveCount": 4,
+      "inclusiveCount": 92,
+      "exclusiveItems": [
+        "The Americans",
+        "Priscilla",
+        "Hannibal",
+        "How I Met Your Mother"
+      ]
+    },
+    {
+      "label": "DH",
+      "sets": [
+        "D",
+        "H"
+      ],
+      "depth": 2,
+      "exclusiveCount": 20,
+      "inclusiveCount": 107,
+      "exclusiveItems": [
+        "E.T. the Extra-Terrestrial",
+        "Jaws",
+        "Mr. Robot",
+        "Fast X",
+        "The Bourne Ultimatum",
+        "Jurassic Park",
+        "The Holdovers",
+        "Conclave",
+        "Jurassic World",
+        "House",
+        "Downton Abbey",
+        "Nope",
+        "Back to the Future",
+        "Back to the Future Part II",
+        "A Beautiful Mind",
+        "The Wild Robot",
+        "Schindler's List",
+        "Psych",
+        "The Bourne Identity",
+        "Monk"
+      ]
+    },
+    {
+      "label": "EF",
+      "sets": [
+        "E",
+        "F"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 73,
+      "exclusiveItems": [
+        "Frontier 2"
+      ]
+    },
+    {
+      "label": "EG",
+      "sets": [
+        "E",
+        "G"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 73,
+      "exclusiveItems": [
+        "Impulse"
+      ]
+    },
+    {
+      "label": "EH",
+      "sets": [
+        "E",
+        "H"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 73,
+      "exclusiveItems": [
+        "The Architect"
+      ]
+    },
+    {
+      "label": "FG",
+      "sets": [
+        "F",
+        "G"
+      ],
+      "depth": 2,
+      "exclusiveCount": 3,
+      "inclusiveCount": 75,
+      "exclusiveItems": [
+        "Homeland",
+        "Dexter: New Blood",
+        "Yellowjackets"
+      ]
+    },
+    {
+      "label": "FH",
+      "sets": [
+        "F",
+        "H"
+      ],
+      "depth": 2,
+      "exclusiveCount": 1,
+      "inclusiveCount": 77,
+      "exclusiveItems": [
+        "Yellowstone"
+      ]
+    },
+    {
+      "label": "GH",
+      "sets": [
+        "G",
+        "H"
+      ],
+      "depth": 2,
+      "exclusiveCount": 6,
+      "inclusiveCount": 81,
+      "exclusiveItems": [
+        "Law & Order: SVU",
+        "Chicago Fire",
+        "Chicago PD",
+        "Law & Order",
+        "This Is Us",
+        "Superstore"
+      ]
+    },
+    {
+      "label": "ABC",
+      "sets": [
+        "A",
+        "B",
+        "C"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Kingdom"
+      ]
+    },
+    {
+      "label": "ABD",
+      "sets": [
+        "A",
+        "B",
+        "D"
+      ],
+      "depth": 3,
+      "exclusiveCount": 9,
+      "inclusiveCount": 54,
+      "exclusiveItems": [
+        "Goodfellas",
+        "The Lord of the Rings: Two Towers",
+        "The Hobbit: Battle of Five Armies",
+        "The Lord of the Rings: Return of the King",
+        "The Lord of the Rings: Fellowship",
+        "The Hobbit: Desolation of Smaug",
+        "The Hobbit: An Unexpected Journey",
+        "The Departed",
+        "Supernatural"
+      ]
+    },
+    {
+      "label": "ABE",
+      "sets": [
+        "A",
+        "B",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "The Last Frontier"
+      ]
+    },
+    {
+      "label": "ABF",
+      "sets": [
+        "A",
+        "B",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Zero Day"
+      ]
+    },
+    {
+      "label": "ABG",
+      "sets": [
+        "A",
+        "B",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 46,
+      "exclusiveItems": [
+        "Blackout"
+      ]
+    },
+    {
+      "label": "ABH",
+      "sets": [
+        "A",
+        "B",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "The Big Bang Theory"
+      ]
+    },
+    {
+      "label": "ACD",
+      "sets": [
+        "A",
+        "C",
+        "D"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 44,
+      "exclusiveItems": [
+        "Spider-Man: No Way Home"
+      ]
+    },
+    {
+      "label": "ACE",
+      "sets": [
+        "A",
+        "C",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Into the Storm 2"
+      ]
+    },
+    {
+      "label": "ACF",
+      "sets": [
+        "A",
+        "C",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 43,
+      "exclusiveItems": [
+        "Axiom"
+      ]
+    },
+    {
+      "label": "ACG",
+      "sets": [
+        "A",
+        "C",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 3,
+      "inclusiveCount": 44,
+      "exclusiveItems": [
+        "New Girl",
+        "Gone Girl",
+        "Arrested Development"
+      ]
+    },
+    {
+      "label": "ACH",
+      "sets": [
+        "A",
+        "C",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Nightwatch"
+      ]
+    },
+    {
+      "label": "ADE",
+      "sets": [
+        "A",
+        "D",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Hypernova"
+      ]
+    },
+    {
+      "label": "ADF",
+      "sets": [
+        "A",
+        "D",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 3,
+      "inclusiveCount": 49,
+      "exclusiveItems": [
+        "Mean Girls",
+        "Catch Me If You Can",
+        "The Wolf of Wall Street"
+      ]
+    },
+    {
+      "label": "ADG",
+      "sets": [
+        "A",
+        "D",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 3,
+      "inclusiveCount": 50,
+      "exclusiveItems": [
+        "The Social Network",
+        "La La Land",
+        "Whiplash"
+      ]
+    },
+    {
+      "label": "ADH",
+      "sets": [
+        "A",
+        "D",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 3,
+      "inclusiveCount": 49,
+      "exclusiveItems": [
+        "The Office (US)",
+        "Get Out",
+        "Us"
+      ]
+    },
+    {
+      "label": "AEF",
+      "sets": [
+        "A",
+        "E",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Nighthawk"
+      ]
+    },
+    {
+      "label": "AEG",
+      "sets": [
+        "A",
+        "E",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Outpost: Series"
+      ]
+    },
+    {
+      "label": "AEH",
+      "sets": [
+        "A",
+        "E",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Dark Waters"
+      ]
+    },
+    {
+      "label": "AFG",
+      "sets": [
+        "A",
+        "F",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Rampage 2"
+      ]
+    },
+    {
+      "label": "AFH",
+      "sets": [
+        "A",
+        "F",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 45,
+      "exclusiveItems": [
+        "Dark Horizons"
+      ]
+    },
+    {
+      "label": "AGH",
+      "sets": [
+        "A",
+        "G",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 43,
+      "exclusiveItems": [
+        "Brooklyn Nine-Nine"
+      ]
+    },
+    {
+      "label": "BCD",
+      "sets": [
+        "B",
+        "C",
+        "D"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Frostbite"
+      ]
+    },
+    {
+      "label": "BCE",
+      "sets": [
+        "B",
+        "C",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Oasis"
+      ]
+    },
+    {
+      "label": "BCF",
+      "sets": [
+        "B",
+        "C",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Diamond City"
+      ]
+    },
+    {
+      "label": "BCG",
+      "sets": [
+        "B",
+        "C",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Pacific Heights"
+      ]
+    },
+    {
+      "label": "BCH",
+      "sets": [
+        "B",
+        "C",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Fracture"
+      ]
+    },
+    {
+      "label": "BDE",
+      "sets": [
+        "B",
+        "D",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Pandemonium"
+      ]
+    },
+    {
+      "label": "BDF",
+      "sets": [
+        "B",
+        "D",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Falling Stars"
+      ]
+    },
+    {
+      "label": "BDG",
+      "sets": [
+        "B",
+        "D",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 46,
+      "exclusiveItems": [
+        "Quicksand 2"
+      ]
+    },
+    {
+      "label": "BDH",
+      "sets": [
+        "B",
+        "D",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 8,
+      "inclusiveCount": 49,
+      "exclusiveItems": [
+        "Harry Potter and the Deathly Hallows Part 2",
+        "Harry Potter and the Sorcerer's Stone",
+        "Harry Potter and the Prisoner of Azkaban",
+        "Harry Potter and the Half-Blood Prince",
+        "Harry Potter and the Deathly Hallows Part 1",
+        "Harry Potter and the Goblet of Fire",
+        "Harry Potter and the Order of the Phoenix",
+        "Harry Potter and the Chamber of Secrets"
+      ]
+    },
+    {
+      "label": "BEF",
+      "sets": [
+        "B",
+        "E",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Last Light 2"
+      ]
+    },
+    {
+      "label": "BEG",
+      "sets": [
+        "B",
+        "E",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Drifter"
+      ]
+    },
+    {
+      "label": "BEH",
+      "sets": [
+        "B",
+        "E",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Northern Lights"
+      ]
+    },
+    {
+      "label": "BFG",
+      "sets": [
+        "B",
+        "F",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Ice Age: New Dawn"
+      ]
+    },
+    {
+      "label": "BFH",
+      "sets": [
+        "B",
+        "F",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Killswitch"
+      ]
+    },
+    {
+      "label": "BGH",
+      "sets": [
+        "B",
+        "G",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "Velocity: The Series"
+      ]
+    },
+    {
+      "label": "CDE",
+      "sets": [
+        "C",
+        "D",
+        "E"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Xero"
+      ]
+    },
+    {
+      "label": "CDF",
+      "sets": [
+        "C",
+        "D",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 43,
+      "exclusiveItems": [
+        "Lightning Strike"
+      ]
+    },
+    {
+      "label": "CDG",
+      "sets": [
+        "C",
+        "D",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 8,
+      "inclusiveCount": 49,
+      "exclusiveItems": [
+        "The Princess Bride",
+        "Buffy the Vampire Slayer",
+        "The Grand Budapest Hotel",
+        "The X-Files",
+        "Home Alone 2",
+        "Malcolm in the Middle",
+        "Home Alone",
+        "Night at the Museum"
+      ]
+    },
+    {
+      "label": "CDH",
+      "sets": [
+        "C",
+        "D",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Meridian Line"
+      ]
+    },
+    {
+      "label": "CEF",
+      "sets": [
+        "C",
+        "E",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Predator: Origin"
+      ]
+    },
+    {
+      "label": "CEG",
+      "sets": [
+        "C",
+        "E",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Sandstorm"
+      ]
+    },
+    {
+      "label": "CEH",
+      "sets": [
+        "C",
+        "E",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Threshold: Series"
+      ]
+    },
+    {
+      "label": "CFG",
+      "sets": [
+        "C",
+        "F",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Kinetic"
+      ]
+    },
+    {
+      "label": "CFH",
+      "sets": [
+        "C",
+        "F",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Ocean's Eight"
+      ]
+    },
+    {
+      "label": "CGH",
+      "sets": [
+        "C",
+        "G",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 2,
+      "inclusiveCount": 42,
+      "exclusiveItems": [
+        "Scrubs",
+        "Modern Family"
+      ]
+    },
+    {
+      "label": "DEF",
+      "sets": [
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Keystone"
+      ]
+    },
+    {
+      "label": "DEG",
+      "sets": [
+        "D",
+        "E",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Jade Empire"
+      ]
+    },
+    {
+      "label": "DEH",
+      "sets": [
+        "D",
+        "E",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Deep Blue Sea 4"
+      ]
+    },
+    {
+      "label": "DFG",
+      "sets": [
+        "D",
+        "F",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Binary Code"
+      ]
+    },
+    {
+      "label": "DFH",
+      "sets": [
+        "D",
+        "F",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 45,
+      "exclusiveItems": [
+        "Golden Gate"
+      ]
+    },
+    {
+      "label": "DGH",
+      "sets": [
+        "D",
+        "G",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 43,
+      "exclusiveItems": [
+        "30 Rock"
+      ]
+    },
+    {
+      "label": "EFG",
+      "sets": [
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Orbit"
+      ]
+    },
+    {
+      "label": "EFH",
+      "sets": [
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Hyperdrive"
+      ]
+    },
+    {
+      "label": "EGH",
+      "sets": [
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Requiem"
+      ]
+    },
+    {
+      "label": "FGH",
+      "sets": [
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 3,
+      "exclusiveCount": 1,
+      "inclusiveCount": 41,
+      "exclusiveItems": [
+        "Tidal Wave"
+      ]
+    },
+    {
+      "label": "ABCD",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Dark Matter"
+      ]
+    },
+    {
+      "label": "ABCE",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Silent Waters"
+      ]
+    },
+    {
+      "label": "ABCF",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Inferno 2"
+      ]
+    },
+    {
+      "label": "ABCG",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Jackpot 2"
+      ]
+    },
+    {
+      "label": "ABCH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Reckoning"
+      ]
+    },
+    {
+      "label": "ABDE",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Stardust"
+      ]
+    },
+    {
+      "label": "ABDF",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Nova"
+      ]
+    },
+    {
+      "label": "ABDG",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 5,
+      "inclusiveCount": 30,
+      "exclusiveItems": [
+        "The Wizard of Oz",
+        "Ghostbusters: Afterlife",
+        "Jumanji: Welcome to the Jungle",
+        "Ghostbusters",
+        "The Karate Kid"
+      ]
+    },
+    {
+      "label": "ABDH",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 26,
+      "exclusiveItems": [
+        "Maelstrom"
+      ]
+    },
+    {
+      "label": "ABEF",
+      "sets": [
+        "A",
+        "B",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Paper Trail"
+      ]
+    },
+    {
+      "label": "ABEG",
+      "sets": [
+        "A",
+        "B",
+        "E",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Uncharted 2"
+      ]
+    },
+    {
+      "label": "ABEH",
+      "sets": [
+        "A",
+        "B",
+        "E",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Year Zero"
+      ]
+    },
+    {
+      "label": "ABFG",
+      "sets": [
+        "A",
+        "B",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Undercurrent"
+      ]
+    },
+    {
+      "label": "ABFH",
+      "sets": [
+        "A",
+        "B",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Labyrinth: The Series"
+      ]
+    },
+    {
+      "label": "ABGH",
+      "sets": [
+        "A",
+        "B",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 26,
+      "exclusiveItems": [
+        "Wavelength"
+      ]
+    },
+    {
+      "label": "ACDE",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Kaleidoscope: Season 2"
+      ]
+    },
+    {
+      "label": "ACDF",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 3,
+      "inclusiveCount": 27,
+      "exclusiveItems": [
+        "Indiana Jones: Last Crusade",
+        "Indiana Jones: Temple of Doom",
+        "Indiana Jones: Raiders of the Lost Ark"
+      ]
+    },
+    {
+      "label": "ACDG",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 26,
+      "exclusiveItems": [
+        "The Princess Diaries",
+        "Pretty Woman"
+      ]
+    },
+    {
+      "label": "ACDH",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Crystal Lake"
+      ]
+    },
+    {
+      "label": "ACEF",
+      "sets": [
+        "A",
+        "C",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Last Resort"
+      ]
+    },
+    {
+      "label": "ACEG",
+      "sets": [
+        "A",
+        "C",
+        "E",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Windfall"
+      ]
+    },
+    {
+      "label": "ACEH",
+      "sets": [
+        "A",
+        "C",
+        "E",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Moonrise"
+      ]
+    },
+    {
+      "label": "ACFG",
+      "sets": [
+        "A",
+        "C",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Beyond Borders"
+      ]
+    },
+    {
+      "label": "ACFH",
+      "sets": [
+        "A",
+        "C",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Radiance"
+      ]
+    },
+    {
+      "label": "ACGH",
+      "sets": [
+        "A",
+        "C",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Shadowlands"
+      ]
+    },
+    {
+      "label": "ADEF",
+      "sets": [
+        "A",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Lightning Rod"
+      ]
+    },
+    {
+      "label": "ADEG",
+      "sets": [
+        "A",
+        "D",
+        "E",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Hurricane Season"
+      ]
+    },
+    {
+      "label": "ADEH",
+      "sets": [
+        "A",
+        "D",
+        "E",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Helios"
+      ]
+    },
+    {
+      "label": "ADFG",
+      "sets": [
+        "A",
+        "D",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Grease"
+      ]
+    },
+    {
+      "label": "ADFH",
+      "sets": [
+        "A",
+        "D",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 5,
+      "inclusiveCount": 29,
+      "exclusiveItems": [
+        "Rocky II",
+        "Star Trek: The Motion Picture",
+        "Footloose",
+        "Ferris Bueller's Day Off",
+        "Rocky"
+      ]
+    },
+    {
+      "label": "ADGH",
+      "sets": [
+        "A",
+        "D",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 2,
+      "inclusiveCount": 27,
+      "exclusiveItems": [
+        "Dirty Dancing",
+        "The Breakfast Club"
+      ]
+    },
+    {
+      "label": "AEFG",
+      "sets": [
+        "A",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Paper House"
+      ]
+    },
+    {
+      "label": "AEFH",
+      "sets": [
+        "A",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Collateral Damage 2"
+      ]
+    },
+    {
+      "label": "AEGH",
+      "sets": [
+        "A",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Quicksilver"
+      ]
+    },
+    {
+      "label": "AFGH",
+      "sets": [
+        "A",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Quarantine 2"
+      ]
+    },
+    {
+      "label": "BCDE",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Gale Force"
+      ]
+    },
+    {
+      "label": "BCDF",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "The Foundation Returns"
+      ]
+    },
+    {
+      "label": "BCDG",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Inferno Rising"
+      ]
+    },
+    {
+      "label": "BCDH",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Epoch"
+      ]
+    },
+    {
+      "label": "BCEF",
+      "sets": [
+        "B",
+        "C",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Ion Storm"
+      ]
+    },
+    {
+      "label": "BCEG",
+      "sets": [
+        "B",
+        "C",
+        "E",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Xylem"
+      ]
+    },
+    {
+      "label": "BCEH",
+      "sets": [
+        "B",
+        "C",
+        "E",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Ember"
+      ]
+    },
+    {
+      "label": "BCFG",
+      "sets": [
+        "B",
+        "C",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Entropy"
+      ]
+    },
+    {
+      "label": "BCFH",
+      "sets": [
+        "B",
+        "C",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Interstellar 2"
+      ]
+    },
+    {
+      "label": "BCGH",
+      "sets": [
+        "B",
+        "C",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Heatwave"
+      ]
+    },
+    {
+      "label": "BDEF",
+      "sets": [
+        "B",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Venom 4"
+      ]
+    },
+    {
+      "label": "BDEG",
+      "sets": [
+        "B",
+        "D",
+        "E",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Crystal Maze"
+      ]
+    },
+    {
+      "label": "BDEH",
+      "sets": [
+        "B",
+        "D",
+        "E",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Kaleidoscope 2"
+      ]
+    },
+    {
+      "label": "BDFG",
+      "sets": [
+        "B",
+        "D",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Mirage 2"
+      ]
+    },
+    {
+      "label": "BDFH",
+      "sets": [
+        "B",
+        "D",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Jade Throne"
+      ]
+    },
+    {
+      "label": "BDGH",
+      "sets": [
+        "B",
+        "D",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 26,
+      "exclusiveItems": [
+        "Yonder"
+      ]
+    },
+    {
+      "label": "BEFG",
+      "sets": [
+        "B",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Grid Lock"
+      ]
+    },
+    {
+      "label": "BEFH",
+      "sets": [
+        "B",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Falling Skies: Rebirth"
+      ]
+    },
+    {
+      "label": "BEGH",
+      "sets": [
+        "B",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Blitz"
+      ]
+    },
+    {
+      "label": "BFGH",
+      "sets": [
+        "B",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Junction"
+      ]
+    },
+    {
+      "label": "CDEF",
+      "sets": [
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Edge of Tomorrow 2"
+      ]
+    },
+    {
+      "label": "CDEG",
+      "sets": [
+        "C",
+        "D",
+        "E",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Zero Gravity"
+      ]
+    },
+    {
+      "label": "CDEH",
+      "sets": [
+        "C",
+        "D",
+        "E",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Dominion"
+      ]
+    },
+    {
+      "label": "CDFG",
+      "sets": [
+        "C",
+        "D",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "The Abyss: Series"
+      ]
+    },
+    {
+      "label": "CDFH",
+      "sets": [
+        "C",
+        "D",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Flash Point"
+      ]
+    },
+    {
+      "label": "CDGH",
+      "sets": [
+        "C",
+        "D",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Mindhunter: The Movie"
+      ]
+    },
+    {
+      "label": "CEFG",
+      "sets": [
+        "C",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Phantom Thread 2"
+      ]
+    },
+    {
+      "label": "CEFH",
+      "sets": [
+        "C",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Beacon"
+      ]
+    },
+    {
+      "label": "CEGH",
+      "sets": [
+        "C",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Domain"
+      ]
+    },
+    {
+      "label": "CFGH",
+      "sets": [
+        "C",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Eternal Winter"
+      ]
+    },
+    {
+      "label": "DEFG",
+      "sets": [
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Binary Stars"
+      ]
+    },
+    {
+      "label": "DEFH",
+      "sets": [
+        "D",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Tidal Force"
+      ]
+    },
+    {
+      "label": "DEGH",
+      "sets": [
+        "D",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Convergence"
+      ]
+    },
+    {
+      "label": "DFGH",
+      "sets": [
+        "D",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Eclipse of Reason"
+      ]
+    },
+    {
+      "label": "EFGH",
+      "sets": [
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 4,
+      "exclusiveCount": 1,
+      "inclusiveCount": 25,
+      "exclusiveItems": [
+        "Predator Files"
+      ]
+    },
+    {
+      "label": "ABCDE",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Velocity"
+      ]
+    },
+    {
+      "label": "ABCDF",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Vanguard"
+      ]
+    },
+    {
+      "label": "ABCDG",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Voltage"
+      ]
+    },
+    {
+      "label": "ABCDH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Horizon Zero"
+      ]
+    },
+    {
+      "label": "ABCEF",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Pacific Storm"
+      ]
+    },
+    {
+      "label": "ABCEG",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Spectrum"
+      ]
+    },
+    {
+      "label": "ABCEH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Neon Lights"
+      ]
+    },
+    {
+      "label": "ABCFG",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Resonance"
+      ]
+    },
+    {
+      "label": "ABCFH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Unity"
+      ]
+    },
+    {
+      "label": "ABCGH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Freefall"
+      ]
+    },
+    {
+      "label": "ABDEF",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Nebula"
+      ]
+    },
+    {
+      "label": "ABDEG",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Ice Road"
+      ]
+    },
+    {
+      "label": "ABDEH",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Red Zone"
+      ]
+    },
+    {
+      "label": "ABDFG",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Titanic (1997)"
+      ]
+    },
+    {
+      "label": "ABDFH",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Thunder Force 2"
+      ]
+    },
+    {
+      "label": "ABDGH",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 2,
+      "inclusiveCount": 18,
+      "exclusiveItems": [
+        "Terminator 2: Judgment Day",
+        "The Terminator"
+      ]
+    },
+    {
+      "label": "ABEFG",
+      "sets": [
+        "A",
+        "B",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Vertigo Returns"
+      ]
+    },
+    {
+      "label": "ABEFH",
+      "sets": [
+        "A",
+        "B",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Meridian"
+      ]
+    },
+    {
+      "label": "ABEGH",
+      "sets": [
+        "A",
+        "B",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Hurricane"
+      ]
+    },
+    {
+      "label": "ABFGH",
+      "sets": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Cold Case Files 2"
+      ]
+    },
+    {
+      "label": "ACDEF",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Shadow Protocol"
+      ]
+    },
+    {
+      "label": "ACDEG",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "The Abyss Returns"
+      ]
+    },
+    {
+      "label": "ACDEH",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Descent"
+      ]
+    },
+    {
+      "label": "ACDFG",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Mosaic"
+      ]
+    },
+    {
+      "label": "ACDFH",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Zenith 2"
+      ]
+    },
+    {
+      "label": "ACDGH",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Warp Speed"
+      ]
+    },
+    {
+      "label": "ACEFG",
+      "sets": [
+        "A",
+        "C",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Quantum Break"
+      ]
+    },
+    {
+      "label": "ACEFH",
+      "sets": [
+        "A",
+        "C",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Crossroads 2"
+      ]
+    },
+    {
+      "label": "ACEGH",
+      "sets": [
+        "A",
+        "C",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Solstice"
+      ]
+    },
+    {
+      "label": "ACFGH",
+      "sets": [
+        "A",
+        "C",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Silent Hill"
+      ]
+    },
+    {
+      "label": "ADEFG",
+      "sets": [
+        "A",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Zodiac Rising"
+      ]
+    },
+    {
+      "label": "ADEFH",
+      "sets": [
+        "A",
+        "D",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Xenon"
+      ]
+    },
+    {
+      "label": "ADEGH",
+      "sets": [
+        "A",
+        "D",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Yellow Brick Road"
+      ]
+    },
+    {
+      "label": "ADFGH",
+      "sets": [
+        "A",
+        "D",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Tremor"
+      ]
+    },
+    {
+      "label": "AEFGH",
+      "sets": [
+        "A",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Kryptonite"
+      ]
+    },
+    {
+      "label": "BCDEF",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Torrent"
+      ]
+    },
+    {
+      "label": "BCDEG",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Yellowstone: Generations"
+      ]
+    },
+    {
+      "label": "BCDEH",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Umbra"
+      ]
+    },
+    {
+      "label": "BCDFG",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Eclipse"
+      ]
+    },
+    {
+      "label": "BCDFH",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Jericho"
+      ]
+    },
+    {
+      "label": "BCDGH",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Yellowstone: Origins"
+      ]
+    },
+    {
+      "label": "BCEFG",
+      "sets": [
+        "B",
+        "C",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Yield"
+      ]
+    },
+    {
+      "label": "BCEFH",
+      "sets": [
+        "B",
+        "C",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Ghost Protocol"
+      ]
+    },
+    {
+      "label": "BCEGH",
+      "sets": [
+        "B",
+        "C",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Zodiac Files"
+      ]
+    },
+    {
+      "label": "BCFGH",
+      "sets": [
+        "B",
+        "C",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Phoenix Rising"
+      ]
+    },
+    {
+      "label": "BDEFG",
+      "sets": [
+        "B",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Lockdown"
+      ]
+    },
+    {
+      "label": "BDEFH",
+      "sets": [
+        "B",
+        "D",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Night Shift"
+      ]
+    },
+    {
+      "label": "BDEGH",
+      "sets": [
+        "B",
+        "D",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Deep State 2"
+      ]
+    },
+    {
+      "label": "BDFGH",
+      "sets": [
+        "B",
+        "D",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Ultraviolet"
+      ]
+    },
+    {
+      "label": "BEFGH",
+      "sets": [
+        "B",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Prism"
+      ]
+    },
+    {
+      "label": "CDEFG",
+      "sets": [
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Firestorm"
+      ]
+    },
+    {
+      "label": "CDEFH",
+      "sets": [
+        "C",
+        "D",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Ignition"
+      ]
+    },
+    {
+      "label": "CDEGH",
+      "sets": [
+        "C",
+        "D",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Crimson Peak 2"
+      ]
+    },
+    {
+      "label": "CDFGH",
+      "sets": [
+        "C",
+        "D",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Crossfire"
+      ]
+    },
+    {
+      "label": "CEFGH",
+      "sets": [
+        "C",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Uprising: Series"
+      ]
+    },
+    {
+      "label": "DEFGH",
+      "sets": [
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 5,
+      "exclusiveCount": 1,
+      "inclusiveCount": 17,
+      "exclusiveItems": [
+        "Parallax"
+      ]
+    },
+    {
+      "label": "ABCDEF",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Anomaly"
+      ]
+    },
+    {
+      "label": "ABCDEG",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "G"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Obsidian"
+      ]
+    },
+    {
+      "label": "ABCDEH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Genesis"
+      ]
+    },
+    {
+      "label": "ABCDFG",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "F",
+        "G"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Glacier"
+      ]
+    },
+    {
+      "label": "ABCDFH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "F",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Wildfire"
+      ]
+    },
+    {
+      "label": "ABCDGH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Yellow Jackets 2"
+      ]
+    },
+    {
+      "label": "ABCEFG",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Glacial"
+      ]
+    },
+    {
+      "label": "ABCEFH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Overdrive"
+      ]
+    },
+    {
+      "label": "ABCEGH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Inception 2"
+      ]
+    },
+    {
+      "label": "ABCFGH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Vigil"
+      ]
+    },
+    {
+      "label": "ABDEFG",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Aftermath"
+      ]
+    },
+    {
+      "label": "ABDEFH",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Zenith"
+      ]
+    },
+    {
+      "label": "ABDEGH",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Raven's Watch"
+      ]
+    },
+    {
+      "label": "ABDFGH",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Hollow Ground"
+      ]
+    },
+    {
+      "label": "ABEFGH",
+      "sets": [
+        "A",
+        "B",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Breaking Point 2"
+      ]
+    },
+    {
+      "label": "ACDEFG",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Jetstream"
+      ]
+    },
+    {
+      "label": "ACDEFH",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Red Mercury"
+      ]
+    },
+    {
+      "label": "ACDEGH",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Alpha Protocol"
+      ]
+    },
+    {
+      "label": "ACDFGH",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Nightcrawler 2"
+      ]
+    },
+    {
+      "label": "ACEFGH",
+      "sets": [
+        "A",
+        "C",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Black Mirror: Rebirth"
+      ]
+    },
+    {
+      "label": "ADEFGH",
+      "sets": [
+        "A",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Lunar Eclipse"
+      ]
+    },
+    {
+      "label": "BCDEFG",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Cold Mountain Rising"
+      ]
+    },
+    {
+      "label": "BCDEFH",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Uprising"
+      ]
+    },
+    {
+      "label": "BCDEGH",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Starfall"
+      ]
+    },
+    {
+      "label": "BCDFGH",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Firewall"
+      ]
+    },
+    {
+      "label": "BCEFGH",
+      "sets": [
+        "B",
+        "C",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Orbital"
+      ]
+    },
+    {
+      "label": "BDEFGH",
+      "sets": [
+        "B",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Vanguard: Series"
+      ]
+    },
+    {
+      "label": "CDEFGH",
+      "sets": [
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 6,
+      "exclusiveCount": 1,
+      "inclusiveCount": 13,
+      "exclusiveItems": [
+        "Thunder Road"
+      ]
+    },
+    {
+      "label": "ABCDEFG",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "depth": 7,
+      "exclusiveCount": 1,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "Nexus"
+      ]
+    },
+    {
+      "label": "ABCDEFH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "H"
+      ],
+      "depth": 7,
+      "exclusiveCount": 1,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "Ultra"
+      ]
+    },
+    {
+      "label": "ABCDEGH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "G",
+        "H"
+      ],
+      "depth": 7,
+      "exclusiveCount": 1,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "Vector"
+      ]
+    },
+    {
+      "label": "ABCDFGH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 7,
+      "exclusiveCount": 1,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "Jupiter Rising"
+      ]
+    },
+    {
+      "label": "ABCEFGH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 7,
+      "exclusiveCount": 1,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "The Last Kingdom: Rebirth"
+      ]
+    },
+    {
+      "label": "ABDEFGH",
+      "sets": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 7,
+      "exclusiveCount": 1,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "High Noon Returns"
+      ]
+    },
+    {
+      "label": "ACDEFGH",
+      "sets": [
+        "A",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 7,
+      "exclusiveCount": 1,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "Arctic Fury"
+      ]
+    },
+    {
+      "label": "BCDEFGH",
+      "sets": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 7,
+      "exclusiveCount": 1,
+      "inclusiveCount": 11,
+      "exclusiveItems": [
+        "Underground Railroad 2"
+      ]
+    },
+    {
+      "label": "ABCDEFGH",
+      "sets": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "depth": 8,
+      "exclusiveCount": 10,
+      "inclusiveCount": 10,
+      "exclusiveItems": [
+        "Nova Corps",
+        "Tempest",
+        "Frost Giant",
+        "Catalyst",
+        "Cascade",
+        "Nightfall",
+        "Blackout: Series",
+        "Deadlock Files",
+        "Diamond Dogs",
+        "Lithium"
+      ]
+    }
+  ],
+  "setSizes": {
+    "A": 260,
+    "B": 242,
+    "C": 227,
+    "D": 292,
+    "E": 180,
+    "F": 200,
+    "G": 230,
+    "H": 216
+  },
+  "statistics": [
+    {
+      "a": "C",
+      "b": "G",
+      "jaccard": 0.294618,
+      "dice": 0.455142,
+      "overlapCoeff": 0.45815,
+      "intersection": 104,
+      "union": 353,
+      "expected": 65.2625,
+      "foldEnrichment": 1.593564,
+      "pValue": 0,
+      "fdr": 0,
+      "bonferroni": 0,
+      "pTwoSided": 0,
+      "significant": "***"
+    },
+    {
+      "a": "E",
+      "b": "F",
+      "jaccard": 0.237785,
+      "dice": 0.384211,
+      "overlapCoeff": 0.405556,
+      "intersection": 73,
+      "union": 307,
+      "expected": 45,
+      "foldEnrichment": 1.622222,
+      "pValue": 0,
+      "fdr": 0.000001,
+      "bonferroni": 0.000003,
+      "pTwoSided": 0,
+      "significant": "***"
+    },
+    {
+      "a": "D",
+      "b": "H",
+      "jaccard": 0.266833,
+      "dice": 0.42126,
+      "overlapCoeff": 0.49537,
+      "intersection": 107,
+      "union": 401,
+      "expected": 78.84,
+      "foldEnrichment": 1.357179,
+      "pValue": 0.000003,
+      "fdr": 0.000028,
+      "bonferroni": 0.000083,
+      "pTwoSided": 0.000005,
+      "significant": "***"
+    },
+    {
+      "a": "E",
+      "b": "H",
+      "jaccard": 0.226006,
+      "dice": 0.368687,
+      "overlapCoeff": 0.405556,
+      "intersection": 73,
+      "union": 323,
+      "expected": 48.6,
+      "foldEnrichment": 1.502058,
+      "pValue": 0.000004,
+      "fdr": 0.000031,
+      "bonferroni": 0.000126,
+      "pTwoSided": 0.000006,
+      "significant": "***"
+    },
+    {
+      "a": "F",
+      "b": "H",
+      "jaccard": 0.227139,
+      "dice": 0.370192,
+      "overlapCoeff": 0.385,
+      "intersection": 77,
+      "union": 339,
+      "expected": 54,
+      "foldEnrichment": 1.425926,
+      "pValue": 0.000025,
+      "fdr": 0.000143,
+      "bonferroni": 0.000713,
+      "pTwoSided": 0.000047,
+      "significant": "***"
+    },
+    {
+      "a": "C",
+      "b": "E",
+      "jaccard": 0.218563,
+      "dice": 0.358722,
+      "overlapCoeff": 0.405556,
+      "intersection": 73,
+      "union": 334,
+      "expected": 51.075,
+      "foldEnrichment": 1.429271,
+      "pValue": 0.000041,
+      "fdr": 0.000192,
+      "bonferroni": 0.001153,
+      "pTwoSided": 0.000072,
+      "significant": "***"
+    },
+    {
+      "a": "E",
+      "b": "G",
+      "jaccard": 0.216617,
+      "dice": 0.356098,
+      "overlapCoeff": 0.405556,
+      "intersection": 73,
+      "union": 337,
+      "expected": 51.75,
+      "foldEnrichment": 1.410628,
+      "pValue": 0.000072,
+      "fdr": 0.000276,
+      "bonferroni": 0.002002,
+      "pTwoSided": 0.000116,
+      "significant": "***"
+    },
+    {
+      "a": "D",
+      "b": "F",
+      "jaccard": 0.242424,
+      "dice": 0.390244,
+      "overlapCoeff": 0.48,
+      "intersection": 96,
+      "union": 396,
+      "expected": 73,
+      "foldEnrichment": 1.315068,
+      "pValue": 0.000079,
+      "fdr": 0.000276,
+      "bonferroni": 0.002206,
+      "pTwoSided": 0.00013,
+      "significant": "***"
+    },
+    {
+      "a": "B",
+      "b": "D",
+      "jaccard": 0.262411,
+      "dice": 0.41573,
+      "overlapCoeff": 0.458678,
+      "intersection": 111,
+      "union": 423,
+      "expected": 88.33,
+      "foldEnrichment": 1.256651,
+      "pValue": 0.000215,
+      "fdr": 0.00067,
+      "bonferroni": 0.00603,
+      "pTwoSided": 0.000421,
+      "significant": "***"
+    },
+    {
+      "a": "B",
+      "b": "E",
+      "jaccard": 0.209169,
+      "dice": 0.345972,
+      "overlapCoeff": 0.405556,
+      "intersection": 73,
+      "union": 349,
+      "expected": 54.45,
+      "foldEnrichment": 1.34068,
+      "pValue": 0.000531,
+      "fdr": 0.001486,
+      "bonferroni": 0.014856,
+      "pTwoSided": 0.000875,
+      "significant": "**"
+    },
+    {
+      "a": "G",
+      "b": "H",
+      "jaccard": 0.221918,
+      "dice": 0.363229,
+      "overlapCoeff": 0.375,
+      "intersection": 81,
+      "union": 365,
+      "expected": 62.1,
+      "foldEnrichment": 1.304348,
+      "pValue": 0.000702,
+      "fdr": 0.001786,
+      "bonferroni": 0.019651,
+      "pTwoSided": 0.001116,
+      "significant": "**"
+    },
+    {
+      "a": "C",
+      "b": "F",
+      "jaccard": 0.213068,
+      "dice": 0.351288,
+      "overlapCoeff": 0.375,
+      "intersection": 75,
+      "union": 352,
+      "expected": 56.75,
+      "foldEnrichment": 1.321586,
+      "pValue": 0.000774,
+      "fdr": 0.001805,
+      "bonferroni": 0.021659,
+      "pTwoSided": 0.00147,
+      "significant": "**"
+    },
+    {
+      "a": "A",
+      "b": "G",
+      "jaccard": 0.237374,
+      "dice": 0.383673,
+      "overlapCoeff": 0.408696,
+      "intersection": 94,
+      "union": 396,
+      "expected": 74.75,
+      "foldEnrichment": 1.257525,
+      "pValue": 0.000973,
+      "fdr": 0.002071,
+      "bonferroni": 0.027245,
+      "pTwoSided": 0.001532,
+      "significant": "**"
+    },
+    {
+      "a": "A",
+      "b": "H",
+      "jaccard": 0.229974,
+      "dice": 0.37395,
+      "overlapCoeff": 0.412037,
+      "intersection": 89,
+      "union": 387,
+      "expected": 70.2,
+      "foldEnrichment": 1.267806,
+      "pValue": 0.001035,
+      "fdr": 0.002071,
+      "bonferroni": 0.028988,
+      "pTwoSided": 0.00165,
+      "significant": "**"
+    },
+    {
+      "a": "F",
+      "b": "G",
+      "jaccard": 0.211268,
+      "dice": 0.348837,
+      "overlapCoeff": 0.375,
+      "intersection": 75,
+      "union": 355,
+      "expected": 57.5,
+      "foldEnrichment": 1.304348,
+      "pValue": 0.001251,
+      "fdr": 0.002334,
+      "bonferroni": 0.035015,
+      "pTwoSided": 0.002113,
+      "significant": "**"
+    },
+    {
+      "a": "B",
+      "b": "H",
+      "jaccard": 0.218085,
+      "dice": 0.358079,
+      "overlapCoeff": 0.37963,
+      "intersection": 82,
+      "union": 376,
+      "expected": 65.34,
+      "foldEnrichment": 1.254974,
+      "pValue": 0.002785,
+      "fdr": 0.004874,
+      "bonferroni": 0.077979,
+      "pTwoSided": 0.004282,
+      "significant": "**"
+    },
+    {
+      "a": "A",
+      "b": "F",
+      "jaccard": 0.21372,
+      "dice": 0.352174,
+      "overlapCoeff": 0.405,
+      "intersection": 81,
+      "union": 379,
+      "expected": 65,
+      "foldEnrichment": 1.246154,
+      "pValue": 0.003728,
+      "fdr": 0.00614,
+      "bonferroni": 0.104387,
+      "pTwoSided": 0.006789,
+      "significant": "**"
+    },
+    {
+      "a": "A",
+      "b": "E",
+      "jaccard": 0.19891,
+      "dice": 0.331818,
+      "overlapCoeff": 0.405556,
+      "intersection": 73,
+      "union": 367,
+      "expected": 58.5,
+      "foldEnrichment": 1.247863,
+      "pValue": 0.006126,
+      "fdr": 0.00953,
+      "bonferroni": 0.171532,
+      "pTwoSided": 0.011228,
+      "significant": "**"
+    },
+    {
+      "a": "C",
+      "b": "H",
+      "jaccard": 0.200542,
+      "dice": 0.334086,
+      "overlapCoeff": 0.342593,
+      "intersection": 74,
+      "union": 369,
+      "expected": 61.29,
+      "foldEnrichment": 1.207375,
+      "pValue": 0.01624,
+      "fdr": 0.023932,
+      "bonferroni": 0.454711,
+      "pTwoSided": 0.027319,
+      "significant": "*"
+    },
+    {
+      "a": "B",
+      "b": "F",
+      "jaccard": 0.197832,
+      "dice": 0.330317,
+      "overlapCoeff": 0.365,
+      "intersection": 73,
+      "union": 369,
+      "expected": 60.5,
+      "foldEnrichment": 1.206612,
+      "pValue": 0.017207,
+      "fdr": 0.024089,
+      "bonferroni": 0.481789,
+      "pTwoSided": 0.032697,
+      "significant": "*"
+    },
+    {
+      "a": "A",
+      "b": "D",
+      "jaccard": 0.243243,
+      "dice": 0.391304,
+      "overlapCoeff": 0.415385,
+      "intersection": 108,
+      "union": 444,
+      "expected": 94.9,
+      "foldEnrichment": 1.13804,
+      "pValue": 0.024442,
+      "fdr": 0.032589,
+      "bonferroni": 0.684378,
+      "pTwoSided": 0.041825,
+      "significant": "*"
+    },
+    {
+      "a": "A",
+      "b": "B",
+      "jaccard": 0.218447,
+      "dice": 0.358566,
+      "overlapCoeff": 0.371901,
+      "intersection": 90,
+      "union": 412,
+      "expected": 78.65,
+      "foldEnrichment": 1.14431,
+      "pValue": 0.037881,
+      "fdr": 0.048213,
+      "bonferroni": 1,
+      "pTwoSided": 0.070579,
+      "significant": "*"
+    },
+    {
+      "a": "B",
+      "b": "G",
+      "jaccard": 0.19797,
+      "dice": 0.330508,
+      "overlapCoeff": 0.33913,
+      "intersection": 78,
+      "union": 394,
+      "expected": 69.575,
+      "foldEnrichment": 1.121092,
+      "pValue": 0.089433,
+      "fdr": 0.108875,
+      "bonferroni": 1,
+      "pTwoSided": 0.173545,
+      "significant": "ns"
+    },
+    {
+      "a": "D",
+      "b": "G",
+      "jaccard": 0.213953,
+      "dice": 0.35249,
+      "overlapCoeff": 0.4,
+      "intersection": 92,
+      "union": 430,
+      "expected": 83.95,
+      "foldEnrichment": 1.09589,
+      "pValue": 0.110537,
+      "fdr": 0.12896,
+      "bonferroni": 1,
+      "pTwoSided": 0.195234,
+      "significant": "ns"
+    },
+    {
+      "a": "D",
+      "b": "E",
+      "jaccard": 0.182957,
+      "dice": 0.309322,
+      "overlapCoeff": 0.405556,
+      "intersection": 73,
+      "union": 399,
+      "expected": 65.7,
+      "foldEnrichment": 1.111111,
+      "pValue": 0.116194,
+      "fdr": 0.130138,
+      "bonferroni": 1,
+      "pTwoSided": 0.218384,
+      "significant": "ns"
+    },
+    {
+      "a": "B",
+      "b": "C",
+      "jaccard": 0.184343,
+      "dice": 0.311301,
+      "overlapCoeff": 0.321586,
+      "intersection": 73,
+      "union": 396,
+      "expected": 68.6675,
+      "foldEnrichment": 1.063094,
+      "pValue": 0.255581,
+      "fdr": 0.275241,
+      "bonferroni": 1,
+      "pTwoSided": 0.494737,
+      "significant": "ns"
+    },
+    {
+      "a": "A",
+      "b": "C",
+      "jaccard": 0.190709,
+      "dice": 0.320329,
+      "overlapCoeff": 0.343612,
+      "intersection": 78,
+      "union": 409,
+      "expected": 73.775,
+      "foldEnrichment": 1.057269,
+      "pValue": 0.265588,
+      "fdr": 0.275425,
+      "bonferroni": 1,
+      "pTwoSided": 0.503311,
+      "significant": "ns"
+    },
+    {
+      "a": "C",
+      "b": "D",
+      "jaccard": 0.190367,
+      "dice": 0.319846,
+      "overlapCoeff": 0.365639,
+      "intersection": 83,
+      "union": 436,
+      "expected": 82.855,
+      "foldEnrichment": 1.00175,
+      "pValue": 0.52179,
+      "fdr": 0.52179,
+      "bonferroni": 1,
+      "pTwoSided": 1,
+      "significant": "ns"
+    }
+  ]
+}

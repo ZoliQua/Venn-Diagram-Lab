@@ -121,6 +121,7 @@ interface TestSidebarProps {
   onResetDefaults: () => void;
   onExportRegionSummary?: () => void;
   onExportMatrix?: () => void;
+  onExportJson?: () => void;
   onSaveSvg?: () => void;
   onExportImage?: (format: 'png' | 'jpg') => void;
   onExportPython?: () => void;
@@ -173,7 +174,7 @@ export function TestSidebar({
   plotBackground, onSetPlotBackground,
   proportionalAccuracy,
   onResetDefaults,
-  onExportRegionSummary, onExportMatrix,
+  onExportRegionSummary, onExportMatrix, onExportJson,
   onSaveSvg, onExportImage,
   onExportPython, onExportR, onExportNpm,
   plotEditState = null,
@@ -621,6 +622,11 @@ export function TestSidebar({
                   <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportMatrix}>
                     Item Matrix (TSV)
                   </button>
+                  {onExportJson && (
+                    <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportJson}>
+                      Full Result (JSON)
+                    </button>
+                  )}
                   <div className="data-summary-hint" style={{ marginTop: 8 }}>Reproducible analysis scripts</div>
                   <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportPython} disabled={!isCalculated}>
                     Export Python script

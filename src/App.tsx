@@ -32,7 +32,7 @@ import type { CsvData, FileType, Delimiter, CsvImportResult, VennResult, GeneSet
 import { truncateName } from './utils/truncateName.ts';
 import { detectGeneSetFormat } from './utils/csvParser.ts';
 import {
-  exportRegionSummaryTsv, exportMatrixTsv, downloadFile,
+  exportRegionSummaryTsv, exportMatrixTsv, exportResultJson, downloadFile,
   generatePythonScript, generateRScript, generateNpmScript,
   type ScriptExportParams,
 } from './utils/exportData.ts';
@@ -1778,6 +1778,12 @@ export default function App() {
               const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
               const tsv = exportMatrixTsv(testVennResult, testColumnMapping.length, setNames);
               downloadFile(tsv, `venn_${testColumnMapping.length}set_matrix.tsv`);
+            } : undefined}
+            onExportJson={testVennResult ? () => {
+              const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
+              const model = testModel ? testModel.replace(/\.svg$/, '') : `venn-${testColumnMapping.length}-set`;
+              const json = exportResultJson(testVennResult, testColumnMapping.length, setNames, testVennResult.totalUniqueItems, model);
+              downloadFile(json, `venn_${testColumnMapping.length}set_result.json`, 'application/json', false);
             } : undefined}
             upsetColorMode={upsetColorMode}
             onSetUpsetColorMode={setUpsetColorMode}

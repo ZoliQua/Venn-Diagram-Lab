@@ -11,6 +11,7 @@ import {
   detectDelimiter,
   exportMatrixTsv,
   exportRegionSummaryTsv,
+  exportResultJson,
   exportStatisticsTsv,
   generateProportionalModel,
   getBinaryColumns,
@@ -80,6 +81,22 @@ export function toStatisticsTsv(result: AnalyzeResult): string {
     result.columns.length,
     result.venn.totalUniqueItems,
     result.setNames,
+  );
+}
+
+/**
+ * Full Venn result + statistics as a canonical JSON string (schemaVersion "1").
+ * Byte-identical to the web tool's "Export → JSON" and the shared golden.
+ * `model` labels the diagram (defaults to `venn-<n>-set`).
+ */
+export function toResultJson(result: AnalyzeResult, model?: string): string {
+  const n = result.columns.length;
+  return exportResultJson(
+    result.venn,
+    n,
+    result.setNames,
+    result.venn.totalUniqueItems,
+    model ?? `venn-${n}-set`,
   );
 }
 

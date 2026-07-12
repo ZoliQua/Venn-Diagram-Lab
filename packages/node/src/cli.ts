@@ -6,7 +6,7 @@ import { Command } from 'commander';
 import { detectGeneSetFormat, type EdgeWeightMetric, type EnrichmentMetric } from '@venn-diagram-lab/core';
 import {
   analyzeGmtText, analyzeGmxText, analyzeCsvText,
-  toMatrixTsv, toRegionSummaryTsv, toStatisticsTsv,
+  toMatrixTsv, toRegionSummaryTsv, toResultJson, toStatisticsTsv,
   toNetworkSvg, toShareDistributionSvg, toEnrichmentBarSvg, toEnrichmentLollipopSvg, toUpsetSvg,
   toProportionalSvg, toVennSvg,
 } from './api.ts';
@@ -34,7 +34,9 @@ program
   .option('--region-summary <path>', 'write the Region Summary TSV to this path')
   .option('--matrix <path>', 'write the Item Matrix TSV to this path')
   .option('--statistics <path>', 'write the pairwise Statistics TSV to this path')
-  .action((input: string, opts: { regionSummary?: string; matrix?: string; statistics?: string }) => {
+  .option('--json <path>', 'write the full result + statistics JSON to this path')
+  .option('--model <id>', 'model id label for the JSON export (default: venn-<n>-set)')
+  .action((input: string, opts: { regionSummary?: string; matrix?: string; statistics?: string; json?: string; model?: string }) => {
     const text = readFileSync(input, 'utf8');
     const fmt = detectGeneSetFormat(input);
     const result =
@@ -45,6 +47,7 @@ program
     if (opts.regionSummary) { writeFileSync(opts.regionSummary, toRegionSummaryTsv(result), 'utf8'); wroteFile = true; }
     if (opts.matrix) { writeFileSync(opts.matrix, toMatrixTsv(result), 'utf8'); wroteFile = true; }
     if (opts.statistics) { writeFileSync(opts.statistics, toStatisticsTsv(result), 'utf8'); wroteFile = true; }
+    if (opts.json) { writeFileSync(opts.json, toResultJson(result, opts.model), 'utf8'); wroteFile = true; }
     if (!wroteFile) { process.stdout.write(toRegionSummaryTsv(result) + '\n'); }
   });
 
