@@ -21,6 +21,9 @@
 # Never emits scientific notation; never parses the string back to a numeric.
 .format_json_number <- function(v) {
     if (is.na(v)) return("null")
+    # Guard zero first: sprintf("%.0f", -0) yields "-0" in R, but JS String(-0)
+    # and Python str(int(-0.0)) both yield "0" -> normalise to keep byte-parity.
+    if (v == 0) return("0")
     if (v == round(v)) {
         # Integer-valued double -> plain integer string, no scientific notation.
         return(sprintf("%.0f", v))
@@ -174,7 +177,7 @@
     # Sort by depth ascending, then label ascending (ASCII).
     depths <- vapply(regions, `[[`, integer(1L), "depth")
     labels <- vapply(regions, `[[`, character(1L), "label")
-    regions <- regions[order(depths, labels)]
+    regions <- regions[order(depths, labels, method = "radix")]
     regions_json <- lapply(regions, `[[`, "obj")
 
     set_sizes_obj <- setNames(
