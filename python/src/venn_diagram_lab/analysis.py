@@ -611,6 +611,166 @@ class RegionResult:
 
         Path(path).write_text("\n".join(out_lines), encoding="utf-8", newline="")
 
+    def to_json_str(self) -> str:
+        """Return the full Venn result + statistics as a canonical JSON string.
+
+        Mirrors the webapp's ``exportResultJson`` (packages/core/src/jsonExport.ts)
+        byte-for-byte. Schema (key order PINNED):
+
+        ```
+        {
+          "schemaVersion": "1",
+          "model": "<model id>",
+          "setNames": { "A": "...", ... },
+          "universeSize": <int>,
+          "regions": [
+            { "label", "sets": [...], "depth": <int>,
+              "exclusiveCount": <int>, "inclusiveCount": <int>,
+              "exclusiveItems": [...] }, ...
+          ],
+          "setSizes": { "A": <int>, ... },
+          "statistics": [
+            { "a", "b", "jaccard", "dice", "overlapCoeff",
+              "intersection", "union", "expected", "foldEnrichment",
+              "pValue", "fdr", "bonferroni", "pTwoSided",
+              "significant": "***" | "**" | "*" | "ns" }, ...
+          ]
+        }
+        ```
+
+        - ``regions`` covers all ``2^n - 1`` non-empty subsets, sorted by depth
+          ascending then label ascending (ASCII); ``exclusiveItems`` preserves
+          the source item order.
+        - ``statistics`` is sorted by p-value ascending (as the Statistics TSV),
+          with ``significant`` rendered as the FDR star label.
+        - Every number is emitted through the shared ``format_json_number`` rule
+          for cross-language byte-parity.
+        """
+        from venn_diagram_lab._json_export import serialize  # noqa: PLC0415
+
+        n = len(self.dataset.set_names)
+        letters = "ABCDEFGHI"[:n]
+        order_index = {item: i for i, item in enumerate(self.dataset.item_order)}
+
+        set_names_obj = {letters[i]: self.dataset.set_names[i] for i in range(n)}
+
+        regions_json: list[dict[str, object]] = []
+        for mask in range(1, 1 << n):
+            set_letters = [letters[i] for i in range(n) if mask & (1 << i)]
+            label = "".join(set_letters)
+            region = self.regions.get(mask)
+            ex_count = region.exclusive_count if region else 0
+            in_count = region.inclusive_count if region else 0
+            if region is not None:
+                items = sorted(
+                    region.exclusive_items,
+                    key=lambda it: order_index.get(it, len(order_index)),
+                )
+            else:
+                items = []
+            regions_json.append({
+                "label": label,
+                "sets": set_letters,
+                "depth": len(set_letters),
+                "exclusiveCount": ex_count,
+                "inclusiveCount": in_count,
+                "exclusiveItems": items,
+            })
+        regions_json.sort(key=lambda r: (r["depth"], r["label"]))
+
+        set_sizes_obj = {letters[i]: self.set_sizes[self.dataset.set_names[i]] for i in range(n)}
+
+        statistics_json = self._statistics_json(letters)
+
+        obj = {
+            "schemaVersion": "1",
+            "model": self.model,
+            "setNames": set_names_obj,
+            "universeSize": self.effective_universe(),
+            "regions": regions_json,
+            "setSizes": set_sizes_obj,
+            "statistics": statistics_json,
+        }
+        return serialize(obj, "")
+
+    def _statistics_json(self, letters: str) -> list[dict[str, object]]:
+        """Build the ``statistics`` array for :meth:`to_json_str`.
+
+        Same per-pair computation and p-value-ascending ordering as
+        :meth:`to_statistics_tsv`, but emitted as JSON stat objects (6-decimal
+        floats via ``format_json_number``) with the pinned key order.
+        """
+        n = len(self.dataset.set_names)
+        if n < _MIN_SETS_FOR_STATISTICS:
+            return []
+
+        from venn_diagram_lab.statistics import (  # noqa: PLC0415
+            dice,
+            fold_enrichment,
+            jaccard,
+            overlap_coefficient,
+        )
+
+        _fdr_triple_star = 0.001
+        _fdr_double_star = 0.01
+        _fdr_single_star = 0.05
+
+        universe = self.effective_universe()
+        stats_table = self.statistics.hypergeometric  # already sorted by p_value asc
+
+        rows: list[tuple[float, dict[str, object]]] = []
+        for _, row in stats_table.iterrows():
+            a_name = str(row["set_a"])
+            b_name = str(row["set_b"])
+            a_letter = letters[self.dataset.set_names.index(a_name)]
+            b_letter = letters[self.dataset.set_names.index(b_name)]
+            size_a = self.set_sizes[a_name]
+            size_b = self.set_sizes[b_name]
+            inter = int(row["intersection"])
+            union_size = size_a + size_b - inter
+            fdr = float(row["p_adjusted"])
+            p_val = float(row["p_value"])
+
+            if fdr < _fdr_triple_star:
+                sig_label = "***"
+            elif fdr < _fdr_double_star:
+                sig_label = "**"
+            elif fdr < _fdr_single_star:
+                sig_label = "*"
+            else:
+                sig_label = "ns"
+
+            stat = {
+                "a": a_letter,
+                "b": b_letter,
+                "jaccard": jaccard(size_a, size_b, inter),
+                "dice": dice(size_a, size_b, inter),
+                "overlapCoeff": overlap_coefficient(size_a, size_b, inter),
+                "intersection": inter,
+                "union": union_size,
+                "expected": float(row["expected"]),
+                "foldEnrichment": fold_enrichment(universe, size_a, size_b, inter),
+                "pValue": p_val,
+                "fdr": fdr,
+                "bonferroni": float(row["p_bonferroni"]),
+                "pTwoSided": float(row["p_two_sided"]),
+                "significant": sig_label,
+            }
+            rows.append((p_val, stat))
+
+        rows.sort(key=lambda r: r[0])
+        return [stat for _, stat in rows]
+
+    def to_json(self, path: PathInput) -> None:
+        """Write the full Venn result + statistics JSON to disk.
+
+        See :meth:`to_json_str` for the schema. No trailing newline is added
+        (matches the webapp export and the committed goldens).
+        """
+        from pathlib import Path  # noqa: PLC0415
+
+        Path(path).write_text(self.to_json_str(), encoding="utf-8", newline="")
+
 
 # ---------------------------------------------------------------------------
 # Model resolution + public entry point

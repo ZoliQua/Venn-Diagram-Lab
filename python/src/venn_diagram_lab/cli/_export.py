@@ -35,21 +35,22 @@ def _emit(
     out: Path | None,
     writer_method: str,
     model: str,
+    ext: str = "tsv",
 ) -> None:
-    """Common write/stdout dispatch for the 4 export commands."""
+    """Common write/stdout dispatch for the export commands."""
     try:
         ds = load_input(resolved)
         result = analyze(ds, model=model)
     except (VennDiagramError, OSError) as e:
         exit_error(str(e))
-    target = resolve_out(out, resolved, kind, "tsv")
+    target = resolve_out(out, resolved, kind, ext)
     if target is STDOUT_SENTINEL:
-        # Route through the writer so TSV escape / sort-order / line-ending logic
-        # stays identical to a direct file write. `delete=False` + manual cleanup
-        # is required on Windows because the default `delete=True` holds an
-        # exclusive handle and the writer can't re-open the path (PermissionError
-        # 13). POSIX is unaffected — the cleanup happens in the finally branch.
-        tf = NamedTemporaryFile("w", suffix=".tsv", delete=False, encoding="utf-8")
+        # Route through the writer so TSV/JSON escape / sort-order / line-ending
+        # logic stays identical to a direct file write. `delete=False` + manual
+        # cleanup is required on Windows because the default `delete=True` holds
+        # an exclusive handle and the writer can't re-open the path
+        # (PermissionError 13). POSIX is unaffected — cleanup in the finally.
+        tf = NamedTemporaryFile("w", suffix=f".{ext}", delete=False, encoding="utf-8")
         tmp_path = Path(tf.name)
         tf.close()
         try:
@@ -174,6 +175,44 @@ def cmd_statistics(
     """
     resolved = resolve_sample_or_input(input, sample)
     _emit(resolved, "statistics", out, "to_statistics_tsv", model)
+
+
+@app.command(
+    "json",
+    epilog=examples_epilog(
+        "  vdl export json --sample                                               # demo run",
+        "  vdl export json dataset_real_cancer_drivers_4 --out /tmp/r.json",
+        "  vdl export json data/my.tsv --out -                                    # stdout",
+    ),
+)
+def cmd_json(
+    input: Annotated[
+        str | None,
+        typer.Argument(
+            help="Dataset path or bundled sample name. Optional when --sample is given.",
+        ),
+    ] = None,
+    *,
+    sample: Annotated[
+        bool,
+        typer.Option(
+            "--sample",
+            help="Run with the bundled cancer-drivers sample (overrides INPUT default).",
+        ),
+    ] = False,
+    out: Annotated[Path | None, typer.Option("--out", "-o")] = None,
+    model: Annotated[str, typer.Option()] = "auto",
+) -> None:
+    """Write the full Venn result + statistics as a single JSON document.
+
+    Bundles the model id, set names, universe size, every non-empty region
+    (with exclusive/inclusive counts and exclusive items), single-set sizes,
+    and the pairwise statistics array (Jaccard / Dice / OC / FE / p-value /
+    FDR / Bonferroni / two-sided). Matches the webtool's "Full Result (JSON)"
+    export byte-for-byte.
+    """
+    resolved = resolve_sample_or_input(input, sample)
+    _emit(resolved, "result", out, "to_json", model, ext="json")
 
 
 @app.command(
