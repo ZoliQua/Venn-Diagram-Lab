@@ -24,7 +24,7 @@ from venn_diagram_lab.errors import VennDiagramError
 app = typer.Typer(
     no_args_is_help=True,
     rich_markup_mode="rich",
-    help="Export TSV tables (region summary, matrix, statistics, pairwise).",
+    help="Export TSV tables (region summary, matrix, statistics, pairwise, one-vs-rest).",
     cls=AlphabeticalGroup,
 )
 
@@ -175,6 +175,45 @@ def cmd_statistics(
     """
     resolved = resolve_sample_or_input(input, sample)
     _emit(resolved, "statistics", out, "to_statistics_tsv", model)
+
+
+@app.command(
+    "one-vs-rest",
+    epilog=examples_epilog(
+        "  vdl export one-vs-rest --sample                                        # demo run",
+        "  vdl export one-vs-rest dataset_real_cancer_drivers_4 --out /tmp/ovr.tsv",
+        "  vdl export one-vs-rest data/my.tsv --out -                             # stdout",
+    ),
+)
+def cmd_one_vs_rest(
+    input: Annotated[
+        str | None,
+        typer.Argument(
+            help="Dataset path or bundled sample name. Optional when --sample is given.",
+        ),
+    ] = None,
+    *,
+    sample: Annotated[
+        bool,
+        typer.Option(
+            "--sample",
+            help="Run with the bundled cancer-drivers sample (overrides INPUT default).",
+        ),
+    ] = False,
+    out: Annotated[Path | None, typer.Option("--out", "-o")] = None,
+    model: Annotated[str, typer.Option()] = "auto",
+) -> None:
+    """Write the one-vs-rest enrichment TSV (each set vs. the union of the rest).
+
+    For each input set S, tests whether S's members overlap the union of all
+    OTHER sets more than expected by chance, via the same hypergeometric
+    machinery as `statistics`. Reports size, rest-size, intersection, expected
+    count, fold-enrichment, a one-sided p-value, and the Benjamini-Hochberg
+    adjusted FDR (m = number of sets). Matches the webtool's
+    "Enrichment: one-vs-rest" export.
+    """
+    resolved = resolve_sample_or_input(input, sample)
+    _emit(resolved, "one-vs-rest", out, "to_one_vs_rest_tsv", model)
 
 
 @app.command(

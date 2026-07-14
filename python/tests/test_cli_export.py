@@ -24,6 +24,7 @@ SAMPLE = "dataset_real_cancer_drivers_4"
     # mismatch; we assert on the actual column name produced by the writer.
     ("statistics",     "Set_A"),
     ("pairwise",       "Set_A"),
+    ("one-vs-rest",    "Rest_Size"),
 ])
 def test_export_kind_writes_tsv(tmp_path: Path, kind: str, header_token: str) -> None:
     target = tmp_path / f"{kind}.tsv"
@@ -78,6 +79,7 @@ def test_export_parity_with_api(tmp_path: Path) -> None:
         # `pairwise` shares the statistics writer, so the default filename
         # also uses the "statistics" stem. This is intentional — see _emit().
         ("pairwise", "statistics"),
+        ("one-vs-rest", "one-vs-rest"),
     ],
 )
 def test_export_kind_with_sample_flag(
@@ -88,6 +90,17 @@ def test_export_kind_with_sample_flag(
     res = runner.invoke(app, ["export", kind, "--sample"])
     assert res.exit_code == 0, res.output
     assert (tmp_path / f"{SAMPLE}__{default_stem}.tsv").exists()
+
+
+def test_export_one_vs_rest_parity_with_api(tmp_path: Path) -> None:
+    """CLI byte-equivalent to direct Python API call for the one-vs-rest writer."""
+    api_target = tmp_path / "api.tsv"
+    cli_target = tmp_path / "cli.tsv"
+    result = analyze(load_sample(SAMPLE))
+    result.to_one_vs_rest_tsv(api_target)
+    res = runner.invoke(app, ["export", "one-vs-rest", SAMPLE, "--out", str(cli_target)])
+    assert res.exit_code == 0
+    assert api_target.read_bytes() == cli_target.read_bytes()
 
 
 def test_export_statistics_no_input_no_sample_exits_1() -> None:

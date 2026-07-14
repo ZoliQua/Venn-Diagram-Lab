@@ -17,6 +17,7 @@ from venn_diagram_lab.statistics import (
     jaccard,
     jaccard_ci,
     log_choose,
+    one_vs_rest_enrichment,
     overlap_coefficient,
     two_sided_fisher,
     wilson_interval,
@@ -261,6 +262,85 @@ class TestComputePairwise:
         assert row["dice_ci_low"] == pytest.approx(0.2248750003155222)
         assert row["dice_ci_high"] == pytest.approx(0.6607421186445084)
         assert 0.0 <= row["p_two_sided"] <= 1.0
+
+
+class TestOneVsRestEnrichment:
+    """Mirror the TS oneVsRestEnrichment behaviour (see task-F6-ts-report.md).
+
+    Critical property under test: ``rest_size`` is derived from ``union_size``
+    (U, sum of exclusive counts over every non-empty region), NOT from
+    ``universe_size`` (N). Using N there was the original bug — it forced the
+    observed ``k`` to the hypergeometric support minimum, degenerating every
+    p-value to 1.0.
+    """
+
+    def _hand_case(self) -> dict[str, object]:
+        # 3-set case with region exclusive counts:
+        #   only-A=10, only-B=15, only-C=15, AB=3, AC=2, BC=3, ABC=2 -> U=50
+        # inclusive sizes: K_A = 10+3+2+2=17, K_B = 15+3+3+2=23, K_C = 15+2+3+2=22
+        # universe_size (N) = 1000, 20x larger than U -- proves rest_size must
+        # use U, not N (if it used N, k would sit at the support minimum and
+        # every p-value would degenerate to 1.0).
+        return dict(
+            set_names=["A", "B", "C"],
+            inclusive_sizes={"A": 17, "B": 23, "C": 22},
+            exclusive_only_sizes={"A": 10, "B": 15, "C": 15},
+            union_size=50,
+            universe_size=1000,
+        )
+
+    def test_rest_size_uses_union_not_universe(self) -> None:
+        df = one_vs_rest_enrichment(**self._hand_case())
+        row_a = df[df["name"] == "A"].iloc[0]
+        # rest_size = union_size(50) - excl_A(10) = 40, NOT universe_size(1000) - excl_A.
+        assert row_a["rest_size"] == 40  # noqa: PLR2004
+        assert row_a["intersection"] == 7  # k = K_A(17) - excl_A(10)  # noqa: PLR2004
+        assert row_a["expected"] == pytest.approx(17 * 40 / 1000)
+
+    def test_enriched_set_gets_meaningful_non_one_p_value(self) -> None:
+        """K=17 successes drawn as k=7 out of n=40 from N=1000 is a strong,
+        genuinely-informative over-representation (expected ~0.68) -- not the
+        degenerate p=1.0 the union-vs-universe bug produced for every set."""
+        df = one_vs_rest_enrichment(**self._hand_case())
+        row_a = df[df["name"] == "A"].iloc[0]
+        assert 0.0 < row_a["p_value"] < 0.001  # noqa: PLR2004
+
+    def test_universe_equals_union_gives_honest_p_near_one(self) -> None:
+        """Aggregated mode: universe_size == union_size (no background to
+        enrich against). k falls to the hypergeometric support minimum for
+        every set, so p == 1.0 exactly for all -- an honest result (per
+        task-F6-ts-report.md), not a bug."""
+        df = one_vs_rest_enrichment(
+            set_names=["A", "B"],
+            inclusive_sizes={"A": 10, "B": 10},
+            exclusive_only_sizes={"A": 5, "B": 5},
+            union_size=15,  # only-A(5) + only-B(5) + AB(5) = 15
+            universe_size=15,
+        )
+        for p in df["p_value"]:
+            assert p == pytest.approx(1.0)
+
+    def test_sorted_by_p_value_ascending(self) -> None:
+        df = one_vs_rest_enrichment(**self._hand_case())
+        p_values = list(df["p_value"])
+        assert p_values == sorted(p_values)
+
+    def test_bonferroni_min_one_times_m(self) -> None:
+        """Bonferroni = min(1, p * m), m = number of sets tested (n = 3)."""
+        df = one_vs_rest_enrichment(**self._hand_case())
+        for _, row in df.iterrows():
+            expected = min(1.0, float(row["p_value"]) * 3)
+            assert row["p_bonferroni"] == pytest.approx(expected)
+            assert row["p_bonferroni"] <= 1.0
+
+    def test_columns_present(self) -> None:
+        df = one_vs_rest_enrichment(**self._hand_case())
+        assert list(df.columns) == [
+            "name", "size", "rest_size", "intersection", "expected",
+            "fold_enrichment", "p_value", "p_adjusted", "p_bonferroni",
+            "significant",
+        ]
+        assert len(df) == 3  # noqa: PLR2004
 
 
 class TestLogChoose:

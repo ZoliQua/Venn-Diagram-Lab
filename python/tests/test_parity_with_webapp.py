@@ -52,12 +52,13 @@ PAIRS: list[tuple[str, str]] = [
     ("dataset_mock_streaming_platforms",    "venn-8-set"),
 ]
 
-KINDS = ("region_summary", "matrix", "statistics")
+KINDS = ("region_summary", "matrix", "statistics", "one_vs_rest")
 
 WRITER_BY_KIND = {
     "region_summary": "to_region_summary_tsv",
     "matrix":         "to_matrix_tsv",
     "statistics":     "to_statistics_tsv",
+    "one_vs_rest":    "to_one_vs_rest_tsv",
 }
 
 # Samples whose webapp output cannot be reproduced byte-for-byte under the

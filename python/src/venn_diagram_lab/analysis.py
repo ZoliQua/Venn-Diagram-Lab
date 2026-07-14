@@ -231,6 +231,7 @@ class RegionResult:
         to_region_summary_tsv(path): Write the webapp's Region Summary TSV.
         to_matrix_tsv(path): Write the webapp's Item Matrix TSV.
         to_statistics_tsv(path): Write the webapp's pairwise Statistics TSV.
+        to_one_vs_rest_tsv(path): Write the webapp's one-vs-rest Enrichment TSV.
 
     Example:
         >>> from venn_diagram_lab import load_sample, analyze
@@ -571,6 +572,108 @@ class RegionResult:
         rows.sort(key=lambda r: r[0])
         Path(path).write_text(
             "\n".join([_stats_header, *(r[1] for r in rows)]),
+            encoding="utf-8",
+            newline="",
+        )
+
+    def to_one_vs_rest_tsv(self, path: PathInput) -> None:
+        """Write the one-vs-rest Enrichment TSV (matches the webapp's Export one-vs-rest).
+
+        Columns: Set, Name, Size, Rest_Size, Intersection, Expected,
+        Fold_Enrichment, P_value, FDR, Bonferroni, Significant.
+
+        Each set S is tested against the union of all OTHER sets. ``Rest_Size``
+        is derived from ``U`` (the union of ALL sets = sum of exclusive counts
+        over every non-empty region), NOT from :meth:`effective_universe`
+        (``N``) — see :func:`venn_diagram_lab.statistics.one_vs_rest_enrichment`
+        for the full derivation. Float formatting mirrors
+        :meth:`to_statistics_tsv` byte-for-byte:
+
+        * Expected: 2 decimals
+        * Fold_Enrichment: 3 decimals
+        * P_value / FDR / Bonferroni: scientific (JS style) if < 0.001,
+          else 6 decimals
+        * Significant: one of "***", "**", "*", "ns"
+
+        Rows are sorted by P_value ascending.
+        """
+        from pathlib import Path  # noqa: PLC0415
+
+        from venn_diagram_lab._tsv_escape import (  # noqa: PLC0415
+            js_to_exponential_2,
+            js_to_fixed,
+        )
+        from venn_diagram_lab.statistics import one_vs_rest_enrichment  # noqa: PLC0415
+
+        _one_vs_rest_header = "\t".join([
+            "Set", "Name", "Size", "Rest_Size", "Intersection", "Expected",
+            "Fold_Enrichment", "P_value", "FDR", "Bonferroni", "Significant",
+        ])
+        _p_scientific_threshold = 0.001
+        _fdr_triple_star = 0.001
+        _fdr_double_star = 0.01
+        _fdr_single_star = 0.05
+
+        n = len(self.dataset.set_names)
+        if n < _MIN_SETS_FOR_STATISTICS:
+            Path(path).write_text(_one_vs_rest_header, encoding="utf-8", newline="")
+            return
+
+        letters = "ABCDEFGHI"[:n]
+
+        # U = union of ALL sets = sum of exclusive counts across every region.
+        union_size = sum(r.exclusive_count for r in self.regions.values())
+        universe = self.effective_universe()
+
+        exclusive_only_by_name = {
+            name: (self.regions[1 << i].exclusive_count if (1 << i) in self.regions else 0)
+            for i, name in enumerate(self.dataset.set_names)
+        }
+
+        table = one_vs_rest_enrichment(
+            set_names=list(self.dataset.set_names),
+            inclusive_sizes=self.set_sizes,
+            exclusive_only_sizes=exclusive_only_by_name,
+            union_size=union_size,
+            universe_size=universe,
+        )
+
+        def fmt_p(x: float) -> str:
+            return js_to_exponential_2(x) if x < _p_scientific_threshold else js_to_fixed(x, 6)
+
+        rows: list[tuple[float, str]] = []  # sort key + line
+        for _, row in table.iterrows():
+            name = str(row["name"])
+            letter = letters[self.dataset.set_names.index(name)]
+            size = int(row["size"])
+            rest_size = int(row["rest_size"])
+            inter = int(row["intersection"])
+            expected = float(row["expected"])
+            fe = float(row["fold_enrichment"])
+            p_val = float(row["p_value"])
+            fdr = float(row["p_adjusted"])
+            bonferroni = float(row["p_bonferroni"])
+
+            if fdr < _fdr_triple_star:
+                sig_label = "***"
+            elif fdr < _fdr_double_star:
+                sig_label = "**"
+            elif fdr < _fdr_single_star:
+                sig_label = "*"
+            else:
+                sig_label = "ns"
+
+            line = "\t".join([
+                letter, name, str(size), str(rest_size), str(inter),
+                js_to_fixed(expected, 2), js_to_fixed(fe, 3),
+                fmt_p(p_val), fmt_p(fdr), fmt_p(bonferroni),
+                sig_label,
+            ])
+            rows.append((p_val, line))
+
+        rows.sort(key=lambda r: r[0])
+        Path(path).write_text(
+            "\n".join([_one_vs_rest_header, *(r[1] for r in rows)]),
             encoding="utf-8",
             newline="",
         )

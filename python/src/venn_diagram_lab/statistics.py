@@ -335,3 +335,110 @@ def compute_pairwise(
         fold_enrichment=_square_metric(set_names, pair_fe, diagonal_value=float("nan")),
         hypergeometric=hyp_df,
     )
+
+
+def one_vs_rest_enrichment(
+    set_names: list[str],
+    inclusive_sizes: Mapping[str, int],
+    exclusive_only_sizes: Mapping[str, int],
+    union_size: int,
+    universe_size: int,
+) -> pd.DataFrame:
+    """One-vs-rest enrichment: each set S tested against the union of all OTHER sets.
+
+    Ported byte-for-byte from the web tool's ``oneVsRestEnrichment``
+    (packages/core/src/statistics.ts). For each set S, "rest" is the union of
+    the inclusive members of all *other* sets, derived purely from region
+    counts (no item-level data needed beyond what's already summarized):
+
+        U (``union_size``)  = union of ALL sets = sum of the exclusive counts
+                               over every one of the ``2^n - 1`` region labels
+                               (items in >= 1 set). Binary mode: U <= the
+                               dataset's row-count universe (rows may belong
+                               to no set). Aggregated mode: U == universe.
+        K                    = ``inclusive_sizes[name]`` (inclusive size of S)
+        excl_S               = ``exclusive_only_sizes[name]`` (items only in S)
+        rest_size            = U - excl_S (items in >= 1 non-S set)
+        k                    = K - excl_S (S items also in >= 1 other set)
+        N (``universe_size``) = sampling universe for the hypergeometric test
+
+    **Critical:** ``rest_size`` is derived from ``union_size`` (U), NOT from
+    ``universe_size`` (N). This is what makes the test meaningful: in binary
+    mode N > U, so the observed ``k`` sits above the hypergeometric support
+    minimum and the p-value is informative. When N == U (aggregated mode,
+    universe equals union) the p-value is ~1 — mathematically honest ("no
+    background to enrich against"), not a bug. See
+    ``.superpowers/sdd/task-F6-ts-report.md`` for the full derivation.
+
+    Uses the same hypergeometric machinery as :func:`compute_pairwise`.
+    Benjamini-Hochberg FDR is computed over the ``n`` one-vs-rest tests (one
+    per set); Bonferroni = ``min(1, p * n)``. Returned rows are sorted by
+    p-value ascending (stable merge sort), matching the pairwise convention.
+
+    Parameters
+    ----------
+    set_names : ordered list of set identifiers.
+    inclusive_sizes : map set name -> |set| (inclusive size, K).
+    exclusive_only_sizes : map set name -> items present in exactly that set
+        alone (the single-set region's exclusive count, excl_S).
+    union_size : U, the union of all sets (sum of exclusive counts over every
+        non-empty region, including multi-set regions).
+    universe_size : N, the hypergeometric sampling universe (same value
+        ``compute_pairwise`` receives as ``universe_size``).
+
+    Returns
+    -------
+    DataFrame with columns ``name, size, rest_size, intersection, expected,
+    fold_enrichment, p_value, p_adjusted, p_bonferroni, significant``, sorted
+    by ``p_value`` ascending.
+    """
+    rows: list[dict[str, object]] = []
+    raw_p_values: list[float] = []
+
+    for name in set_names:
+        k_size = inclusive_sizes[name]
+        excl_s = exclusive_only_sizes.get(name, 0)
+        rest_size = union_size - excl_s
+        k = k_size - excl_s
+
+        expected = (k_size * rest_size) / universe_size if universe_size > 0 else 0.0
+        fe = fold_enrichment(universe_size, k_size, rest_size, k)
+        p_val = hypergeometric_p_value(universe_size, k_size, rest_size, k)
+        raw_p_values.append(p_val)
+
+        rows.append({
+            "name": name,
+            "size": k_size,
+            "rest_size": rest_size,
+            "intersection": k,
+            "expected": expected,
+            "fold_enrichment": fe,
+            "p_value": p_val,
+        })
+
+    # BH-FDR + Bonferroni FWER control (m = number of sets tested).
+    m = len(rows)
+    adjusted = bh_fdr(raw_p_values)
+    for row, adj, raw_p in zip(rows, adjusted, raw_p_values, strict=True):
+        row["p_adjusted"] = adj
+        row["p_bonferroni"] = min(1.0, raw_p * m)
+        row["significant"] = bool(adj < _THRESHOLD_SIGNIFICANT)
+
+    dtypes = {
+        "name": "string",
+        "size": "int64",
+        "rest_size": "int64",
+        "intersection": "int64",
+        "expected": "float64",
+        "fold_enrichment": "float64",
+        "p_value": "float64",
+        "p_adjusted": "float64",
+        "p_bonferroni": "float64",
+        "significant": "bool",
+    }
+    if rows:
+        df = pd.DataFrame(rows).astype(dtypes)
+    else:
+        df = pd.DataFrame({col: pd.Series(dtype=dt) for col, dt in dtypes.items()})
+
+    return df.sort_values("p_value", kind="mergesort", ignore_index=True)
