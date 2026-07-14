@@ -10,6 +10,7 @@ import {
   calculateVennCountsFromAggregated,
   detectDelimiter,
   exportMatrixTsv,
+  exportOneVsRestTsv,
   exportRegionSummaryTsv,
   exportResultJson,
   exportStatisticsTsv,
@@ -77,6 +78,16 @@ export function toMatrixTsv(result: AnalyzeResult): string {
 /** Pairwise Statistics TSV — byte-identical to the web tool's "Export -> Statistics". */
 export function toStatisticsTsv(result: AnalyzeResult): string {
   return exportStatisticsTsv(
+    result.venn,
+    result.columns.length,
+    result.venn.totalUniqueItems,
+    result.setNames,
+  );
+}
+
+/** One-vs-rest Enrichment TSV — byte-identical to the web tool's "Export → One-vs-rest". */
+export function toOneVsRestTsv(result: AnalyzeResult): string {
+  return exportOneVsRestTsv(
     result.venn,
     result.columns.length,
     result.venn.totalUniqueItems,

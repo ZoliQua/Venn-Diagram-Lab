@@ -121,6 +121,7 @@ interface TestSidebarProps {
   onResetDefaults: () => void;
   onExportRegionSummary?: () => void;
   onExportMatrix?: () => void;
+  onExportOneVsRest?: () => void;
   onExportJson?: () => void;
   onSaveSvg?: () => void;
   onExportImage?: (format: 'png' | 'jpg') => void;
@@ -174,7 +175,7 @@ export function TestSidebar({
   plotBackground, onSetPlotBackground,
   proportionalAccuracy,
   onResetDefaults,
-  onExportRegionSummary, onExportMatrix, onExportJson,
+  onExportRegionSummary, onExportMatrix, onExportOneVsRest, onExportJson,
   onSaveSvg, onExportImage,
   onExportPython, onExportR, onExportNpm,
   plotEditState = null,
@@ -622,6 +623,11 @@ export function TestSidebar({
                   <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportMatrix}>
                     Item Matrix (TSV)
                   </button>
+                  {onExportOneVsRest && (
+                    <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportOneVsRest}>
+                      Enrichment: one-vs-rest (TSV)
+                    </button>
+                  )}
                   {onExportJson && (
                     <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportJson}>
                       Full Result (JSON)

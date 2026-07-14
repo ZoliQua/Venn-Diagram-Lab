@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { analyzeCsvText, toMatrixTsv, toRegionSummaryTsv, toStatisticsTsv } from '../src/api.ts';
+import { analyzeCsvText, toMatrixTsv, toOneVsRestTsv, toRegionSummaryTsv, toStatisticsTsv } from '../src/api.ts';
 import { loadSampleText } from '../src/samples.ts';
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures');
@@ -20,11 +20,12 @@ const EXPORTERS = {
   region_summary: toRegionSummaryTsv,
   matrix: toMatrixTsv,
   statistics: toStatisticsTsv,
+  one_vs_rest: toOneVsRestTsv,
 } as const;
 
 describe('byte-parity trio vs shared goldens', () => {
   for (const { sample, model } of CASES) {
-    for (const kind of ['region_summary', 'matrix', 'statistics'] as const) {
+    for (const kind of ['region_summary', 'matrix', 'statistics', 'one_vs_rest'] as const) {
       it(`${sample} ${kind} matches golden`, () => {
         const result = analyzeCsvText(loadSampleText(sample));
         const produced = EXPORTERS[kind](result).replace(/\n$/, '');

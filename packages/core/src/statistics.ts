@@ -256,3 +256,83 @@ export function pairwiseStatistics(
 
   return stats;
 }
+
+export interface OneVsRestStat {
+  set: string;
+  name: string;
+  size: number;
+  restSize: number;
+  intersection: number;
+  expected: number;
+  foldEnrichment: number;
+  pValue: number;
+  fdr: number;
+  bonferroni: number;
+  significant: boolean;
+}
+
+/**
+ * One-vs-rest enrichment for each set S against the union of all OTHER sets.
+ *
+ * For each set S (letter), "rest" = the union of the INCLUSIVE members of all
+ * other sets. Derived purely from the VennResult counts (no item-level data):
+ *   K        = |S|              = inclusive(letter)      (inclusive size of S)
+ *   excl_S   = exclusive(letter)                          (items only in S)
+ *   restSize = totalUniqueItems - excl_S                  (items in >=1 non-S set)
+ *   k        = K - excl_S                                 (S items also in >=1 other set)
+ *   N        = totalItems (universe)
+ *
+ * Uses the same hypergeometric machinery as pairwiseStatistics. FDR is computed
+ * over the n one-vs-rest tests (BH); Bonferroni = min(1, p * n). Sorted by
+ * p-value ascending (stable), matching the pairwise convention.
+ */
+export function oneVsRestEnrichment(
+  vennResult: VennResult,
+  n: number,
+  totalItems: number,
+  setNames: string[],
+): OneVsRestStat[] {
+  const letters = 'ABCDEFGHI'.slice(0, n).split('');
+  const N = totalItems;
+  const stats: OneVsRestStat[] = [];
+
+  for (let i = 0; i < n; i++) {
+    const letter = letters[i];
+    const K = vennResult.inclusive.get(letter) ?? 0;
+    const exclS = vennResult.exclusive.get(letter) ?? 0;
+    const restSize = vennResult.totalUniqueItems - exclS;
+    const k = K - exclS;
+
+    const exp = N > 0 ? (K * restSize) / N : 0;
+    const fe = foldEnrichment(N, K, restSize, k);
+    const pVal = hypergeometricPValue(N, K, restSize, k);
+
+    stats.push({
+      set: letter,
+      name: setNames[i] ?? letter,
+      size: K,
+      restSize,
+      intersection: k,
+      expected: exp,
+      foldEnrichment: fe,
+      pValue: pVal,
+      fdr: 0, // filled after BH correction
+      bonferroni: 0, // filled after m is known
+      significant: false,
+    });
+  }
+
+  // BH FDR + Bonferroni over the n one-vs-rest tests (m = number of sets tested).
+  const m = stats.length;
+  const adjP = adjustPValues(stats.map(s => s.pValue));
+  for (let i = 0; i < stats.length; i++) {
+    stats[i].fdr = adjP[i];
+    stats[i].bonferroni = Math.min(1, stats[i].pValue * m);
+    stats[i].significant = adjP[i] < 0.05;
+  }
+
+  // Sort by p-value ascending (stable)
+  stats.sort((a, b) => a.pValue - b.pValue);
+
+  return stats;
+}

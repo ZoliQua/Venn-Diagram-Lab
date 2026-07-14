@@ -32,7 +32,7 @@ import type { CsvData, FileType, Delimiter, CsvImportResult, VennResult, GeneSet
 import { truncateName } from './utils/truncateName.ts';
 import { detectGeneSetFormat } from './utils/csvParser.ts';
 import {
-  exportRegionSummaryTsv, exportMatrixTsv, exportResultJson, downloadFile,
+  exportRegionSummaryTsv, exportMatrixTsv, exportOneVsRestTsv, exportResultJson, downloadFile,
   generatePythonScript, generateRScript, generateNpmScript,
   type ScriptExportParams,
 } from './utils/exportData.ts';
@@ -1778,6 +1778,11 @@ export default function App() {
               const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
               const tsv = exportMatrixTsv(testVennResult, testColumnMapping.length, setNames);
               downloadFile(tsv, `venn_${testColumnMapping.length}set_matrix.tsv`);
+            } : undefined}
+            onExportOneVsRest={testVennResult ? () => {
+              const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
+              const tsv = exportOneVsRestTsv(testVennResult, testColumnMapping.length, testVennResult.totalUniqueItems, setNames);
+              downloadFile(tsv, `venn_${testColumnMapping.length}set_one_vs_rest.tsv`);
             } : undefined}
             onExportJson={testVennResult ? () => {
               const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');

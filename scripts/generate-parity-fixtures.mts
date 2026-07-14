@@ -29,6 +29,7 @@ import {
 import {
   exportRegionSummaryTsv,
   exportMatrixTsv,
+  exportOneVsRestTsv,
   exportResultJson,
 } from '../src/utils/exportData.ts';
 import { pairwiseStatistics } from '../src/utils/statistics.ts';
@@ -114,7 +115,7 @@ function exportStatisticsTsv(stats: ReturnType<typeof pairwiseStatistics>): stri
   return [header, ...rows].join('\n');
 }
 
-function generateForSample(spec: SampleSpec): { regionSummary: string; matrix: string; statistics: string; resultJson: string; setNames: string[]; rowCount: number; } {
+function generateForSample(spec: SampleSpec): { regionSummary: string; matrix: string; statistics: string; oneVsRest: string; resultJson: string; setNames: string[]; rowCount: number; } {
   const path = join(SAMPLES_DIR, `${spec.name}.${spec.ext}`);
   const csv = loadCsv(path, spec.ext);
   const setNames = buildSetNames(csv.headers, spec);
@@ -133,9 +134,10 @@ function generateForSample(spec: SampleSpec): { regionSummary: string; matrix: s
   const matrix = exportMatrixTsv(result, n, setNames);
   const stats = pairwiseStatistics(result, n, totalItems, setNames);
   const statistics = exportStatisticsTsv(stats);
+  const oneVsRest = exportOneVsRestTsv(result, n, totalItems, setNames);
   const resultJson = exportResultJson(result, n, setNames, totalItems, spec.model);
 
-  return { regionSummary, matrix, statistics, resultJson, setNames, rowCount: csv.rows.length };
+  return { regionSummary, matrix, statistics, oneVsRest, resultJson, setNames, rowCount: csv.rows.length };
 }
 
 function getWebappVersion(): string {
@@ -163,7 +165,7 @@ function writeReadme(generated: Map<string, { setNames: string[]; rowCount: numb
   ];
   for (const spec of SAMPLES) {
     const meta = generated.get(spec.name)!;
-    lines.push(`| \`${spec.name}\` | ${meta.setNames.length} | ${meta.rowCount} | \`__${spec.model}__region_summary.tsv\`, \`__matrix.tsv\`, \`__statistics.tsv\`, \`__result.json\` |`);
+    lines.push(`| \`${spec.name}\` | ${meta.setNames.length} | ${meta.rowCount} | \`__${spec.model}__region_summary.tsv\`, \`__matrix.tsv\`, \`__statistics.tsv\`, \`__one_vs_rest.tsv\`, \`__result.json\` |`);
   }
   lines.push('');
   lines.push('## Regenerating');
@@ -187,12 +189,13 @@ function main(): void {
     writeFileSync(join(OUT_DIR, `${base}__region_summary.tsv`), out.regionSummary, 'utf-8');
     writeFileSync(join(OUT_DIR, `${base}__matrix.tsv`),         out.matrix,        'utf-8');
     writeFileSync(join(OUT_DIR, `${base}__statistics.tsv`),     out.statistics,    'utf-8');
+    writeFileSync(join(OUT_DIR, `${base}__one_vs_rest.tsv`),    out.oneVsRest,     'utf-8');
     writeFileSync(join(OUT_DIR, `${base}__result.json`),        out.resultJson,    'utf-8');
     summary.set(spec.name, { setNames: out.setNames, rowCount: out.rowCount });
-    console.log(`wrote 4 fixtures for ${spec.name}`);
+    console.log(`wrote 5 fixtures for ${spec.name}`);
   }
   writeReadme(summary);
-  console.log(`\nGenerated ${SAMPLES.length * 4} fixtures + README.md in ${OUT_DIR}`);
+  console.log(`\nGenerated ${SAMPLES.length * 5} fixtures + README.md in ${OUT_DIR}`);
 }
 
 main();

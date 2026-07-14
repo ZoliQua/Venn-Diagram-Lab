@@ -6,7 +6,7 @@ import { Command } from 'commander';
 import { detectGeneSetFormat, type EdgeWeightMetric, type EnrichmentMetric } from '@venn-diagram-lab/core';
 import {
   analyzeGmtText, analyzeGmxText, analyzeCsvText,
-  toMatrixTsv, toRegionSummaryTsv, toResultJson, toStatisticsTsv,
+  toMatrixTsv, toOneVsRestTsv, toRegionSummaryTsv, toResultJson, toStatisticsTsv,
   toNetworkSvg, toShareDistributionSvg, toEnrichmentBarSvg, toEnrichmentLollipopSvg, toUpsetSvg,
   toProportionalSvg, toVennSvg,
 } from './api.ts';
@@ -49,6 +49,37 @@ program
     if (opts.statistics) { writeFileSync(opts.statistics, toStatisticsTsv(result), 'utf8'); wroteFile = true; }
     if (opts.json) { writeFileSync(opts.json, toResultJson(result, opts.model), 'utf8'); wroteFile = true; }
     if (!wroteFile) { process.stdout.write(toRegionSummaryTsv(result) + '\n'); }
+  });
+
+const EXPORTERS = {
+  'one-vs-rest': toOneVsRestTsv,
+  'region-summary': toRegionSummaryTsv,
+  'matrix': toMatrixTsv,
+  'statistics': toStatisticsTsv,
+} as const;
+
+program
+  .command('export')
+  .description('Export a TSV artifact (one-vs-rest | region-summary | matrix | statistics).')
+  .argument('<kind>', 'one-vs-rest | region-summary | matrix | statistics')
+  .argument('<input>', 'input CSV/TSV/GMT/GMX path')
+  .option('--out <path>', 'write the TSV here (default: stdout)')
+  .action((kind: string, input: string, opts: { out?: string }) => {
+    const exporter = (EXPORTERS as Record<string, (r: ReturnType<typeof analyzeCsvText>) => string>)[kind];
+    if (!exporter) {
+      process.stderr.write(`Unknown export kind: ${kind}. Valid: ${Object.keys(EXPORTERS).join(', ')}\n`);
+      process.exitCode = 1;
+      return;
+    }
+    const text = readFileSync(input, 'utf8');
+    const fmt = detectGeneSetFormat(input);
+    const result =
+      fmt === 'gmt' ? analyzeGmtText(text) :
+      fmt === 'gmx' ? analyzeGmxText(text) :
+      analyzeCsvText(text);
+    const tsv = exporter(result);
+    if (opts.out) { writeFileSync(opts.out, tsv, 'utf8'); }
+    else { process.stdout.write(tsv + '\n'); }
   });
 
 program
