@@ -106,6 +106,116 @@ bh_fdr <- function(p_values) {
     stats::p.adjust(p_values, method = "BH")
 }
 
+#' One-vs-rest enrichment: each set tested against the union of all OTHER sets
+#'
+#' Ported byte-for-byte from the web tool's `oneVsRestEnrichment`
+#' (`packages/core/src/statistics.ts`) / Python's `one_vs_rest_enrichment`
+#' (`venn_diagram_lab.statistics`). For each set S, "rest" is the union of the
+#' inclusive members of all *other* sets, derived purely from region counts:
+#'
+#' * `U` (`union_size`) = union of ALL sets = sum of the exclusive counts over
+#'   every one of the `2^n - 1` region labels (items in >= 1 set). Binary mode:
+#'   `U` <= the dataset's row-count universe (rows may belong to no set).
+#'   Aggregated mode: `U` == universe.
+#' * `K` = `inclusive_sizes[[name]]` (inclusive size of S)
+#' * `excl_S` = `exclusive_only_sizes[[name]]` (items only in S), 0 if absent
+#' * `rest_size` = `U - excl_S` (items in >= 1 non-S set)
+#' * `k` = `K - excl_S` (S items also in >= 1 other set)
+#' * `N` (`universe_size`) = sampling universe for the hypergeometric test
+#'
+#' **Critical:** `rest_size` is derived from `union_size` (U), NOT from
+#' `universe_size` (N). This is what makes the test meaningful: in binary
+#' mode N > U, so the observed `k` sits above the hypergeometric support
+#' minimum and the p-value is informative. When N == U (aggregated mode,
+#' universe equals union) the p-value is ~1 -- mathematically honest ("no
+#' background to enrich against"), not a bug. See
+#' `.superpowers/sdd/task-F6-ts-report.md` for the full derivation.
+#'
+#' Uses the same hypergeometric machinery as [compute_pairwise()].
+#' Benjamini-Hochberg FDR is computed over the `n` one-vs-rest tests (one per
+#' set); Bonferroni = `min(1, p * n)`. Returned rows are sorted by p-value
+#' ascending (stable), matching the pairwise convention.
+#'
+#' @param set_names Ordered character vector of set identifiers.
+#' @param inclusive_sizes Named integer vector: set name -> inclusive size (K).
+#' @param exclusive_only_sizes Named integer vector: set name -> items present
+#'   in exactly that set alone (the single-set region's exclusive count,
+#'   excl_S). Names missing from this vector default to 0.
+#' @param union_size U: union of ALL sets (sum of exclusive counts over every
+#'   non-empty region, including multi-set regions).
+#' @param universe_size N: the hypergeometric sampling universe (same value
+#'   [compute_pairwise()] receives as `universe_size`).
+#' @return A data.frame with columns `name, size, rest_size, intersection,
+#'   expected, fold_enrichment, p_value, p_adjusted, p_bonferroni, significant`,
+#'   sorted by `p_value` ascending.
+#' @export
+#' @examples
+#' one_vs_rest_enrichment(
+#'     set_names = c("A", "B"),
+#'     inclusive_sizes = c(A = 10L, B = 8L),
+#'     exclusive_only_sizes = c(A = 5L, B = 3L),
+#'     union_size = 13L,
+#'     universe_size = 100L
+#' )
+one_vs_rest_enrichment <- function(set_names, inclusive_sizes, exclusive_only_sizes,
+                                    union_size, universe_size) {
+    rows_name         <- character()
+    rows_size         <- integer()
+    rows_rest_size    <- integer()
+    rows_intersection <- integer()
+    rows_expected     <- numeric()
+    rows_fe           <- numeric()
+    rows_p_value      <- numeric()
+
+    for (name in set_names) {
+        k_size <- as.integer(inclusive_sizes[[name]])
+        excl_s <- if (name %in% names(exclusive_only_sizes)) {
+            as.integer(exclusive_only_sizes[[name]])
+        } else {
+            0L
+        }
+        rest_size <- union_size - excl_s
+        k <- k_size - excl_s
+
+        expected <- if (universe_size > 0) (k_size * rest_size) / universe_size else 0
+        fe <- fold_enrichment(universe_size, k_size, rest_size, k)
+        p_val <- hypergeometric_p_value(universe_size, k_size, rest_size, k)
+
+        rows_name         <- c(rows_name, name)
+        rows_size         <- c(rows_size, k_size)
+        rows_rest_size    <- c(rows_rest_size, rest_size)
+        rows_intersection <- c(rows_intersection, k)
+        rows_expected     <- c(rows_expected, expected)
+        rows_fe           <- c(rows_fe, fe)
+        rows_p_value      <- c(rows_p_value, p_val)
+    }
+
+    # BH-FDR + Bonferroni FWER control (m = number of sets tested).
+    m <- length(rows_p_value)
+    adjusted <- bh_fdr(rows_p_value)
+    p_bonferroni <- pmin(1, rows_p_value * m)
+    significant <- adjusted < 0.05
+
+    df <- data.frame(
+        name             = rows_name,
+        size             = rows_size,
+        rest_size        = rows_rest_size,
+        intersection     = rows_intersection,
+        expected         = rows_expected,
+        fold_enrichment  = rows_fe,
+        p_value          = rows_p_value,
+        p_adjusted       = adjusted,
+        p_bonferroni     = p_bonferroni,
+        significant      = significant,
+        stringsAsFactors = FALSE
+    )
+    # Sort by p_value ascending (shell sort — stable for named vectors, deterministic;
+    # matches compute_pairwise's sort convention).
+    df <- df[order(df$p_value, method = "shell"), , drop = FALSE]
+    rownames(df) <- NULL
+    df
+}
+
 # Internal: exact 97.5% normal quantile — shared with web/Python so all surfaces
 # produce byte-identical Wilson score intervals.
 .Z_WILSON <- 1.959963984540054

@@ -102,6 +102,7 @@ cat(sprintf("Copied %d sample datasets -> r/inst/extdata/samples/\n", n_sample))
     # Shorten kind segment.
     fname <- sub("__region_summary\\.tsv$", "__regions.tsv", fname)
     fname <- sub("__statistics\\.tsv$",     "__stats.tsv",   fname)
+    fname <- sub("__one_vs_rest\\.tsv$",    "__ovr.tsv",     fname)
     fname
 }
 

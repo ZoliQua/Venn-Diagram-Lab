@@ -159,3 +159,57 @@ test_that("compute_pairwise handles n=2 (1 pair)", {
     # Symmetry of off-diagonal entries.
     expect_equal(res@jaccard["X", "Y"], res@jaccard["Y", "X"])
 })
+
+test_that("one_vs_rest_enrichment: rest_size uses U (union), not the universe N", {
+    # Hand-built symmetric 3-set case (mirrors packages/core/src/__tests__/oneVsRest.test.ts):
+    # regions exclA=exclB=exclC=5, AB=AC=BC=10, ABC=5 -> U = 5*3 + 10*3 + 5 = 50.
+    # Inclusive sizes A=B=C=30 (=5+10+10+5). Universe N=1000 (>> U=50), proving
+    # rest_size is derived from U, NOT from universe_size.
+    res <- one_vs_rest_enrichment(
+        set_names = c("A", "B", "C"),
+        inclusive_sizes = c(A = 30L, B = 30L, C = 30L),
+        exclusive_only_sizes = c(A = 5L, B = 5L, C = 5L),
+        union_size = 50L,
+        universe_size = 1000L
+    )
+
+    expect_setequal(res$name, c("A", "B", "C"))
+    for (nm in c("A", "B", "C")) {
+        row <- res[res$name == nm, ]
+        expect_equal(row$size, 30L)
+        # rest_size = U - excl_S = 50 - 5 = 45 (NOT 1000 - 5 = 995).
+        expect_equal(row$rest_size, 45L)
+        # intersection = K - excl_S = 30 - 5 = 25.
+        expect_equal(row$intersection, 25L)
+        # expected = K * rest_size / N = 30 * 45 / 1000 = 1.35 (exact).
+        expect_equal(row$expected, 1.35, tolerance = 1e-12)
+        # fold_enrichment = k * N / (K * rest_size) = 25*1000 / (30*45).
+        expect_equal(row$fold_enrichment, 25000 / 1350, tolerance = 1e-12)
+        expect_equal(row$fold_enrichment,
+                     fold_enrichment(1000L, 30L, 45L, 25L), tolerance = 1e-12)
+        # Observed k=25 vastly exceeds expected 1.35 -> non-degenerate, small p-value.
+        expect_equal(row$p_value, hypergeometric_p_value(1000L, 30L, 45L, 25L), tolerance = 1e-12)
+        expect_true(row$p_value > 0 && row$p_value < 1e-6)
+        expect_true(row$significant)
+    }
+    # Bonferroni = min(1, p * m), m = 3 sets tested.
+    expect_equal(res$p_bonferroni, pmin(1, res$p_value * 3), tolerance = 1e-12)
+})
+
+test_that("one_vs_rest_enrichment: N == U yields honest p = 1 (aggregated-mode convention)", {
+    # regions: exclA=10 exclB=20 exclC=30 AB=5 AC=3 BC=4 ABC=2 -> U = 74 == universe_size.
+    res <- one_vs_rest_enrichment(
+        set_names = c("A", "B", "C"),
+        inclusive_sizes = c(A = 20L, B = 31L, C = 39L),
+        exclusive_only_sizes = c(A = 10L, B = 20L, C = 30L),
+        union_size = 74L,
+        universe_size = 74L
+    )
+    for (i in seq_len(nrow(res))) {
+        row <- res[i, ]
+        # rest_size + excl_S == U (74) for every set.
+        expect_equal(row$rest_size + (row$size - row$intersection), 74L)
+        expect_equal(row$p_value, 1.0)
+        expect_false(row$significant)
+    }
+})
