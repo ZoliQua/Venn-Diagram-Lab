@@ -276,11 +276,19 @@ export interface OneVsRestStat {
  *
  * For each set S (letter), "rest" = the union of the INCLUSIVE members of all
  * other sets. Derived purely from the VennResult counts (no item-level data):
+ *   U        = union of ALL sets = sum of exclusive counts over every region
+ *              (items in >=1 set). Binary mode: U <= totalUniqueItems (rows may
+ *              belong to no set). Aggregated mode: U == totalUniqueItems.
  *   K        = |S|              = inclusive(letter)      (inclusive size of S)
  *   excl_S   = exclusive(letter)                          (items only in S)
- *   restSize = totalUniqueItems - excl_S                  (items in >=1 non-S set)
+ *   restSize = U - excl_S                                 (items in >=1 non-S set)
  *   k        = K - excl_S                                 (S items also in >=1 other set)
- *   N        = totalItems (universe)
+ *   N        = totalItems (sampling universe)
+ *
+ * Using U (not totalUniqueItems) for restSize is what makes the test meaningful:
+ * in binary mode N > U, so k exceeds the hypergeometric support minimum and the
+ * p-value is informative. When N == U (aggregated / universe == union) the
+ * p-value is ~1 — mathematically honest (no background to enrich against).
  *
  * Uses the same hypergeometric machinery as pairwiseStatistics. FDR is computed
  * over the n one-vs-rest tests (BH); Bonferroni = min(1, p * n). Sorted by
@@ -296,11 +304,18 @@ export function oneVsRestEnrichment(
   const N = totalItems;
   const stats: OneVsRestStat[] = [];
 
+  // U = union of ALL sets = sum of exclusive counts across every region label.
+  let U = 0;
+  for (let mask = 1; mask < (1 << n); mask++) {
+    const label = letters.filter((_, idx) => mask & (1 << idx)).join('');
+    U += vennResult.exclusive.get(label) ?? 0;
+  }
+
   for (let i = 0; i < n; i++) {
     const letter = letters[i];
     const K = vennResult.inclusive.get(letter) ?? 0;
     const exclS = vennResult.exclusive.get(letter) ?? 0;
-    const restSize = vennResult.totalUniqueItems - exclS;
+    const restSize = U - exclS;
     const k = K - exclS;
 
     const exp = N > 0 ? (K * restSize) / N : 0;

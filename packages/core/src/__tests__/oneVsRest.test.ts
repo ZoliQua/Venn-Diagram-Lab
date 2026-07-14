@@ -5,66 +5,68 @@ import { hypergeometricPValue, foldEnrichment } from '../statistics.ts';
 import type { VennResult } from '../csvParser.ts';
 
 /**
- * Hand-built 3-set Venn. Regions:
- *   exclA=10 exclB=20 exclC=30  AB=5 AC=3 BC=4  ABC=2   -> total = 74
- * Inclusive sizes:
- *   A = 10+5+3+2 = 20
- *   B = 20+5+4+2 = 31
- *   C = 30+3+4+2 = 39
+ * Hand-built 3-set Venn with a background universe LARGER than the union.
+ * Regions:
+ *   exclA=5 exclB=5 exclC=5  AB=10 AC=10 BC=10  ABC=5
+ * Union of all sets (U = sum of exclusive over every region):
+ *   U = 5+5+5+10+10+10+5 = 50
+ * Inclusive sizes (all symmetric):
+ *   A = 5+10+10+5 = 30 ; B = 30 ; C = 30
+ * Universe N = 1000 (binary mode: many rows belong to no set, so N=1000 > U=50).
+ * `totalUniqueItems` is deliberately set to 1000 (!= U) to prove restSize uses
+ * U (the union), not totalUniqueItems.
  */
-function makeResult(): VennResult {
+function makeEnriched(): VennResult {
   return {
-    inclusive: new Map([['A', 20], ['B', 31], ['C', 39]]),
-    exclusive: new Map([['A', 10], ['B', 20], ['C', 30]]),
+    inclusive: new Map([['A', 30], ['B', 30], ['C', 30], ['AB', 15], ['AC', 15], ['BC', 15], ['ABC', 5]]),
+    exclusive: new Map([['A', 5], ['B', 5], ['C', 5], ['AB', 10], ['AC', 10], ['BC', 10], ['ABC', 5]]),
     inclusiveItems: new Map(),
     exclusiveItems: new Map(),
-    totalUniqueItems: 74,
+    totalUniqueItems: 1000,
   };
 }
 
-describe('oneVsRestEnrichment — derivation', () => {
-  const rows = oneVsRestEnrichment(makeResult(), 3, 74, ['Alpha', 'Beta', 'Gamma']);
+const N = 1000;
+
+describe('oneVsRestEnrichment — corrected derivation (restSize uses U = union)', () => {
+  const rows = oneVsRestEnrichment(makeEnriched(), 3, N, ['Alpha', 'Beta', 'Gamma']);
   const byLetter = new Map(rows.map(r => [r.set, r]));
 
-  it('derives K, restSize, intersection per set from the counts', () => {
-    // A: K=20, excl=10 -> restSize = 74-10 = 64, k = 20-10 = 10
+  it('derives K, restSize (from U, not totalUniqueItems), intersection per set', () => {
+    // U = 50. A: K=30, excl=5 -> restSize = U - excl = 50-5 = 45 (NOT 1000-5=995), k = 30-5 = 25
     const a = byLetter.get('A')!;
     expect(a.name).toBe('Alpha');
-    expect(a.size).toBe(20);
-    expect(a.restSize).toBe(64);
-    expect(a.intersection).toBe(10);
+    expect(a.size).toBe(30);
+    expect(a.restSize).toBe(45); // proves U (=50) is used, not totalUniqueItems (=1000)
+    expect(a.intersection).toBe(25);
 
-    // B: K=31, excl=20 -> restSize = 74-20 = 54, k = 11
-    const b = byLetter.get('B')!;
-    expect(b.size).toBe(31);
-    expect(b.restSize).toBe(54);
-    expect(b.intersection).toBe(11);
-
-    // C: K=39, excl=30 -> restSize = 74-30 = 44, k = 9
-    const c = byLetter.get('C')!;
-    expect(c.size).toBe(39);
-    expect(c.restSize).toBe(44);
-    expect(c.intersection).toBe(9);
+    // Symmetric: B and C identical to A
+    for (const l of ['B', 'C']) {
+      const r = byLetter.get(l)!;
+      expect(r.size).toBe(30);
+      expect(r.restSize).toBe(45);
+      expect(r.intersection).toBe(25);
+    }
   });
 
   it('computes expected = K*restSize/N and fold = k*N/(K*restSize) by hand (set A)', () => {
     const a = byLetter.get('A')!;
-    // expected = 20*64/74 = 1280/74 = 17.297297...
-    expect(a.expected).toBeCloseTo(1280 / 74, 10);
-    // fold = 10*74/(20*64) = 740/1280 = 0.578125 (exact)
-    expect(a.foldEnrichment).toBe(0.578125);
-    expect(a.foldEnrichment).toBe(foldEnrichment(74, 20, 64, 10));
+    // expected = 30*45/1000 = 1.35 (exact)
+    expect(a.expected).toBeCloseTo(1.35, 10);
+    // fold = 25*1000/(30*45) = 25000/1350 = 18.5185...
+    expect(a.foldEnrichment).toBeCloseTo(25000 / 1350, 10);
+    expect(a.foldEnrichment).toBe(foldEnrichment(N, 30, 45, 25));
+    expect(a.foldEnrichment).toBeGreaterThan(1); // clearly enriched
   });
 
-  it('one-sided over-representation p-value is exactly 1.0 (observed k is the support minimum)', () => {
-    // For one-vs-rest, k = K - excl_S equals max(0, K + restSize - N),
-    // the lower bound of the hypergeometric support, so P(X>=k) = 1.
+  it('gives a MEANINGFUL (non-degenerate, small) p-value when N > U', () => {
+    // observed k=25 vastly exceeds expected 1.35 -> P(X>=25) is astronomically small.
     for (const r of rows) {
-      expect(r.pValue).toBe(1);
-      expect(r.pValue).toBe(hypergeometricPValue(74, r.size, r.restSize, r.intersection));
-      expect(r.fdr).toBe(1);
-      expect(r.bonferroni).toBe(1); // min(1, 1 * 3)
-      expect(r.significant).toBe(false);
+      expect(r.pValue).toBe(hypergeometricPValue(N, r.size, r.restSize, r.intersection));
+      expect(r.pValue).not.toBe(1);
+      expect(r.pValue).toBeGreaterThan(0);
+      expect(r.pValue).toBeLessThan(1e-6);
+      expect(r.significant).toBe(true); // fdr < 0.05
     }
   });
 
@@ -73,8 +75,34 @@ describe('oneVsRestEnrichment — derivation', () => {
   });
 });
 
+/**
+ * When the universe equals the union (N == U, e.g. aggregated mode), the test is
+ * honestly non-informative: k = K - excl_S is the hypergeometric support minimum
+ * so P(X >= k) = 1. This is mathematically correct, not a bug.
+ */
+describe('oneVsRestEnrichment — N == U yields honest p = 1', () => {
+  function makeAggregated(): VennResult {
+    return {
+      inclusive: new Map([['A', 20], ['B', 31], ['C', 39], ['AB', 7], ['AC', 5], ['BC', 6], ['ABC', 2]]),
+      exclusive: new Map([['A', 10], ['B', 20], ['C', 30], ['AB', 5], ['AC', 3], ['BC', 4], ['ABC', 2]]),
+      inclusiveItems: new Map(),
+      exclusiveItems: new Map(),
+      totalUniqueItems: 74,
+    };
+  }
+  it('all p-values are exactly 1 when N == U == 74', () => {
+    const rows = oneVsRestEnrichment(makeAggregated(), 3, 74, ['A', 'B', 'C']);
+    // U = 10+20+30+5+3+4+2 = 74 == N
+    for (const r of rows) {
+      expect(r.restSize + (r.size - r.intersection)).toBe(74); // restSize + excl = U
+      expect(r.pValue).toBe(1);
+      expect(r.significant).toBe(false);
+    }
+  });
+});
+
 describe('exportOneVsRestTsv — formatting', () => {
-  const tsv = exportOneVsRestTsv(makeResult(), 3, 74, ['Alpha', 'Beta', 'Gamma']);
+  const tsv = exportOneVsRestTsv(makeEnriched(), 3, N, ['Alpha', 'Beta', 'Gamma']);
   const lines = tsv.split('\n');
 
   it('has the exact header', () => {
@@ -83,8 +111,11 @@ describe('exportOneVsRestTsv — formatting', () => {
     );
   });
 
-  it('formats numbers with the pairwise-TSV conventions', () => {
-    // A row: Expected toFixed(2), Fold toFixed(3), p/fdr/bon toFixed(6) (>=0.001), Significant=ns
-    expect(lines[1]).toBe('A\tAlpha\t20\t64\t10\t17.30\t0.578\t1.000000\t1.000000\t1.000000\tns');
+  it('formats numbers with the pairwise-TSV conventions (set A, enriched -> *** )', () => {
+    const p = hypergeometricPValue(N, 30, 45, 25);
+    const fmtP = (x: number) => (x < 0.001 ? x.toExponential(2) : x.toFixed(6));
+    // A row: Expected toFixed(2)=1.35, Fold toFixed(3)=18.519, p/fdr/bon exponential, Significant=***
+    const expectedRow = ['A', 'Alpha', '30', '45', '25', '1.35', '18.519', fmtP(p), fmtP(p), fmtP(Math.min(1, p * 3)), '***'].join('\t');
+    expect(lines[1]).toBe(expectedRow);
   });
 });
