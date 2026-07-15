@@ -15,6 +15,11 @@
 *.json text eol=lf
 *.svg text eol=lf
 
+# Cytoscape network export goldens — byte-compared across surfaces (npm reads
+# them without \r\n normalisation, so CRLF corruption would silently fail parity).
+*.graphml text eol=lf
+*.sif text eol=lf
+
 # R sources + tests — LF for cross-platform consistency.
 *.R text eol=lf
 *.Rmd text eol=lf
