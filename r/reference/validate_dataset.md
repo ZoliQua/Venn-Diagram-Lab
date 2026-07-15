@@ -58,7 +58,7 @@ instead of) any \`warning()\` raised.
 tmp <- tempfile(fileext = ".csv")
 writeLines(c("Gene,SetA,SetB", "G1,1,0", "G1,1,1", "G2,0,1"), tmp)
 report <- validate_dataset(tmp, mode = "binary")
-#> Warning: Data quality: 1 duplicate item occurrence(s) across 1 column(s) (in '/tmp/Rtmpn1TTVe/file1bb41dba1a45.csv')
+#> Warning: Data quality: 1 duplicate item occurrence(s) across 1 column(s) (in '/tmp/Rtmp9TVwe7/file1ae35702acc9.csv')
 report$has_warnings
 #> [1] TRUE
 ```
