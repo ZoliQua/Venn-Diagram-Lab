@@ -65,13 +65,15 @@ reference:
     - union_items
 
   - title: Data exports (TSV / JSON)
-    desc: Byte-equivalent writers for region summaries, item-membership matrices, pairwise and one-vs-rest statistics tables, and a full-result JSON export.
+    desc: Byte-equivalent writers for region summaries, item-membership matrices, pairwise and one-vs-rest statistics tables, a full-result JSON export, and Cytoscape network exports.
     contents:
       - to_region_summary_tsv
       - to_matrix_tsv
       - to_statistics_tsv
       - to_one_vs_rest_tsv
       - to_result_json
+      - to_network_graphml
+      - to_network_sif
 
   - title: Bundle exports (v2.2.3)
     desc: 3-sheet xlsx workbook and full Report ZIP bundle matching the webtool's Download Everything button.

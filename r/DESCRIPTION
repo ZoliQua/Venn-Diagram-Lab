@@ -77,6 +77,7 @@ Collate:
     'ggplot-layer.R'
     'io.R'
     'json-export.R'
+    'network-export.R'
     'proportional.R'
     'region-accessors.R'
     'region-expression.R'
