@@ -189,23 +189,25 @@ export function DataSummaryPanel({
           <span>{jaccardOpen ? '▾' : '▸'} Pairwise Jaccard Index</span>
         </div>
         {jaccardOpen && (
-          <table className="data-summary-compact-table">
-            <thead>
-              <tr><th>Pair</th><th>Inter</th><th>Union</th><th>Jaccard</th><th>95% CI</th><th>OC</th></tr>
-            </thead>
-            <tbody>
-              {jaccardSorted.map(s => (
-                <tr key={s.label} style={{ background: jaccardBgColor(s.jaccard) }}>
-                  <td>{s.a}{s.b}</td>
-                  <td>{s.intersection}</td>
-                  <td>{s.union}</td>
-                  <td>{s.jaccard.toFixed(3)}</td>
-                  <td>[{s.jaccardCiLow.toFixed(3)}, {s.jaccardCiHigh.toFixed(3)}]</td>
-                  <td>{s.overlapCoeff.toFixed(3)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="stats-table-scroll">
+            <table className="data-summary-compact-table">
+              <thead>
+                <tr><th>Pair</th><th>Inter</th><th>Union</th><th>Jaccard</th><th>95% CI</th><th>OC</th></tr>
+              </thead>
+              <tbody>
+                {jaccardSorted.map(s => (
+                  <tr key={s.label} style={{ background: jaccardBgColor(s.jaccard) }}>
+                    <td>{s.a}{s.b}</td>
+                    <td>{s.intersection}</td>
+                    <td>{s.union}</td>
+                    <td>{s.jaccard.toFixed(3)}</td>
+                    <td>[{s.jaccardCiLow.toFixed(3)}, {s.jaccardCiHigh.toFixed(3)}]</td>
+                    <td>{s.overlapCoeff.toFixed(3)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -215,20 +217,22 @@ export function DataSummaryPanel({
           <span>{diceOpen ? '▾' : '▸'} Sorensen-Dice Index</span>
         </div>
         {diceOpen && (
-          <table className="data-summary-compact-table">
-            <thead>
-              <tr><th>Pair</th><th>Dice</th><th>95% CI</th></tr>
-            </thead>
-            <tbody>
-              {jaccardSorted.map(s => (
-                <tr key={s.label}>
-                  <td>{s.a}{s.b}</td>
-                  <td>{s.dice.toFixed(3)}</td>
-                  <td>[{s.diceCiLow.toFixed(3)}, {s.diceCiHigh.toFixed(3)}]</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="stats-table-scroll">
+            <table className="data-summary-compact-table">
+              <thead>
+                <tr><th>Pair</th><th>Dice</th><th>95% CI</th></tr>
+              </thead>
+              <tbody>
+                {jaccardSorted.map(s => (
+                  <tr key={s.label}>
+                    <td>{s.a}{s.b}</td>
+                    <td>{s.dice.toFixed(3)}</td>
+                    <td>[{s.diceCiLow.toFixed(3)}, {s.diceCiHigh.toFixed(3)}]</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -243,26 +247,28 @@ export function DataSummaryPanel({
               Hypergeometric test (one-sided, over-representation) + two-sided Fisher's exact test.
               Background: {totalItems} items. FDR: Benjamini-Hochberg. Bonferroni: family-wise error rate.
             </div>
-            <table className="data-summary-compact-table">
-              <thead>
-                <tr><th>Pair</th><th>Obs</th><th>Exp</th><th>FE</th><th>p-value</th><th>p (2-sided)</th><th>FDR</th><th>Bonferroni</th><th>Sig</th></tr>
-              </thead>
-              <tbody>
-                {pairStats.map(s => (
-                  <tr key={s.label} style={{ background: fdrBgColor(s.fdr) }}>
-                    <td>{s.a}{s.b}</td>
-                    <td>{s.intersection}</td>
-                    <td>{s.expected.toFixed(1)}</td>
-                    <td>{s.foldEnrichment.toFixed(2)}</td>
-                    <td>{formatP(s.pValue)}</td>
-                    <td>{formatP(s.pTwoSided)}</td>
-                    <td>{formatP(s.fdr)}</td>
-                    <td>{formatP(s.bonferroni)}</td>
-                    <td>{sigLabel(s.fdr)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="stats-table-scroll">
+              <table className="data-summary-compact-table">
+                <thead>
+                  <tr><th>Pair</th><th>Obs</th><th>Exp</th><th>FE</th><th>p-value</th><th>p (2-sided)</th><th>FDR</th><th>Bonferroni</th><th>Sig</th></tr>
+                </thead>
+                <tbody>
+                  {pairStats.map(s => (
+                    <tr key={s.label} style={{ background: fdrBgColor(s.fdr) }}>
+                      <td>{s.a}{s.b}</td>
+                      <td>{s.intersection}</td>
+                      <td>{s.expected.toFixed(1)}</td>
+                      <td>{s.foldEnrichment.toFixed(2)}</td>
+                      <td>{formatP(s.pValue)}</td>
+                      <td>{formatP(s.pTwoSided)}</td>
+                      <td>{formatP(s.fdr)}</td>
+                      <td>{formatP(s.bonferroni)}</td>
+                      <td>{sigLabel(s.fdr)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </>
         )}
       </div>
@@ -277,14 +283,22 @@ export function DataSummaryPanel({
             <div className="data-summary-hint" style={{ marginTop: 4 }}>
               Export calculated data as tab-separated, Excel, or JSON files
             </div>
-            <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
-              <button className="btn btn-sm" style={{ flex: 1 }} onClick={handleExportStats}>
-                Export All Statistics (TSV)
-              </button>
-              <button className="btn btn-sm" style={{ flex: 1 }} onClick={handleExportStatsXlsx} disabled={xlsxExporting}>
-                {xlsxExporting ? 'Exporting…' : 'Export All Statistics (XLSX)'}
-              </button>
+
+            <div className="data-summary-hint" style={{ marginTop: 8, marginBottom: 4 }}>
+              All pairwise + one-vs-rest statistics (Jaccard, Dice, 95% CIs, enrichment, p-values, FDR, Bonferroni).
             </div>
+            <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={handleExportStats}>
+              Export All Statistics (TSV)
+            </button>
+            <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={handleExportStatsXlsx} disabled={xlsxExporting}>
+              {xlsxExporting ? 'Exporting…' : 'Export All Statistics (XLSX)'}
+            </button>
+
+            {(onExportRegionSummary || onExportMatrix) && (
+              <div className="data-summary-hint" style={{ marginTop: 10, marginBottom: 4 }}>
+                Region-level data
+              </div>
+            )}
             {onExportRegionSummary && (
               <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportRegionSummary}>
                 Regions Summary (TSV)
@@ -295,15 +309,27 @@ export function DataSummaryPanel({
                 Item Matrix (TSV)
               </button>
             )}
+
             {onExportOneVsRest && (
-              <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportOneVsRest}>
-                Enrichment: one-vs-rest (TSV)
-              </button>
+              <>
+                <div className="data-summary-hint" style={{ marginTop: 10, marginBottom: 4 }}>
+                  Enrichment
+                </div>
+                <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportOneVsRest}>
+                  Enrichment: one-vs-rest (TSV)
+                </button>
+              </>
             )}
+
             {onExportJson && (
-              <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportJson}>
-                Full Result (JSON)
-              </button>
+              <>
+                <div className="data-summary-hint" style={{ marginTop: 10, marginBottom: 4 }}>
+                  Full export
+                </div>
+                <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportJson}>
+                  Full Result (JSON)
+                </button>
+              </>
             )}
           </>
         )}
