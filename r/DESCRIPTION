@@ -76,6 +76,7 @@ Collate:
     'excel-workbook.R'
     'ggplot-layer.R'
     'io.R'
+    'json-export.R'
     'proportional.R'
     'region-accessors.R'
     'region-expression.R'

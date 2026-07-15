@@ -125,7 +125,11 @@ ignore = ["PLR0913"]  # too many arguments in function definition (acceptable fo
 "examples/*.ipynb" = ["PLW1510"]
 
 [tool.mypy]
-python_version = "3.10"
+# Target 3.12 for type-checking: recent numpy stubs use PEP 695 `type` statements
+# that mypy rejects when targeting < 3.12. The package still SUPPORTS 3.10+
+# (requires-python) and pytest runs on 3.10/3.11/3.12, so runtime 3.10 compat
+# stays covered — only the static type target is raised.
+python_version = "3.12"
 strict = true
 warn_unused_configs = true
 disallow_untyped_defs = true
