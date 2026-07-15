@@ -22,10 +22,10 @@ All notable changes to the Venn Diagram Lab project.
 - **JSON export** of the full result + statistics (6-decimal rounded, byte-identical across surfaces). web "Export JSON"; npm `toResultJson` + `vdl analyze --json`; Python `RegionResult.to_json` + `vdl export json`; R `to_result_json`.
 - **P-value floor** — display formatters now show `< 1e-300` for underflowed p-values.
 
-### Added — Network export & data quality (all four surfaces; byte-parity)
+### Added — Network export & data quality (all four surfaces)
 
 - **Cytoscape network export (GraphML / SIF)** — the set-relationship network (nodes = sets, edges = every pairwise overlap) can now be exported as `.graphml` or `.sif`, byte-identical across surfaces. web: "Export GraphML" / "Export SIF" in the Network view; npm `toNetworkGraphml` / `toNetworkSif` + `vdl export graphml`/`sif`; Python `RegionResult.to_network_graphml` / `to_network_sif` + `vdl export graphml`/`sif`; R `to_network_graphml` / `to_network_sif`.
-- **Data-quality warnings** — CSV/TSV import and validation now detect and report duplicate items, empty/whitespace cells, and case-only collisions (e.g. `TP53` vs `tp53`), non-destructively — item identity is never changed; case collisions are reported, not merged. web: non-blocking notice panel in the CSV import dialog; npm/core `analyzeDataQuality`; Python `analyze_data_quality` + warnings surfaced in `vdl data validate` (promoted to errors under `--strict`); R `analyze_data_quality` + `validate_dataset` (emits `warning()`s).
+- **Data-quality warnings** — CSV/TSV import and validation now detect and report duplicate items, empty/whitespace cells, and case-only collisions (e.g. `TP53` vs `tp53`), non-destructively — item identity is never changed; case collisions are reported, not merged. web: non-blocking notice panel in the CSV import dialog; npm `toDataQuality` (+ a `vdl analyze` stderr summary) over core `analyzeDataQuality`; Python `analyze_data_quality` + warnings surfaced in `vdl data validate` (promoted to errors under `--strict`); R `analyze_data_quality` + `validate_dataset` (emits `warning()`s).
 
 ### Changed
 
