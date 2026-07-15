@@ -284,15 +284,16 @@ export function DataSummaryPanel({
               Export calculated data as tab-separated, Excel, or JSON files
             </div>
 
-            <div className="data-summary-hint" style={{ marginTop: 8, marginBottom: 4 }}>
-              All pairwise + one-vs-rest statistics (Jaccard, Dice, 95% CIs, enrichment, p-values, FDR, Bonferroni).
-            </div>
-            <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={handleExportStats}>
-              Export All Statistics (TSV)
-            </button>
-            <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={handleExportStatsXlsx} disabled={xlsxExporting}>
-              {xlsxExporting ? 'Exporting…' : 'Export All Statistics (XLSX)'}
-            </button>
+            {onExportOneVsRest && (
+              <>
+                <div className="data-summary-hint" style={{ marginTop: 8, marginBottom: 4 }}>
+                  Enrichment
+                </div>
+                <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportOneVsRest}>
+                  Enrichment: one-vs-rest (TSV)
+                </button>
+              </>
+            )}
 
             {(onExportRegionSummary || onExportMatrix) && (
               <div className="data-summary-hint" style={{ marginTop: 10, marginBottom: 4 }}>
@@ -310,16 +311,15 @@ export function DataSummaryPanel({
               </button>
             )}
 
-            {onExportOneVsRest && (
-              <>
-                <div className="data-summary-hint" style={{ marginTop: 10, marginBottom: 4 }}>
-                  Enrichment
-                </div>
-                <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportOneVsRest}>
-                  Enrichment: one-vs-rest (TSV)
-                </button>
-              </>
-            )}
+            <div className="data-summary-hint" style={{ marginTop: 10, marginBottom: 4 }}>
+              All pairwise + one-vs-rest statistics (Jaccard, Dice, 95% CIs, enrichment, p-values, FDR, Bonferroni).
+            </div>
+            <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={handleExportStats}>
+              Export All Statistics (TSV)
+            </button>
+            <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={handleExportStatsXlsx} disabled={xlsxExporting}>
+              {xlsxExporting ? 'Exporting…' : 'Export All Statistics (XLSX)'}
+            </button>
 
             {onExportJson && (
               <>
