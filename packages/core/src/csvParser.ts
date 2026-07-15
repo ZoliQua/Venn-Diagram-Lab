@@ -22,6 +22,12 @@ export interface CsvImportResult {
   sourceFormat?: 'csv' | 'excel' | 'gmt' | 'gmx' | 'paste' | 'url';
   /** 0-based worksheet index, set for Excel (.xlsx) imports. Undefined for non-Excel sources. */
   sheetIndex?: number;
+  /**
+   * Data-quality analysis (duplicates / empty cells / case collisions) computed
+   * over the final imported csv + selectedColumns. See {@link analyzeDataQuality}.
+   * Purely informational — never affects the imported data itself.
+   */
+  quality?: DataQualityReport;
 }
 
 /** Split a CSV line respecting quoted fields, with configurable delimiter */
@@ -298,6 +304,209 @@ export function calculateVennCounts(
   }
 
   return { inclusive, exclusive, inclusiveItems, exclusiveItems, totalUniqueItems: csv.rows.length };
+}
+
+/**
+ * A read-only report of data-quality issues detected while scanning the selected
+ * columns of a `CsvData`. This is a pure analysis pass — it never mutates `csv`,
+ * never changes item identity, and never affects the results of
+ * `calculateVennCounts` / `calculateVennCountsFromAggregated`. It exists to
+ * surface, to the user, what those functions already do silently (dedupe via
+ * `Set`, skip empty cells) plus a case-collision heads-up that the counting
+ * functions deliberately do NOT act on (case-folding item identity is
+ * dangerous — e.g. "TP53" vs "tp53" may or may not be the same real-world
+ * entity, so identity is never merged automatically).
+ *
+ * Detection semantics (documented here precisely so Python/R mirror them):
+ *
+ * duplicatesRemoved:
+ *   - Aggregated mode: one entry per element of `columns` where a split,
+ *     trimmed, non-empty item string (using `itemDelimiter`) occurs more than
+ *     once across that column's cells — mirroring the `Set` dedupe in
+ *     `calculateVennCountsFromAggregated`. `count` = sum over all duplicated
+ *     items in that column of (occurrences - 1), i.e. the number of redundant
+ *     occurrences that get collapsed into 1 by the real Set-based counting.
+ *     Columns with no duplicates are omitted from the array.
+ *   - Binary mode: at most one entry, keyed to column index 0 / its header
+ *     (the row-identifier "title" column read as `row[0]` by
+ *     `calculateVennCounts`), reporting duplicate identifier values across
+ *     rows that contribute to the count (i.e. at least one of the selected
+ *     `columns` is truthy for that row — mirrors `calculateVennCounts`'
+ *     own `if (rowMask === 0) continue;` skip). `count` = sum over duplicated
+ *     identifiers of (occurrences - 1). NOTE: `calculateVennCounts` itself
+ *     does NOT dedupe repeated identifiers (each row is counted
+ *     independently, inflating region counts) — this entry is a pure warning
+ *     flagging that the source data has repeated identifiers, it does not
+ *     describe something the counting function actually removed.
+ *   - `examples`: up to 5 example item/identifier strings found duplicated,
+ *     in order of first becoming a duplicate (i.e. on their 2nd occurrence).
+ *
+ * emptyCellsSkipped:
+ *   - Count of cells within the selected `columns` that are empty or
+ *     whitespace-only after `.trim()`.
+ *   - Aggregated mode: matches the `if (!cell) continue;` skip in
+ *     `calculateVennCountsFromAggregated` exactly (checked per row, per
+ *     selected column, before splitting on `itemDelimiter`).
+ *   - Binary mode: counted per row, per selected column, regardless of
+ *     whether the row ends up contributing to the count. A blank cell is
+ *     indistinguishable from an explicit falsy value ('0'/'false'/'no') once
+ *     parsed by `calculateVennCounts`, so this count highlights cells that
+ *     were actually blank rather than explicitly negative.
+ *
+ * caseCollisions:
+ *   - Computed over the full set of distinct, case-sensitive item identities
+ *     in scope: the union of all split/trimmed/non-empty items across all
+ *     selected `columns` (aggregated mode), or the set of distinct trimmed,
+ *     non-empty `row[0]` identifiers of contributing rows (binary mode, same
+ *     row scope as duplicatesRemoved above).
+ *   - Items are grouped by their lower-cased form; any group containing 2+
+ *     distinct case-sensitive spellings is reported as one entry, with
+ *     `items` listed in order of first appearance in the source data.
+ *   - WARNING ONLY: this function and the counting functions never fold case
+ *     or merge these identities — they remain distinct items everywhere else.
+ */
+export interface DataQualityReport {
+  duplicatesRemoved: { column: number; columnName: string; count: number; examples: string[] }[];
+  emptyCellsSkipped: number;
+  caseCollisions: { items: string[] }[];
+  /** True if any of the above arrays is non-empty or emptyCellsSkipped > 0. */
+  hasWarnings: boolean;
+}
+
+const MAX_DUPLICATE_EXAMPLES = 5;
+
+/**
+ * Pure, read-only analysis of data-quality issues (duplicates, empty cells,
+ * case collisions) in the selected columns of `csv`. See {@link DataQualityReport}
+ * for exact detection semantics. Never mutates `csv` and never folds/merges
+ * item case — case collisions are reported, not normalised.
+ */
+export function analyzeDataQuality(
+  csv: CsvData,
+  columns: number[],
+  fileType: FileType,
+  itemDelimiter: Delimiter = ',',
+): DataQualityReport {
+  const duplicatesRemoved: DataQualityReport['duplicatesRemoved'] = [];
+  let emptyCellsSkipped = 0;
+
+  // Tracks, in order of first appearance, every distinct case-sensitive item
+  // string considered "in scope" for case-collision detection.
+  const firstSeenOrder: string[] = [];
+  // lowercase form -> set of distinct case-sensitive spellings seen (insertion order)
+  const caseGroups = new Map<string, Set<string>>();
+
+  const registerForCaseCollision = (item: string) => {
+    const lower = item.toLowerCase();
+    let variants = caseGroups.get(lower);
+    if (!variants) {
+      variants = new Set<string>();
+      caseGroups.set(lower, variants);
+    }
+    if (!variants.has(item)) {
+      variants.add(item);
+      firstSeenOrder.push(item);
+    }
+  };
+
+  if (fileType === 'aggregated') {
+    for (const colIdx of columns) {
+      const header = csv.headers[colIdx] ?? `Column ${colIdx + 1}`;
+      const seen = new Map<string, number>(); // item -> occurrence count within this column
+      const exampleOrder: string[] = [];
+
+      for (const row of csv.rows) {
+        const cell = (row[colIdx] ?? '').trim();
+        if (!cell) {
+          emptyCellsSkipped++;
+          continue;
+        }
+        const items = cell.split(itemDelimiter).map(s => s.trim()).filter(s => s);
+        for (const item of items) {
+          const count = (seen.get(item) ?? 0) + 1;
+          seen.set(item, count);
+          if (count === 2) exampleOrder.push(item); // first moment it becomes a duplicate
+          registerForCaseCollision(item);
+        }
+      }
+
+      let colDuplicateCount = 0;
+      for (const count of seen.values()) {
+        if (count > 1) colDuplicateCount += count - 1;
+      }
+      if (colDuplicateCount > 0) {
+        duplicatesRemoved.push({
+          column: colIdx,
+          columnName: header,
+          count: colDuplicateCount,
+          examples: exampleOrder.slice(0, MAX_DUPLICATE_EXAMPLES),
+        });
+      }
+    }
+  } else {
+    // Binary mode: identity = trimmed row[0] ("title" column), scoped to rows
+    // that contribute to the count (at least one truthy selected column),
+    // mirroring calculateVennCounts' own rowMask === 0 skip.
+    const idColumn = 0;
+    const idColumnName = csv.headers[idColumn] ?? 'Column 1';
+    const seen = new Map<string, number>();
+    const exampleOrder: string[] = [];
+
+    for (const row of csv.rows) {
+      let rowMask = 0;
+      for (let i = 0; i < columns.length; i++) {
+        const val = row[columns[i]];
+        if (val === '1' || val?.toLowerCase() === 'true' || val?.toLowerCase() === 'yes') {
+          rowMask |= (1 << i);
+        }
+      }
+
+      for (const colIdx of columns) {
+        if ((row[colIdx] ?? '').trim() === '') emptyCellsSkipped++;
+      }
+
+      if (rowMask === 0) continue; // matches calculateVennCounts' own skip
+
+      const id = (row[idColumn] ?? '').trim();
+      if (!id) continue;
+      const count = (seen.get(id) ?? 0) + 1;
+      seen.set(id, count);
+      if (count === 2) exampleOrder.push(id);
+      registerForCaseCollision(id);
+    }
+
+    let idDuplicateCount = 0;
+    for (const count of seen.values()) {
+      if (count > 1) idDuplicateCount += count - 1;
+    }
+    if (idDuplicateCount > 0) {
+      duplicatesRemoved.push({
+        column: idColumn,
+        columnName: idColumnName,
+        count: idDuplicateCount,
+        examples: exampleOrder.slice(0, MAX_DUPLICATE_EXAMPLES),
+      });
+    }
+  }
+
+  const caseCollisions: DataQualityReport['caseCollisions'] = [];
+  const emittedLower = new Set<string>();
+  for (const item of firstSeenOrder) {
+    const lower = item.toLowerCase();
+    if (emittedLower.has(lower)) continue;
+    const variants = caseGroups.get(lower);
+    if (variants && variants.size > 1) {
+      caseCollisions.push({ items: Array.from(variants) });
+      emittedLower.add(lower);
+    }
+  }
+
+  return {
+    duplicatesRemoved,
+    emptyCellsSkipped,
+    caseCollisions,
+    hasWarnings: duplicatesRemoved.length > 0 || emptyCellsSkipped > 0 || caseCollisions.length > 0,
+  };
 }
 
 /**

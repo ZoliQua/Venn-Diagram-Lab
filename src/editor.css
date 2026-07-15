@@ -3168,6 +3168,36 @@ html, body, #root {
   padding: 8px 0;
 }
 
+.csv-import-warning-panel {
+  border: 1px solid var(--warning);
+  background: rgba(239, 108, 0, 0.1);
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+
+.csv-import-warning-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--warning);
+  margin-bottom: 4px;
+}
+
+.csv-import-warning-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 11.5px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.csv-import-warning-list li {
+  margin-bottom: 2px;
+}
+
+.csv-import-warning-list li:last-child {
+  margin-bottom: 0;
+}
+
 .csv-import-actions {
   display: flex;
   justify-content: flex-end;

@@ -10,6 +10,7 @@ import {
   parseGmt,
   parseGmx,
   parseExcelFile,
+  analyzeDataQuality,
 } from '../utils/csvParser.ts';
 import type { CsvData } from '../utils/csvParser.ts';
 
@@ -207,21 +208,18 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
     setError(null);
   };
 
-  const handleLoad = () => {
-    if (!fullCsv) {
-      setError('Failed to parse CSV file');
-      return;
-    }
+  // The csv as it will actually be imported: custom headers applied (when no
+  // header row) and row filtering applied (when "Import Selected Rows" is used).
+  // Factored out so both handleLoad and the data-quality preview analyze the
+  // same final data.
+  const finalCsv = useMemo((): CsvData | null => {
+    if (!fullCsv) return null;
 
-    const cols = Array.from(selectedColumns).sort((a, b) => a - b);
-
-    // Apply custom headers if no header row
     let csv = fullCsv;
     if (!hasHeader) {
       csv = { ...fullCsv, headers: customHeaders.slice(0, colCount) };
     }
 
-    // Apply row filtering
     if (rowMode === 'selected') {
       const selectedRows = parseRowSpec(selectedRowsSpec);
       const skippingRows = parseRowSpec(skippingRowsSpec);
@@ -245,10 +243,34 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
       csv = { headers: csv.headers, rows: filteredRows };
     }
 
+    return csv;
+  }, [fullCsv, hasHeader, customHeaders, colCount, rowMode, selectedRowsSpec, skippingRowsSpec]);
+
+  // Non-blocking data-quality preview (duplicates / empty cells / case collisions).
+  // Purely informational — never prevents Load Data.
+  const qualityReport = useMemo(() => {
+    if (!finalCsv) return null;
+    const cols = Array.from(selectedColumns).sort((a, b) => a - b);
+    if (cols.length < 2) return null;
+    try {
+      return analyzeDataQuality(finalCsv, cols, fileType, itemDelimiter);
+    } catch {
+      return null;
+    }
+  }, [finalCsv, selectedColumns, fileType, itemDelimiter]);
+
+  const handleLoad = () => {
+    if (!finalCsv) {
+      setError('Failed to parse CSV file');
+      return;
+    }
+
+    const cols = Array.from(selectedColumns).sort((a, b) => a - b);
+
     // Validate
     const validationError = fileType === 'binary'
-      ? validateBinaryColumns(csv, cols)
-      : validateAggregatedColumns(csv, cols);
+      ? validateBinaryColumns(finalCsv, cols)
+      : validateAggregatedColumns(finalCsv, cols);
 
     if (validationError) {
       setError(validationError);
@@ -256,7 +278,7 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
     }
 
     onLoad({
-      csv,
+      csv: finalCsv,
       fileType,
       selectedColumns: cols,
       itemDelimiter: fileType === 'aggregated' ? itemDelimiter : undefined,
@@ -264,6 +286,7 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
       geneSetMeta: geneSetParsed?.meta,
       sourceFormat,
       sheetIndex: isExcel ? Math.max(0, sheetNames?.indexOf(selectedSheet) ?? 0) : undefined,
+      quality: analyzeDataQuality(finalCsv, cols, fileType, itemDelimiter),
     });
   };
 
@@ -471,6 +494,35 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
               </div>
             )}
           </div>
+
+          {/* Data quality warnings (non-blocking) */}
+          {qualityReport && qualityReport.hasWarnings && (
+            <div className="csv-import-section">
+              <div className="csv-import-warning-panel">
+                <div className="csv-import-warning-title">Data quality notice</div>
+                <ul className="csv-import-warning-list">
+                  {qualityReport.duplicatesRemoved.map(d => (
+                    <li key={d.column}>
+                      {d.count} duplicate{d.count === 1 ? '' : 's'} in "{d.columnName}"
+                      {d.examples.length > 0 && <> (e.g. {d.examples.join(', ')})</>}
+                    </li>
+                  ))}
+                  {qualityReport.emptyCellsSkipped > 0 && (
+                    <li>
+                      {qualityReport.emptyCellsSkipped} empty cell{qualityReport.emptyCellsSkipped === 1 ? '' : 's'} skipped in the selected columns
+                    </li>
+                  )}
+                  {qualityReport.caseCollisions.length > 0 && (
+                    <li>
+                      {qualityReport.caseCollisions.length} case-only difference{qualityReport.caseCollisions.length === 1 ? '' : 's'} found (not merged — treated as distinct items):{' '}
+                      {qualityReport.caseCollisions.slice(0, 3).map(g => g.items.join(' / ')).join('; ')}
+                      {qualityReport.caseCollisions.length > 3 && ` and ${qualityReport.caseCollisions.length - 3} more`}
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          )}
 
           {/* Error */}
           {error && <div className="csv-import-error">{error}</div>}
