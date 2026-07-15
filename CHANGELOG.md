@@ -13,7 +13,18 @@ All notable changes to the Venn Diagram Lab project.
 - **Python/R script export** from the Data mode sidebar. Users can download a reproducible `.py` or `.R` script that recreates the current analysis with the `venn-diagram-lab` Python package or the `vennDiagramLab` R package.
 - **Full Report (zip)** now bundles `analysis_script.py`, `analysis_script.R`, and `session.json` alongside the existing artefacts.
 
+### Added — Statistics & Exports (all four surfaces: web, npm, Python, R; byte-parity)
+
+- **Bonferroni correction** — new `Bonferroni` column in the statistics TSV (FWER control alongside BH-FDR).
+- **Two-sided Fisher's exact test** — new `P_two_sided` column. The existing `P_value` is the one-sided Fisher's exact over-representation p-value; `P_two_sided` is the two-sided variant. Computed via a manual log-space point-mass sum for cross-language byte-parity.
+- **Jaccard & Dice 95% confidence intervals** — analytic Wilson score intervals, new `Jaccard_CI_low/high` and `Dice_CI_low/high` columns in the statistics TSV.
+- **One-vs-rest enrichment** — new TSV export testing each set against the union of all other sets (`Set/Name/Size/Rest_Size/Intersection/Expected/Fold_Enrichment/P_value/FDR/Bonferroni/Significant`). web sidebar export; npm `toOneVsRestTsv` + `vdl export one-vs-rest`; Python `to_one_vs_rest_tsv` + CLI; R `to_one_vs_rest_tsv`.
+- **JSON export** of the full result + statistics (6-decimal rounded, byte-identical across surfaces). web "Export JSON"; npm `toResultJson` + `vdl analyze --json`; Python `RegionResult.to_json` + `vdl export json`; R `to_result_json`.
+- **P-value floor** — display formatters now show `< 1e-300` for underflowed p-values.
+
 ### Changed
+
+- **Version lockstep** — Python and R packages brought to 2.5.0 to match the web/npm surfaces.
 
 - WelcomeDialog widened to prevent button overflow; added "Repository Packages" section label; restyled "Restore last session" button.
 - Data Open dialog buttons now wrap correctly instead of overflowing.

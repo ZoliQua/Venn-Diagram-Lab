@@ -1,7 +1,7 @@
 Package: vennDiagramLab
 Type: Package
 Title: Headless Venn Diagram Analysis and Rendering
-Version: 2.4.2
+Version: 2.5.0
 Date: 2026-06-10
 Authors@R: c(
     person("Zoltán", "Dul", email = "zoltan.dul@gmail.com",
