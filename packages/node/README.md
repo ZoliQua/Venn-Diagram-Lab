@@ -89,18 +89,54 @@ when no binary columns are detected.
 
 ## TSV exports
 
-Three export functions produce byte-identical output to the web tool's Export menu:
+Four export functions produce byte-identical output to the web tool's Export menu:
 
 ```ts
-import { toRegionSummaryTsv, toMatrixTsv, toStatisticsTsv } from 'venn-diagram-lab';
+import {
+  toRegionSummaryTsv, toMatrixTsv, toStatisticsTsv, toOneVsRestTsv,
+} from 'venn-diagram-lab';
 
 const regionSummary = toRegionSummaryTsv(result); // one row per region: label, count, items
 const matrix        = toMatrixTsv(result);        // item × set binary membership matrix
-const statistics    = toStatisticsTsv(result);    // pairwise Jaccard, Dice, enrichment, FDR
+const statistics    = toStatisticsTsv(result);    // pairwise Jaccard, Dice, enrichment, FDR, ...
+const oneVsRest     = toOneVsRestTsv(result);     // each set vs. the union of all other sets
 ```
 
-All three return a `string` (UTF-8 TSV, `\n` line endings). Write them with
+All four return a `string` (UTF-8 TSV, `\n` line endings). Write them with
 `fs.writeFileSync(path, tsv, 'utf8')`.
+
+`toStatisticsTsv` columns: `Set_A, Set_B, Name_A, Name_B, Size_A, Size_B, Intersection,
+Union, Jaccard, Overlap_Coeff, Dice, Expected, Fold_Enrichment, P_value, FDR, Bonferroni,
+P_two_sided, Jaccard_CI_low, Jaccard_CI_high, Dice_CI_low, Dice_CI_high, Significant`.
+`P_value` is the **one-sided** Fisher's exact over-representation p-value; `P_two_sided`
+is the **two-sided** Fisher's exact variant of the same pair. `Bonferroni` is the
+FWER-adjusted p-value (`min(1, p * m)`), reported alongside the existing
+Benjamini-Hochberg `FDR` column. `Jaccard_CI_low/high` and `Dice_CI_low/high` are
+analytic Wilson 95% confidence intervals.
+
+`toOneVsRestTsv` columns: `Set, Name, Size, Rest_Size, Intersection, Expected,
+Fold_Enrichment, P_value, FDR, Bonferroni, Significant`.
+
+These additions are export-layer only — the PDF report's Statistics pages
+(`renderPdfReport`, below) keep their existing column set.
+
+---
+
+## JSON export
+
+```ts
+import { toResultJson } from 'venn-diagram-lab';
+
+const json = toResultJson(result, 'venn-4-set'); // model id is optional, second argument
+fs.writeFileSync('result.json', json, 'utf8');
+```
+
+`toResultJson(result, model?)` returns a `string` — the full region + statistics result
+(model id, set names, universe size, every non-empty region with exclusive/inclusive
+counts and exclusive items, single-set sizes, and the pairwise statistics array
+including `bonferroni` / `pTwoSided`) as one canonical JSON document. Byte-equivalent to
+the web tool's "Full Result (JSON)" export, Python's `RegionResult.to_json()`, and R's
+`to_result_json()`.
 
 ---
 
@@ -251,12 +287,32 @@ npm install -g venn-diagram-lab
 # Print Region Summary to stdout
 vdl analyze genes.tsv
 
-# Write all three TSV outputs
+# Write all four outputs (TSV x3 + JSON)
 vdl analyze genes.tsv \
   --region-summary summary.tsv \
   --matrix         matrix.tsv \
-  --statistics     stats.tsv
+  --statistics     stats.tsv \
+  --json           result.json
 ```
+
+`--json <path>` writes the full result + statistics JSON (`toResultJson`); pair it with
+`--model <id>` to set the `model` field written into the JSON (defaults to `venn-<n>-set`).
+
+### Export
+
+`vdl export <kind> <input> [--out <path>]` writes a single TSV artifact to a path (or
+stdout, if `--out` is omitted):
+
+```bash
+vdl export one-vs-rest    genes.tsv --out one_vs_rest.tsv
+vdl export region-summary genes.tsv --out summary.tsv
+vdl export matrix         genes.tsv --out matrix.tsv
+vdl export statistics     genes.tsv --out stats.tsv
+```
+
+`one-vs-rest | region-summary | matrix | statistics` are the valid `<kind>` values.
+There is no `export json` subcommand — write the JSON export via `vdl analyze --json
+<path>` (above).
 
 ### Render
 

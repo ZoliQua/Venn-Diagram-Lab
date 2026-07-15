@@ -128,7 +128,11 @@ full catalog.
 - **Enrichment Plots**: collapsible section with Bar, Lollipop, and Heatmap plots of the pairwise hypergeometric results; metric toggle (−log₁₀(FDR) vs Fold Enrichment); per-plot SVG export
 - **Plot editor**: click any enrichment plot thumbnail to open a dedicated editor in the left sidebar (colours, fonts, background, visibility toggles). Per-plot style state; Back to Diagram returns to the previous view
 - Statistical Methods reference built into the Help dialog (Jaccard, Dice, Overlap Coefficient, hypergeometric enrichment, Fold Enrichment, Benjamini–Hochberg FDR)
-- Export: **SVG / PNG / JPG** image export + **Regions Summary TSV** + **Item Matrix TSV**
+- **Statistics TSV** now also reports **Bonferroni** (FWER-adjusted p-value, alongside the existing BH-FDR column), the **two-sided Fisher's exact p-value** (`P_two_sided`, next to the existing one-sided `P_value` over-representation test), and analytic Wilson **95% confidence intervals** for Jaccard and Dice (`Jaccard_CI_low/high`, `Dice_CI_low/high`)
+- **Enrichment: one-vs-rest (TSV)** export — tests each set against the union of all other sets (`Set/Name/Size/Rest_Size/Intersection/Expected/Fold_Enrichment/P_value/FDR/Bonferroni/Significant`)
+- **Full Result (JSON)** export — the complete region + statistics result as a single JSON document, byte-equivalent across web/Python/R/Node
+- Display formatters (PDF report, zip report README, Statistics tab) floor underflowed p-values at `< 1e-300` instead of showing `0`
+- Export: **SVG / PNG / JPG** image export + **Regions Summary TSV** + **Item Matrix TSV** + **Statistics TSV** + **Enrichment: one-vs-rest (TSV)** + **Full Result (JSON)**
 - **Report PDF**: Multi-page A4 report with data overview, pie chart, Venn diagram, UpSet plot, Network diagram with significant edges, full statistical tables (Jaccard, Dice, Enrichment), three enrichment plots, and methodology explanations
 - **Full Report (zip)**: single download bundling the PDF, TSVs, standalone SVGs, a 3-sheet Excel workbook (`enrichment_statistics_{n}-sets.xlsx`), the three enrichment stat SVGs, and a `README.txt` with provenance + the full *About This Report* text. 0–100% progress bar in the dialog
 - Export individual region items via right panel

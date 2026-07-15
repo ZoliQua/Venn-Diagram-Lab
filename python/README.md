@@ -279,17 +279,43 @@ vdl render venn --sample --show-items \
     --highlight-expr "A & B & ~C & ~D" --out /tmp/spot.svg
 ```
 
-## 6. Export to TSV 
+## 6. Export to TSV and JSON
 
-The TSV file matches the web tool's byte-for-byte.
+The TSV/JSON files match the web tool's byte-for-byte.
 
 ```python
 result.to_region_summary_tsv("regions.tsv")     # depth-sorted region table
-result.to_matrix_tsv("matrix.tsv")              # one row per item with set membership
-result.to_statistics_tsv("statistics.tsv")      # pairwise stats with FDR
+result.to_matrix_tsv("matrix.tsv")               # one row per item with set membership
+result.to_statistics_tsv("statistics.tsv")       # pairwise stats with FDR
+result.to_one_vs_rest_tsv("one_vs_rest.tsv")     # each set vs. the union of all other sets
+result.to_json("result.json")                    # full result + statistics as one JSON document
 ```
 
-These match the React web tool's three Export buttons exactly — including float formatting and spreadsheet-formula escaping. Byte-equivalence is enforced by the cross-package parity tests (`pytest python/tests/test_parity_with_webapp.py`) for all 5 bundled samples.
+These match the React web tool's Export buttons exactly — including float formatting and spreadsheet-formula escaping. Byte-equivalence is enforced by the cross-package parity tests (`pytest python/tests/test_parity_with_webapp.py`) for all 5 bundled samples.
+
+`to_statistics_tsv` columns: `Set_A, Set_B, Name_A, Name_B, Size_A, Size_B, Intersection,
+Union, Jaccard, Overlap_Coeff, Dice, Expected, Fold_Enrichment, P_value, FDR, Bonferroni,
+P_two_sided, Jaccard_CI_low, Jaccard_CI_high, Dice_CI_low, Dice_CI_high, Significant`.
+`P_value` is the **one-sided** Fisher's exact over-representation p-value (same
+hypergeometric test as before); `P_two_sided` is the **two-sided** Fisher's exact variant
+of the same pair. `Bonferroni` is the FWER-adjusted p-value (`min(1, p * m)`, `m` = number
+of pairwise tests), reported alongside the existing Benjamini-Hochberg `FDR` column.
+`Jaccard_CI_low/high` and `Dice_CI_low/high` are analytic Wilson 95% confidence intervals.
+
+`to_one_vs_rest_tsv` columns: `Set, Name, Size, Rest_Size, Intersection, Expected,
+Fold_Enrichment, P_value, FDR, Bonferroni, Significant` — one row per input set, tested
+against the union of all *other* sets via the same hypergeometric machinery as
+`to_statistics_tsv`.
+
+`to_json` (and the string-returning `to_json_str`) bundle the model id, set names,
+universe size, every non-empty region (exclusive/inclusive counts + exclusive items),
+single-set sizes, and the pairwise statistics array — including `bonferroni` and
+`pTwoSided` — in one document, matching the web tool's "Full Result (JSON)" export and
+the R `to_result_json()` byte-for-byte.
+
+Note: these new columns/exports live in the **TSV/JSON export layer**, not in the PDF
+report tables (`to_pdf_report`) — the PDF's Statistics pages keep their existing
+Jaccard/Dice/OC/FE/P-value/FDR columns.
 
 ## 7. Command-line interface
 
@@ -339,8 +365,10 @@ the same `RegionResult` writer methods as the Python API.
 |---|---|
 | `vdl export region-summary <input>` | Per-region exclusive + inclusive counts + items. |
 | `vdl export matrix <input>` | Binary item × set membership matrix. |
-| `vdl export statistics <input>` | Pairwise Jaccard / Dice / OC / FE / hypergeometric / BH-FDR. |
+| `vdl export statistics <input>` | Pairwise Jaccard / Dice / OC / FE / hypergeometric / BH-FDR / Bonferroni / two-sided Fisher / Jaccard+Dice Wilson CIs. |
 | `vdl export pairwise <input>` | Alias of `statistics` (common bioinformatics synonym). |
+| `vdl export one-vs-rest <input>` | Each set vs. the union of all other sets (size / expected / fold-enrichment / P-value / FDR / Bonferroni). |
+| `vdl export json <input>` | Full result + statistics as a single JSON document (`RegionResult.to_json`). |
 
 ### 7.4. `vdl report` — multi-page bundles
 

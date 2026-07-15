@@ -18,11 +18,11 @@
 * **Area-proportional 2- and 3-set layouts** via analytical (`solve_2set`) and approximate (`solve_3set`) solvers.
 * **UpSet plots** via [`ComplexUpset`](https://github.com/krassowski/complex-upset) with sort-by-size / sort-by-degree, depth / heatmap / custom color modes, and threshold cutoffs.
 * **Force-directed network views** via [`ggraph`](https://ggraph.data-imaginist.com/) + [`tidygraph`](https://tidygraph.data-imaginist.com/), with configurable edge metric (intersection / Jaccard / fold enrichment / overlap coefficient) and significance coloring.
-* **Five pairwise statistical metrics** (Jaccard, Dice, overlap coefficient, fold enrichment, hypergeometric over-representation) with BH-FDR adjustment.
+* **Five pairwise statistical metrics** (Jaccard, Dice, overlap coefficient, fold enrichment, hypergeometric over-representation) with BH-FDR adjustment, **Bonferroni** FWER control, the **two-sided Fisher's exact p-value**, and analytic Wilson **95% confidence intervals** for Jaccard and Dice.
 * **Multi-page PDF reports** combining overview, Venn + UpSet, statistics tables, network, and methodology pages in a single US-Letter-landscape document.
 * **`ggplot2` layer** (`geom_venn()`) and **`broom`-compatible S3 methods** (`tidy()` / `glance()` / `augment()`) for tidyverse + `targets` / `drake` pipeline integration.
-* **Byte-equivalent TSV exports** tested against the React webapp's golden fixtures — the same region-summary, item-matrix, and statistics files the web tool's "Export" buttons emit.
-* **Cross-implementation parity** verified by 12 byte-equivalence tests against the Python package's golden fixtures (4 sample datasets × 3 export types).
+* **Byte-equivalent TSV/JSON exports** tested against the React webapp's golden fixtures — region-summary, item-matrix, statistics, one-vs-rest enrichment (`to_one_vs_rest_tsv()`), and the full result as JSON (`to_result_json()`), matching the web tool's "Export" buttons.
+* **Cross-implementation parity** verified by byte-equivalence tests against the Python package's golden fixtures.
 
 ## 2. Install
 
@@ -152,6 +152,31 @@ The four new helpers chain naturally:
 masks <- parse_region_expression("A & B + B & C", n_sets = 4L)
 img   <- render_venn_svg(result, highlight = masks, show_items = TRUE)
 items <- exclusive_items(result, c("A", "B"))
+```
+
+### 6.3. Statistics + export additions (unreleased)
+
+- `to_statistics_tsv(result, path)` gains four columns: `Bonferroni` (FWER-adjusted
+  p-value, `min(1, p * m)`, alongside the existing Benjamini-Hochberg `FDR`),
+  `P_two_sided` (the two-sided Fisher's exact p-value for the same pair — note the
+  existing `P_value` column is the **one-sided** over-representation test), and
+  `Jaccard_CI_low/high` + `Dice_CI_low/high` (analytic Wilson 95% confidence intervals).
+- `to_one_vs_rest_tsv(result, path)` — new TSV export: tests each set against the union
+  of all other sets. Columns: `Set, Name, Size, Rest_Size, Intersection, Expected,
+  Fold_Enrichment, P_value, FDR, Bonferroni, Significant`.
+- `to_result_json(result, path)` — new JSON export: the full region + statistics result
+  (model, set names, universe size, every non-empty region, set sizes, and the pairwise
+  statistics array with `bonferroni` / `pTwoSided`) as a single canonical JSON document,
+  byte-equivalent to the web tool's "Full Result (JSON)" export and Python's
+  `RegionResult.to_json()`.
+
+These are additions to the **TSV/JSON export layer** — the PDF report's statistics
+tables (`to_pdf_report()`) are unchanged.
+
+```r
+to_statistics_tsv(result, "statistics.tsv")
+to_one_vs_rest_tsv(result, "one_vs_rest.tsv")
+to_result_json(result, "result.json")
 ```
 
 ## 7. Documentation
