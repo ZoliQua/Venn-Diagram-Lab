@@ -405,8 +405,8 @@ const HELP: Record<AppMode, HelpPage> = {
               { content: 'Sorensen-Dice Index: Dice coefficient for each pair.' },
               { content: 'Intersection Enrichment: hypergeometric test, fold enrichment, p-value, FDR (Benjamini-Hochberg). Significance markers.' },
               { content: 'Enrichment Plots: bar, lollipop and heatmap visualisations of the hypergeometric FDR (or Fold Enrichment) across all pairs. Per-plot SVG export.' },
-              { content: 'Plot editor: click any enrichment plot to open the plot editor in the left sidebar (replaces the View section). Customise colours, font, background, and visibility of axis labels / legend / markers. Back to Diagram returns to the previous view; per-plot style is preserved while the data is loaded. PDF export uses the default style and is unaffected.' },
-              { content: 'Export Statistics (TSV): all pairwise statistics in one file.' },
+              { content: 'Plot editor: click any enrichment plot to open the plot editor in the left sidebar (replaces the View section). Customise colours, font, background, and visibility of axis labels / legend / markers. A blue Back to Diagram button appears next to Close in the toolbar while the editor is open; per-plot style is preserved while the data is loaded. PDF export uses the default style and is unaffected.' },
+              { content: 'Export Statistics: Export All Statistics as TSV or XLSX (3-sheet workbook: Jaccard, Dice, Intersection Enrichment — includes Bonferroni, two-sided p-value, and 95% confidence intervals). Also includes Regions Summary (TSV), Item Matrix (TSV), one-vs-rest enrichment (TSV), and Full Result (JSON).' },
             ],
           },
         ],
@@ -422,10 +422,9 @@ const HELP: Record<AppMode, HelpPage> = {
             ],
           },
           {
-            heading: 'Data (TSV)',
+            heading: 'Data (TSV / XLSX / JSON)',
             items: [
-              { content: 'Regions Summary (TSV): all 2^n-1 regions with counts, percentages, and item lists.' },
-              { content: 'Item Matrix (TSV): per-item binary membership table with region labels.' },
+              { content: 'Region and statistics exports (Regions Summary, Item Matrix, one-vs-rest, Full Result JSON, and all statistics as TSV or XLSX) live under Export Statistics in the Statistics panel on the right, not in this left-hand Export section.' },
               { content: 'All TSV files are BOM-prefixed UTF-8 for Excel compatibility.' },
             ],
           },

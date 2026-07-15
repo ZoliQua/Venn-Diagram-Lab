@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { VennResult } from '../utils/csvParser.ts';
 import { pairwiseStatistics } from '../utils/statistics.ts';
 import { downloadFile, exportStatisticsTsv, sigLabel } from '../utils/exportData.ts';
+import { buildStatisticsWorkbook } from '../utils/statisticsWorkbook.ts';
 import { EnrichmentPlots } from './EnrichmentPlots.tsx';
 import type { EnrichmentMetric } from '../utils/enrichmentPlotSvg.ts';
 import type { EnrichmentPlotSettings, EnrichmentPlotType } from '../utils/enrichmentPlotStyle.ts';
@@ -21,6 +22,12 @@ interface DataSummaryPanelProps {
   onEnterPlotEdit: (plot: EnrichmentPlotType) => void;
   /** Guided tour (v1.13.0): forces the Enrichment Plots section open. */
   forceEnrichmentPlotsOpen?: boolean;
+  // Statistics-related exports moved here from the left sidebar — all
+  // statistics export lives in one place, under "Export Statistics".
+  onExportRegionSummary?: () => void;
+  onExportMatrix?: () => void;
+  onExportOneVsRest?: () => void;
+  onExportJson?: () => void;
 }
 
 export function formatP(p: number): string {
@@ -46,6 +53,7 @@ export function DataSummaryPanel({
   enrichmentMetric, onEnrichmentMetricChange,
   enrichmentPlotSettings, activeEnrichmentPlot, onEnterPlotEdit,
   forceEnrichmentPlotsOpen,
+  onExportRegionSummary, onExportMatrix, onExportOneVsRest, onExportJson,
 }: DataSummaryPanelProps) {
   const [overviewOpen, setOverviewOpen] = useState(true);
   const [plotsOpen, setPlotsOpen] = useState(true);
@@ -55,6 +63,7 @@ export function DataSummaryPanel({
   const [diceOpen, setDiceOpen] = useState(false);
   const [enrichmentOpen, setEnrichmentOpen] = useState(true);
   const [exportOpen, setExportOpen] = useState(true);
+  const [xlsxExporting, setXlsxExporting] = useState(false);
 
   const letters = 'ABCDEFGHI'.slice(0, n).split('');
 
@@ -90,6 +99,24 @@ export function DataSummaryPanel({
   // Export all statistics as TSV
   const handleExportStats = () => {
     downloadFile(exportStatisticsTsv(vennResult, n, totalItems, setNames), `venn_${n}set_statistics.tsv`);
+  };
+
+  // Export the same statistics as an Excel workbook (3 sheets: Jaccard, Dice, Enrichment)
+  const handleExportStatsXlsx = async () => {
+    setXlsxExporting(true);
+    try {
+      const blob = await buildStatisticsWorkbook(pairStats);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `venn_${n}set_statistics.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setXlsxExporting(false);
+    }
   };
 
   return (
@@ -164,7 +191,7 @@ export function DataSummaryPanel({
         {jaccardOpen && (
           <table className="data-summary-compact-table">
             <thead>
-              <tr><th>Pair</th><th>Inter</th><th>Union</th><th>Jaccard</th><th>OC</th></tr>
+              <tr><th>Pair</th><th>Inter</th><th>Union</th><th>Jaccard</th><th>95% CI</th><th>OC</th></tr>
             </thead>
             <tbody>
               {jaccardSorted.map(s => (
@@ -173,6 +200,7 @@ export function DataSummaryPanel({
                   <td>{s.intersection}</td>
                   <td>{s.union}</td>
                   <td>{s.jaccard.toFixed(3)}</td>
+                  <td>[{s.jaccardCiLow.toFixed(3)}, {s.jaccardCiHigh.toFixed(3)}]</td>
                   <td>{s.overlapCoeff.toFixed(3)}</td>
                 </tr>
               ))}
@@ -189,13 +217,14 @@ export function DataSummaryPanel({
         {diceOpen && (
           <table className="data-summary-compact-table">
             <thead>
-              <tr><th>Pair</th><th>Dice</th></tr>
+              <tr><th>Pair</th><th>Dice</th><th>95% CI</th></tr>
             </thead>
             <tbody>
               {jaccardSorted.map(s => (
                 <tr key={s.label}>
                   <td>{s.a}{s.b}</td>
                   <td>{s.dice.toFixed(3)}</td>
+                  <td>[{s.diceCiLow.toFixed(3)}, {s.diceCiHigh.toFixed(3)}]</td>
                 </tr>
               ))}
             </tbody>
@@ -211,11 +240,12 @@ export function DataSummaryPanel({
         {enrichmentOpen && (
           <>
             <div className="data-summary-hint">
-              Hypergeometric test (one-sided, over-representation). Background: {totalItems} items. FDR: Benjamini-Hochberg.
+              Hypergeometric test (one-sided, over-representation) + two-sided Fisher's exact test.
+              Background: {totalItems} items. FDR: Benjamini-Hochberg. Bonferroni: family-wise error rate.
             </div>
             <table className="data-summary-compact-table">
               <thead>
-                <tr><th>Pair</th><th>Obs</th><th>Exp</th><th>FE</th><th>p-value</th><th>FDR</th><th>Sig</th></tr>
+                <tr><th>Pair</th><th>Obs</th><th>Exp</th><th>FE</th><th>p-value</th><th>p (2-sided)</th><th>FDR</th><th>Bonferroni</th><th>Sig</th></tr>
               </thead>
               <tbody>
                 {pairStats.map(s => (
@@ -225,7 +255,9 @@ export function DataSummaryPanel({
                     <td>{s.expected.toFixed(1)}</td>
                     <td>{s.foldEnrichment.toFixed(2)}</td>
                     <td>{formatP(s.pValue)}</td>
+                    <td>{formatP(s.pTwoSided)}</td>
                     <td>{formatP(s.fdr)}</td>
+                    <td>{formatP(s.bonferroni)}</td>
                     <td>{sigLabel(s.fdr)}</td>
                   </tr>
                 ))}
@@ -241,9 +273,39 @@ export function DataSummaryPanel({
           <span>{exportOpen ? '▾' : '▸'} Export Statistics</span>
         </div>
         {exportOpen && (
-          <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={handleExportStats}>
-            Export Statistics (TSV)
-          </button>
+          <>
+            <div className="data-summary-hint" style={{ marginTop: 4 }}>
+              Export calculated data as tab-separated, Excel, or JSON files
+            </div>
+            <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+              <button className="btn btn-sm" style={{ flex: 1 }} onClick={handleExportStats}>
+                Export All Statistics (TSV)
+              </button>
+              <button className="btn btn-sm" style={{ flex: 1 }} onClick={handleExportStatsXlsx} disabled={xlsxExporting}>
+                {xlsxExporting ? 'Exporting…' : 'Export All Statistics (XLSX)'}
+              </button>
+            </div>
+            {onExportRegionSummary && (
+              <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportRegionSummary}>
+                Regions Summary (TSV)
+              </button>
+            )}
+            {onExportMatrix && (
+              <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportMatrix}>
+                Item Matrix (TSV)
+              </button>
+            )}
+            {onExportOneVsRest && (
+              <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportOneVsRest}>
+                Enrichment: one-vs-rest (TSV)
+              </button>
+            )}
+            {onExportJson && (
+              <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportJson}>
+                Full Result (JSON)
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

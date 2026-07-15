@@ -11,7 +11,6 @@ interface EnrichmentPlotEditorProps {
   onMetricChange: (m: EnrichmentMetric) => void;
   onUpdateStyle: (patch: Partial<EnrichmentPlotStyle>) => void;
   onResetStyle: () => void;
-  onExit: () => void;
 }
 
 const FONT_OPTIONS = ['Tahoma,sans-serif', 'Arial,sans-serif', 'Helvetica,sans-serif', 'Times New Roman,serif', 'Courier New,monospace'];
@@ -25,7 +24,7 @@ const FONT_LABELS: Record<string, string> = {
 
 export function EnrichmentPlotEditor({
   plotType, metric, style, nSets,
-  onMetricChange, onUpdateStyle, onResetStyle, onExit,
+  onMetricChange, onUpdateStyle, onResetStyle,
 }: EnrichmentPlotEditorProps) {
   const isHeatmap = plotType === 'heatmap';
   const isShareDist = plotType === 'shareDistribution';
@@ -250,9 +249,6 @@ export function EnrichmentPlotEditor({
       <div className="plot-editor-actions">
         <button className="btn btn-sm" onClick={onResetStyle}>
           Reset plot style
-        </button>
-        <button className="btn btn-accent btn-sm plot-editor-back-btn" onClick={onExit}>
-          {'\u2190'} Back to Diagram
         </button>
       </div>
     </div>

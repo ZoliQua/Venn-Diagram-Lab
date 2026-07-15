@@ -1644,6 +1644,8 @@ export default function App() {
         onGoMain={() => { setWelcomeOpen(true); }}
         theme={theme}
         onToggleTheme={handleToggleTheme}
+        plotEditActive={mode === 'data' && testPlotEditState !== null}
+        onExitPlotEdit={handleExitPlotEdit}
       />
 
       <div className="main-layout">
@@ -1767,29 +1769,6 @@ export default function App() {
               if (!doc?.texts.header) return;
               svgDoc.updateTextStyle(doc.texts.header.id, 'font-family', `'${font}'`);
             }}
-            onExportRegionSummary={testVennResult ? () => {
-              const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
-              let totalItems = 0;
-              for (const [, count] of testVennResult.exclusive) totalItems += count;
-              const tsv = exportRegionSummaryTsv(testVennResult, testColumnMapping.length, setNames, totalItems);
-              downloadFile(tsv, `venn_${testColumnMapping.length}set_regions.tsv`);
-            } : undefined}
-            onExportMatrix={testVennResult ? () => {
-              const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
-              const tsv = exportMatrixTsv(testVennResult, testColumnMapping.length, setNames);
-              downloadFile(tsv, `venn_${testColumnMapping.length}set_matrix.tsv`);
-            } : undefined}
-            onExportOneVsRest={testVennResult ? () => {
-              const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
-              const tsv = exportOneVsRestTsv(testVennResult, testColumnMapping.length, testVennResult.totalUniqueItems, setNames);
-              downloadFile(tsv, `venn_${testColumnMapping.length}set_one_vs_rest.tsv`);
-            } : undefined}
-            onExportJson={testVennResult ? () => {
-              const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
-              const model = testModel ? testModel.replace(/\.svg$/, '') : `venn-${testColumnMapping.length}-set`;
-              const json = exportResultJson(testVennResult, testColumnMapping.length, setNames, testVennResult.totalUniqueItems, model);
-              downloadFile(json, `venn_${testColumnMapping.length}set_result.json`, 'application/json', false);
-            } : undefined}
             upsetColorMode={upsetColorMode}
             onSetUpsetColorMode={setUpsetColorMode}
             upsetSortMode={upsetSortMode}
@@ -1840,7 +1819,6 @@ export default function App() {
             onEnrichmentMetricChange={setTestEnrichmentMetric}
             onUpdatePlotStyle={testPlotEditState ? (patch) => handleUpdatePlotStyle(testPlotEditState.plotType, patch) : undefined}
             onResetPlotStyle={testPlotEditState ? () => handleResetPlotStyle(testPlotEditState.plotType) : undefined}
-            onExitPlotEdit={handleExitPlotEdit}
             forceOpen={tourActive ? tourForceSidebarOpen : undefined}
           />
         ) : (
@@ -2253,6 +2231,29 @@ export default function App() {
                   activeEnrichmentPlot={testPlotEditState?.plotType ?? null}
                   onEnterPlotEdit={handleEnterPlotEdit}
                   forceEnrichmentPlotsOpen={tourActive && tourForceEnrichmentPlotsOpen}
+                  onExportRegionSummary={testVennResult ? () => {
+                    const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
+                    let totalItems = 0;
+                    for (const [, count] of testVennResult.exclusive) totalItems += count;
+                    const tsv = exportRegionSummaryTsv(testVennResult, testColumnMapping.length, setNames, totalItems);
+                    downloadFile(tsv, `venn_${testColumnMapping.length}set_regions.tsv`);
+                  } : undefined}
+                  onExportMatrix={testVennResult ? () => {
+                    const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
+                    const tsv = exportMatrixTsv(testVennResult, testColumnMapping.length, setNames);
+                    downloadFile(tsv, `venn_${testColumnMapping.length}set_matrix.tsv`);
+                  } : undefined}
+                  onExportOneVsRest={testVennResult ? () => {
+                    const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
+                    const tsv = exportOneVsRestTsv(testVennResult, testColumnMapping.length, testVennResult.totalUniqueItems, setNames);
+                    downloadFile(tsv, `venn_${testColumnMapping.length}set_one_vs_rest.tsv`);
+                  } : undefined}
+                  onExportJson={testVennResult ? () => {
+                    const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
+                    const model = testModel ? testModel.replace(/\.svg$/, '') : `venn-${testColumnMapping.length}-set`;
+                    const json = exportResultJson(testVennResult, testColumnMapping.length, setNames, testVennResult.totalUniqueItems, model);
+                    downloadFile(json, `venn_${testColumnMapping.length}set_result.json`, 'application/json', false);
+                  } : undefined}
                 />
               ) : (
                 <ViewerInfoPanel

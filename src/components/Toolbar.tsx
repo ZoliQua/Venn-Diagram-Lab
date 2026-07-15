@@ -45,6 +45,10 @@ interface ToolbarProps {
   onGoMain?: () => void;
   theme: ThemeMode;
   onToggleTheme: () => void;
+  /** Enrichment plot editor (v1.11.0): when a statistics chart is open, show
+   *  "Back to Diagram" next to Close instead of only at the bottom of the sidebar. */
+  plotEditActive?: boolean;
+  onExitPlotEdit?: () => void;
 }
 
 export function Toolbar({
@@ -61,6 +65,7 @@ export function Toolbar({
   onUndo, onRedo, onReport, onDataReportPdf, onDataReportZip,
   onGoMain,
   theme, onToggleTheme,
+  plotEditActive, onExitPlotEdit,
 }: ToolbarProps) {
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [dataMenu, setDataMenu] = useState<'open' | 'save' | 'report' | null>(null);
@@ -213,6 +218,7 @@ export function Toolbar({
                     >
                       Save Session
                     </button>
+                    <div className="toolbar-dropdown-separator" />
                     <button
                       className="mode-dropdown-item"
                       onClick={() => { onDataSaveSvg?.(); setDataMenu(null); }}
@@ -264,6 +270,11 @@ export function Toolbar({
                   </div>
                 )}
               </div>
+              {plotEditActive && (
+                <button className="btn btn-toolbar btn-accent" onClick={onExitPlotEdit}>
+                  {'←'} Back to Diagram
+                </button>
+              )}
               <button className="btn btn-toolbar btn-close-data" onClick={onDataClose}>Close</button>
             </div>
           </>

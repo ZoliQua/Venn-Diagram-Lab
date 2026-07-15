@@ -119,10 +119,6 @@ interface TestSidebarProps {
   onSetPlotBackground: (v: 'dark' | 'white') => void;
   proportionalAccuracy: ProportionalAccuracy | null;
   onResetDefaults: () => void;
-  onExportRegionSummary?: () => void;
-  onExportMatrix?: () => void;
-  onExportOneVsRest?: () => void;
-  onExportJson?: () => void;
   onSaveSvg?: () => void;
   onExportImage?: (format: 'png' | 'jpg') => void;
   onExportPython?: () => void;
@@ -135,7 +131,6 @@ interface TestSidebarProps {
   onEnrichmentMetricChange?: (m: EnrichmentMetric) => void;
   onUpdatePlotStyle?: (patch: Partial<EnrichmentPlotStyle>) => void;
   onResetPlotStyle?: () => void;
-  onExitPlotEdit?: () => void;
   /** Guided tour (v1.13.0): forces specific sections open regardless of local state. */
   forceOpen?: Partial<Record<'fileInfo' | 'model' | 'mapping' | 'view', boolean>>;
 }
@@ -175,7 +170,6 @@ export function TestSidebar({
   plotBackground, onSetPlotBackground,
   proportionalAccuracy,
   onResetDefaults,
-  onExportRegionSummary, onExportMatrix, onExportOneVsRest, onExportJson,
   onSaveSvg, onExportImage,
   onExportPython, onExportR, onExportNpm,
   plotEditState = null,
@@ -184,7 +178,6 @@ export function TestSidebar({
   onEnrichmentMetricChange,
   onUpdatePlotStyle,
   onResetPlotStyle,
-  onExitPlotEdit,
   forceOpen,
 }: TestSidebarProps) {
   useMemo(() => getModelsBySetCount(), []);
@@ -390,7 +383,7 @@ export function TestSidebar({
 
       {/* Plot Editor (v1.11.0) — replaces View section when active */}
       {isCalculated && plotEditState !== null && enrichmentMetric && enrichmentPlotSettings
-        && onEnrichmentMetricChange && onUpdatePlotStyle && onResetPlotStyle && onExitPlotEdit && (
+        && onEnrichmentMetricChange && onUpdatePlotStyle && onResetPlotStyle && (
         <div className="sidebar-section" data-tour="sidebar-plot-editor">
           <EnrichmentPlotEditor
             plotType={plotEditState.plotType}
@@ -400,7 +393,6 @@ export function TestSidebar({
             onMetricChange={onEnrichmentMetricChange}
             onUpdateStyle={onUpdatePlotStyle}
             onResetStyle={onResetPlotStyle}
-            onExit={onExitPlotEdit}
           />
         </div>
       )}
@@ -601,7 +593,7 @@ export function TestSidebar({
       )}
 
       {/* Export */}
-      {isCalculated && onExportRegionSummary && (
+      {isCalculated && (
         <div className="sidebar-section">
           <div className="sidebar-section-title sidebar-collapsible" onClick={() => setExportOpen(o => !o)}>
             <span>{exportOpen ? '▾' : '▸'} 5. Export</span>
@@ -616,23 +608,6 @@ export function TestSidebar({
               </div>
               {plotEditState === null && (
                 <>
-                  <div className="data-summary-hint" style={{ marginTop: 8 }}>Export calculated data as tab-separated files</div>
-                  <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportRegionSummary}>
-                    Regions Summary (TSV)
-                  </button>
-                  <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportMatrix}>
-                    Item Matrix (TSV)
-                  </button>
-                  {onExportOneVsRest && (
-                    <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportOneVsRest}>
-                      Enrichment: one-vs-rest (TSV)
-                    </button>
-                  )}
-                  {onExportJson && (
-                    <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportJson}>
-                      Full Result (JSON)
-                    </button>
-                  )}
                   <div className="data-summary-hint" style={{ marginTop: 8 }}>Reproducible analysis scripts</div>
                   <button className="btn btn-sm" style={{ width: '100%', marginTop: 4 }} onClick={onExportPython} disabled={!isCalculated}>
                     Export Python script
