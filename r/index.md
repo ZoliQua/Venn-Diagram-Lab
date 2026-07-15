@@ -44,6 +44,20 @@ Python package down to the byte.
   and the full result as JSON
   ([`to_result_json()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_result_json.md)),
   matching the web tool’s “Export” buttons.
+- **Cytoscape network export**
+  ([`to_network_graphml()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_network_graphml.md)
+  /
+  [`to_network_sif()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_network_sif.md))
+  — the set-relationship network as GraphML or SIF, byte-identical to
+  the web tool’s Network-view export buttons and the npm/Python
+  exporters.
+- **Data-quality warnings**
+  ([`analyze_data_quality()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/analyze_data_quality.md)
+  /
+  [`validate_dataset()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/validate_dataset.md))
+  — non-destructive detection of duplicate items, empty cells, and
+  case-only collisions in imported tables; item identity is never
+  changed.
 - **Cross-implementation parity** verified by byte-equivalence tests
   against the Python package’s golden fixtures.
 
@@ -235,6 +249,43 @@ are unchanged.
 to_statistics_tsv(result, "statistics.tsv")
 to_one_vs_rest_tsv(result, "one_vs_rest.tsv")
 to_result_json(result, "result.json")
+```
+
+### 6.4. Cytoscape network export + data-quality warnings (unreleased)
+
+- `to_network_graphml(result, path)` — writes the force-directed
+  set-relationship network (nodes = sets, edges = every pairwise
+  overlap) as Cytoscape-compatible GraphML XML, byte-identical to the
+  web tool’s Network-view “Export GraphML” button, npm’s
+  `toNetworkGraphml()`, and Python’s
+  [`to_network_graphml()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_network_graphml.md).
+- `to_network_sif(result, path)` — writes the same network as Cytoscape
+  SIF (one `<source>\toverlap\t<target>` line per edge, isolated nodes
+  as lone id lines), matching the web tool’s “Export SIF” button and the
+  npm/Python SIF exporters byte-for-byte.
+- `analyze_data_quality(headers, rows, mode = c("binary", "aggregated"), prefix_cols = 1L)`
+  — pure, read-only scan for duplicate items, empty/whitespace cells,
+  and case-only collisions (e.g. `TP53` vs `tp53`) in a parsed table.
+  Never mutates the input and never folds item case; case collisions are
+  reported, not merged.
+- `validate_dataset(path, mode = c("binary", "aggregated"), delimiter = NULL, prefix_cols = 1L, warn = TRUE)`
+  — convenience wrapper that loads a file the same way
+  [`load_csv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/load_csv.md)/[`load_tsv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/load_tsv.md)
+  do, runs
+  [`analyze_data_quality()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/analyze_data_quality.md)
+  over it, and (by default) emits a single
+  [`warning()`](https://rdrr.io/r/base/warning.html) summarizing any
+  findings.
+  [`load_csv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/load_csv.md)/[`load_tsv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/load_tsv.md)
+  themselves remain unchanged and never warn.
+
+``` r
+
+to_network_graphml(result, "network.graphml")
+to_network_sif(result, "network.sif")
+
+report <- validate_dataset("genes.csv", mode = "binary")
+report$has_warnings
 ```
 
 ## 7. Documentation

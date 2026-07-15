@@ -90,6 +90,29 @@
         </dt>
         <dd>List all bundled Venn diagram models</dd>
       </dl></div><div class="section level2">
+      <h2 id="data-quality-v-">Data quality (v2.5.0)<a class="anchor" aria-label="anchor" href="#data-quality-v-"></a></h2>
+
+      <div class="section-desc"><p>Read-only detection of duplicate items, empty cells, and case collisions in a parsed table, mirroring the loaders’ real dedup/skip behaviour.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="analyze_data_quality.html">analyze_data_quality()</a></code>
+
+        </dt>
+        <dd>Analyze a parsed table for data-quality issues</dd>
+
+        <dt>
+
+          <code><a href="validate_dataset.html">validate_dataset()</a></code>
+
+        </dt>
+        <dd>Load a CSV/TSV file and report data-quality issues, with an opt-in warning</dd>
+      </dl></div><div class="section level2">
       <h2 id="analysis">Analysis<a class="anchor" aria-label="anchor" href="#analysis"></a></h2>
 
       <div class="section-desc"><p>Compute regions and pairwise statistics from a <code>VennDataset</code>.</p></div>
@@ -247,7 +270,7 @@
       </dl></div><div class="section level2">
       <h2 id="data-exports-tsv-json-">Data exports (TSV / JSON)<a class="anchor" aria-label="anchor" href="#data-exports-tsv-json-"></a></h2>
 
-      <div class="section-desc"><p>Byte-equivalent writers for region summaries, item-membership matrices, pairwise and one-vs-rest statistics tables, and a full-result JSON export.</p></div>
+      <div class="section-desc"><p>Byte-equivalent writers for region summaries, item-membership matrices, pairwise and one-vs-rest statistics tables, a full-result JSON export, and Cytoscape network exports.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -288,6 +311,20 @@
 
         </dt>
         <dd>Write the full Venn result + statistics as canonical JSON</dd>
+
+        <dt>
+
+          <code><a href="to_network_graphml.html">to_network_graphml()</a></code>
+
+        </dt>
+        <dd>Write the Cytoscape GraphML network export</dd>
+
+        <dt>
+
+          <code><a href="to_network_sif.html">to_network_sif()</a></code>
+
+        </dt>
+        <dd>Write the Cytoscape SIF network export</dd>
       </dl></div><div class="section level2">
       <h2 id="bundle-exports-v-">Bundle exports (v2.2.3)<a class="anchor" aria-label="anchor" href="#bundle-exports-v-"></a></h2>
 

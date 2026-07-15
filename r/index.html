@@ -72,6 +72,10 @@
 <li>
 <strong>Byte-equivalent TSV/JSON exports</strong> tested against the React webapp’s golden fixtures — region-summary, item-matrix, statistics, one-vs-rest enrichment (<code><a href="reference/to_one_vs_rest_tsv.html">to_one_vs_rest_tsv()</a></code>), and the full result as JSON (<code><a href="reference/to_result_json.html">to_result_json()</a></code>), matching the web tool’s “Export” buttons.</li>
 <li>
+<strong>Cytoscape network export</strong> (<code><a href="reference/to_network_graphml.html">to_network_graphml()</a></code> / <code><a href="reference/to_network_sif.html">to_network_sif()</a></code>) — the set-relationship network as GraphML or SIF, byte-identical to the web tool’s Network-view export buttons and the npm/Python exporters.</li>
+<li>
+<strong>Data-quality warnings</strong> (<code><a href="reference/analyze_data_quality.html">analyze_data_quality()</a></code> / <code><a href="reference/validate_dataset.html">validate_dataset()</a></code>) — non-destructive detection of duplicate items, empty cells, and case-only collisions in imported tables; item identity is never changed.</li>
+<li>
 <strong>Cross-implementation parity</strong> verified by byte-equivalence tests against the Python package’s golden fixtures.</li>
 </ul>
 </div>
@@ -241,6 +245,26 @@
 <span><span class="fu"><a href="reference/to_one_vs_rest_tsv.html">to_one_vs_rest_tsv</a></span><span class="op">(</span><span class="va">result</span>, <span class="st">"one_vs_rest.tsv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/to_result_json.html">to_result_json</a></span><span class="op">(</span><span class="va">result</span>, <span class="st">"result.json"</span><span class="op">)</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="id_64-cytoscape-network-export--data-quality-warnings-unreleased">6.4. Cytoscape network export + data-quality warnings (unreleased)<a class="anchor" aria-label="anchor" href="#id_64-cytoscape-network-export--data-quality-warnings-unreleased"></a>
+</h3>
+<ul>
+<li>
+<code>to_network_graphml(result, path)</code> — writes the force-directed set-relationship network (nodes = sets, edges = every pairwise overlap) as Cytoscape-compatible GraphML XML, byte-identical to the web tool’s Network-view “Export GraphML” button, npm’s <code>toNetworkGraphml()</code>, and Python’s <code><a href="reference/to_network_graphml.html">to_network_graphml()</a></code>.</li>
+<li>
+<code>to_network_sif(result, path)</code> — writes the same network as Cytoscape SIF (one <code>&lt;source&gt;\toverlap\t&lt;target&gt;</code> line per edge, isolated nodes as lone id lines), matching the web tool’s “Export SIF” button and the npm/Python SIF exporters byte-for-byte.</li>
+<li>
+<code>analyze_data_quality(headers, rows, mode = c("binary", "aggregated"), prefix_cols = 1L)</code> — pure, read-only scan for duplicate items, empty/whitespace cells, and case-only collisions (e.g. <code>TP53</code> vs <code>tp53</code>) in a parsed table. Never mutates the input and never folds item case; case collisions are reported, not merged.</li>
+<li>
+<code>validate_dataset(path, mode = c("binary", "aggregated"), delimiter = NULL, prefix_cols = 1L, warn = TRUE)</code> — convenience wrapper that loads a file the same way <code><a href="reference/load_csv.html">load_csv()</a></code>/<code><a href="reference/load_tsv.html">load_tsv()</a></code> do, runs <code><a href="reference/analyze_data_quality.html">analyze_data_quality()</a></code> over it, and (by default) emits a single <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> summarizing any findings. <code><a href="reference/load_csv.html">load_csv()</a></code>/<code><a href="reference/load_tsv.html">load_tsv()</a></code> themselves remain unchanged and never warn.</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/to_network_graphml.html">to_network_graphml</a></span><span class="op">(</span><span class="va">result</span>, <span class="st">"network.graphml"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/to_network_sif.html">to_network_sif</a></span><span class="op">(</span><span class="va">result</span>, <span class="st">"network.sif"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">report</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/validate_dataset.html">validate_dataset</a></span><span class="op">(</span><span class="st">"genes.csv"</span>, mode <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span>
+<span><span class="va">report</span><span class="op">$</span><span class="va">has_warnings</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="id_7-documentation">7. Documentation<a class="anchor" aria-label="anchor" href="#id_7-documentation"></a>
@@ -306,7 +330,7 @@
 </h2>
 <p>If you use <code>vennDiagramLab</code> in published work, please cite both the software and the version you used.</p>
 <p>After install:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"vennDiagramLab"</span><span class="op">)</span></span></code></pre></div>
 <p>returns a <code>bibentry</code> with the correct version + DOI for the installed copy.</p>
 <div class="section level3">

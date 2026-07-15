@@ -21,6 +21,17 @@ the five bundled samples.
 - [`list_models()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/list_models.md)
   : List all bundled Venn diagram models
 
+## Data quality (v2.5.0)
+
+Read-only detection of duplicate items, empty cells, and case collisions
+in a parsed table, mirroring the loaders’ real dedup/skip behaviour.
+
+- [`analyze_data_quality()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/analyze_data_quality.md)
+  : Analyze a parsed table for data-quality issues
+- [`validate_dataset()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/validate_dataset.md)
+  : Load a CSV/TSV file and report data-quality issues, with an opt-in
+  warning
+
 ## Analysis
 
 Compute regions and pairwise statistics from a `VennDataset`.
@@ -79,8 +90,8 @@ webtool and Python package APIs.
 ## Data exports (TSV / JSON)
 
 Byte-equivalent writers for region summaries, item-membership matrices,
-pairwise and one-vs-rest statistics tables, and a full-result JSON
-export.
+pairwise and one-vs-rest statistics tables, a full-result JSON export,
+and Cytoscape network exports.
 
 - [`to_region_summary_tsv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_region_summary_tsv.md)
   : Write the Region Summary TSV
@@ -92,6 +103,10 @@ export.
   : Write the one-vs-rest Enrichment TSV
 - [`to_result_json()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_result_json.md)
   : Write the full Venn result + statistics as canonical JSON
+- [`to_network_graphml()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_network_graphml.md)
+  : Write the Cytoscape GraphML network export
+- [`to_network_sif()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_network_sif.md)
+  : Write the Cytoscape SIF network export
 
 ## Bundle exports (v2.2.3)
 

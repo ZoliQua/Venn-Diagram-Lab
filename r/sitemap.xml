@@ -21,6 +21,7 @@
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/SvgImage-class.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/VennDataset-class.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/analyze.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/analyze_data_quality.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/augment.RegionResult.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/bh_fdr.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/circle_intersection_area.html</loc></url>
@@ -61,6 +62,8 @@
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/tidy.RegionResult.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_excel_workbook.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_matrix_tsv.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_network_graphml.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_network_sif.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_one_vs_rest_tsv.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_pdf_report.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_region_summary_tsv.html</loc></url>
@@ -68,6 +71,7 @@
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_statistics_tsv.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_zip_report.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/union_items.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/validate_dataset.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/vdl_version.html</loc></url>
 </urlset>
 
