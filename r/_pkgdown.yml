@@ -32,6 +32,12 @@ reference:
       - list_samples
       - list_models
 
+  - title: Data quality (v2.5.0)
+    desc: Read-only detection of duplicate items, empty cells, and case collisions in a parsed table, mirroring the loaders' real dedup/skip behaviour.
+    contents:
+      - analyze_data_quality
+      - validate_dataset
+
   - title: Analysis
     desc: Compute regions and pairwise statistics from a `VennDataset`.
     contents:
