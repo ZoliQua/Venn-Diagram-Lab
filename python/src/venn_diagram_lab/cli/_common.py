@@ -7,8 +7,16 @@ from pathlib import Path
 
 import typer
 
-from venn_diagram_lab.io import Dataset, load_csv, load_gmt, load_gmx, load_tsv
-from venn_diagram_lab.samples import list_samples, load_sample
+from venn_diagram_lab.io import (
+    Dataset,
+    FileType,
+    load_csv,
+    load_csv_raw,
+    load_gmt,
+    load_gmx,
+    load_tsv,
+)
+from venn_diagram_lab.samples import list_samples, load_sample, load_sample_raw
 
 # Sentinel used by `--out -` (write to stdout). Callers check `is STDOUT_SENTINEL`.
 STDOUT_SENTINEL: Path = Path("__VDL_STDOUT__")
@@ -98,6 +106,37 @@ def load_input(value: str, *, mode: str = "binary", format: str | None = None) -
         "Try `vdl data samples` or `vdl list-samples` for the registry."
     )
     raise RuntimeError("unreachable")  # mypy hint; exit_error raises
+
+
+def load_input_raw(
+    value: str, *, format: str | None = None
+) -> tuple[list[str], list[list[str]], list[int], FileType] | None:
+    """Resolve `value` to a raw (headers, rows, columns, file_type) table.
+
+    Companion to :func:`load_input` for callers that want to run
+    `analyze_data_quality` over exactly what the real Dataset builder would
+    consume, without re-parsing the file by hand. Mirrors `load_input`'s own
+    resolution order (path first, then bundled sample name) and its default
+    `mode="binary"` for direct CSV/TSV files.
+
+    Returns `None` for GMT/GMX files and unknown extensions — those formats
+    don't have a natural "columns of a table" representation this analysis
+    can score the same way, so quality analysis is skipped for them (`vdl
+    data validate` still runs the ordinary schema checks in that case; only
+    the additive data-quality warnings are omitted).
+    """
+    p = Path(value)
+    if p.is_file():
+        ext = (format or p.suffix.lstrip(".")).lower()
+        if ext == "csv":
+            return load_csv_raw(p, binary=True)
+        if ext == "tsv":
+            return load_csv_raw(p, binary=True, delimiter="\t")
+        return None
+    samples = set(list_samples())
+    if value in samples:
+        return load_sample_raw(value)
+    return None
 
 
 def stem_for(value: str) -> str:

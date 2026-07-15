@@ -14,11 +14,13 @@ from venn_diagram_lab.cli._common import (
     examples_epilog,
     exit_error,
     load_input,
+    load_input_raw,
     resolve_out,
     resolve_sample_or_input,
     write_text_out,
 )
 from venn_diagram_lab.errors import VennDiagramError
+from venn_diagram_lab.io import analyze_data_quality
 from venn_diagram_lab.samples import list_samples
 
 app = typer.Typer(
@@ -42,6 +44,59 @@ def _items_total(ds: Any) -> int:
     for items in ds.items.values():
         seen.update(items)
     return len(seen)
+
+
+def _quality_warnings(resolved: str) -> list[dict[str, Any]]:
+    """Run the additive data-quality analysis for `resolved` and format warnings.
+
+    Returns an empty list for formats without a natural table-of-columns
+    representation (GMT/GMX) or if raw re-parsing fails for any reason —
+    this is a purely additive, best-effort pass alongside the schema checks
+    already run via `load_input`; it must never turn a successful load into
+    a failure.
+    """
+    try:
+        raw = load_input_raw(resolved)
+    except (VennDiagramError, OSError):
+        return []
+    if raw is None:
+        return []
+    headers, rows, columns, file_type = raw
+    report = analyze_data_quality(headers, rows, columns, file_type)
+
+    warnings: list[dict[str, Any]] = []
+    for dup in report.duplicates_removed:
+        examples = ", ".join(dup.examples)
+        warnings.append(
+            {
+                "kind": "duplicate-items",
+                "column": dup.column,
+                "column_name": dup.column_name,
+                "count": dup.count,
+                "examples": dup.examples,
+                "message": (
+                    f"column {dup.column_name!r}: {dup.count} duplicate item "
+                    f"occurrence(s) silently collapsed (e.g. {examples})"
+                ),
+            }
+        )
+    if report.empty_cells_skipped > 0:
+        warnings.append(
+            {
+                "kind": "empty-cells",
+                "count": report.empty_cells_skipped,
+                "message": f"{report.empty_cells_skipped} empty/blank cell(s) skipped",
+            }
+        )
+    for group in report.case_collisions:
+        warnings.append(
+            {
+                "kind": "case-collision",
+                "items": group.items,
+                "message": "possible case collision: " + " / ".join(group.items),
+            }
+        )
+    return warnings
 
 
 @app.command(
@@ -107,6 +162,7 @@ def cmd_validate(  # noqa: PLR0912 - flat validation pipeline reads better than 
                 doc["info"].append(
                     {"kind": "set-size", "set": set_name, "count": len(items)}
                 )
+        doc["warnings"].extend(_quality_warnings(resolved))
 
     if strict and doc["warnings"]:
         doc["errors"].extend(doc["warnings"])

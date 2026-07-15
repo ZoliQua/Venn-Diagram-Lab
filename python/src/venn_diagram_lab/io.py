@@ -277,6 +277,260 @@ def _aggregated_columns_to_dataset(
 
 
 # ---------------------------------------------------------------------------
+# Data-quality analysis (Feature 4)
+# ---------------------------------------------------------------------------
+
+FileType = Literal["binary", "aggregated"]
+
+MAX_DUPLICATE_EXAMPLES = 5
+# An item's occurrence count at which it first becomes a duplicate (its 2nd
+# sighting) — the point at which analyze_data_quality captures an example.
+_SECOND_OCCURRENCE = 2
+
+
+@dataclass(frozen=True)
+class DuplicateColumnReport:
+    """Duplicate-item summary for one column of a parsed table.
+
+    Attributes:
+        column: 0-based column index within the full parsed table.
+        column_name: Header for ``column`` (falls back to ``Column {i+1}``).
+        count: Redundant-occurrence count, i.e. ``sum(occurrences - 1)`` over
+            every item that appears more than once in this column's scope.
+            This is exactly the number of additions a Python ``set()`` would
+            silently swallow when building the real :class:`Dataset`.
+        examples: Up to :data:`MAX_DUPLICATE_EXAMPLES` item strings, each
+            captured at the moment it became a duplicate (its 2nd
+            occurrence), in encounter order.
+    """
+
+    column: int
+    column_name: str
+    count: int
+    examples: list[str]
+
+
+@dataclass(frozen=True)
+class CaseCollisionGroup:
+    """A group of distinct, case-sensitive spellings that share one lower-case form."""
+
+    items: list[str]
+
+
+@dataclass(frozen=True)
+class DataQualityReport:
+    """Pure, read-only summary of data-quality issues in a parsed table.
+
+    Mirrors the semantics of the TypeScript ``analyzeDataQuality`` (see
+    ``packages/core/src/csvParser.ts`` and
+    ``.superpowers/sdd/task-F4-ts-report.md``) with two deliberate,
+    Python-specific adjustments (both documented on
+    :func:`analyze_data_quality`):
+
+    1. No ``item_delimiter`` splitting in aggregated mode — Python's
+       :func:`_aggregated_columns_to_dataset` treats a whole trimmed cell as
+       one item, so there is nothing to split here either.
+    2. Binary mode reports one entry **per set column** (like aggregated
+       mode), not one flat entry keyed to the id column — because Python's
+       :func:`_binary_columns_to_dataset` stores membership as one
+       independent ``set()`` per target set, so silent collapsing happens
+       per column, not per raw identifier across the whole table.
+
+    Attributes:
+        duplicates_removed: Per-column duplicate summaries (only columns
+            with ``count > 0`` are included).
+        empty_cells_skipped: Total blank/whitespace-only cells across the
+            selected columns, exactly as counted during real ``Dataset``
+            construction.
+        case_collisions: Groups of item spellings that differ only by case
+            (e.g. ``["TP53", "tp53"]``). Purely descriptive — item identity
+            is never folded or merged.
+        has_warnings: ``True`` if any of the above is non-empty.
+    """
+
+    duplicates_removed: list[DuplicateColumnReport]
+    empty_cells_skipped: int
+    case_collisions: list[CaseCollisionGroup]
+    has_warnings: bool
+
+
+def analyze_data_quality(  # noqa: PLR0912, PLR0915 - two flat, mirrored branches read clearer than nested helpers
+    headers: list[str],
+    rows: list[list[str]],
+    columns: list[int],
+    file_type: FileType,
+    *,
+    id_column: int = 0,
+) -> DataQualityReport:
+    """Analyze duplicate/empty-cell/case-collision issues over a parsed table.
+
+    Pure and read-only: never mutates ``headers``/``rows`` and never folds
+    item case — case collisions are reported, not normalised. This function
+    describes what the *real* Dataset builders (`_binary_columns_to_dataset`,
+    `_aggregated_columns_to_dataset`) silently do when they call
+    ``set.add()``; it does not change that behaviour.
+
+    Args:
+        headers: Column headers of the parsed table.
+        rows: Data rows (each a list of cell strings), as produced by
+            ``_parse_table``.
+        columns: 0-based indices of the columns that represent sets —
+            for binary mode, the flag columns (id column excluded); for
+            aggregated mode, normally every column.
+        file_type: ``"binary"`` or ``"aggregated"``. See module docs and
+            :class:`DataQualityReport` for how each mode is scored.
+        id_column: Binary-mode only — index of the item-identifier column
+            (default 0, matching ``_binary_columns_to_dataset``'s
+            ``prefix_cols``-driven convention of column 0 always being the
+            id). Ignored in aggregated mode.
+
+    Returns:
+        DataQualityReport summarizing duplicates, empty cells, and case
+        collisions found in ``columns``.
+    """
+    duplicates_removed: list[DuplicateColumnReport] = []
+    empty_cells_skipped = 0
+
+    # Tracks, in order of first appearance, every distinct case-sensitive
+    # item string considered "in scope" for case-collision detection.
+    first_seen_order: list[str] = []
+    # lower-case form -> distinct case-sensitive spellings seen (insertion order)
+    case_groups: dict[str, list[str]] = {}
+
+    def register_for_case_collision(item: str) -> None:
+        lower = item.lower()
+        variants = case_groups.setdefault(lower, [])
+        if item not in variants:
+            variants.append(item)
+            first_seen_order.append(item)
+
+    if file_type == "aggregated":
+        for col_idx in columns:
+            col_name = headers[col_idx] if col_idx < len(headers) else f"Column {col_idx + 1}"
+            seen: dict[str, int] = {}
+            example_order: list[str] = []
+
+            for row in rows:
+                cell = (row[col_idx] if col_idx < len(row) else "").strip()
+                if not cell:
+                    empty_cells_skipped += 1
+                    continue
+                count = seen.get(cell, 0) + 1
+                seen[cell] = count
+                if count == _SECOND_OCCURRENCE:  # first moment it becomes a duplicate
+                    example_order.append(cell)
+                register_for_case_collision(cell)
+
+            col_duplicate_count = sum(c - 1 for c in seen.values() if c > 1)
+            if col_duplicate_count > 0:
+                duplicates_removed.append(
+                    DuplicateColumnReport(
+                        column=col_idx,
+                        column_name=col_name,
+                        count=col_duplicate_count,
+                        examples=example_order[:MAX_DUPLICATE_EXAMPLES],
+                    )
+                )
+    else:
+        # Binary mode: identity = trimmed row[id_column], but (unlike the TS
+        # surface) scored per set column, mirroring _binary_columns_to_dataset's
+        # one-Python-set-per-target-set storage. A row is only in scope for a
+        # given column if that column's cell is truthy for it (the same
+        # condition under which the real loader calls items[set_name].add(id));
+        # rows with a blank id are skipped entirely, matching the real loader's
+        # `if not row or not row[0].strip(): continue`.
+        for col_idx in columns:
+            col_name = headers[col_idx] if col_idx < len(headers) else f"Column {col_idx + 1}"
+            seen_binary: dict[str, int] = {}
+            example_order_binary: list[str] = []
+
+            for row in rows:
+                if not row or not (row[id_column] if id_column < len(row) else "").strip():
+                    continue  # real loader skips the whole row when id is blank
+                cell = (row[col_idx] if col_idx < len(row) else "")
+                if cell.strip() == "":
+                    empty_cells_skipped += 1
+                    continue
+                if cell.strip().lower() not in _TRUTHY:
+                    continue  # falsy: never reaches items[set_name].add(...)
+                item_id = row[id_column].strip()
+                count = seen_binary.get(item_id, 0) + 1
+                seen_binary[item_id] = count
+                if count == _SECOND_OCCURRENCE:
+                    example_order_binary.append(item_id)
+                register_for_case_collision(item_id)
+
+            col_duplicate_count = sum(c - 1 for c in seen_binary.values() if c > 1)
+            if col_duplicate_count > 0:
+                duplicates_removed.append(
+                    DuplicateColumnReport(
+                        column=col_idx,
+                        column_name=col_name,
+                        count=col_duplicate_count,
+                        examples=example_order_binary[:MAX_DUPLICATE_EXAMPLES],
+                    )
+                )
+
+    case_collisions: list[CaseCollisionGroup] = []
+    emitted_lower: set[str] = set()
+    for item in first_seen_order:
+        lower = item.lower()
+        if lower in emitted_lower:
+            continue
+        variants = case_groups.get(lower)
+        if variants and len(variants) > 1:
+            case_collisions.append(CaseCollisionGroup(items=list(variants)))
+            emitted_lower.add(lower)
+
+    return DataQualityReport(
+        duplicates_removed=duplicates_removed,
+        empty_cells_skipped=empty_cells_skipped,
+        case_collisions=case_collisions,
+        has_warnings=bool(duplicates_removed) or empty_cells_skipped > 0 or bool(case_collisions),
+    )
+
+
+def load_csv_raw(
+    path: Path | str,
+    *,
+    binary: bool = True,
+    delimiter: str | None = None,
+    prefix_cols: int = 1,
+) -> tuple[list[str], list[list[str]], list[int], FileType]:
+    """Parse a delimited file into the raw table :func:`analyze_data_quality` needs.
+
+    Companion to :func:`load_csv` that stops short of building a
+    :class:`Dataset`, for callers (e.g. `vdl data validate`) that want to run
+    a quality analysis over exactly the columns the real loader would use.
+
+    Args:
+        path: Path to the file.
+        binary: Same meaning as in :func:`load_csv`.
+        delimiter: Explicit delimiter; ``None`` auto-detects.
+        prefix_cols: Leading metadata columns in binary mode (default 1).
+
+    Returns:
+        ``(headers, rows, columns, file_type)`` where ``columns`` are the
+        0-based indices :func:`analyze_data_quality` should treat as sets
+        (matching what ``_binary_columns_to_dataset``/
+        ``_aggregated_columns_to_dataset`` would use), and ``file_type`` is
+        ``"binary"`` or ``"aggregated"``.
+    """
+    text, _src = _read_text(path)
+    delim = delimiter if delimiter is not None else _detect_delimiter(text)
+    headers, rows = _parse_table(text, delim)
+    if binary:
+        if len(headers) < prefix_cols + MIN_SETS:
+            raise InvalidDatasetError(
+                f"Binary file must have at least {MIN_SETS} data columns"
+            )
+        return headers, rows, list(range(prefix_cols, len(headers))), "binary"
+    if len(headers) < MIN_SETS:
+        raise InvalidDatasetError(f"Aggregated file must have at least {MIN_SETS} columns")
+    return headers, rows, list(range(len(headers))), "aggregated"
+
+
+# ---------------------------------------------------------------------------
 # Public loaders
 # ---------------------------------------------------------------------------
 

@@ -100,6 +100,82 @@ def test_data_validate_strict_promotes_warnings(tmp_path: Path) -> None:
     assert res.exit_code in (0, 1)
 
 
+# ----- Feature 4: data-quality warnings --------------------------------------
+
+# Binary TSV fixture (default `data validate` mode) with all three quality
+# issues: TP53 is truthy on SetA in two rows (duplicate, collapsed per
+# `_binary_columns_to_dataset`'s per-column Python set), EGFR's SetA cell is
+# blank (empty cell), and "tp53" vs "TP53" is a case collision.
+_QUALITY_TSV = (
+    "Gene\tSetA\tSetB\n"
+    "TP53\t1\t0\n"
+    "TP53\t1\t1\n"
+    "tp53\t0\t1\n"
+    "EGFR\t\t1\n"
+)
+
+
+def _write_quality_tsv(tmp_path: Path) -> Path:
+    p = tmp_path / "quality.tsv"
+    p.write_text(_QUALITY_TSV, encoding="utf-8")
+    return p
+
+
+def test_data_validate_emits_data_quality_warnings(tmp_path: Path) -> None:
+    src = _write_quality_tsv(tmp_path)
+    res = runner.invoke(app, ["data", "validate", str(src)])
+    assert res.exit_code == 0, res.output
+    doc = json.loads(res.output)
+    assert doc["errors"] == []
+    kinds = {w["kind"] for w in doc["warnings"]}
+    assert kinds == {"duplicate-items", "empty-cells", "case-collision"}
+
+    dup = next(w for w in doc["warnings"] if w["kind"] == "duplicate-items")
+    assert dup["column_name"] == "SetA"
+    assert dup["count"] == 1
+    assert dup["examples"] == ["TP53"]
+
+    empty = next(w for w in doc["warnings"] if w["kind"] == "empty-cells")
+    assert empty["count"] == 1
+
+    collision = next(w for w in doc["warnings"] if w["kind"] == "case-collision")
+    assert collision["items"] == ["TP53", "tp53"]
+
+
+def test_data_validate_strict_promotes_data_quality_warnings_to_errors(
+    tmp_path: Path,
+) -> None:
+    src = _write_quality_tsv(tmp_path)
+    res = runner.invoke(app, ["data", "validate", str(src), "--strict"])
+    assert res.exit_code == 1, res.output
+    doc = json.loads(res.output)
+    assert doc["warnings"] == []
+    assert len(doc["errors"]) == 3  # noqa: PLR2004
+    assert {e["kind"] for e in doc["errors"]} == {
+        "duplicate-items",
+        "empty-cells",
+        "case-collision",
+    }
+
+
+def test_data_validate_text_mode_shows_warnings(tmp_path: Path) -> None:
+    src = _write_quality_tsv(tmp_path)
+    res = runner.invoke(app, ["data", "validate", str(src), "--text"])
+    assert res.exit_code == 0, res.output
+    out = res.output.lower()
+    assert "warnings:" in out
+    assert "duplicate" in out
+
+
+def test_data_validate_clean_tsv_has_no_quality_warnings(tmp_path: Path) -> None:
+    src = tmp_path / "clean.tsv"
+    src.write_text("Gene\tSetA\tSetB\nG1\t1\t0\nG2\t0\t1\n", encoding="utf-8")
+    res = runner.invoke(app, ["data", "validate", str(src)])
+    assert res.exit_code == 0, res.output
+    doc = json.loads(res.output)
+    assert doc["warnings"] == []
+
+
 # ----- --sample flag coverage -----------------------------------------------
 
 

@@ -15,7 +15,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Literal, TypedDict
 
-from venn_diagram_lab.io import Dataset, load_csv, load_tsv
+from venn_diagram_lab.io import Dataset, FileType, load_csv, load_csv_raw, load_tsv
 
 
 class _SampleMeta(TypedDict):
@@ -83,6 +83,16 @@ def load_sample(name: str) -> Dataset:
         >>> analyze(ds).model
         'venn-4-set'
     """
+    path, meta = _resolve_sample(name)
+    binary = meta["mode"] == "binary"
+    prefix_cols: int = meta.get("prefix_cols", 1)
+    if meta["ext"] == "tsv":
+        return load_tsv(path, binary=binary, prefix_cols=prefix_cols)
+    return load_csv(path, binary=binary, prefix_cols=prefix_cols)
+
+
+def _resolve_sample(name: str) -> tuple[Path, _SampleMeta]:
+    """Look up a sample's file path + registry metadata, validating both exist."""
     if name not in _SAMPLE_REGISTRY:
         raise KeyError(
             f"{name!r} is not a known sample. Available: {list_samples()}"
@@ -94,8 +104,30 @@ def load_sample(name: str) -> Dataset:
             f"Sample file missing: {path}. "
             "Run `python python/scripts/sync_data.py` to populate _data/samples/."
         )
+    return path, meta
+
+
+def load_sample_raw(name: str) -> tuple[list[str], list[list[str]], list[int], FileType]:
+    """Companion to :func:`load_sample` returning the raw table for quality analysis.
+
+    Used by ``vdl data validate`` to run
+    :func:`venn_diagram_lab.io.analyze_data_quality` over bundled samples
+    using the same mode/prefix_cols the registry says :func:`load_sample`
+    itself would use, without re-deriving that metadata at the call site.
+
+    Args:
+        name: Sample identifier from :func:`list_samples`.
+
+    Returns:
+        ``(headers, rows, columns, file_type)`` — see
+        :func:`venn_diagram_lab.io.load_csv_raw`.
+
+    Raises:
+        KeyError: If ``name`` is not in the bundled registry.
+        FileNotFoundError: If the data file is missing.
+    """
+    path, meta = _resolve_sample(name)
     binary = meta["mode"] == "binary"
     prefix_cols: int = meta.get("prefix_cols", 1)
-    if meta["ext"] == "tsv":
-        return load_tsv(path, binary=binary, prefix_cols=prefix_cols)
-    return load_csv(path, binary=binary, prefix_cols=prefix_cols)
+    delimiter = "\t" if meta["ext"] == "tsv" else None
+    return load_csv_raw(path, binary=binary, delimiter=delimiter, prefix_cols=prefix_cols)
