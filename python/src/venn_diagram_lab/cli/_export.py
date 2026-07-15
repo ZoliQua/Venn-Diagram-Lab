@@ -288,3 +288,112 @@ def cmd_pairwise(
     """
     resolved = resolve_sample_or_input(input, sample)
     _emit(resolved, "statistics", out, "to_statistics_tsv", model)
+
+
+def _emit_network(
+    resolved: str,
+    kind: str,
+    out: Path | None,
+    writer_str_method: str,
+    model: str,
+    metric: str,
+    ext: str,
+) -> None:
+    """Write/stdout dispatch for the network exporters (need the extra `metric` kwarg)."""
+    try:
+        ds = load_input(resolved)
+        result = analyze(ds, model=model)
+    except (VennDiagramError, OSError) as e:
+        exit_error(str(e))
+    content = getattr(result, writer_str_method)(metric=metric)
+    target = resolve_out(out, resolved, kind, ext)
+    write_text_out(target, content)
+    if target is not STDOUT_SENTINEL:
+        typer.echo(f"Wrote {target}")
+
+
+@app.command(
+    "graphml",
+    epilog=examples_epilog(
+        "  vdl export graphml --sample                                            # demo run",
+        "  vdl export graphml dataset_real_cancer_drivers_4 --out /tmp/n.graphml",
+        "  vdl export graphml data/my.tsv --metric jaccard --out -                # stdout",
+    ),
+)
+def cmd_graphml(
+    input: Annotated[
+        str | None,
+        typer.Argument(
+            help="Dataset path or bundled sample name. Optional when --sample is given.",
+        ),
+    ] = None,
+    *,
+    sample: Annotated[
+        bool,
+        typer.Option(
+            "--sample",
+            help="Run with the bundled cancer-drivers sample (overrides INPUT default).",
+        ),
+    ] = False,
+    out: Annotated[Path | None, typer.Option("--out", "-o")] = None,
+    model: Annotated[str, typer.Option()] = "auto",
+    metric: Annotated[
+        str,
+        typer.Option(
+            help="Edge weight metric: 'intersection', 'jaccard', "
+            "'fold_enrichment', or 'overlap_coefficient'",
+        ),
+    ] = "intersection",
+) -> None:
+    """Write the Cytoscape GraphML network export (nodes = sets, edges = pairwise overlaps).
+
+    Every pairwise edge is included (unfiltered); `--metric` only selects
+    which stat drives the `weight` data field (`intersection` by default).
+    Matches the webtool's Network-view "GraphML" Cytoscape export byte-for-byte.
+    """
+    resolved = resolve_sample_or_input(input, sample)
+    _emit_network(resolved, "network", out, "to_network_graphml_str", model, metric, "graphml")
+
+
+@app.command(
+    "sif",
+    epilog=examples_epilog(
+        "  vdl export sif --sample                                               # demo run",
+        "  vdl export sif dataset_real_cancer_drivers_4 --out /tmp/n.sif",
+        "  vdl export sif data/my.tsv --metric jaccard --out -                   # stdout",
+    ),
+)
+def cmd_sif(
+    input: Annotated[
+        str | None,
+        typer.Argument(
+            help="Dataset path or bundled sample name. Optional when --sample is given.",
+        ),
+    ] = None,
+    *,
+    sample: Annotated[
+        bool,
+        typer.Option(
+            "--sample",
+            help="Run with the bundled cancer-drivers sample (overrides INPUT default).",
+        ),
+    ] = False,
+    out: Annotated[Path | None, typer.Option("--out", "-o")] = None,
+    model: Annotated[str, typer.Option()] = "auto",
+    metric: Annotated[
+        str,
+        typer.Option(
+            help="Edge weight metric: 'intersection', 'jaccard', "
+            "'fold_enrichment', or 'overlap_coefficient'",
+        ),
+    ] = "intersection",
+) -> None:
+    """Write the Cytoscape SIF network export (`<A>\\toverlap\\t<B>` per pairwise edge).
+
+    Every pairwise edge is included; isolated (degree-0) nodes are emitted as
+    lone id lines after all edges. Matches the webtool's Network-view "SIF"
+    Cytoscape export byte-for-byte. `--metric` has no effect on SIF (SIF
+    carries no weight column) but is accepted for symmetry with `graphml`.
+    """
+    resolved = resolve_sample_or_input(input, sample)
+    _emit_network(resolved, "network", out, "to_network_sif_str", model, metric, "sif")

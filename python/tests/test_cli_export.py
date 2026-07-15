@@ -107,3 +107,59 @@ def test_export_statistics_no_input_no_sample_exits_1() -> None:
     res = runner.invoke(app, ["export", "statistics"])
     assert res.exit_code == 1
     assert "INPUT required" in res.output or "use --sample" in res.output
+
+
+# ----- graphml / sif (Feature 8: Cytoscape network export) -----------------
+
+
+def test_export_graphml_writes_expected_structure(tmp_path: Path) -> None:
+    target = tmp_path / "n.graphml"
+    res = runner.invoke(app, ["export", "graphml", SAMPLE, "--out", str(target)])
+    assert res.exit_code == 0, res.output
+    content = target.read_text(encoding="utf-8")
+    assert content.startswith('<?xml version="1.0" encoding="UTF-8"?>')
+    assert content.endswith("</graphml>")
+
+
+def test_export_sif_writes_expected_structure(tmp_path: Path) -> None:
+    target = tmp_path / "n.sif"
+    res = runner.invoke(app, ["export", "sif", SAMPLE, "--out", str(target)])
+    assert res.exit_code == 0, res.output
+    content = target.read_text(encoding="utf-8")
+    assert "\toverlap\t" in content
+    assert not content.endswith("\n")
+
+
+def test_export_graphml_parity_with_api(tmp_path: Path) -> None:
+    """CLI byte-equivalent to direct Python API call."""
+    api_target = tmp_path / "api.graphml"
+    cli_target = tmp_path / "cli.graphml"
+    result = analyze(load_sample(SAMPLE))
+    result.to_network_graphml(api_target)
+    res = runner.invoke(app, ["export", "graphml", SAMPLE, "--out", str(cli_target)])
+    assert res.exit_code == 0
+    assert api_target.read_bytes() == cli_target.read_bytes()
+
+
+def test_export_sif_parity_with_api(tmp_path: Path) -> None:
+    """CLI byte-equivalent to direct Python API call."""
+    api_target = tmp_path / "api.sif"
+    cli_target = tmp_path / "cli.sif"
+    result = analyze(load_sample(SAMPLE))
+    result.to_network_sif(api_target)
+    res = runner.invoke(app, ["export", "sif", SAMPLE, "--out", str(cli_target)])
+    assert res.exit_code == 0
+    assert api_target.read_bytes() == cli_target.read_bytes()
+
+
+def test_export_graphml_to_stdout() -> None:
+    res = runner.invoke(app, ["export", "graphml", SAMPLE, "--out", "-"])
+    assert res.exit_code == 0
+    assert "<graphml" in res.output
+
+
+def test_export_sif_with_sample_flag(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
+    res = runner.invoke(app, ["export", "sif", "--sample"])
+    assert res.exit_code == 0, res.output
+    assert (tmp_path / f"{SAMPLE}__network.sif").exists()

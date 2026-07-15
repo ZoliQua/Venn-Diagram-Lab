@@ -100,6 +100,128 @@ def build_network_data(result: RegionResult, *, metric: EdgeMetric = "intersecti
     return NetworkData(nodes=tuple(nodes), edges=tuple(edges))
 
 
+def _xml_escape(s: str) -> str:
+    """XML-escape text/attribute content.
+
+    Mirrors ``packages/core/src/networkExport.ts`` ``xmlEscape`` exactly:
+    ``&`` first, then ``<``, ``>``, ``"``, ``'``. Order matters -- escaping
+    ``&`` after the others would double-escape the entities they introduce.
+    """
+    return (
+        s.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&apos;")
+    )
+
+
+_P_SCIENTIFIC_THRESHOLD = 0.001
+
+
+def _fmt_p(v: float) -> str:
+    """Statistics-TSV p-value formatting rule, reused for pValue + fdr."""
+    from venn_diagram_lab._tsv_escape import js_to_exponential_2, js_to_fixed  # noqa: PLC0415
+
+    return js_to_exponential_2(v) if v < _P_SCIENTIFIC_THRESHOLD else js_to_fixed(v, 6)
+
+
+_SIF_INTERACTION = "overlap"
+
+
+def to_network_sif(data: NetworkData) -> str:
+    """Cytoscape SIF (Simple Interaction Format) for a network.
+
+    One line per edge, in edge order: ``<sourceId>\\toverlap\\t<targetId>``
+    (letter ids, not labels). Isolated nodes (no incident edge) are emitted
+    as lone single-token lines AFTER all edge lines, in node-array order.
+    LF-joined, no trailing newline.
+
+    Mirrors ``packages/core/src/networkExport.ts`` ``toSif`` byte-for-byte.
+    """
+    lines: list[str] = []
+    connected: set[str] = set()
+
+    for e in data.edges:
+        connected.add(e.source)
+        connected.add(e.target)
+        lines.append(f"{e.source}\t{_SIF_INTERACTION}\t{e.target}")
+
+    for node in data.nodes:
+        if node.id not in connected:
+            lines.append(node.id)
+
+    return "\n".join(lines)
+
+
+# Fixed GraphML key order -- this is the parity contract. Do not reorder.
+# (id, for, attr.name, attr.type)
+_GRAPHML_KEYS: tuple[tuple[str, str, str, str], ...] = (
+    ("d0", "node", "label", "string"),
+    ("d1", "node", "size", "long"),
+    ("d2", "edge", "weight", "double"),
+    ("d3", "edge", "intersection", "long"),
+    ("d4", "edge", "jaccard", "double"),
+    ("d5", "edge", "foldEnrichment", "double"),
+    ("d6", "edge", "overlapCoeff", "double"),
+    ("d7", "edge", "dice", "double"),
+    ("d8", "edge", "pValue", "double"),
+    ("d9", "edge", "fdr", "double"),
+    ("d10", "edge", "significant", "boolean"),
+)
+
+
+def to_network_graphml(data: NetworkData) -> str:
+    """Standard GraphML XML for a network.
+
+    2-space indent, LF line endings, no trailing newline. Node data keys:
+    label, size. Edge data keys: weight, intersection, jaccard,
+    foldEnrichment, overlapCoeff, dice, pValue, fdr, significant.
+
+    Mirrors ``packages/core/src/networkExport.ts`` ``toGraphml`` byte-for-byte
+    (see the numeric-rendering table in ``build_network_data``'s module
+    docstring / the F8 byte spec: weight/jaccard/foldEnrichment/overlapCoeff
+    /dice use the JS-style ``toFixed`` helper, pValue/fdr use the shared
+    ``fmtP`` rule, sizes/intersections are plain integers).
+    """
+    from venn_diagram_lab._tsv_escape import js_to_fixed  # noqa: PLC0415
+
+    out: list[str] = []
+    out.append('<?xml version="1.0" encoding="UTF-8"?>')
+    out.append('<graphml xmlns="http://graphml.graphdrawing.org/xmlns">')
+
+    for kid, kfor, kname, ktype in _GRAPHML_KEYS:
+        out.append(f'  <key id="{kid}" for="{kfor}" attr.name="{kname}" attr.type="{ktype}"/>')
+
+    out.append('  <graph edgedefault="undirected">')
+
+    for node in data.nodes:
+        out.append(f'    <node id="{_xml_escape(node.id)}">')
+        out.append(f'      <data key="d0">{_xml_escape(node.label)}</data>')
+        out.append(f"      <data key=\"d1\">{node.size}</data>")
+        out.append("    </node>")
+
+    for e in data.edges:
+        out.append(
+            f'    <edge source="{_xml_escape(e.source)}" target="{_xml_escape(e.target)}">'
+        )
+        out.append(f'      <data key="d2">{js_to_fixed(e.weight, 6)}</data>')
+        out.append(f"      <data key=\"d3\">{e.intersection}</data>")
+        out.append(f'      <data key="d4">{js_to_fixed(e.jaccard, 4)}</data>')
+        out.append(f'      <data key="d5">{js_to_fixed(e.fold_enrichment, 3)}</data>')
+        out.append(f'      <data key="d6">{js_to_fixed(e.overlap_coefficient, 4)}</data>')
+        out.append(f'      <data key="d7">{js_to_fixed(e.dice, 4)}</data>')
+        out.append(f'      <data key="d8">{_fmt_p(e.p_value)}</data>')
+        out.append(f'      <data key="d9">{_fmt_p(e.p_adjusted)}</data>')
+        out.append(f'      <data key="d10">{"true" if e.significant else "false"}</data>')
+        out.append("    </edge>")
+
+    out.append("  </graph>")
+    out.append("</graphml>")
+
+    return "\n".join(out)
+
+
 def _weight_for_metric(
     metric: EdgeMetric,
     intersection: int,

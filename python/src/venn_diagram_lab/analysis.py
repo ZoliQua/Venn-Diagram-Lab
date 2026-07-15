@@ -232,6 +232,8 @@ class RegionResult:
         to_matrix_tsv(path): Write the webapp's Item Matrix TSV.
         to_statistics_tsv(path): Write the webapp's pairwise Statistics TSV.
         to_one_vs_rest_tsv(path): Write the webapp's one-vs-rest Enrichment TSV.
+        to_network_graphml(path): Write the webapp's Cytoscape GraphML network export.
+        to_network_sif(path): Write the webapp's Cytoscape SIF network export.
 
     Example:
         >>> from venn_diagram_lab import load_sample, analyze
@@ -873,6 +875,58 @@ class RegionResult:
         from pathlib import Path  # noqa: PLC0415
 
         Path(path).write_text(self.to_json_str(), encoding="utf-8", newline="")
+
+    def to_network_graphml_str(self, *, metric: EdgeMetric = "intersection") -> str:
+        """Return the Cytoscape GraphML export for the set-relationship network.
+
+        Mirrors ``packages/core/src/networkExport.ts`` ``toGraphml`` byte-for-byte.
+        See :func:`venn_diagram_lab.render.network.to_network_graphml` for the
+        format (fixed ``d0``..``d10`` key block, node/edge order = ``build_network_data``
+        order, JS-style numeric rendering). No trailing newline.
+        """
+        from venn_diagram_lab.render.network import (  # noqa: PLC0415
+            build_network_data,
+            to_network_graphml,
+        )
+
+        return to_network_graphml(build_network_data(self, metric=metric))
+
+    def to_network_sif_str(self, *, metric: EdgeMetric = "intersection") -> str:
+        """Return the Cytoscape SIF export for the set-relationship network.
+
+        Mirrors ``packages/core/src/networkExport.ts`` ``toSif`` byte-for-byte.
+        See :func:`venn_diagram_lab.render.network.to_network_sif` for the
+        format (one ``<source>\\toverlap\\t<target>`` line per edge, isolated
+        nodes as lone lines after all edges). No trailing newline.
+        """
+        from venn_diagram_lab.render.network import (  # noqa: PLC0415
+            build_network_data,
+            to_network_sif,
+        )
+
+        return to_network_sif(build_network_data(self, metric=metric))
+
+    def to_network_graphml(self, path: PathInput, *, metric: EdgeMetric = "intersection") -> None:
+        """Write the Cytoscape GraphML export to disk.
+
+        See :meth:`to_network_graphml_str` for the format.
+        """
+        from pathlib import Path  # noqa: PLC0415
+
+        Path(path).write_text(
+            self.to_network_graphml_str(metric=metric), encoding="utf-8", newline="",
+        )
+
+    def to_network_sif(self, path: PathInput, *, metric: EdgeMetric = "intersection") -> None:
+        """Write the Cytoscape SIF export to disk.
+
+        See :meth:`to_network_sif_str` for the format.
+        """
+        from pathlib import Path  # noqa: PLC0415
+
+        Path(path).write_text(
+            self.to_network_sif_str(metric=metric), encoding="utf-8", newline="",
+        )
 
 
 # ---------------------------------------------------------------------------
