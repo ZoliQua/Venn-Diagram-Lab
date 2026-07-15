@@ -1,5 +1,6 @@
 import { fillVennTemplate, loadVennTemplate } from './vennTemplate.ts';
 import {
+  analyzeDataQuality,
   buildEnrichmentBarSvg,
   buildEnrichmentLollipopSvg,
   buildNetworkData,
@@ -28,10 +29,13 @@ import {
   solve3SetLayout,
   upsetDataFromVennResult,
   type CsvData,
+  type DataQualityReport,
   type EdgeWeightMetric,
   type EnrichmentMetric,
   type VennResult,
 } from '@venn-diagram-lab/core';
+
+export type { DataQualityReport } from '@venn-diagram-lab/core';
 
 const LETTERS = 'ABCDEFGHI';
 
@@ -121,6 +125,18 @@ export function analyzeGmtText(text: string): AnalyzeResult {
 /** Analyse a GMX (column-oriented gene-set) file. */
 export function analyzeGmxText(text: string): AnalyzeResult {
   return analyzeCsv(parseGmx(text).csv);
+}
+
+/**
+ * Pure, read-only data-quality report (duplicates, empty cells, case
+ * collisions) for an already-analysed result. See core's
+ * {@link DataQualityReport} for exact detection semantics. Never mutates
+ * `result` and never affects `result.venn` — item identity is unchanged.
+ * Aggregated mode always uses the default ',' item delimiter, matching the
+ * delimiter `analyzeCsv`/`analyzeCsvText` use to compute `result.venn`.
+ */
+export function toDataQuality(result: AnalyzeResult): DataQualityReport {
+  return analyzeDataQuality(result.csv, result.columns, result.mode);
 }
 
 /** Force-directed Network SVG of the set relationships. */

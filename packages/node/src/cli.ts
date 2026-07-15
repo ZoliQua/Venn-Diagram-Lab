@@ -6,7 +6,7 @@ import { Command } from 'commander';
 import { detectGeneSetFormat, type EdgeWeightMetric, type EnrichmentMetric } from '@venn-diagram-lab/core';
 import {
   analyzeGmtText, analyzeGmxText, analyzeCsvText,
-  toMatrixTsv, toOneVsRestTsv, toRegionSummaryTsv, toResultJson, toStatisticsTsv,
+  toDataQuality, toMatrixTsv, toOneVsRestTsv, toRegionSummaryTsv, toResultJson, toStatisticsTsv,
   toNetworkGraphml, toNetworkSif,
   toNetworkSvg, toShareDistributionSvg, toEnrichmentBarSvg, toEnrichmentLollipopSvg, toUpsetSvg,
   toProportionalSvg, toVennSvg,
@@ -44,6 +44,21 @@ program
       fmt === 'gmt' ? analyzeGmtText(text) :
       fmt === 'gmx' ? analyzeGmxText(text) :
       analyzeCsvText(text);
+    const quality = toDataQuality(result);
+    if (quality.hasWarnings) {
+      const parts: string[] = [];
+      if (quality.duplicatesRemoved.length > 0) {
+        const total = quality.duplicatesRemoved.reduce((sum: number, d: { count: number }) => sum + d.count, 0);
+        parts.push(`${total} duplicate item${total === 1 ? '' : 's'} collapsed`);
+      }
+      if (quality.emptyCellsSkipped > 0) {
+        parts.push(`${quality.emptyCellsSkipped} empty cell${quality.emptyCellsSkipped === 1 ? '' : 's'} skipped`);
+      }
+      if (quality.caseCollisions.length > 0) {
+        parts.push(`${quality.caseCollisions.length} case-collision group${quality.caseCollisions.length === 1 ? '' : 's'}`);
+      }
+      process.stderr.write(`warning: ${parts.join(', ')}\n`);
+    }
     let wroteFile = false;
     if (opts.regionSummary) { writeFileSync(opts.regionSummary, toRegionSummaryTsv(result), 'utf8'); wroteFile = true; }
     if (opts.matrix) { writeFileSync(opts.matrix, toMatrixTsv(result), 'utf8'); wroteFile = true; }
