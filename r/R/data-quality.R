@@ -13,22 +13,22 @@
 #' blank-identifier-row skipping) and reports what would be silently
 #' collapsed or skipped, instead of collapsing/skipping it. It never mutates
 #' `headers`/`rows`, never lower-cases an item before recording it, and never
-#' calls into `VennDataset` construction — a purely descriptive pass.
+#' calls into `VennDataset` construction -- a purely descriptive pass.
 #'
 #' ## Mirroring R's real loader behaviour (not TS/Python byte-parity)
 #'
 #' * **Aggregated mode**: like [`.aggregated_columns_to_dataset()`], a whole
-#'   trimmed cell is treated as *one* item — there is no delimiter-splitting
+#'   trimmed cell is treated as *one* item -- there is no delimiter-splitting
 #'   in R's real loader, so none happens here either.
 #' * **Binary mode**: like [`.binary_columns_to_dataset()`], only column 1 is
 #'   read as the item identifier (any extra `prefix_cols` beyond the first
 #'   are metadata the loader itself never reads). Rows whose identifier is
-#'   blank after trimming are skipped **entirely** — not scored for
-#'   duplicates, case collisions, or empty cells — exactly mirroring
+#'   blank after trimming are skipped **entirely** -- not scored for
+#'   duplicates, case collisions, or empty cells -- exactly mirroring
 #'   `valid_idx` in `.binary_columns_to_dataset()`. Duplicates are scored
 #'   **per set column** (mirroring the loader's own `unique()` applied
 #'   independently to each set's truthy identifiers), not as one flat
-#'   id-column entry — R has no "row contributes if any column is truthy"
+#'   id-column entry -- R has no "row contributes if any column is truthy"
 #'   concept the way the TS array-based loader does, so unlike TS/Python,
 #'   ALL non-blank-id rows count toward case-collision scope regardless of
 #'   whether any of their set cells are truthy (this matches
@@ -45,18 +45,18 @@
 #'   matching `.binary_columns_to_dataset()`. Ignored when
 #'   `mode = "aggregated"`.
 #' @return A list with:
-#'   * `duplicates_removed` — list of `list(column, column_name, count,
+#'   * `duplicates_removed` -- list of `list(column, column_name, count,
 #'     examples)` entries, one per column that has duplicates (columns
 #'     without duplicates are omitted). `column` is the 1-based index into
 #'     `headers`. `examples` holds up to 5 item strings, each captured at
 #'     its 2nd occurrence, in encounter order.
-#'   * `empty_cells_skipped` — single integer count of blank cells found
+#'   * `empty_cells_skipped` -- single integer count of blank cells found
 #'     while scanning (scope depends on mode; see divergences above).
-#'   * `case_collisions` — list of `list(items = character())` entries,
+#'   * `case_collisions` -- list of `list(items = character())` entries,
 #'     each holding 2+ distinct case-sensitive spellings that share a
 #'     lower-cased form, in first-appearance order. Purely descriptive:
 #'     item identity is never folded or merged anywhere in this function.
-#'   * `has_warnings` — `TRUE` if any of the above found something.
+#'   * `has_warnings` -- `TRUE` if any of the above found something.
 #' @export
 #' @examples
 #' headers <- c("Gene", "SetA", "SetB")
@@ -172,7 +172,7 @@ analyze_data_quality <- function(headers, rows, mode = c("binary", "aggregated")
     }
 
     # Case-collision candidates: union across all columns, row-major
-    # (row-outer, column-inner) order — matches item_order/"seen" in
+    # (row-outer, column-inner) order -- matches item_order/"seen" in
     # .aggregated_columns_to_dataset().
     row_major <- as.vector(t(mat))
     row_major <- row_major[nzchar(row_major)]
@@ -221,7 +221,7 @@ analyze_data_quality <- function(headers, rows, mode = c("binary", "aggregated")
     }
 
     # Case-collision candidates: every distinct non-blank identifier among
-    # valid-id rows, regardless of whether it's truthy on any set column —
+    # valid-id rows, regardless of whether it's truthy on any set column --
     # matches item_order_seen <- unique(item_ids[valid_idx]) in
     # .binary_columns_to_dataset(), which is computed unconditionally.
     case_collisions <- .case_collision_groups(unique(valid_ids))

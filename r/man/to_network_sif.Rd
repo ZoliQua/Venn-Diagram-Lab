@@ -19,9 +19,10 @@ Invisibly returns `path`.
 }
 \description{
 Mirrors the React webapp's "SIF" Cytoscape export button + Python's
-`to_network_sif()` byte-for-byte. One line per edge (in edge order):
-`<sourceLetter>\toverlap\t<targetLetter>`; isolated nodes (degree 0) are
-emitted as lone single-token lines after all edges, in node order.
+`to_network_sif()` byte-for-byte. One line per edge (in edge order),
+tab-separated: source letter, the literal interaction type `overlap`, then
+target letter. Isolated nodes (degree 0) are emitted as lone single-token
+lines after all edges, in node order.
 }
 \examples{
 ds <- methods::new("VennDataset",
