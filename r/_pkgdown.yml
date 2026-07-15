@@ -64,12 +64,14 @@ reference:
     - parse_region_expression
     - union_items
 
-  - title: TSV exports
-    desc: Byte-equivalent TSV writers for region summaries, item-membership matrices, and pairwise statistics tables.
+  - title: Data exports (TSV / JSON)
+    desc: Byte-equivalent writers for region summaries, item-membership matrices, pairwise and one-vs-rest statistics tables, and a full-result JSON export.
     contents:
       - to_region_summary_tsv
       - to_matrix_tsv
       - to_statistics_tsv
+      - to_one_vs_rest_tsv
+      - to_result_json
 
   - title: Bundle exports (v2.2.3)
     desc: 3-sheet xlsx workbook and full Report ZIP bundle matching the webtool's Download Everything button.
@@ -95,6 +97,7 @@ reference:
       - fold_enrichment
       - bh_fdr
       - compute_pairwise
+      - one_vs_rest_enrichment
 
   - title: Area-proportional helpers
     desc: Low-level geometry solvers behind `analyze(model = "proportional")`.
