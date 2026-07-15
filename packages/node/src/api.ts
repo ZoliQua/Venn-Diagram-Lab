@@ -22,6 +22,8 @@ import {
   parseGmt,
   parseGmx,
   saveSvg,
+  toGraphml,
+  toSif,
   solve2SetLayout,
   solve3SetLayout,
   upsetDataFromVennResult,
@@ -127,6 +129,22 @@ export function toNetworkSvg(result: AnalyzeResult, metric: EdgeWeightMetric = '
     result.venn, result.columns.length, result.venn.totalUniqueItems, result.setNames, metric,
   );
   return buildNetworkSvgString(data, metric);
+}
+
+/** Cytoscape GraphML of the set-relationship network (all pairwise edges). */
+export function toNetworkGraphml(result: AnalyzeResult, metric: EdgeWeightMetric = 'intersection'): string {
+  const data = buildNetworkData(
+    result.venn, result.columns.length, result.venn.totalUniqueItems, result.setNames, metric,
+  );
+  return toGraphml(data);
+}
+
+/** Cytoscape SIF of the set-relationship network (all pairwise edges). */
+export function toNetworkSif(result: AnalyzeResult, metric: EdgeWeightMetric = 'intersection'): string {
+  const data = buildNetworkData(
+    result.venn, result.columns.length, result.venn.totalUniqueItems, result.setNames, metric,
+  );
+  return toSif(data);
 }
 
 /** Binary item × set membership matrix from the result's exclusive items. */

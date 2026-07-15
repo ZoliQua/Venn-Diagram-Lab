@@ -22,3 +22,26 @@ describe('vdl analyze --matrix / --statistics', () => {
     expect(readFileSync(stats, 'utf8').split('\n')[0].startsWith('Set_A\tSet_B\t')).toBe(true);
   });
 });
+
+describe('vdl export graphml / sif', () => {
+  it('writes GraphML and SIF network files', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'vdl-'));
+    const input = join(tmp, 'in.tsv');
+    const gml = join(tmp, 'net.graphml');
+    const sif = join(tmp, 'net.sif');
+    writeFileSync(input, 'Gene\tA\tB\tC\ng1\t1\t0\t1\ng2\t1\t1\t0\ng3\t0\t1\t1\n');
+
+    execFileSync('node', [CLI, 'export', 'graphml', input, '--out', gml], { encoding: 'utf8' });
+    execFileSync('node', [CLI, 'export', 'sif', input, '--out', sif], { encoding: 'utf8' });
+
+    const graphml = readFileSync(gml, 'utf8');
+    expect(graphml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true);
+    expect(graphml).toContain('<graph edgedefault="undirected">');
+    expect(graphml).toContain('<key id="d0" for="node" attr.name="label" attr.type="string"/>');
+
+    const sifText = readFileSync(sif, 'utf8').trimEnd();
+    for (const line of sifText.split('\n')) {
+      expect(line.split('\t')[1]).toBe('overlap');
+    }
+  });
+});

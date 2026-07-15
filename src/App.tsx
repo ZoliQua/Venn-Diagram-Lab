@@ -41,7 +41,7 @@ import type { UpsetColorMode, UpsetSortMode } from './components/UpsetPlot.tsx';
 import { upsetDataFromRegionData, upsetDataFromVennResult } from './utils/upsetData.ts';
 import { NetworkPlot } from './components/NetworkPlot.tsx';
 import type { EdgeWeightMetric } from './utils/networkData.ts';
-import { buildNetworkData } from './utils/networkData.ts';
+import { buildNetworkData, toGraphml, toSif } from './utils/networkData.ts';
 import { solve2SetLayout, solve3SetLayout } from './utils/proportionalLayout.ts';
 import type { ProportionalAccuracy, ProportionalCircle } from './utils/proportionalLayout.ts';
 import { generateProportionalModel } from './utils/proportionalModel.ts';
@@ -1789,6 +1789,16 @@ export default function App() {
             onSetNetworkMinWeight={setNetworkMinWeight}
             networkMoveNodes={networkMoveNodes}
             onSetNetworkMoveNodes={setNetworkMoveNodes}
+            onExportNetworkGraphml={testVennResult && testCsvData ? () => {
+              const setNames = testColumnMapping.map(i => testCsvData.headers[i] ?? '');
+              const data = buildNetworkData(testVennResult, testColumnMapping.length, testVennResult.totalUniqueItems, setNames, networkMetric);
+              downloadFile(toGraphml(data), `venn_${testColumnMapping.length}set_network.graphml`, 'application/graphml+xml', false);
+            } : undefined}
+            onExportNetworkSif={testVennResult && testCsvData ? () => {
+              const setNames = testColumnMapping.map(i => testCsvData.headers[i] ?? '');
+              const data = buildNetworkData(testVennResult, testColumnMapping.length, testVennResult.totalUniqueItems, setNames, networkMetric);
+              downloadFile(toSif(data), `venn_${testColumnMapping.length}set_network.sif`, 'text/plain', false);
+            } : undefined}
             plotBackground={plotBackground}
             onSetPlotBackground={setPlotBackground}
             proportionalAccuracy={proportionalAccuracy}

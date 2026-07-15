@@ -4,6 +4,7 @@ export * from './statistics.ts';
 export * from './exportData.ts';
 export * from './jsonExport.ts';
 export * from './networkData.ts';
+export * from './networkExport.ts';
 export * from './networkSvgBuilder.ts';
 export * from './shareDistribution.ts';
 export * from './shareDistributionSvgBuilder.ts';

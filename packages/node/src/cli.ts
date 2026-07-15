@@ -7,6 +7,7 @@ import { detectGeneSetFormat, type EdgeWeightMetric, type EnrichmentMetric } fro
 import {
   analyzeGmtText, analyzeGmxText, analyzeCsvText,
   toMatrixTsv, toOneVsRestTsv, toRegionSummaryTsv, toResultJson, toStatisticsTsv,
+  toNetworkGraphml, toNetworkSif,
   toNetworkSvg, toShareDistributionSvg, toEnrichmentBarSvg, toEnrichmentLollipopSvg, toUpsetSvg,
   toProportionalSvg, toVennSvg,
 } from './api.ts';
@@ -60,26 +61,40 @@ const EXPORTERS = {
 
 program
   .command('export')
-  .description('Export a TSV artifact (one-vs-rest | region-summary | matrix | statistics).')
-  .argument('<kind>', 'one-vs-rest | region-summary | matrix | statistics')
+  .description('Export an artifact (one-vs-rest | region-summary | matrix | statistics | graphml | sif).')
+  .argument('<kind>', 'one-vs-rest | region-summary | matrix | statistics | graphml | sif')
   .argument('<input>', 'input CSV/TSV/GMT/GMX path')
-  .option('--out <path>', 'write the TSV here (default: stdout)')
-  .action((kind: string, input: string, opts: { out?: string }) => {
-    const exporter = (EXPORTERS as Record<string, (r: ReturnType<typeof analyzeCsvText>) => string>)[kind];
-    if (!exporter) {
-      process.stderr.write(`Unknown export kind: ${kind}. Valid: ${Object.keys(EXPORTERS).join(', ')}\n`);
-      process.exitCode = 1;
-      return;
-    }
+  .option('--out <path>', 'write the artifact here (default: stdout)')
+  .option('--metric <metric>', 'edge weight metric for graphml/sif (intersection | jaccard | foldEnrichment | overlapCoeff)')
+  .action((kind: string, input: string, opts: { out?: string; metric?: string }) => {
     const text = readFileSync(input, 'utf8');
     const fmt = detectGeneSetFormat(input);
     const result =
       fmt === 'gmt' ? analyzeGmtText(text) :
       fmt === 'gmx' ? analyzeGmxText(text) :
       analyzeCsvText(text);
-    const tsv = exporter(result);
-    if (opts.out) { writeFileSync(opts.out, tsv, 'utf8'); }
-    else { process.stdout.write(tsv + '\n'); }
+
+    let content: string;
+    if (kind === 'graphml' || kind === 'sif') {
+      const m = opts.metric;
+      if (m && !(EDGE_METRICS as readonly string[]).includes(m)) {
+        process.stderr.write(`Unknown --metric '${m}' for ${kind}. Valid: ${EDGE_METRICS.join(', ')}\n`);
+        process.exitCode = 1;
+        return;
+      }
+      const metric = m as EdgeWeightMetric | undefined;
+      content = kind === 'graphml' ? toNetworkGraphml(result, metric) : toNetworkSif(result, metric);
+    } else {
+      const exporter = (EXPORTERS as Record<string, (r: ReturnType<typeof analyzeCsvText>) => string>)[kind];
+      if (!exporter) {
+        process.stderr.write(`Unknown export kind: ${kind}. Valid: ${Object.keys(EXPORTERS).join(', ')}, graphml, sif\n`);
+        process.exitCode = 1;
+        return;
+      }
+      content = exporter(result);
+    }
+    if (opts.out) { writeFileSync(opts.out, content, 'utf8'); }
+    else { process.stdout.write(content + '\n'); }
   });
 
 program

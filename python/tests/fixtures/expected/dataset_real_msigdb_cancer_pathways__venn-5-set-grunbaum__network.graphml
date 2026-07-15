@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns">
+  <key id="d0" for="node" attr.name="label" attr.type="string"/>
+  <key id="d1" for="node" attr.name="size" attr.type="long"/>
+  <key id="d2" for="edge" attr.name="weight" attr.type="double"/>
+  <key id="d3" for="edge" attr.name="intersection" attr.type="long"/>
+  <key id="d4" for="edge" attr.name="jaccard" attr.type="double"/>
+  <key id="d5" for="edge" attr.name="foldEnrichment" attr.type="double"/>
+  <key id="d6" for="edge" attr.name="overlapCoeff" attr.type="double"/>
+  <key id="d7" for="edge" attr.name="dice" attr.type="double"/>
+  <key id="d8" for="edge" attr.name="pValue" attr.type="double"/>
+  <key id="d9" for="edge" attr.name="fdr" attr.type="double"/>
+  <key id="d10" for="edge" attr.name="significant" attr.type="boolean"/>
+  <graph edgedefault="undirected">
+    <node id="A">
+      <data key="d0">P53_PATHWAY</data>
+      <data key="d1">200</data>
+    </node>
+    <node id="B">
+      <data key="d0">APOPTOSIS</data>
+      <data key="d1">161</data>
+    </node>
+    <node id="C">
+      <data key="d0">G2M_CHECKPOINT</data>
+      <data key="d1">200</data>
+    </node>
+    <node id="D">
+      <data key="d0">E2F_TARGETS</data>
+      <data key="d1">200</data>
+    </node>
+    <node id="E">
+      <data key="d0">DNA_REPAIR</data>
+      <data key="d1">150</data>
+    </node>
+    <edge source="C" target="D">
+      <data key="d2">73.000000</data>
+      <data key="d3">73</data>
+      <data key="d4">0.2232</data>
+      <data key="d5">8.001</data>
+      <data key="d6">0.3650</data>
+      <data key="d7">0.3650</data>
+      <data key="d8">8.72e-51</data>
+      <data key="d9">8.72e-50</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="A" target="B">
+      <data key="d2">21.000000</data>
+      <data key="d3">21</data>
+      <data key="d4">0.0618</data>
+      <data key="d5">2.859</data>
+      <data key="d6">0.1304</data>
+      <data key="d7">0.1163</data>
+      <data key="d8">9.65e-6</data>
+      <data key="d9">4.82e-5</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="D" target="E">
+      <data key="d2">15.000000</data>
+      <data key="d3">15</data>
+      <data key="d4">0.0448</data>
+      <data key="d5">2.192</data>
+      <data key="d6">0.1000</data>
+      <data key="d7">0.0857</data>
+      <data key="d8">0.003152</data>
+      <data key="d9">0.010507</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="A" target="E">
+      <data key="d2">10.000000</data>
+      <data key="d3">10</data>
+      <data key="d4">0.0294</data>
+      <data key="d5">1.461</data>
+      <data key="d6">0.0667</data>
+      <data key="d7">0.0571</data>
+      <data key="d8">0.145306</data>
+      <data key="d9">0.363265</data>
+      <data key="d10">false</data>
+    </edge>
+    <edge source="B" target="D">
+      <data key="d2">7.000000</data>
+      <data key="d3">7</data>
+      <data key="d4">0.0198</data>
+      <data key="d5">0.953</data>
+      <data key="d6">0.0435</data>
+      <data key="d7">0.0388</data>
+      <data key="d8">0.608263</data>
+      <data key="d9">0.999930</data>
+      <data key="d10">false</data>
+    </edge>
+    <edge source="A" target="D">
+      <data key="d2">7.000000</data>
+      <data key="d3">7</data>
+      <data key="d4">0.0178</data>
+      <data key="d5">0.767</data>
+      <data key="d6">0.0350</data>
+      <data key="d7">0.0350</data>
+      <data key="d8">0.816927</data>
+      <data key="d9">0.999930</data>
+      <data key="d10">false</data>
+    </edge>
+    <edge source="B" target="C">
+      <data key="d2">4.000000</data>
+      <data key="d3">4</data>
+      <data key="d4">0.0112</data>
+      <data key="d5">0.545</data>
+      <data key="d6">0.0248</data>
+      <data key="d7">0.0222</data>
+      <data key="d8">0.942060</data>
+      <data key="d9">0.999930</data>
+      <data key="d10">false</data>
+    </edge>
+    <edge source="B" target="E">
+      <data key="d2">2.000000</data>
+      <data key="d3">2</data>
+      <data key="d4">0.0065</data>
+      <data key="d5">0.363</data>
+      <data key="d6">0.0133</data>
+      <data key="d7">0.0129</data>
+      <data key="d8">0.977093</data>
+      <data key="d9">0.999930</data>
+      <data key="d10">false</data>
+    </edge>
+    <edge source="C" target="E">
+      <data key="d2">2.000000</data>
+      <data key="d3">2</data>
+      <data key="d4">0.0057</data>
+      <data key="d5">0.292</data>
+      <data key="d6">0.0133</data>
+      <data key="d7">0.0114</data>
+      <data key="d8">0.993238</data>
+      <data key="d9">0.999930</data>
+      <data key="d10">false</data>
+    </edge>
+    <edge source="A" target="C">
+      <data key="d2">1.000000</data>
+      <data key="d3">1</data>
+      <data key="d4">0.0025</data>
+      <data key="d5">0.110</data>
+      <data key="d6">0.0050</data>
+      <data key="d7">0.0050</data>
+      <data key="d8">0.999930</data>
+      <data key="d9">0.999930</data>
+      <data key="d10">false</data>
+    </edge>
+  </graph>
+</graphml>

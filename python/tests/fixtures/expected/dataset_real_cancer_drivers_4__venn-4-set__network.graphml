@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns">
+  <key id="d0" for="node" attr.name="label" attr.type="string"/>
+  <key id="d1" for="node" attr.name="size" attr.type="long"/>
+  <key id="d2" for="edge" attr.name="weight" attr.type="double"/>
+  <key id="d3" for="edge" attr.name="intersection" attr.type="long"/>
+  <key id="d4" for="edge" attr.name="jaccard" attr.type="double"/>
+  <key id="d5" for="edge" attr.name="foldEnrichment" attr.type="double"/>
+  <key id="d6" for="edge" attr.name="overlapCoeff" attr.type="double"/>
+  <key id="d7" for="edge" attr.name="dice" attr.type="double"/>
+  <key id="d8" for="edge" attr.name="pValue" attr.type="double"/>
+  <key id="d9" for="edge" attr.name="fdr" attr.type="double"/>
+  <key id="d10" for="edge" attr.name="significant" attr.type="boolean"/>
+  <graph edgedefault="undirected">
+    <node id="A">
+      <data key="d0">Vogelstein</data>
+      <data key="d1">138</data>
+    </node>
+    <node id="B">
+      <data key="d0">COSMIC_CGC</data>
+      <data key="d1">581</data>
+    </node>
+    <node id="C">
+      <data key="d0">OncoKB</data>
+      <data key="d1">1231</data>
+    </node>
+    <node id="D">
+      <data key="d0">IntOGen</data>
+      <data key="d1">633</data>
+    </node>
+    <edge source="B" target="C">
+      <data key="d2">581.000000</data>
+      <data key="d3">581</data>
+      <data key="d4">0.4720</data>
+      <data key="d5">16.247</data>
+      <data key="d6">1.0000</data>
+      <data key="d7">0.6413</data>
+      <data key="d8">0.00e+0</data>
+      <data key="d9">0.00e+0</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="B" target="D">
+      <data key="d2">388.000000</data>
+      <data key="d3">388</data>
+      <data key="d4">0.4697</data>
+      <data key="d5">21.100</data>
+      <data key="d6">0.6678</data>
+      <data key="d7">0.6392</data>
+      <data key="d8">0.00e+0</data>
+      <data key="d9">0.00e+0</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="C" target="D">
+      <data key="d2">477.000000</data>
+      <data key="d3">477</data>
+      <data key="d4">0.3439</data>
+      <data key="d5">12.243</data>
+      <data key="d6">0.7536</data>
+      <data key="d7">0.5118</data>
+      <data key="d8">0.00e+0</data>
+      <data key="d9">0.00e+0</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="A" target="B">
+      <data key="d2">126.000000</data>
+      <data key="d3">126</data>
+      <data key="d4">0.2125</data>
+      <data key="d5">31.430</data>
+      <data key="d6">0.9130</data>
+      <data key="d7">0.3505</data>
+      <data key="d8">6.75e-184</data>
+      <data key="d9">1.01e-183</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="A" target="D">
+      <data key="d2">123.000000</data>
+      <data key="d3">123</data>
+      <data key="d4">0.1898</data>
+      <data key="d5">28.161</data>
+      <data key="d6">0.8913</data>
+      <data key="d7">0.3191</data>
+      <data key="d8">4.61e-171</data>
+      <data key="d9">5.54e-171</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="A" target="C">
+      <data key="d2">131.000000</data>
+      <data key="d3">131</data>
+      <data key="d4">0.1058</data>
+      <data key="d5">15.423</data>
+      <data key="d6">0.9493</data>
+      <data key="d7">0.1914</data>
+      <data key="d8">3.13e-151</data>
+      <data key="d9">3.13e-151</data>
+      <data key="d10">true</data>
+    </edge>
+  </graph>
+</graphml>

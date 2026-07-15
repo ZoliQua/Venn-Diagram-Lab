@@ -115,6 +115,8 @@ interface TestSidebarProps {
   onSetNetworkMinWeight: (v: number) => void;
   networkMoveNodes: boolean;
   onSetNetworkMoveNodes: (v: boolean) => void;
+  onExportNetworkGraphml?: () => void;
+  onExportNetworkSif?: () => void;
   plotBackground: 'dark' | 'white';
   onSetPlotBackground: (v: 'dark' | 'white') => void;
   proportionalAccuracy: ProportionalAccuracy | null;
@@ -167,6 +169,7 @@ export function TestSidebar({
   networkNodeSizes, onSetNetworkNodeSizes,
   networkMinWeight, onSetNetworkMinWeight,
   networkMoveNodes, onSetNetworkMoveNodes,
+  onExportNetworkGraphml, onExportNetworkSif,
   plotBackground, onSetPlotBackground,
   proportionalAccuracy,
   onResetDefaults,
@@ -445,6 +448,11 @@ export function TestSidebar({
               >
                 {networkMoveNodes ? 'Move Nodes (ON)' : 'Move Nodes'}
               </button>
+              <div className="sidebar-subsection-title" style={{ marginTop: 8 }}>Cytoscape export</div>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <button className="btn btn-sm" style={{ flex: 1 }} onClick={onExportNetworkGraphml}>GraphML</button>
+                <button className="btn btn-sm" style={{ flex: 1 }} onClick={onExportNetworkSif}>SIF</button>
+              </div>
             </div>
           )}
           {viewStyle === 'upset' && (

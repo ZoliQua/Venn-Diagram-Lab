@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns">
+  <key id="d0" for="node" attr.name="label" attr.type="string"/>
+  <key id="d1" for="node" attr.name="size" attr.type="long"/>
+  <key id="d2" for="edge" attr.name="weight" attr.type="double"/>
+  <key id="d3" for="edge" attr.name="intersection" attr.type="long"/>
+  <key id="d4" for="edge" attr.name="jaccard" attr.type="double"/>
+  <key id="d5" for="edge" attr.name="foldEnrichment" attr.type="double"/>
+  <key id="d6" for="edge" attr.name="overlapCoeff" attr.type="double"/>
+  <key id="d7" for="edge" attr.name="dice" attr.type="double"/>
+  <key id="d8" for="edge" attr.name="pValue" attr.type="double"/>
+  <key id="d9" for="edge" attr.name="fdr" attr.type="double"/>
+  <key id="d10" for="edge" attr.name="significant" attr.type="boolean"/>
+  <graph edgedefault="undirected">
+    <node id="A">
+      <data key="d0">INTERFERON_GAMMA_RESPONSE</data>
+      <data key="d1">200</data>
+    </node>
+    <node id="B">
+      <data key="d0">INTERFERON_ALPHA_RESPONSE</data>
+      <data key="d1">97</data>
+    </node>
+    <node id="C">
+      <data key="d0">INFLAMMATORY_RESPONSE</data>
+      <data key="d1">200</data>
+    </node>
+    <node id="D">
+      <data key="d0">TNFA_SIGNALING_VIA_NFKB</data>
+      <data key="d1">200</data>
+    </node>
+    <edge source="A" target="B">
+      <data key="d2">73.000000</data>
+      <data key="d3">73</data>
+      <data key="d4">0.3259</data>
+      <data key="d5">16.496</data>
+      <data key="d6">0.7526</data>
+      <data key="d7">0.4916</data>
+      <data key="d8">1.14e-82</data>
+      <data key="d9">6.81e-82</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="C" target="D">
+      <data key="d2">51.000000</data>
+      <data key="d3">51</data>
+      <data key="d4">0.1461</data>
+      <data key="d5">5.590</data>
+      <data key="d6">0.2550</data>
+      <data key="d7">0.2550</data>
+      <data key="d8">3.77e-26</data>
+      <data key="d9">1.13e-25</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="A" target="C">
+      <data key="d2">37.000000</data>
+      <data key="d3">37</data>
+      <data key="d4">0.1019</data>
+      <data key="d5">4.055</data>
+      <data key="d6">0.1850</data>
+      <data key="d7">0.1850</data>
+      <data key="d8">4.92e-14</data>
+      <data key="d9">9.84e-14</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="A" target="D">
+      <data key="d2">27.000000</data>
+      <data key="d3">27</data>
+      <data key="d4">0.0724</data>
+      <data key="d5">2.959</data>
+      <data key="d6">0.1350</data>
+      <data key="d7">0.1350</data>
+      <data key="d8">2.25e-7</data>
+      <data key="d9">3.37e-7</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="B" target="C">
+      <data key="d2">17.000000</data>
+      <data key="d3">17</data>
+      <data key="d4">0.0607</data>
+      <data key="d5">3.842</data>
+      <data key="d6">0.1753</data>
+      <data key="d7">0.1145</data>
+      <data key="d8">1.22e-6</data>
+      <data key="d9">1.46e-6</data>
+      <data key="d10">true</data>
+    </edge>
+    <edge source="B" target="D">
+      <data key="d2">9.000000</data>
+      <data key="d3">9</data>
+      <data key="d4">0.0313</data>
+      <data key="d5">2.034</data>
+      <data key="d6">0.0928</data>
+      <data key="d7">0.0606</data>
+      <data key="d8">0.031664</data>
+      <data key="d9">0.031664</data>
+      <data key="d10">true</data>
+    </edge>
+  </graph>
+</graphml>

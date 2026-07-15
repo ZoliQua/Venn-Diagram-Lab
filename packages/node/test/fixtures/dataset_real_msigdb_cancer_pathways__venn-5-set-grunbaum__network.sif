@@ -1,0 +1,10 @@
+C	overlap	D
+A	overlap	B
+D	overlap	E
+A	overlap	E
+B	overlap	D
+A	overlap	D
+B	overlap	C
+B	overlap	E
+C	overlap	E
+A	overlap	C

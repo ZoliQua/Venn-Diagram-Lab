@@ -1,0 +1,15 @@
+D	overlap	E
+D	overlap	F
+E	overlap	F
+C	overlap	D
+C	overlap	E
+C	overlap	F
+B	overlap	D
+B	overlap	E
+B	overlap	F
+A	overlap	D
+A	overlap	E
+A	overlap	F
+B	overlap	C
+A	overlap	C
+A	overlap	B
