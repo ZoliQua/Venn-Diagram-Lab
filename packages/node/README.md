@@ -171,6 +171,35 @@ import {
 
 ---
 
+## Network export (Cytoscape)
+
+```ts
+import { toNetworkGraphml, toNetworkSif } from 'venn-diagram-lab';
+
+const graphml = toNetworkGraphml(result);              // default metric: 'intersection'
+const sif     = toNetworkSif(result, 'jaccard');        // metric drives the graphml `weight` field
+fs.writeFileSync('network.graphml', graphml, 'utf8');
+fs.writeFileSync('network.sif', sif, 'utf8');
+```
+
+`toNetworkGraphml(result, metric?)` and `toNetworkSif(result, metric?)` both return a
+`string` for the same force-directed network as `toNetworkSvg` (nodes = sets, edges =
+every pairwise overlap). `metric` is the same `EdgeWeightMetric` union used by
+`toNetworkSvg` — `'intersection'` (default) \| `'jaccard'` \| `'foldEnrichment'` \|
+`'overlapCoeff'` — and only affects the `weight` value; every pairwise edge is written
+regardless of metric.
+
+- **GraphML**: standard 2-space-indented GraphML XML with node keys (`label`, `size`) and
+  edge keys (`weight`, `intersection`, `jaccard`, `foldEnrichment`, `overlapCoeff`, `dice`,
+  `pValue`, `fdr`, `significant`).
+- **SIF**: one line per edge (`<sourceId>\toverlap\t<targetId>`, letter ids), with
+  isolated (degree-0) nodes emitted as lone id lines after all edges.
+
+Both formats are Cytoscape-compatible and byte-identical to the web tool's Network-view
+"Export GraphML" / "Export SIF" buttons and to the Python/R exporters.
+
+---
+
 ## Rasterization
 
 ```ts
@@ -300,7 +329,7 @@ vdl analyze genes.tsv \
 
 ### Export
 
-`vdl export <kind> <input> [--out <path>]` writes a single TSV artifact to a path (or
+`vdl export <kind> <input> [--out <path>]` writes a single artifact to a path (or
 stdout, if `--out` is omitted):
 
 ```bash
@@ -308,11 +337,17 @@ vdl export one-vs-rest    genes.tsv --out one_vs_rest.tsv
 vdl export region-summary genes.tsv --out summary.tsv
 vdl export matrix         genes.tsv --out matrix.tsv
 vdl export statistics     genes.tsv --out stats.tsv
+
+# Cytoscape network export
+vdl export graphml genes.tsv --out network.graphml
+vdl export sif     genes.tsv --out network.sif --metric jaccard
 ```
 
-`one-vs-rest | region-summary | matrix | statistics` are the valid `<kind>` values.
-There is no `export json` subcommand — write the JSON export via `vdl analyze --json
-<path>` (above).
+`one-vs-rest | region-summary | matrix | statistics | graphml | sif` are the valid
+`<kind>` values. `--metric <metric>` (`intersection` (default) \| `jaccard` \|
+`foldEnrichment` \| `overlapCoeff`) applies only to `graphml`/`sif`, selecting the edge
+`weight` field. There is no `export json` subcommand — write the JSON export via
+`vdl analyze --json <path>` (above).
 
 ### Render
 

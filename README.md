@@ -90,6 +90,7 @@ full catalog.
 - Click node → select set region; click edge → select intersection region in right panel
 - Filters: significant edges only, minimum weight threshold
 - Dark/White background toggle
+- **Cytoscape network export**: **Export GraphML** / **Export SIF** buttons write the same force-directed network (nodes = sets, edges = pairwise overlaps) as `.graphml` or `.sif`, byte-identical to the npm, Python, and R exporters
 
 <img width="1728" height="965" alt="Venn Diagram Lab - Network mode" src="https://www.venndiagramlab.org/screenshots/screenshot_vdl_2d_network.png" />
 
@@ -108,6 +109,7 @@ full catalog.
 - Import CSV, TSV, or TXT files via configurable import dialog
 - Two data formats: **Binary** (0/1 per cell) and **Aggregated** (item names per column)
 - Configurable row/item delimiters, header detection, column selection, row filtering
+- **Data quality warnings**: a non-blocking notice panel in the import dialog flags duplicate items, empty/whitespace cells, and case-only collisions (e.g. `TP53` vs `tp53`) in the selected columns — purely informational, item identity is never changed (case collisions are reported, not merged)
 - Per-set color picker, shape opacity slider, font controls for names and title
 - **Auto-capped name font size** based on longest column name (16+ chars → 12 px, 20+ → 10 px, 24+ → 9 px, 28+ → 8 px); never increases a smaller user setting
 - Cut View with **Heatmap** color mode (customizable 3-point color scale + legend position)

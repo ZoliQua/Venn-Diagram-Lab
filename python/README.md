@@ -317,6 +317,24 @@ Note: these new columns/exports live in the **TSV/JSON export layer**, not in th
 report tables (`to_pdf_report`) — the PDF's Statistics pages keep their existing
 Jaccard/Dice/OC/FE/P-value/FDR columns.
 
+### 6.1. Cytoscape network export (GraphML / SIF)
+
+```python
+result.to_network_graphml("network.graphml")   # default metric: intersection
+result.to_network_sif("network.sif", metric="jaccard")
+```
+
+`to_network_graphml(path, *, metric="intersection")` and `to_network_sif(path, *,
+metric="intersection")` write the same force-directed set-relationship network as
+`render_network()` (nodes = sets, edges = every pairwise overlap) in Cytoscape-compatible
+formats. `metric` is one of `"intersection"` (default), `"jaccard"`,
+`"fold_enrichment"`, `"overlap_coefficient"` and only changes the `weight` value written
+for each edge — every pairwise edge is always included. String-returning variants
+`to_network_graphml_str(metric=...)` / `to_network_sif_str(metric=...)` are also
+available. Output is byte-identical to the web tool's Network-view "Export GraphML" /
+"Export SIF" buttons, the npm `toNetworkGraphml` / `toNetworkSif`, and R's
+`to_network_graphml()` / `to_network_sif()`.
+
 ## 7. Command-line interface
 
 The wheel installs a `vdl` console script with a Typer-based subapp layout (commands are listed alphabetically in `vdl --help` and inside each subapp). Every subcommand has an extended `--help` page with a *How to try it* example block, and every dataset-consuming command accepts a
@@ -356,7 +374,7 @@ Each render command accepts `INPUT` (file path or bundled sample name) or
 | `vdl render venn <input>` | Venn diagram (44 SVG models + area-proportional 2/3-set). |
 | `vdl render all <input> --output-dir D` | One-shot bundle: all five SVGs into one directory. |
 
-### 7.3. `vdl export` — TSV table writers
+### 7.3. `vdl export` — TSV / JSON / network table writers
 
 Stdout pipe via `--out -` (text format only). All commands route through
 the same `RegionResult` writer methods as the Python API.
@@ -369,6 +387,12 @@ the same `RegionResult` writer methods as the Python API.
 | `vdl export pairwise <input>` | Alias of `statistics` (common bioinformatics synonym). |
 | `vdl export one-vs-rest <input>` | Each set vs. the union of all other sets (size / expected / fold-enrichment / P-value / FDR / Bonferroni). |
 | `vdl export json <input>` | Full result + statistics as a single JSON document (`RegionResult.to_json`). |
+| `vdl export graphml <input> [--metric M]` | Cytoscape GraphML network export (`RegionResult.to_network_graphml`). |
+| `vdl export sif <input> [--metric M]` | Cytoscape SIF network export (`RegionResult.to_network_sif`). |
+
+`--metric` for `graphml`/`sif` accepts `intersection` (default), `jaccard`,
+`fold_enrichment`, or `overlap_coefficient` and only changes the edge `weight` value —
+every pairwise edge is always written.
 
 ### 7.4. `vdl report` — multi-page bundles
 
@@ -386,7 +410,13 @@ the same `RegionResult` writer methods as the Python API.
 | `vdl data fit-model <input>` | Recommend a catalog-resident model name for the input's set count. |
 | `vdl data lookup <input> <item>` | Find which Venn region(s) contain a given item (script-friendly Find Item). |
 | `vdl data samples` | List bundled sample datasets. |
-| `vdl data validate <input> [--text] [--strict]` | Schema check; JSON by default, `--text` for colourised output. Exit 1 on errors (`--strict` promotes warnings). |
+| `vdl data validate <input> [--text] [--strict]` | Schema check + data-quality scan (duplicate items, empty cells, case collisions); JSON by default, `--text` for colourised output. Exit 1 on errors (`--strict` promotes warnings to errors). |
+
+Data-quality findings come from `analyze_data_quality(headers, rows, columns, file_type)`
+(`from venn_diagram_lab.io import analyze_data_quality`) — a pure, read-only scan that
+never mutates the input or folds item case; case collisions (e.g. `TP53` vs `tp53`) are
+reported, not merged. `vdl data validate` folds its output into the `warnings` array by
+default, or into `errors` (non-zero exit) under `--strict`.
 
 ### 7.6. `vdl model` — model catalog
 
