@@ -70,9 +70,11 @@ compute_pairwise(
 #> B 6.25   NA
 #> 
 #> Slot "hypergeometric":
-#>   set_a set_b intersection expected      p_value   p_adjusted significant
-#> 1     A     B            5      0.8 0.0001636692 0.0001636692        TRUE
-#>   highly_significant
-#> 1               TRUE
+#>   set_a set_b intersection expected      p_value   p_adjusted p_bonferroni
+#> 1     A     B            5      0.8 0.0001636692 0.0001636692 0.0001636692
+#>    p_two_sided jaccard_ci_low jaccard_ci_high dice_ci_low dice_ci_high
+#> 1 0.0001636692      0.1770971       0.6447711   0.2499951            1
+#>   significant highly_significant
+#> 1        TRUE               TRUE
 #> 
 ```

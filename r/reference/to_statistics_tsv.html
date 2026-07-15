@@ -9,7 +9,7 @@ Python's `RegionResult.to_statistics_tsv()` byte-for-byte."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">vennDiagramLab</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,12 +67,16 @@ Python's `RegionResult.to_statistics_tsv()` byte-for-byte.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Columns: Set_A, Set_B, Name_A, Name_B, Size_A, Size_B, Intersection, Union,
-Jaccard, Overlap_Coeff, Dice, Expected, Fold_Enrichment, P_value, FDR, Significant.
+Jaccard, Overlap_Coeff, Dice, Expected, Fold_Enrichment, P_value, FDR,
+Bonferroni, P_two_sided, Jaccard_CI_low, Jaccard_CI_high, Dice_CI_low,
+Dice_CI_high, Significant.
 Float formatting:
 * Jaccard / Overlap_Coeff / Dice: 4 decimals via [.js_to_fixed()]
 * Expected: 2 decimals
 * Fold_Enrichment: 3 decimals
-* P_value / FDR: scientific (JS toExponential(2)) if `&lt; 0.001`, else 6 decimals
+* P_value / FDR / Bonferroni / P_two_sided: scientific (JS toExponential(2))
+  if `&lt; 0.001`, else 6 decimals
+* Jaccard_CI_low/high, Dice_CI_low/high: 4 decimals
 * Significant: one of `"***"`, `"**"`, `"*"`, `"ns"` keyed off FDR thresholds
   (0.001, 0.01, 0.05).</p>
 <p>Rows are sorted by P_value ascending (matches the underlying StatisticsResult).</p>
@@ -102,7 +106,7 @@ Float formatting:
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

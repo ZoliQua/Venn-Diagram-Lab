@@ -76,10 +76,11 @@ webtool and Python package APIs.
 - [`union_items()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/union_items.md)
   : Items in the union of the named sets
 
-## TSV exports
+## Data exports (TSV / JSON)
 
-Byte-equivalent TSV writers for region summaries, item-membership
-matrices, and pairwise statistics tables.
+Byte-equivalent writers for region summaries, item-membership matrices,
+pairwise and one-vs-rest statistics tables, and a full-result JSON
+export.
 
 - [`to_region_summary_tsv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_region_summary_tsv.md)
   : Write the Region Summary TSV
@@ -87,6 +88,10 @@ matrices, and pairwise statistics tables.
   : Write the Item Matrix TSV
 - [`to_statistics_tsv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_statistics_tsv.md)
   : Write the pairwise Statistics TSV
+- [`to_one_vs_rest_tsv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_one_vs_rest_tsv.md)
+  : Write the one-vs-rest Enrichment TSV
+- [`to_result_json()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_result_json.md)
+  : Write the full Venn result + statistics as canonical JSON
 
 ## Bundle exports (v2.2.3)
 
@@ -132,6 +137,9 @@ calculations outside of
   : Benjamini-Hochberg FDR adjustment
 - [`compute_pairwise()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/compute_pairwise.md)
   : Compute all 5 pairwise statistical tables
+- [`one_vs_rest_enrichment()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/one_vs_rest_enrichment.md)
+  : One-vs-rest enrichment: each set tested against the union of all
+  OTHER sets
 
 ## Area-proportional helpers
 

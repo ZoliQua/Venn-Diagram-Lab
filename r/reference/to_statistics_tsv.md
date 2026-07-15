@@ -30,12 +30,14 @@ Invisibly returns \`path\`.
 
 Columns: Set_A, Set_B, Name_A, Name_B, Size_A, Size_B, Intersection,
 Union, Jaccard, Overlap_Coeff, Dice, Expected, Fold_Enrichment, P_value,
-FDR, Significant. Float formatting: \* Jaccard / Overlap_Coeff / Dice: 4
-decimals via \[.js_to_fixed()\] \* Expected: 2 decimals \*
-Fold_Enrichment: 3 decimals \* P_value / FDR: scientific (JS
-toExponential(2)) if \`\< 0.001\`, else 6 decimals \* Significant: one
-of \`"\*\*\*"\`, \`"\*\*"\`, \`"\*"\`, \`"ns"\` keyed off FDR thresholds
-(0.001, 0.01, 0.05).
+FDR, Bonferroni, P_two_sided, Jaccard_CI_low, Jaccard_CI_high,
+Dice_CI_low, Dice_CI_high, Significant. Float formatting: \* Jaccard /
+Overlap_Coeff / Dice: 4 decimals via \[.js_to_fixed()\] \* Expected: 2
+decimals \* Fold_Enrichment: 3 decimals \* P_value / FDR / Bonferroni /
+P_two_sided: scientific (JS toExponential(2)) if \`\< 0.001\`, else 6
+decimals \* Jaccard_CI_low/high, Dice_CI_low/high: 4 decimals \*
+Significant: one of \`"\*\*\*"\`, \`"\*\*"\`, \`"\*"\`, \`"ns"\` keyed
+off FDR thresholds (0.001, 0.01, 0.05).
 
 Rows are sorted by P_value ascending (matches the underlying
 StatisticsResult).

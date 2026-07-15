@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">vennDiagramLab</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -245,9 +245,9 @@
         </dt>
         <dd>Items in the union of the named sets</dd>
       </dl></div><div class="section level2">
-      <h2 id="tsv-exports">TSV exports<a class="anchor" aria-label="anchor" href="#tsv-exports"></a></h2>
+      <h2 id="data-exports-tsv-json-">Data exports (TSV / JSON)<a class="anchor" aria-label="anchor" href="#data-exports-tsv-json-"></a></h2>
 
-      <div class="section-desc"><p>Byte-equivalent TSV writers for region summaries, item-membership matrices, and pairwise statistics tables.</p></div>
+      <div class="section-desc"><p>Byte-equivalent writers for region summaries, item-membership matrices, pairwise and one-vs-rest statistics tables, and a full-result JSON export.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -274,6 +274,20 @@
 
         </dt>
         <dd>Write the pairwise Statistics TSV</dd>
+
+        <dt>
+
+          <code><a href="to_one_vs_rest_tsv.html">to_one_vs_rest_tsv()</a></code>
+
+        </dt>
+        <dd>Write the one-vs-rest Enrichment TSV</dd>
+
+        <dt>
+
+          <code><a href="to_result_json.html">to_result_json()</a></code>
+
+        </dt>
+        <dd>Write the full Venn result + statistics as canonical JSON</dd>
       </dl></div><div class="section level2">
       <h2 id="bundle-exports-v-">Bundle exports (v2.2.3)<a class="anchor" aria-label="anchor" href="#bundle-exports-v-"></a></h2>
 
@@ -392,6 +406,13 @@
 
         </dt>
         <dd>Compute all 5 pairwise statistical tables</dd>
+
+        <dt>
+
+          <code><a href="one_vs_rest_enrichment.html">one_vs_rest_enrichment()</a></code>
+
+        </dt>
+        <dd>One-vs-rest enrichment: each set tested against the union of all OTHER sets</dd>
       </dl></div><div class="section level2">
       <h2 id="area-proportional-helpers">Area-proportional helpers<a class="anchor" aria-label="anchor" href="#area-proportional-helpers"></a></h2>
 
@@ -499,7 +520,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

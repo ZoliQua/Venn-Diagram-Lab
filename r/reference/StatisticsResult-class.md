@@ -24,5 +24,6 @@ Returned by \[compute_pairwise()\] and (lazily) by \`statistics()\` on a
 - `hypergeometric`:
 
   Long-form data.frame (one row per set pair) with columns: set_a,
-  set_b, intersection, expected, p_value, p_adjusted, significant,
-  highly_significant.
+  set_b, intersection, expected, p_value, p_adjusted, p_bonferroni,
+  p_two_sided, jaccard_ci_low, jaccard_ci_high, dice_ci_low,
+  dice_ci_high, significant, highly_significant.

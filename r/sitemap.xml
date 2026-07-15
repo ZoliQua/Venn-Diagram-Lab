@@ -45,6 +45,7 @@
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/load_gmx.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/load_sample.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/load_tsv.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/one_vs_rest_enrichment.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/overlap_coefficient.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/parse_region_expression.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/render_cluster_heatmap.html</loc></url>
@@ -60,8 +61,10 @@
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/tidy.RegionResult.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_excel_workbook.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_matrix_tsv.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_one_vs_rest_tsv.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_pdf_report.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_region_summary_tsv.html</loc></url>
+<url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_result_json.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_statistics_tsv.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_zip_report.html</loc></url>
 <url><loc>https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/union_items.html</loc></url>

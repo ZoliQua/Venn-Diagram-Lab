@@ -27,7 +27,9 @@ Python package down to the byte.
   overlap coefficient) and significance coloring.
 - **Five pairwise statistical metrics** (Jaccard, Dice, overlap
   coefficient, fold enrichment, hypergeometric over-representation) with
-  BH-FDR adjustment.
+  BH-FDR adjustment, **Bonferroni** FWER control, the **two-sided
+  Fisher’s exact p-value**, and analytic Wilson **95% confidence
+  intervals** for Jaccard and Dice.
 - **Multi-page PDF reports** combining overview, Venn + UpSet,
   statistics tables, network, and methodology pages in a single
   US-Letter-landscape document.
@@ -35,12 +37,15 @@ Python package down to the byte.
   ([`geom_venn()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/geom_venn.md))
   and **`broom`-compatible S3 methods** (`tidy()` / `glance()` /
   `augment()`) for tidyverse + `targets` / `drake` pipeline integration.
-- **Byte-equivalent TSV exports** tested against the React webapp’s
-  golden fixtures — the same region-summary, item-matrix, and statistics
-  files the web tool’s “Export” buttons emit.
-- **Cross-implementation parity** verified by 12 byte-equivalence tests
-  against the Python package’s golden fixtures (4 sample datasets × 3
-  export types).
+- **Byte-equivalent TSV/JSON exports** tested against the React webapp’s
+  golden fixtures — region-summary, item-matrix, statistics, one-vs-rest
+  enrichment
+  ([`to_one_vs_rest_tsv()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_one_vs_rest_tsv.md)),
+  and the full result as JSON
+  ([`to_result_json()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_result_json.md)),
+  matching the web tool’s “Export” buttons.
+- **Cross-implementation parity** verified by byte-equivalence tests
+  against the Python package’s golden fixtures.
 
 ## 2. Install
 
@@ -202,6 +207,36 @@ img   <- render_venn_svg(result, highlight = masks, show_items = TRUE)
 items <- exclusive_items(result, c("A", "B"))
 ```
 
+### 6.3. Statistics + export additions (unreleased)
+
+- `to_statistics_tsv(result, path)` gains four columns: `Bonferroni`
+  (FWER-adjusted p-value, `min(1, p * m)`, alongside the existing
+  Benjamini-Hochberg `FDR`), `P_two_sided` (the two-sided Fisher’s exact
+  p-value for the same pair — note the existing `P_value` column is the
+  **one-sided** over-representation test), and `Jaccard_CI_low/high` +
+  `Dice_CI_low/high` (analytic Wilson 95% confidence intervals).
+- `to_one_vs_rest_tsv(result, path)` — new TSV export: tests each set
+  against the union of all other sets. Columns:
+  `Set, Name, Size, Rest_Size, Intersection, Expected, Fold_Enrichment, P_value, FDR, Bonferroni, Significant`.
+- `to_result_json(result, path)` — new JSON export: the full region +
+  statistics result (model, set names, universe size, every non-empty
+  region, set sizes, and the pairwise statistics array with `bonferroni`
+  / `pTwoSided`) as a single canonical JSON document, byte-equivalent to
+  the web tool’s “Full Result (JSON)” export and Python’s
+  `RegionResult.to_json()`.
+
+These are additions to the **TSV/JSON export layer** — the PDF report’s
+statistics tables
+([`to_pdf_report()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/to_pdf_report.md))
+are unchanged.
+
+``` r
+
+to_statistics_tsv(result, "statistics.tsv")
+to_one_vs_rest_tsv(result, "one_vs_rest.tsv")
+to_result_json(result, "result.json")
+```
+
 ## 7. Documentation
 
 - Full reference site + vignettes:
@@ -226,13 +261,15 @@ items <- exclusive_items(result, c("A", "B"))
 
 ## 8. Related projects
 
-`vennDiagramLab` is one of three coordinated implementations sharing the
+`vennDiagramLab` is one of four coordinated implementations sharing the
 same SVG model library, statistics, and byte-equivalent TSV outputs:
 
 - **Web tool** — interactive viewer, editor, and visual analysis:
   <https://www.venndiagramlab.org/>
 - **Python package** (`venn-diagram-lab` on PyPI):
   <https://pypi.org/project/venn-diagram-lab/>
+- **Node.js package** (`venn-diagram-lab` on npm):
+  <https://www.npmjs.com/package/venn-diagram-lab>
 - **R package** (this package — `vennDiagramLab` on CRAN + Bioconductor)
 
 ### 9. Source repositories
