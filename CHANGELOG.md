@@ -2,6 +2,16 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.6.0 — 2026-07-16 — Set-color palettes
+
+### Added
+
+- **Set-color palettes** in Data mode. Choose among 6 curated set-color palettes (including a colorblind-safe option); the palette applies to the Venn diagram shapes, legend bullets, downloaded SVG, and PDF report.
+
+### Fixed
+
+- Legend bullets now stay in sync when set colors are changed in bulk.
+
 ## v2.5.0 — 2026-07-14 — Excel import, session persistence, Python/R script export
 
 ### Added

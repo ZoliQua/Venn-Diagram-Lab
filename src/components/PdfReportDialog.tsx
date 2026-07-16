@@ -22,13 +22,14 @@ interface PdfReportDialogProps {
   modelName: string;
   proportionalAccuracy?: { single?: Map<string, number>; pairwise: Map<string, number>; triple?: number; overall: number } | null;
   enrichmentPlotSettings?: EnrichmentPlotSettings;
+  shapeColors?: Record<string, string>;
 }
 
 export function PdfReportDialog({
   isOpen, onClose,
   vennResult, doc, n, setNames, totalItems, totalFileRows,
   filename, title, modelName, proportionalAccuracy,
-  enrichmentPlotSettings,
+  enrichmentPlotSettings, shapeColors,
 }: PdfReportDialogProps) {
   const [step, setStep] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +93,7 @@ export function PdfReportDialog({
           enrichmentHeatmapHeight: enrichmentHeatmap.height,
           modelName,
           proportionalAccuracy,
+          shapeColors,
           heatmapStyle: enrichmentPlotSettings?.heatmap,
           heatmapMetric: 'neglog10fdr',
           shareDistributionStyle: enrichmentPlotSettings ? {
@@ -126,7 +128,7 @@ export function PdfReportDialog({
 
     generate();
     return () => { cancelled = true; };
-  }, [doc, filename, isOpen, modelName, n, onClose, proportionalAccuracy, setNames, title, totalFileRows, totalItems, vennResult, enrichmentPlotSettings]);
+  }, [doc, filename, isOpen, modelName, n, onClose, proportionalAccuracy, setNames, title, totalFileRows, totalItems, vennResult, enrichmentPlotSettings, shapeColors]);
 
   if (!isOpen) return null;
 

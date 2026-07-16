@@ -47,6 +47,11 @@ export interface PdfReportParams {
   heatmapStyle?: EnrichmentPlotStyle;
   heatmapMetric?: EnrichmentMetric;
   shareDistributionStyle?: ShareDistStyle;
+  // v2.6.0 addition — the currently chosen set colors (keyed A..I), so the
+  // Set Sizes pie chart matches the diagram/legend instead of a separate
+  // fixed palette. Optional for backward compatibility; falls back to
+  // PIE_COLORS per-letter when a color is missing.
+  shapeColors?: Record<string, string>;
 }
 
 // A4 portrait dimensions in mm
@@ -189,7 +194,9 @@ function drawTable(
   return y + 4;
 }
 
-// Pastel colors for pie chart
+// Fallback pastel colors for the set-size pie chart, used only when the
+// caller doesn't supply the live shapeColors palette (or a set's color is
+// missing from it).
 const PIE_COLORS: Record<string, string> = {
   A: '#FFE082', B: '#90CAF9', C: '#EF9A9A', D: '#B0BEC5',
   E: '#A1887F', F: '#CE93D8', G: '#F48FB1', H: '#80DEEA', I: '#FFCC80',
@@ -448,7 +455,7 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
   const pieSlices = letters.map((l, i) => ({
     label: trimmedNames[i],
     value: vennResult.inclusive.get(l) ?? 0,
-    color: PIE_COLORS[l] ?? '#B0BEC5',
+    color: params.shapeColors?.[l] ?? PIE_COLORS[l] ?? '#B0BEC5',
   }));
   drawPieChart(pdf, pieCx, pieCy, pieR, pieSlices);
   y += pieChartH + 2;

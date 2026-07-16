@@ -2512,6 +2512,7 @@ export default function App() {
           modelName={testModel ?? ''}
           proportionalAccuracy={proportionalAccuracy}
           enrichmentPlotSettings={testEnrichmentPlotSettings}
+          shapeColors={testShapeColors}
         />
       )}
 
