@@ -54,10 +54,19 @@ jobs:
       - name: Install
         run: npm ci
 
+      # packages/node's 8 CLI test files spawn the *built* binary
+      # (packages/node/dist/cli.js) as a subprocess, and dist/ is gitignored —
+      # so the root suite needs the workspace built first. A local `npm test`
+      # only appears self-contained because a stale dist/ is usually lying
+      # around from an earlier build.
+      - name: Build workspace packages
+        run: |
+          npm run build -w @venn-diagram-lab/core
+          npm run build -w venn-diagram-lab
+
       # One run covers all three TypeScript surfaces: the web app (src/), the
-      # shared core (packages/core/) and the npm package (packages/node/). The
-      # root vite.config.ts aliases @venn-diagram-lab/core to its *source*, so
-      # nothing needs building first.
+      # shared core (packages/core/) and the npm package (packages/node/) —
+      # the root vite.config.ts aliases @venn-diagram-lab/core to its source.
       #
       # The Windows cells are load-bearing: the npm package byte-compares its
       # golden fixtures (*.tsv, *.graphml, *.sif) without newline
