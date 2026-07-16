@@ -3,6 +3,7 @@ import type { EnrichmentMetric } from './enrichmentPlotSvg.ts';
 import type { EnrichmentPlotSettings } from './enrichmentPlotStyle.ts';
 import type { UpsetColorMode, UpsetSortMode } from '../components/UpsetPlot.tsx';
 import type { EdgeWeightMetric } from './networkData.ts';
+import type { PaletteId } from './palettes.ts';
 import type { AppMode, ThemeMode, ViewStyle } from '../App.tsx';
 
 export const SESSION_STORAGE_KEY = 'vdl-session-v1';
@@ -67,6 +68,8 @@ export interface DataSession {
   sourceKind?: DataSourceKind;
   hasHeader?: boolean;
   sheetIndex?: number;
+  // Palette picker (optional so pre-palette-picker saved sessions still restore).
+  paletteId?: PaletteId;
 }
 
 /** Top-level session envelope. */
@@ -127,6 +130,7 @@ export interface DataSessionInput {
   sourceKind?: DataSourceKind;
   hasHeader?: boolean;
   sheetIndex?: number;
+  paletteId?: PaletteId;
 }
 
 /**
@@ -180,6 +184,7 @@ export function buildDataSession(input: DataSessionInput): DataSession {
     sourceKind: input.sourceKind,
     hasHeader: input.hasHeader,
     sheetIndex: input.sheetIndex,
+    paletteId: input.paletteId,
   };
 }
 

@@ -197,6 +197,7 @@ function makeSampleDataSession(): DataSession {
     sourceKind: 'url',
     hasHeader: false,
     sheetIndex: 2,
+    paletteId: 'okabe-ito',
   };
 }
 
@@ -250,6 +251,7 @@ function sampleStateBag(): DataSessionInput {
     sourceKind: sample.sourceKind,
     hasHeader: sample.hasHeader,
     sheetIndex: sample.sheetIndex,
+    paletteId: sample.paletteId,
   };
 }
 
@@ -293,7 +295,7 @@ describe('buildDataSession', () => {
       'networkMetric', 'networkSigOnly', 'networkEdgeLabels', 'networkNodeSizes',
       'networkMinWeight', 'networkMoveNodes', 'plotBackground', 'dataMoveNames',
       'dataMoveNumbers', 'enrichmentMetric', 'enrichmentPlotSettings',
-      'selectedRegionLabel', 'sourceKind', 'hasHeader', 'sheetIndex',
+      'selectedRegionLabel', 'sourceKind', 'hasHeader', 'sheetIndex', 'paletteId',
     ];
     for (const k of requiredKeys) expect(k in ds).toBe(true);
   });
@@ -329,6 +331,20 @@ describe('buildDataSession', () => {
     expect(ds.sourceKind).toBe('paste');
     expect(ds.hasHeader).toBe(false);
     expect(ds.sheetIndex).toBe(3);
+  });
+
+  it('round-trips paletteId', () => {
+    const bag = sampleStateBag();
+    bag.paletteId = 'brewer-dark2';
+    const ds = buildDataSession(bag);
+    expect(ds.paletteId).toBe('brewer-dark2');
+  });
+
+  it('leaves paletteId undefined when absent from input, like older pre-palette-picker sessions', () => {
+    const bag = sampleStateBag();
+    delete bag.paletteId;
+    const ds = buildDataSession(bag);
+    expect(ds.paletteId).toBeUndefined();
   });
 });
 
@@ -500,6 +516,12 @@ describe('isSessionCompatible', () => {
   it('accepts a session with nameMaxChars null (legitimately nullable field)', () => {
     const s = makeValidSession();
     (s.data as unknown as { nameMaxChars: unknown }).nameMaxChars = null;
+    expect(isSessionCompatible(s)).toBe(true);
+  });
+
+  it('accepts a pre-palette-picker session missing paletteId (App.tsx defaults to "standard" on restore)', () => {
+    const s = makeValidSession();
+    delete (s.data as Record<string, unknown>).paletteId;
     expect(isSessionCompatible(s)).toBe(true);
   });
 

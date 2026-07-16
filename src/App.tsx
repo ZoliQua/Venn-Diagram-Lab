@@ -76,6 +76,8 @@ import { SampleDataDialog } from './components/SampleDataDialog.tsx';
 import type { SampleDataset } from './components/SampleDataDialog.tsx';
 import { PasteImportDialog } from './components/PasteImportDialog.tsx';
 import { UrlImportDialog } from './components/UrlImportDialog.tsx';
+import { paletteColorMap } from './utils/palettes.ts';
+import type { PaletteId } from './utils/palettes.ts';
 
 export type ViewStyle = 'layer' | 'cut' | 'upset' | 'network';
 export type AppMode = 'view' | 'edit' | 'data';
@@ -181,6 +183,8 @@ export default function App() {
     A: '#FFF200', B: '#2E3192', C: '#ED1C24', D: '#808285',
     E: '#3C2415', F: '#9E1F63', G: '#CA4B9B', H: '#21AED1', I: '#F7941E',
   });
+  // Palette picker (Data mode) — sets all shape/bullet colors at once.
+  const [paletteId, setPaletteId] = useState<PaletteId>('standard');
 
   // Enrichment plot editor (v1.11.0)
   const [testEnrichmentMetric, setTestEnrichmentMetric] = useState<EnrichmentMetric>('neglog10fdr');
@@ -1059,6 +1063,7 @@ export default function App() {
     setTestNameMaxChars(data.nameMaxChars);
     setTestShapeOpacity(data.shapeOpacity);
     setTestShapeColors(data.shapeColors);
+    setPaletteId(data.paletteId ?? 'standard');
     setViewStyleRaw(data.viewStyle);
     setCutColorMode(data.cutColorMode);
     setHeatmapColors(data.heatmapColors);
@@ -1144,6 +1149,7 @@ export default function App() {
       sourceKind: testSourceKind,
       hasHeader: testHasHeader,
       sheetIndex: testSheetIndex,
+      paletteId,
     };
     return {
       version: '1',
@@ -1152,7 +1158,7 @@ export default function App() {
       theme,
       data: buildDataSession(dataSessionInput),
     };
-  }, [theme, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, testSourceKind, testHasHeader, testSheetIndex]);
+  }, [theme, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, testSourceKind, testHasHeader, testSheetIndex, paletteId]);
 
   const handleExportSessionToFile = useCallback(() => {
     const session = buildAppSession();
@@ -1366,6 +1372,7 @@ export default function App() {
         const color = testShapeColors[letter];
         if (color) {
           svgDoc.updateShapeStyle(`Shape${letter}`, 'fill', color);
+          svgDoc.updateShapeStyle(`Bullet${letter}`, 'fill', color);
         }
         svgDoc.updateShapeStyle(`Shape${letter}`, 'opacity', String(testShapeOpacity));
       }
@@ -1557,6 +1564,7 @@ export default function App() {
         sourceKind: testSourceKind,
         hasHeader: testHasHeader,
         sheetIndex: testSheetIndex,
+        paletteId,
       };
       const session: AppSession = {
         version: '1',
@@ -1568,7 +1576,7 @@ export default function App() {
       saveSession(session);
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [mode, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, theme, testSourceKind, testHasHeader, testSheetIndex]);
+  }, [mode, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, theme, testSourceKind, testHasHeader, testSheetIndex, paletteId]);
 
   // Keep a stable ref to the latest setSelectByLabel for the restore effect
   useEffect(() => {
@@ -1790,6 +1798,18 @@ export default function App() {
                 svgDoc.updateShapeStyle(`Bullet${letter}`, 'fill', color);
               }
             }}
+            paletteId={paletteId}
+            onPaletteChange={(id) => {
+              setPaletteId(id);
+              const map = paletteColorMap(id);
+              setTestShapeColors(map);
+              if (doc) {
+                for (const letter of Object.keys(map)) {
+                  svgDoc.updateShapeStyle(`Shape${letter}`, 'fill', map[letter]);
+                  svgDoc.updateShapeStyle(`Bullet${letter}`, 'fill', map[letter]);
+                }
+              }
+            }}
             nameFontSize={testNameFontSize}
             onNameFontSizeChange={(size) => {
               setTestNameFontSize(size);
@@ -1863,6 +1883,7 @@ export default function App() {
             onResetDefaults={() => {
               setTestShapeOpacity(0.2);
               setTestShapeColors({ A: '#FFF200', B: '#2E3192', C: '#ED1C24', D: '#808285', E: '#3C2415', F: '#9E1F63', G: '#CA4B9B', H: '#21AED1', I: '#F7941E' });
+              setPaletteId('standard');
               setTestNameFontSize(24);
               setTestNameFontFamily('Tahoma');
               setTestNameMaxChars(null);

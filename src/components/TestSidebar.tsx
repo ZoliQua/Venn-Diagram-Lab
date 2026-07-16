@@ -9,6 +9,8 @@ import { getBinaryColumns } from '../utils/csvParser.ts';
 import type { EnrichmentMetric } from '../utils/enrichmentPlotSvg.ts';
 import type { EnrichmentPlotStyle, EnrichmentPlotSettings, PlotEditState } from '../utils/enrichmentPlotStyle.ts';
 import { EnrichmentPlotEditor } from './EnrichmentPlotEditor.tsx';
+import { PALETTES } from '../utils/palettes.ts';
+import type { PaletteId } from '../utils/palettes.ts';
 
 function detectVennType(filename: string): { setCount: number; form: string } {
   const m = filename.match(/venn-(\d+)/);
@@ -93,6 +95,8 @@ interface TestSidebarProps {
   onSetMoveNumbers: (v: boolean) => void;
   shapeColors: Record<string, string>;
   onShapeColorChange: (letter: string, color: string) => void;
+  paletteId: PaletteId;
+  onPaletteChange: (id: PaletteId) => void;
   shapeOpacity: number;
   onShapeOpacityChange: (opacity: number) => void;
   upsetColorMode: UpsetColorMode;
@@ -158,6 +162,7 @@ export function TestSidebar({
   moveNames, onSetMoveNames,
   moveNumbers, onSetMoveNumbers,
   shapeColors, onShapeColorChange,
+  paletteId, onPaletteChange,
   shapeOpacity, onShapeOpacityChange,
   upsetColorMode, onSetUpsetColorMode,
   upsetSortMode, onSetUpsetSortMode,
@@ -353,6 +358,17 @@ export function TestSidebar({
             <span>{eff.mapping ? '▾' : '▸'} 3. Column Mapping</span>
           </div>
           {eff.mapping && <>
+          <div className="test-palette-row">
+            <label className="test-palette-label">Palette</label>
+            <select
+              className="test-column-select"
+              value={paletteId}
+              onChange={e => onPaletteChange(e.target.value as PaletteId)}
+              title="Set color palette"
+            >
+              {PALETTES.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
           <div className="test-column-mapping">
             {letters.map((letter, i) => (
               <div key={letter} className="test-column-row">
