@@ -145,10 +145,24 @@ export function TourOverlay({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, stepIndex, replayNonce]);
 
+  // When the current step has no selector, the tracked rect is stale from a
+  // previous step and must be cleared. This is derived during render (adjust-
+  // state-during-render pattern) rather than as a synchronous setState inside
+  // the effect below, so it isn't flagged as a set-state-in-effect and the
+  // clear lands in the same commit as the step change. `rectClearKey` mirrors
+  // the layout effect's own dependency list (active, stepIndex, selector)
+  // below so this only re-runs on the same transitions the effect used to.
+  const rectClearKey = active && step ? `${stepIndex}|${step.selector ?? ''}` : null;
+  const [lastRectClearKey, setLastRectClearKey] = useState<string | null>(null);
+  if (rectClearKey !== lastRectClearKey) {
+    setLastRectClearKey(rectClearKey);
+    if (rectClearKey !== null && !step!.selector && rect !== null) setRect(null);
+  }
+
   // Track highlighted rect through resize / scroll / DOM changes (rAF loop while active)
   useLayoutEffect(() => {
     if (!active || !step) return;
-    if (!step.selector) { setRect(null); return; }
+    if (!step.selector) return;
 
     let raf = 0;
     let lastKey = '';
