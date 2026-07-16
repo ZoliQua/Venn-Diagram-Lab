@@ -272,21 +272,23 @@ export default function App() {
       svgDoc.updateTextPosition(id, x, y);
     },
   });
-  dragCallbacksRef.current.onDragMove = (id: string, x: number, y: number) => {
-    svgDoc.updateTextPositionLive(id, x, y);
-  };
-  dragCallbacksRef.current.onDragEnd = (id: string, x: number, y: number) => {
-    svgDoc.updateTextPosition(id, x, y);
-  };
+  useEffect(() => {
+    dragCallbacksRef.current.onDragMove = (id: string, x: number, y: number) => {
+      svgDoc.updateTextPositionLive(id, x, y);
+    };
+    dragCallbacksRef.current.onDragEnd = (id: string, x: number, y: number) => {
+      svgDoc.updateTextPosition(id, x, y);
+    };
+  });
 
-  const stableDragCallbacks = useRef({
+  const [stableDragCallbacks] = useState(() => ({
     onDragMove: (id: string, x: number, y: number) => {
       dragCallbacksRef.current.onDragMove(id, x, y);
     },
     onDragEnd: (id: string, x: number, y: number) => {
       dragCallbacksRef.current.onDragEnd(id, x, y);
     },
-  }).current;
+  }));
 
   const drag = useDrag(zoomState.scale, svgRef, stableDragCallbacks);
 
@@ -727,10 +729,12 @@ export default function App() {
   const redoRef = useRef(svgDoc.redo);
   const saveRef = useRef(handleSave);
   const clearSelRef = useRef(clearSelection);
-  undoRef.current = svgDoc.undo;
-  redoRef.current = svgDoc.redo;
-  saveRef.current = handleSave;
-  clearSelRef.current = clearSelection;
+  useEffect(() => {
+    undoRef.current = svgDoc.undo;
+    redoRef.current = svgDoc.redo;
+    saveRef.current = handleSave;
+    clearSelRef.current = clearSelection;
+  });
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
