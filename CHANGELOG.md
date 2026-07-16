@@ -2,6 +2,12 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.7.0 — 2026-07-16 — Hide empty regions
+
+### Added
+
+- **Data mode**: a "Hide empty regions" toggle suppresses zero-count regions (labels in Layer view, region shapes in Cut view; reflected in image and SVG exports) for an Euler-like view of sparse data.
+
 ## v2.6.0 — 2026-07-16 — Set-color palettes
 
 ### Added

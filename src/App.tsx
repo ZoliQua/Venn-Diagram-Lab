@@ -583,7 +583,7 @@ export default function App() {
       }
     }
     // Layer/Edit mode: save from document model
-    const svgString = svgDoc.saveToString();
+    const svgString = svgDoc.saveToString({ hideEmptyCounts: mode === 'data' && dataHideEmpty });
     const blob = new Blob([svgString], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -594,7 +594,7 @@ export default function App() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     svgDoc.markSaved();
-  }, [doc, svgDoc, mode, viewStyle, testPlotEditState]);
+  }, [doc, svgDoc, mode, viewStyle, testPlotEditState, dataHideEmpty]);
 
   const handleExportScript = useCallback((kind: 'python' | 'r' | 'npm') => {
     if (!testCsvData || !testModel || testColumnMapping.length < 2 || !testVennResult) return;

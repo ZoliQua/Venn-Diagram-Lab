@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import type { VennDocument, VennText } from '../types.ts';
 import { loadSvg } from '../parser/loadSvg.ts';
-import { saveSvg } from '../parser/saveSvg.ts';
+import { saveSvg, type SaveSvgOptions } from '../parser/saveSvg.ts';
 
 const MAX_HISTORY = 50;
 
@@ -312,9 +312,9 @@ export function useSvgDocument() {
     }
   }, [syncModified]);
 
-  const saveToString = useCallback((): string => {
+  const saveToString = useCallback((opts?: SaveSvgOptions): string => {
     if (!doc) return '';
-    return saveSvg(doc);
+    return saveSvg(doc, opts);
   }, [doc]);
 
   const markSaved = useCallback(() => {
