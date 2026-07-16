@@ -2,23 +2,13 @@
 
 All notable changes to the Venn Diagram Lab project.
 
-## v2.8.0 — 2026-07-17 — Exterior labels
-
-### Added
-
-- **Data mode (5+ sets)**: an "Exterior labels" toggle in Layer view moves region count labels onto a ring outside the diagram with leader lines, to declutter dense diagrams; reflected in the on-screen view and image exports.
-
-## v2.7.0 — 2026-07-16 — Hide empty regions
-
-### Added
-
-- **Data mode**: a "Hide empty regions" toggle suppresses zero-count regions (labels in Layer view, region shapes in Cut view; reflected in image and SVG exports) for an Euler-like view of sparse data.
-
-## v2.6.0 — 2026-07-16 — Set-color palettes
+## v2.6.0 — 2026-07-17 — Set-color palettes, hide empty regions, exterior labels
 
 ### Added
 
 - **Set-color palettes** in Data mode. Choose among 6 curated set-color palettes (including a colorblind-safe option); the palette applies to the Venn diagram shapes, legend bullets, downloaded SVG, and PDF report.
+- **"Hide empty regions" toggle** in Data mode. Suppresses zero-count regions (labels in Layer view, region shapes in Cut view; reflected in image and SVG exports) for an Euler-like view of sparse data.
+- **"Exterior labels" toggle** in Data mode (Layer view, 5+ sets). Moves region count labels onto a ring outside the diagram with leader lines, to declutter dense diagrams; reflected in the on-screen view and image exports.
 
 ### Fixed
 
