@@ -18,9 +18,49 @@ describe('computeExteriorLabels', () => {
     const out = computeExteriorLabels(anchors, VB, { marginFrac: 0.1 });
     expect(out).toHaveLength(4);
     for (const e of out) {
-      // ring radius = 50 + 0.1*100 = 60 around centre (50,50) → every point is outside [0,100]
+      // ring radius = sqrt(2)*50 + 0.1*100 ≈ 80.71 around centre (50,50) → every point is outside [0,100]
       const outside = e.labelX < VB.x || e.labelX > VB.x + VB.w || e.labelY < VB.y || e.labelY > VB.y + VB.h;
       expect(outside, `${e.id} should be outside`).toBe(true);
+    }
+  });
+
+  it('places every label outside the viewBox, including the diagonal worst case', () => {
+    // Anchors placed at 45°/135°/225°/315° from centre so the redistributed
+    // slots land exactly on the diagonals — the worst case for an
+    // axis-aligned ellipse ring around a square viewBox, since that is where
+    // an under-scaled ellipse most easily dips back inside the box (the bug
+    // this guards against: rx=ry=w/2+margin puts the diagonal point at
+    // (93.84, 93.84) for a 100x100 box at marginFrac=0.12, which is INSIDE).
+    const angles = [Math.PI / 4, (3 * Math.PI) / 4, (5 * Math.PI) / 4, (7 * Math.PI) / 4];
+    const anchors: LabelAnchor[] = angles.map((a, i) => ({
+      id: `Count_${i}`,
+      content: String(i),
+      x: 50 + Math.cos(a) * 5,
+      y: 50 + Math.sin(a) * 5,
+    }));
+    const out = computeExteriorLabels(anchors, VB, { marginFrac: 0.12 });
+    expect(out).toHaveLength(4);
+    for (const e of out) {
+      const outside = e.labelX < VB.x || e.labelX > VB.x + VB.w || e.labelY < VB.y || e.labelY > VB.y + VB.h;
+      expect(outside, `${e.id} should be outside (label=${e.labelX},${e.labelY})`).toBe(true);
+    }
+  });
+
+  it('places every label outside a NON-square viewBox (aspect ratio guard)', () => {
+    const wideVB: ViewBox = { x: 0, y: 0, w: 200, h: 100 };
+    const angles = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (5 * Math.PI) / 4, (3 * Math.PI) / 2, (7 * Math.PI) / 4];
+    const anchors: LabelAnchor[] = angles.map((a, i) => ({
+      id: `Count_${i}`,
+      content: String(i),
+      x: 100 + Math.cos(a) * 10,
+      y: 50 + Math.sin(a) * 10,
+    }));
+    const out = computeExteriorLabels(anchors, wideVB, { marginFrac: 0.12 });
+    expect(out).toHaveLength(8);
+    for (const e of out) {
+      const outside =
+        e.labelX < wideVB.x || e.labelX > wideVB.x + wideVB.w || e.labelY < wideVB.y || e.labelY > wideVB.y + wideVB.h;
+      expect(outside, `${e.id} should be outside (label=${e.labelX},${e.labelY})`).toBe(true);
     }
   });
 
@@ -66,7 +106,7 @@ describe('computeExteriorLabels', () => {
   it('places a single label on the ring at its own angle (N=1)', () => {
     const anchors: LabelAnchor[] = [{ id: 'Count_A', content: '1', x: 65, y: 60 }];
     const [e] = computeExteriorLabels(anchors, VB, { marginFrac: 0.1 });
-    const cx = 50, cy = 50, rx = 60, ry = 60;
+    const cx = 50, cy = 50, rx = Math.SQRT2 * 50 + 10, ry = Math.SQRT2 * 50 + 10;
     const angle = Math.atan2(60 - cy, 65 - cx);
     expect(e.labelX).toBeCloseTo(cx + rx * Math.cos(angle), 9);
     expect(e.labelY).toBeCloseTo(cy + ry * Math.sin(angle), 9);
