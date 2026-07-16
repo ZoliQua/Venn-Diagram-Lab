@@ -72,6 +72,8 @@ export interface DataSession {
   paletteId?: PaletteId;
   // Hide empty regions toggle (optional so pre-hide-empty saved sessions still restore).
   hideEmpty?: boolean;
+  // Exterior labels toggle (optional so pre-exterior-labels saved sessions still restore).
+  exteriorLabels?: boolean;
 }
 
 /** Top-level session envelope. */
@@ -134,6 +136,7 @@ export interface DataSessionInput {
   sheetIndex?: number;
   paletteId?: PaletteId;
   hideEmpty?: boolean;
+  exteriorLabels?: boolean;
 }
 
 /**
@@ -189,6 +192,7 @@ export function buildDataSession(input: DataSessionInput): DataSession {
     sheetIndex: input.sheetIndex,
     paletteId: input.paletteId,
     hideEmpty: input.hideEmpty,
+    exteriorLabels: input.exteriorLabels,
   };
 }
 

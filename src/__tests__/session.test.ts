@@ -199,6 +199,7 @@ function makeSampleDataSession(): DataSession {
     sheetIndex: 2,
     paletteId: 'okabe-ito',
     hideEmpty: true,
+    exteriorLabels: true,
   };
 }
 
@@ -254,6 +255,7 @@ function sampleStateBag(): DataSessionInput {
     sheetIndex: sample.sheetIndex,
     paletteId: sample.paletteId,
     hideEmpty: sample.hideEmpty,
+    exteriorLabels: sample.exteriorLabels,
   };
 }
 
@@ -298,7 +300,7 @@ describe('buildDataSession', () => {
       'networkMinWeight', 'networkMoveNodes', 'plotBackground', 'dataMoveNames',
       'dataMoveNumbers', 'enrichmentMetric', 'enrichmentPlotSettings',
       'selectedRegionLabel', 'sourceKind', 'hasHeader', 'sheetIndex', 'paletteId',
-      'hideEmpty',
+      'hideEmpty', 'exteriorLabels',
     ];
     for (const k of requiredKeys) expect(k in ds).toBe(true);
   });
@@ -362,6 +364,20 @@ describe('buildDataSession', () => {
     delete bag.hideEmpty;
     const ds = buildDataSession(bag);
     expect(ds.hideEmpty).toBeUndefined();
+  });
+
+  it('round-trips exteriorLabels', () => {
+    const bag = sampleStateBag();
+    bag.exteriorLabels = true;
+    const ds = buildDataSession(bag);
+    expect(ds.exteriorLabels).toBe(true);
+  });
+
+  it('leaves exteriorLabels undefined when absent from input, like older pre-exterior-labels sessions', () => {
+    const bag = sampleStateBag();
+    delete bag.exteriorLabels;
+    const ds = buildDataSession(bag);
+    expect(ds.exteriorLabels).toBeUndefined();
   });
 });
 
@@ -545,6 +561,12 @@ describe('isSessionCompatible', () => {
   it('accepts a pre-hide-empty session missing hideEmpty (App.tsx defaults to false on restore)', () => {
     const s = makeValidSession();
     delete (s.data as Record<string, unknown>).hideEmpty;
+    expect(isSessionCompatible(s)).toBe(true);
+  });
+
+  it('accepts a pre-exterior-labels session missing exteriorLabels (App.tsx defaults to false on restore)', () => {
+    const s = makeValidSession();
+    delete (s.data as Record<string, unknown>).exteriorLabels;
     expect(isSessionCompatible(s)).toBe(true);
   });
 

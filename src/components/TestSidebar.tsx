@@ -80,6 +80,8 @@ interface TestSidebarProps {
   onToggleSums: () => void;
   hideEmpty: boolean;
   onToggleHideEmpty: () => void;
+  exteriorLabels: boolean;
+  onToggleExteriorLabels: () => void;
   nameFontSize: number;
   onNameFontSizeChange: (size: number) => void;
   nameFontFamily: string;
@@ -157,6 +159,7 @@ export function TestSidebar({
   hoverColor, onHoverColorChange,
   onToggleTitle, onToggleNames, onToggleSums,
   hideEmpty, onToggleHideEmpty,
+  exteriorLabels, onToggleExteriorLabels,
   nameFontSize, onNameFontSizeChange,
   nameFontFamily, onNameFontFamilyChange,
   nameMaxChars, nameMaxCharsMax, onNameMaxCharsChange,
@@ -440,6 +443,16 @@ export function TestSidebar({
               onClick={onToggleHideEmpty}
               title="Hide regions with zero items (Euler-like view)"
             >Hide empty</button>
+          </div>
+          )}
+          {viewStyle === 'layer' && n >= 5 && (
+          <div className="test-show-inline" style={{ marginTop: 4 }}>
+            <span className="test-show-label">Labels</span>
+            <button
+              className={`btn btn-xs btn-toggle ${exteriorLabels ? 'btn-toggle-active' : ''}`}
+              onClick={onToggleExteriorLabels}
+              title="Move region labels outside the diagram with leader lines (declutters dense diagrams)"
+            >Exterior labels</button>
           </div>
           )}
           {viewStyle === 'network' && (
