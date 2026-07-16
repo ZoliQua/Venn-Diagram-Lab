@@ -76,7 +76,7 @@ import { SampleDataDialog } from './components/SampleDataDialog.tsx';
 import type { SampleDataset } from './components/SampleDataDialog.tsx';
 import { PasteImportDialog } from './components/PasteImportDialog.tsx';
 import { UrlImportDialog } from './components/UrlImportDialog.tsx';
-import { paletteColorMap } from './utils/palettes.ts';
+import { paletteColorMap, STANDARD_PALETTE_ID } from './utils/palettes.ts';
 import type { PaletteId } from './utils/palettes.ts';
 
 export type ViewStyle = 'layer' | 'cut' | 'upset' | 'network';
@@ -179,12 +179,11 @@ export default function App() {
   const [testTitleFontSize, setTestTitleFontSize] = useState(24);
   const [testTitleFontFamily, setTestTitleFontFamily] = useState('Tahoma');
   const [testShapeOpacity, setTestShapeOpacity] = useState(0.2);
-  const [testShapeColors, setTestShapeColors] = useState<Record<string, string>>({
-    A: '#FFF200', B: '#2E3192', C: '#ED1C24', D: '#808285',
-    E: '#3C2415', F: '#9E1F63', G: '#CA4B9B', H: '#21AED1', I: '#F7941E',
-  });
+  const [testShapeColors, setTestShapeColors] = useState<Record<string, string>>(
+    paletteColorMap(STANDARD_PALETTE_ID),
+  );
   // Palette picker (Data mode) — sets all shape/bullet colors at once.
-  const [paletteId, setPaletteId] = useState<PaletteId>('standard');
+  const [paletteId, setPaletteId] = useState<PaletteId>(STANDARD_PALETTE_ID);
 
   // Enrichment plot editor (v1.11.0)
   const [testEnrichmentMetric, setTestEnrichmentMetric] = useState<EnrichmentMetric>('neglog10fdr');
@@ -1063,7 +1062,7 @@ export default function App() {
     setTestNameMaxChars(data.nameMaxChars);
     setTestShapeOpacity(data.shapeOpacity);
     setTestShapeColors(data.shapeColors);
-    setPaletteId(data.paletteId ?? 'standard');
+    setPaletteId(data.paletteId ?? STANDARD_PALETTE_ID);
     setViewStyleRaw(data.viewStyle);
     setCutColorMode(data.cutColorMode);
     setHeatmapColors(data.heatmapColors);
@@ -1882,8 +1881,8 @@ export default function App() {
             proportionalAccuracy={proportionalAccuracy}
             onResetDefaults={() => {
               setTestShapeOpacity(0.2);
-              setTestShapeColors({ A: '#FFF200', B: '#2E3192', C: '#ED1C24', D: '#808285', E: '#3C2415', F: '#9E1F63', G: '#CA4B9B', H: '#21AED1', I: '#F7941E' });
-              setPaletteId('standard');
+              setTestShapeColors(paletteColorMap(STANDARD_PALETTE_ID));
+              setPaletteId(STANDARD_PALETTE_ID);
               setTestNameFontSize(24);
               setTestNameFontFamily('Tahoma');
               setTestNameMaxChars(null);
