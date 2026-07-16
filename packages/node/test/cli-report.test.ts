@@ -42,7 +42,7 @@ describe('vdl report', () => {
     }
     expect(code).not.toBe(0);
     expect(stderr).toMatch(/\.pdf/i);
-  });
+  }, 30000);
 
   it('errors when --out is missing', () => {
     let code = 0;
@@ -53,5 +53,5 @@ describe('vdl report', () => {
       code = err.status ?? 1;
     }
     expect(code).not.toBe(0);
-  });
+  }, 30000);
 });

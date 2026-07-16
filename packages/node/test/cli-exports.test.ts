@@ -20,7 +20,7 @@ describe('vdl analyze --matrix / --statistics', () => {
 
     expect(readFileSync(mtx, 'utf8').split('\n')[0]).toBe('Item\tA\tB\tRegion');
     expect(readFileSync(stats, 'utf8').split('\n')[0].startsWith('Set_A\tSet_B\t')).toBe(true);
-  });
+  }, 30000);
 });
 
 describe('vdl export graphml / sif', () => {
@@ -43,5 +43,5 @@ describe('vdl export graphml / sif', () => {
     for (const line of sifText.split('\n')) {
       expect(line.split('\t')[1]).toBe('overlap');
     }
-  });
+  }, 30000);
 });

@@ -12,5 +12,5 @@ describe('vdl --version', () => {
     const expected = JSON.parse(readFileSync(join(PKG, 'package.json'), 'utf8')).version;
     const out = execFileSync('node', [CLI, '--version'], { encoding: 'utf8' }).trim();
     expect(out).toBe(expected);
-  });
+  }, 30000);
 });

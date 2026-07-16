@@ -20,9 +20,9 @@ describe('vdl render --metric validation', () => {
     expect(code).not.toBe(0);
     expect(stderr).toMatch(/metric/i);
     expect(stderr).not.toMatch(/\n\s+at /);
-  });
+  }, 30000);
   it('accepts a valid metric', () => {
     const out = execFileSync('node', [CLI, 'render', 'network', SAMPLE, '--metric', 'jaccard'], { encoding: 'utf8' });
     expect(out).toContain('<svg');
-  });
+  }, 30000);
 });

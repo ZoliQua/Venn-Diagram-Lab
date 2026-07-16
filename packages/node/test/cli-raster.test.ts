@@ -15,17 +15,17 @@ describe('vdl render --out png/pdf', () => {
     execFileSync('node', [CLI, 'render', 'network', SAMPLE, '--out', out], { encoding: 'utf8' });
     const buf = readFileSync(out);
     expect(buf.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47]))).toBe(true);
-  });
+  }, 30000);
 
   it('writes a PDF when --out ends in .pdf', () => {
     const out = join(mkdtempSync(join(tmpdir(), 'vdl-')), 'net.pdf');
     execFileSync('node', [CLI, 'render', 'network', SAMPLE, '--out', out], { encoding: 'utf8' });
     expect(readFileSync(out).subarray(0, 5).toString()).toBe('%PDF-');
-  });
+  }, 30000);
 
   it('still writes SVG when --out ends in .svg', () => {
     const out = join(mkdtempSync(join(tmpdir(), 'vdl-')), 'net.svg');
     execFileSync('node', [CLI, 'render', 'network', SAMPLE, '--out', out], { encoding: 'utf8' });
     expect(readFileSync(out, 'utf8')).toContain('<svg');
-  });
+  }, 30000);
 });

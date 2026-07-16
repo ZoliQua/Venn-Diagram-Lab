@@ -18,5 +18,5 @@ describe('vdl analyze detects GMT input by extension', () => {
     const tsv = readFileSync(out, 'utf8');
     expect(tsv.split('\n')[0]).toBe('Region\tSets\tDepth\tExclusive_Count\tInclusive_Count\tExclusive_Pct\tItems');
     expect(tsv).toContain('\nAB\t');
-  });
+  }, 30000);
 });

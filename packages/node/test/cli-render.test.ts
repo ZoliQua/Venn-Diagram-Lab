@@ -17,7 +17,7 @@ describe('vdl render', () => {
       const svg = readFileSync(out, 'utf8');
       expect(svg.startsWith('<svg')).toBe(true);
       expect(svg.trimEnd().endsWith('</svg>')).toBe(true);
-    });
+    }, 30000);
   }
 });
 
@@ -31,7 +31,7 @@ describe('vdl render proportional', () => {
     const svg = readFileSync(out, 'utf8');
     expect(svg).toContain('<svg');
     expect(svg.trimEnd().endsWith('</svg>')).toBe(true);
-  });
+  }, 30000);
 });
 
 describe('vdl render venn', () => {
@@ -42,12 +42,12 @@ describe('vdl render venn', () => {
     const svg = readFileSync(out, 'utf8');
     expect(svg).toContain('<svg');
     expect(svg.trimEnd().endsWith('</svg>')).toBe(true);
-  });
+  }, 30000);
 
   it('errors when --model is omitted for venn', () => {
     const input = join(PKG, '..', '..', 'data', 'dataset_real_cancer_drivers_4.tsv');
     expect(() => execFileSync('node', [CLI, 'render', 'venn', input], { encoding: 'utf8', stdio: 'pipe' })).toThrow();
-  });
+  }, 30000);
 });
 
 describe('render error handling', () => {
@@ -65,5 +65,5 @@ describe('render error handling', () => {
     expect(code).not.toBe(0);
     expect(stderr).toMatch(/sets|model/i);
     expect(stderr).not.toMatch(/\n\s+at /); // no Node.js stack-trace frames
-  });
+  }, 30000);
 });

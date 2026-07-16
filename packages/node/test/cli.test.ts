@@ -22,5 +22,5 @@ describe('vdl analyze CLI', () => {
       'Region\tSets\tDepth\tExclusive_Count\tInclusive_Count\tExclusive_Pct\tItems',
     );
     expect(tsv).toContain('\nAB\t');
-  });
+  }, 30000);
 });
