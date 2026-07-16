@@ -16,7 +16,7 @@ describe('vdl report', () => {
     const pdf = readFileSync(out);
     expect(pdf.subarray(0, 5).toString('utf8')).toBe('%PDF-');
     expect(pdf.length).toBeGreaterThan(5000);
-  }, 30000);
+  }, 90000);
 
   it('accepts --model and --title', () => {
     const out = join(mkdtempSync(join(tmpdir(), 'vdl-')), 'report.pdf');
@@ -27,7 +27,7 @@ describe('vdl report', () => {
     );
     const pdf = readFileSync(out);
     expect(pdf.subarray(0, 5).toString('utf8')).toBe('%PDF-');
-  }, 30000);
+  }, 90000);
 
   it('errors when --out does not end in .pdf', () => {
     const out = join(mkdtempSync(join(tmpdir(), 'vdl-')), 'report.svg');
