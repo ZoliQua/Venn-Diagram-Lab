@@ -77,6 +77,11 @@ export function TourOverlay({
   dispatchAction,
 }: TourOverlayProps) {
   const step = steps[stepIndex];
+  // Defined up here (rather than just before the return) so the keyboard
+  // effect's handler can close over `advance` without reading it before its
+  // declaration. Depends only on props/derived values available at this point.
+  const isLast = stepIndex >= steps.length - 1;
+  const advance = () => { if (isLast) onFinish(); else onNext(); };
   const [rect, setRect] = useState<Rect | null>(null);
   const [viewport, setViewport] = useState<{ w: number; h: number }>({
     w: typeof window !== 'undefined' ? window.innerWidth : 0,
@@ -208,9 +213,6 @@ export function TourOverlay({
   }, [active, stepIndex]);
 
   if (!active || !step) return null;
-
-  const isLast = stepIndex >= steps.length - 1;
-  const advance = () => { if (isLast) onFinish(); else onNext(); };
 
   const hasTarget = !!step.selector && !!rect;
   const placement = step.placement ?? 'bottom';

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatP } from '../components/DataSummaryPanel.tsx';
+import { formatP } from '../components/dataSummaryPanelFormat.ts';
 
 describe('DataSummaryPanel formatP (display-only)', () => {
   it('floors an exact-zero p-value to the underflow annotation', () => {

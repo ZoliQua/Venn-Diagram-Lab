@@ -6,6 +6,7 @@ import { buildStatisticsWorkbook } from '../utils/statisticsWorkbook.ts';
 import { EnrichmentPlots } from './EnrichmentPlots.tsx';
 import type { EnrichmentMetric } from '../utils/enrichmentPlotSvg.ts';
 import type { EnrichmentPlotSettings, EnrichmentPlotType } from '../utils/enrichmentPlotStyle.ts';
+import { formatP } from './dataSummaryPanelFormat.ts';
 
 interface DataSummaryPanelProps {
   vennResult: VennResult;
@@ -28,12 +29,6 @@ interface DataSummaryPanelProps {
   onExportMatrix?: () => void;
   onExportOneVsRest?: () => void;
   onExportJson?: () => void;
-}
-
-export function formatP(p: number): string {
-  if (p === 0) return '< 1e-300';
-  if (p < 0.001) return p.toExponential(1);
-  return p.toFixed(4);
 }
 
 function fdrBgColor(fdr: number): string | undefined {

@@ -218,6 +218,27 @@ export default function App() {
   const { doc } = svgDoc;
   const { selected, selectById, clearSelection } = useSelection(doc);
   const zoomPan = useZoomPan();
+  // Destructure alongside the object: reading members off `zoomPan` directly
+  // in render trips eslint-plugin-react-hooks v7's `refs` rule, because the
+  // returned object also carries the `setContainerRef` ref-callback and the
+  // analysis taints every access through the alias. Pulling the members into
+  // their own bindings is a pure rename with no behaviour change. The whole
+  // `zoomPan` object is kept because effect/callback dependency arrays below
+  // still list it (it is a fresh object each render — intentional here).
+  const {
+    state: zoomState,
+    setContainerRef,
+    onWheel,
+    onKeyDown,
+    onKeyUp,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    setZoom,
+  } = zoomPan;
   const [showGrid, setShowGrid] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [moveShapes, setMoveShapes] = useState(false);
@@ -267,7 +288,7 @@ export default function App() {
     },
   }).current;
 
-  const drag = useDrag(zoomPan.state.scale, svgRef, stableDragCallbacks);
+  const drag = useDrag(zoomState.scale, svgRef, stableDragCallbacks);
 
   // Text rotate/resize state
   const textToolRef = useRef<{ id: string; mode: 'rotate' | 'resize'; centerX: number; centerY: number; startAngle: number; startY: number; origFontSize: number } | null>(null);
@@ -715,7 +736,7 @@ export default function App() {
     const handler = (e: KeyboardEvent) => {
       const dialogOpen = document.querySelector('.dialog-overlay');
       if (dialogOpen) return;
-      zoomPan.onKeyDown(e);
+      onKeyDown(e);
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
         undoRef.current();
@@ -736,7 +757,7 @@ export default function App() {
         clearSelRef.current();
       }
     };
-    const upHandler = (e: KeyboardEvent) => { zoomPan.onKeyUp(e); };
+    const upHandler = (e: KeyboardEvent) => { onKeyUp(e); };
     window.addEventListener('keydown', handler);
     window.addEventListener('keyup', upHandler);
     return () => {
@@ -838,9 +859,9 @@ export default function App() {
       setCurrentModel(filename);
       setRegionData(regData);
       if (filename.includes('venn-8-set')) {
-        zoomPan.setZoom(0.6);
+        setZoom(0.6);
       } else {
-        zoomPan.resetZoom();
+        resetZoom();
       }
       regionDetection.clearSelection();
     } finally {
@@ -1297,7 +1318,7 @@ export default function App() {
 
         setProportionalAccuracy(layout.accuracy);
         setCurrentModel(PROPORTIONAL_MODEL);
-        zoomPan.resetZoom();
+        resetZoom();
 
       } else {
         // ═══════ FIXED MODEL PATH ═══════
@@ -1311,9 +1332,9 @@ export default function App() {
         setProportionalAccuracy(null);
 
         if (testModel.includes('venn-8-set')) {
-          zoomPan.setZoom(0.6);
+          setZoom(0.6);
         } else {
-          zoomPan.resetZoom();
+          resetZoom();
         }
 
         // Update Count, Name, CountSUM texts for fixed model
@@ -1601,11 +1622,11 @@ export default function App() {
         onSummary={() => { setSummarySelectMode(false); setSummaryOpen(true); }}
         onHelp={() => setHelpOpen(true)}
         filename={doc?.filename ?? null}
-        zoom={zoomPan.state.scale}
+        zoom={zoomState.scale}
         showGrid={showGrid}
-        onZoomIn={zoomPan.zoomIn}
-        onZoomOut={zoomPan.zoomOut}
-        onZoomReset={zoomPan.resetZoom}
+        onZoomIn={zoomIn}
+        onZoomOut={zoomOut}
+        onZoomReset={resetZoom}
         showValidation={showValidation}
         onToggleGrid={() => setShowGrid(g => !g)}
         onToggleValidation={() => setShowValidation(v => !v)}
@@ -1865,8 +1886,8 @@ export default function App() {
             mode === 'data' && testPlotEditState !== null && testVennResult && testCsvData ? (
               <div
                 className="canvas-container canvas-plot-edit"
-                ref={zoomPan.setContainerRef}
-                onWheel={zoomPan.onWheel}
+                ref={setContainerRef}
+                onWheel={onWheel}
               >
                 <EnrichmentPlotCanvas
                   plotType={testPlotEditState.plotType}
@@ -1881,12 +1902,12 @@ export default function App() {
                   matrix={testItemSetMatrix}
                   metric={testEnrichmentMetric}
                   style={testEnrichmentPlotSettings[testPlotEditState.plotType]}
-                  zoom={zoomPan.state.scale}
+                  zoom={zoomState.scale}
                 />
               </div>
             ) :
             (mode === 'view' || mode === 'data') && viewStyle === 'network' && testVennResult && testCsvData ? (
-              <div className="canvas-container" ref={zoomPan.setContainerRef} onWheel={zoomPan.onWheel}>
+              <div className="canvas-container" ref={setContainerRef} onWheel={onWheel}>
                 <NetworkPlot
                   data={buildNetworkData(
                     testVennResult,
@@ -1895,7 +1916,7 @@ export default function App() {
                     testColumnMapping.map(i => testCsvData.headers[i] ?? ''),
                     networkMetric,
                   )}
-                  scale={zoomPan.state.scale}
+                  scale={zoomState.scale}
                   edgeMetric={networkMetric}
                   showSigOnly={networkSigOnly}
                   showEdgeLabels={networkEdgeLabels}
@@ -1913,13 +1934,13 @@ export default function App() {
               </div>
             ) :
             (mode === 'view' || mode === 'data') && viewStyle === 'upset' && regionData ? (
-              <div className="canvas-container" ref={zoomPan.setContainerRef} onWheel={zoomPan.onWheel}>
+              <div className="canvas-container" ref={setContainerRef} onWheel={onWheel}>
                 <UpsetPlot
                   data={mode === 'data' && testVennResult
                     ? upsetDataFromVennResult(testVennResult, testColumnMapping.length)
                     : upsetDataFromRegionData(regionData, doc)
                   }
-                  scale={zoomPan.state.scale}
+                  scale={zoomState.scale}
                   colorMode={upsetColorMode}
                   customColor={upsetCustomColor}
                   heatmapColors={heatmapColors}
@@ -1933,10 +1954,10 @@ export default function App() {
               </div>
             ) :
             (mode === 'view' || mode === 'data') && viewStyle === 'cut' && regionData ? (
-              <div className="canvas-container" ref={zoomPan.setContainerRef} onWheel={zoomPan.onWheel}>
+              <div className="canvas-container" ref={setContainerRef} onWheel={onWheel}>
                 <CutViewCanvas
                   regionData={regionData}
-                  scale={zoomPan.state.scale}
+                  scale={zoomState.scale}
                   onRegionHover={regionDetection.setHoverByLabel}
                   onRegionClick={regionDetection.setSelectByLabel}
                   onBackgroundClick={regionDetection.clearSelection}
@@ -1958,17 +1979,17 @@ export default function App() {
             ) :
               <Canvas
                 doc={doc}
-                zoomPan={zoomPan.state}
+                zoomPan={zoomState}
                 selected={selected}
                 showGrid={mode === 'edit' && showGrid}
                 showValidation={mode === 'edit' && showValidation}
-                containerRef={zoomPan.setContainerRef}
+                containerRef={setContainerRef}
                 onSelect={selectById}
                 onClearSelection={clearSelection}
-                onZoomWheel={zoomPan.onWheel}
-                onPanPointerDown={zoomPan.onPointerDown}
-                onPanPointerMove={zoomPan.onPointerMove}
-                onPanPointerUp={zoomPan.onPointerUp}
+                onZoomWheel={onWheel}
+                onPanPointerDown={onPointerDown}
+                onPanPointerMove={onPointerMove}
+                onPanPointerUp={onPointerUp}
                 onDragTextStart={
                   mode === 'data' && (dataMoveNames || dataMoveNumbers)
                     ? (e: React.PointerEvent, id: string, origX: number, origY: number) => {
