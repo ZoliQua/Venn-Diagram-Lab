@@ -2125,6 +2125,7 @@ export default function App() {
                 onRegionLeave={regionDetection.clearHover}
                 onReadOnlyTextClick={(letter) => regionDetection.setSelectByLabel(letter, true)}
                 hideEmpty={mode === 'data' ? dataHideEmpty : false}
+                exteriorLabels={mode === 'data' ? dataExteriorLabels : false}
               />
           ) : mode === 'view' && !welcomeOpen ? (
             <div className="canvas-model-browser">

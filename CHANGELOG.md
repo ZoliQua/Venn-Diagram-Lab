@@ -2,6 +2,12 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.8.0 — 2026-07-17 — Exterior labels
+
+### Added
+
+- **Data mode (5+ sets)**: an "Exterior labels" toggle in Layer view moves region count labels onto a ring outside the diagram with leader lines, to declutter dense diagrams; reflected in the on-screen view and image exports.
+
 ## v2.7.0 — 2026-07-16 — Hide empty regions
 
 ### Added

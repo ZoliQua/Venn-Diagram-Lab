@@ -3,6 +3,7 @@ import type { VennDocument, VennText, SelectableElement } from '../types.ts';
 import type { ZoomPanState } from '../hooks/useZoomPan.ts';
 import type { RegionInfo } from '../hooks/useRegionDetection.ts';
 import { isEmptyCountValue } from '../utils/regionDisplay.ts';
+import { computeExteriorLabels } from '../utils/exteriorLabels.ts';
 
 interface CanvasProps {
   doc: VennDocument;
@@ -36,6 +37,7 @@ interface CanvasProps {
   onRegionLeave?: () => void;
   onReadOnlyTextClick?: (id: string) => void;
   hideEmpty?: boolean;
+  exteriorLabels?: boolean;
 }
 
 function getSelectedId(sel: SelectableElement | null): string | null {
@@ -303,6 +305,7 @@ export function Canvas({
   onRegionLeave,
   onReadOnlyTextClick,
   hideEmpty,
+  exteriorLabels,
 }: CanvasProps) {
   const isCutView = readOnly && viewStyle === 'cut';
   const svgElRef = useRef<SVGSVGElement>(null);
@@ -341,6 +344,29 @@ export function Canvas({
 
   const highlightedCountId = hoveredRegion?.countTextId ?? null;
   const selectedId = getSelectedId(selected);
+
+  // Exterior labels overlay: build a read-only anchor list from the current
+  // Count_ texts (never mutates doc.texts.values) and compute ring positions.
+  // Composes with the existing hideEmpty filter so the same regions are
+  // excluded whether they render in-diagram or on the exterior ring.
+  const exteriorLabelResults = useMemo(() => {
+    if (!exteriorLabels) return [];
+    const anchors = doc.texts.values
+      .filter(t => t.id.startsWith('Count_') && !t.id.startsWith('CountSUM_'))
+      .filter(t => !doc.meta.hiddenIds.has(t.id) && !doc.meta.hiddenGroups.has('values'))
+      .filter(t => !(hideEmpty && isEmptyCountValue(t.content)))
+      .map(t => ({ id: t.id, content: t.content, x: t.x, y: t.y }));
+    return computeExteriorLabels(anchors, doc.viewBox);
+  }, [exteriorLabels, doc.texts.values, doc.meta.hiddenIds, doc.meta.hiddenGroups, hideEmpty, doc.viewBox]);
+
+  // Font size for exterior labels scales with the diagram's viewBox so it
+  // stays readable across the very different model sizes (700x700 up to
+  // 2000x2000) — clamped to a small, legible range. Tunable if it doesn't
+  // look right on a given model.
+  const exteriorLabelFontSize = useMemo(
+    () => Math.max(9, Math.min(16, doc.viewBox.w / 60)),
+    [doc.viewBox.w],
+  );
 
   // Validation: compute which Count texts are in wrong position
   const [invalidIds, setInvalidIds] = useState<Set<string>>(new Set());
@@ -659,8 +685,43 @@ export function Canvas({
               {doc.texts.values
                 .filter(t => !doc.meta.hiddenIds.has(t.id) && !doc.meta.hiddenGroups.has('values'))
                 .filter(t => !(hideEmpty && t.id.startsWith('Count_') && isEmptyCountValue(t.content)))
+                .filter(t => !(exteriorLabels && t.id.startsWith('Count_') && !t.id.startsWith('CountSUM_')))
                 .map(renderText)}
             </g>
+
+            {/* Exterior labels overlay: read-only, render-time only — never
+                written back to doc.texts.values. Drawn after Group_Values so
+                leader lines + ring labels sit on top of the diagram. */}
+            {exteriorLabels && exteriorLabelResults.length > 0 && (
+              <g id="Group_ExteriorLabels" style={{ pointerEvents: 'none' }}>
+                {exteriorLabelResults.map(e => (
+                  <g key={e.id}>
+                    <line
+                      x1={e.anchorX}
+                      y1={e.anchorY}
+                      x2={e.labelX}
+                      y2={e.labelY}
+                      stroke="#888888"
+                      strokeOpacity={0.5}
+                      strokeWidth={0.5}
+                    />
+                    <text
+                      x={e.labelX}
+                      y={e.labelY}
+                      textAnchor={e.textAnchor}
+                      dominantBaseline="central"
+                      style={{
+                        fill: '#555555',
+                        fontFamily: 'Tahoma, sans-serif',
+                        fontSize: exteriorLabelFontSize,
+                      }}
+                    >
+                      {e.content}
+                    </text>
+                  </g>
+                ))}
+              </g>
+            )}
 
             {/* Sums */}
             {doc.texts.sums.length > 0 && (
