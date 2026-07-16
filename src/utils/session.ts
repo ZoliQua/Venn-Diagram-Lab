@@ -70,6 +70,8 @@ export interface DataSession {
   sheetIndex?: number;
   // Palette picker (optional so pre-palette-picker saved sessions still restore).
   paletteId?: PaletteId;
+  // Hide empty regions toggle (optional so pre-hide-empty saved sessions still restore).
+  hideEmpty?: boolean;
 }
 
 /** Top-level session envelope. */
@@ -131,6 +133,7 @@ export interface DataSessionInput {
   hasHeader?: boolean;
   sheetIndex?: number;
   paletteId?: PaletteId;
+  hideEmpty?: boolean;
 }
 
 /**
@@ -185,6 +188,7 @@ export function buildDataSession(input: DataSessionInput): DataSession {
     hasHeader: input.hasHeader,
     sheetIndex: input.sheetIndex,
     paletteId: input.paletteId,
+    hideEmpty: input.hideEmpty,
   };
 }
 

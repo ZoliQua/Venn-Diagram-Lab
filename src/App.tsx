@@ -172,6 +172,7 @@ export default function App() {
   const [testShowTitle, setTestShowTitle] = useState(true);
   const [testShowNames, setTestShowNames] = useState(true);
   const [testShowSums, setTestShowSums] = useState(true);
+  const [dataHideEmpty, setDataHideEmpty] = useState(false);
   const [testNameFontSize, setTestNameFontSize] = useState(24);
   const [testNameFontFamily, setTestNameFontFamily] = useState('Tahoma');
   // v1.13.4: "Max name length" slider — null = no truncation (full column name).
@@ -1063,6 +1064,7 @@ export default function App() {
     setTestShapeOpacity(data.shapeOpacity);
     setTestShapeColors(data.shapeColors);
     setPaletteId(data.paletteId ?? STANDARD_PALETTE_ID);
+    setDataHideEmpty(data.hideEmpty ?? false);
     setViewStyleRaw(data.viewStyle);
     setCutColorMode(data.cutColorMode);
     setHeatmapColors(data.heatmapColors);
@@ -1149,6 +1151,7 @@ export default function App() {
       hasHeader: testHasHeader,
       sheetIndex: testSheetIndex,
       paletteId,
+      hideEmpty: dataHideEmpty,
     };
     return {
       version: '1',
@@ -1157,7 +1160,7 @@ export default function App() {
       theme,
       data: buildDataSession(dataSessionInput),
     };
-  }, [theme, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, testSourceKind, testHasHeader, testSheetIndex, paletteId]);
+  }, [theme, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, testSourceKind, testHasHeader, testSheetIndex, paletteId, dataHideEmpty]);
 
   const handleExportSessionToFile = useCallback(() => {
     const session = buildAppSession();
@@ -1564,6 +1567,7 @@ export default function App() {
         hasHeader: testHasHeader,
         sheetIndex: testSheetIndex,
         paletteId,
+        hideEmpty: dataHideEmpty,
       };
       const session: AppSession = {
         version: '1',
@@ -1575,7 +1579,7 @@ export default function App() {
       saveSession(session);
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [mode, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, theme, testSourceKind, testHasHeader, testSheetIndex, paletteId]);
+  }, [mode, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, theme, testSourceKind, testHasHeader, testSheetIndex, paletteId, dataHideEmpty]);
 
   // Keep a stable ref to the latest setSelectByLabel for the restore effect
   useEffect(() => {
@@ -1772,6 +1776,8 @@ export default function App() {
             onToggleTitle={() => { setTestShowTitle(v => !v); if (doc) svgDoc.toggleMeta('headerHidden'); }}
             onToggleNames={() => { setTestShowNames(v => !v); if (doc) svgDoc.toggleGroupVisibility('names'); }}
             onToggleSums={() => { setTestShowSums(v => !v); if (doc) svgDoc.toggleGroupVisibility('sums'); }}
+            hideEmpty={dataHideEmpty}
+            onToggleHideEmpty={() => { setDataHideEmpty(v => !v); }}
             shapeOpacity={testShapeOpacity}
             onShapeOpacityChange={(opacity) => {
               setTestShapeOpacity(opacity);
@@ -1892,6 +1898,7 @@ export default function App() {
               setTestShowTitle(true);
               setTestShowNames(true);
               setTestShowSums(true);
+              setDataHideEmpty(false);
               setDataMoveNames(false);
               setDataMoveNumbers(false);
               setTestPendingCalculate(true);

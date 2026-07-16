@@ -78,6 +78,8 @@ interface TestSidebarProps {
   onToggleTitle: () => void;
   onToggleNames: () => void;
   onToggleSums: () => void;
+  hideEmpty: boolean;
+  onToggleHideEmpty: () => void;
   nameFontSize: number;
   onNameFontSizeChange: (size: number) => void;
   nameFontFamily: string;
@@ -154,6 +156,7 @@ export function TestSidebar({
   showTitle, showNames, showSums,
   hoverColor, onHoverColorChange,
   onToggleTitle, onToggleNames, onToggleSums,
+  hideEmpty, onToggleHideEmpty,
   nameFontSize, onNameFontSizeChange,
   nameFontFamily, onNameFontFamilyChange,
   nameMaxChars, nameMaxCharsMax, onNameMaxCharsChange,
@@ -428,6 +431,14 @@ export function TestSidebar({
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'cut' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('cut')}>Cut</button>
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'upset' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('upset')}>UpSet</button>
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'network' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('network')}>Network</button>
+          </div>
+          <div className="test-show-inline" style={{ marginTop: 4 }}>
+            <span className="test-show-label">Regions</span>
+            <button
+              className={`btn btn-xs btn-toggle ${hideEmpty ? 'btn-toggle-active' : ''}`}
+              onClick={onToggleHideEmpty}
+              title="Hide regions with zero items (Euler-like view)"
+            >Hide empty</button>
           </div>
           {viewStyle === 'network' && (
             <div style={{ marginTop: 8 }}>

@@ -198,6 +198,7 @@ function makeSampleDataSession(): DataSession {
     hasHeader: false,
     sheetIndex: 2,
     paletteId: 'okabe-ito',
+    hideEmpty: true,
   };
 }
 
@@ -252,6 +253,7 @@ function sampleStateBag(): DataSessionInput {
     hasHeader: sample.hasHeader,
     sheetIndex: sample.sheetIndex,
     paletteId: sample.paletteId,
+    hideEmpty: sample.hideEmpty,
   };
 }
 
@@ -296,6 +298,7 @@ describe('buildDataSession', () => {
       'networkMinWeight', 'networkMoveNodes', 'plotBackground', 'dataMoveNames',
       'dataMoveNumbers', 'enrichmentMetric', 'enrichmentPlotSettings',
       'selectedRegionLabel', 'sourceKind', 'hasHeader', 'sheetIndex', 'paletteId',
+      'hideEmpty',
     ];
     for (const k of requiredKeys) expect(k in ds).toBe(true);
   });
@@ -345,6 +348,20 @@ describe('buildDataSession', () => {
     delete bag.paletteId;
     const ds = buildDataSession(bag);
     expect(ds.paletteId).toBeUndefined();
+  });
+
+  it('round-trips hideEmpty', () => {
+    const bag = sampleStateBag();
+    bag.hideEmpty = true;
+    const ds = buildDataSession(bag);
+    expect(ds.hideEmpty).toBe(true);
+  });
+
+  it('leaves hideEmpty undefined when absent from input, like older pre-hide-empty sessions', () => {
+    const bag = sampleStateBag();
+    delete bag.hideEmpty;
+    const ds = buildDataSession(bag);
+    expect(ds.hideEmpty).toBeUndefined();
   });
 });
 
@@ -522,6 +539,12 @@ describe('isSessionCompatible', () => {
   it('accepts a pre-palette-picker session missing paletteId (App.tsx defaults to "standard" on restore)', () => {
     const s = makeValidSession();
     delete (s.data as Record<string, unknown>).paletteId;
+    expect(isSessionCompatible(s)).toBe(true);
+  });
+
+  it('accepts a pre-hide-empty session missing hideEmpty (App.tsx defaults to false on restore)', () => {
+    const s = makeValidSession();
+    delete (s.data as Record<string, unknown>).hideEmpty;
     expect(isSessionCompatible(s)).toBe(true);
   });
 
