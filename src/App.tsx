@@ -1418,16 +1418,39 @@ export default function App() {
     }
   }, [testCsvData, testModel, testColumnMapping, svgDoc, zoomPan, regionDetection, testShapeColors, testShapeOpacity, testFileType, testItemDelimiter, testNameFontSize, testNameFontFamily, testNameMaxChars, testTitleFontSize, testTitleFontFamily, testShowTitle, testShowNames, testShowSums, cutColorMode]);
 
-  // Auto-calculate when model is selected in Data mode
+  // Auto-calculate when model is selected in Data mode.
+  // This is a genuine trigger effect, not a derived-state calculation: it
+  // consumes a one-shot "pending" flag set by ~6 call sites across the
+  // component (session restore, sample-dataset load, model pickers, column
+  // swaps) and runs the heavy, side-effecting handleTestCalculate() (SVG
+  // mutation, region recompute, analytics event) in response. Restructuring
+  // this into an adjust-during-render pattern is not behaviour-safe: every
+  // call site sets testModel/testCsvData/testColumnMapping in the *same*
+  // event-handler tick as the pending flag, so calling handleTestCalculate()
+  // directly from those sites would run it against its stale useCallback
+  // closure (last render's state) instead of the freshly-committed values
+  // this effect observes after React re-renders. A scoped disable is the
+  // pre-approved, behaviour-preserving option for this one effect.
   useEffect(() => {
     if (testPendingCalculate && testModel && testCsvData && testColumnMapping.length >= 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- legitimate trigger effect: runs handleTestCalculate() (an external, side-effecting action) once per pending-flag transition; hoisting to the ~6 call sites that set this flag would read stale closure state instead (see comment above).
       setTestPendingCalculate(false);
       handleTestCalculate();
     }
   }, [testPendingCalculate, testModel, testCsvData, testColumnMapping, handleTestCalculate]);
 
-  // Auto-switch from proportional when n > 3
-  useEffect(() => {
+  // Auto-switch from proportional when n > 3.
+  // Adjust-during-render: keyed on testModel + testColumnMapping.length so
+  // the guard body runs exactly once per qualifying transition (self-
+  // terminating on the next render since testModel no longer equals
+  // PROPORTIONAL_MODEL once switched). Mount-time parity: testModel starts
+  // as null, so the condition is false at first render either way — seeding
+  // prevAutoSwitchKey with the current-render key (rather than an
+  // `undefined` sentinel) reproduces that.
+  const autoSwitchKey = `${testModel}|${testColumnMapping.length}`;
+  const [prevAutoSwitchKey, setPrevAutoSwitchKey] = useState(autoSwitchKey);
+  if (autoSwitchKey !== prevAutoSwitchKey) {
+    setPrevAutoSwitchKey(autoSwitchKey);
     if (testModel === PROPORTIONAL_MODEL && testColumnMapping.length > 3) {
       const n = testColumnMapping.length;
       const defaultModel = MODEL_LIST.find(m => m.setCount === n)?.filename ?? `venn-${n}-set.svg`;
@@ -1435,7 +1458,7 @@ export default function App() {
       setTestPendingCalculate(true);
       setTestError('Area-proportional mode only supports 2-3 sets. Switched to standard model.');
     }
-  }, [testModel, testColumnMapping.length]);
+  }
 
   // Auto-recalculate when column mapping changes (user swaps columns in sidebar)
   const prevMappingRef = useRef<string>('');
@@ -1466,15 +1489,25 @@ export default function App() {
 
   // Clamp testNameMaxChars when the longest mapped column name shrinks
   // (e.g. user swaps to shorter columns). Keeps the slider range consistent.
-  useEffect(() => {
-    if (testNameMaxChars === null || !testCsvData) return;
-    const maxLen = testColumnMapping.reduce(
-      (m, ci) => Math.max(m, (testCsvData.headers[ci] ?? '').length),
-      0,
-    );
-    const ceiling = Math.max(16, maxLen);
-    if (testNameMaxChars > ceiling) setTestNameMaxChars(ceiling);
-  }, [testColumnMapping, testCsvData, testNameMaxChars]);
+  // Adjust-during-render: ceiling is null while there's no CSV data (mirrors
+  // the original early return), and the key folds in testNameMaxChars itself
+  // (not just the ceiling) so this reproduces the original 3-dependency
+  // effect exactly — a session restore that sets a stale nameMaxChars re-
+  // triggers the check even when the ceiling number happens not to change.
+  const nameMaxCharsCeiling = testCsvData
+    ? Math.max(16, testColumnMapping.reduce(
+        (m, ci) => Math.max(m, (testCsvData.headers[ci] ?? '').length),
+        0,
+      ))
+    : null;
+  const nameMaxCharsClampKey = `${nameMaxCharsCeiling}|${testNameMaxChars}`;
+  const [prevNameMaxCharsClampKey, setPrevNameMaxCharsClampKey] = useState(nameMaxCharsClampKey);
+  if (nameMaxCharsClampKey !== prevNameMaxCharsClampKey) {
+    setPrevNameMaxCharsClampKey(nameMaxCharsClampKey);
+    if (nameMaxCharsCeiling !== null && testNameMaxChars !== null && testNameMaxChars > nameMaxCharsCeiling) {
+      setTestNameMaxChars(nameMaxCharsCeiling);
+    }
+  }
 
   // Debounced session save for Data mode
   useEffect(() => {
