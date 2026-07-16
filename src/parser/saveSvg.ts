@@ -1,5 +1,6 @@
 import { saveSvg as coreSaveSvg } from '@venn-diagram-lab/core';
 import type { VennDocument, VennText } from '@venn-diagram-lab/core';
+import { isEmptyCountValue } from '../utils/regionDisplay.ts';
 
 export type { VennDocument, VennText } from '@venn-diagram-lab/core';
 
@@ -14,7 +15,7 @@ export interface SaveSvgOptions {
 }
 
 function isHiddenEmptyCount(t: VennText): boolean {
-  return t.id.startsWith('Count_') && t.content.trim() === '0';
+  return t.id.startsWith('Count_') && isEmptyCountValue(t.content);
 }
 
 export function saveSvg(doc: VennDocument, opts?: SaveSvgOptions): string {

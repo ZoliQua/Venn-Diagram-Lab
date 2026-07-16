@@ -1,5 +1,6 @@
 import { useMemo, useRef, useEffect, useCallback, useState } from 'react';
 import type { RegionData } from '../models.ts';
+import { isEmptyCountValue } from '../utils/regionDisplay.ts';
 
 const DEPTH_BG_COLOR: [number, number, number] = [220, 15, 12];
 const DEPTH_FG_COLOR: [number, number, number] = [0, 45, 45];
@@ -98,9 +99,7 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick,
   const isRegionEmpty = useCallback((index: number): boolean => {
     if (!countOverrides) return false;
     const label = indexToLabel(index, sets);
-    const val = countOverrides.get(label);
-    const num = val ? parseInt(val, 10) : 0;
-    return isNaN(num) || num === 0;
+    return isEmptyCountValue(countOverrides.get(label));
   }, [countOverrides, sets]);
 
   // Get fill color for a region index

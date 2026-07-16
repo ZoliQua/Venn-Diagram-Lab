@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import type { VennDocument, VennText, SelectableElement } from '../types.ts';
 import type { ZoomPanState } from '../hooks/useZoomPan.ts';
 import type { RegionInfo } from '../hooks/useRegionDetection.ts';
+import { isEmptyCountValue } from '../utils/regionDisplay.ts';
 
 interface CanvasProps {
   doc: VennDocument;
@@ -657,7 +658,7 @@ export function Canvas({
             <g id="Group_Values">
               {doc.texts.values
                 .filter(t => !doc.meta.hiddenIds.has(t.id) && !doc.meta.hiddenGroups.has('values'))
-                .filter(t => !(hideEmpty && t.id.startsWith('Count_') && t.content.trim() === '0'))
+                .filter(t => !(hideEmpty && t.id.startsWith('Count_') && isEmptyCountValue(t.content)))
                 .map(renderText)}
             </g>
 
