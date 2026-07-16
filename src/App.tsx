@@ -2038,6 +2038,7 @@ export default function App() {
                   heatmapColors={heatmapColors}
                   legendPosition={heatmapLegendPosition}
                   plotBackground={plotBackground}
+                  hideEmpty={mode === 'data' ? dataHideEmpty : false}
                 />
               </div>
             ) :
@@ -2116,6 +2117,7 @@ export default function App() {
                 onRegionClick={regionDetection.lockHover}
                 onRegionLeave={regionDetection.clearHover}
                 onReadOnlyTextClick={(letter) => regionDetection.setSelectByLabel(letter, true)}
+                hideEmpty={mode === 'data' ? dataHideEmpty : false}
               />
           ) : mode === 'view' && !welcomeOpen ? (
             <div className="canvas-model-browser">

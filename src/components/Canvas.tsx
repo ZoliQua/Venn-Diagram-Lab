@@ -34,6 +34,7 @@ interface CanvasProps {
   onRegionClick?: () => void;
   onRegionLeave?: () => void;
   onReadOnlyTextClick?: (id: string) => void;
+  hideEmpty?: boolean;
 }
 
 function getSelectedId(sel: SelectableElement | null): string | null {
@@ -300,6 +301,7 @@ export function Canvas({
   onRegionClick,
   onRegionLeave,
   onReadOnlyTextClick,
+  hideEmpty,
 }: CanvasProps) {
   const isCutView = readOnly && viewStyle === 'cut';
   const svgElRef = useRef<SVGSVGElement>(null);
@@ -653,7 +655,10 @@ export function Canvas({
 
             {/* Values */}
             <g id="Group_Values">
-              {doc.texts.values.filter(t => !doc.meta.hiddenIds.has(t.id) && !doc.meta.hiddenGroups.has('values')).map(renderText)}
+              {doc.texts.values
+                .filter(t => !doc.meta.hiddenIds.has(t.id) && !doc.meta.hiddenGroups.has('values'))
+                .filter(t => !(hideEmpty && t.id.startsWith('Count_') && t.content.trim() === '0'))
+                .map(renderText)}
             </g>
 
             {/* Sums */}

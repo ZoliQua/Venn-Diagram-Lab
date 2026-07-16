@@ -16,6 +16,7 @@ interface CutViewCanvasProps {
   heatmapColors?: { low: string; mid: string; high: string };
   legendPosition?: string;
   plotBackground?: 'dark' | 'white';
+  hideEmpty?: boolean;
 }
 
 function indexToLabel(index: number, sets: string[]): string {
@@ -60,7 +61,7 @@ function heatmapColorFromPalette(t: number, low: string, mid: string, high: stri
   return lerpRgb(midRgb, highRgb, (t - 0.5) / 0.5);
 }
 
-export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick, onBackgroundClick, lockedLabel, countOverrides, colorMode = 'depth', heatmapColors, legendPosition = 'bottom-left', plotBackground = 'dark' }: CutViewCanvasProps) {
+export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick, onBackgroundClick, lockedLabel, countOverrides, colorMode = 'depth', heatmapColors, legendPosition = 'bottom-left', plotBackground = 'dark', hideEmpty }: CutViewCanvasProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const onHoverRef = useRef(onRegionHover);
   const onClickRef = useRef(onRegionClick);
@@ -92,6 +93,15 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick,
     if (min === Infinity) return { min: 0, max: 1 };
     return { min, max: max === min ? min + 1 : max };
   }, [colorMode, countOverrides]);
+
+  // Detect whether a region's count is zero/absent (same rule as getRegionFill's zero handling)
+  const isRegionEmpty = useCallback((index: number): boolean => {
+    if (!countOverrides) return false;
+    const label = indexToLabel(index, sets);
+    const val = countOverrides.get(label);
+    const num = val ? parseInt(val, 10) : 0;
+    return isNaN(num) || num === 0;
+  }, [countOverrides, sets]);
 
   // Get fill color for a region index
   const getRegionFill = useCallback((index: number): string => {
@@ -183,6 +193,7 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick,
         {sortedIndices.map(index => {
           const d = regions[index];
           if (!d) return null;
+          if (hideEmpty && isRegionEmpty(index)) return null;
           const color = getRegionFill(index);
           const isHovered = activeIndex === index;
           const hasHover = activeIndex !== null;

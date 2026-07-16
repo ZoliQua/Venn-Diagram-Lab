@@ -432,6 +432,7 @@ export function TestSidebar({
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'upset' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('upset')}>UpSet</button>
             <button className={`btn btn-sm btn-view-style ${viewStyle === 'network' ? 'btn-mode-active' : ''}`} onClick={() => onSetViewStyle('network')}>Network</button>
           </div>
+          {(viewStyle === 'layer' || viewStyle === 'cut') && (
           <div className="test-show-inline" style={{ marginTop: 4 }}>
             <span className="test-show-label">Regions</span>
             <button
@@ -440,6 +441,7 @@ export function TestSidebar({
               title="Hide regions with zero items (Euler-like view)"
             >Hide empty</button>
           </div>
+          )}
           {viewStyle === 'network' && (
             <div style={{ marginTop: 8 }}>
               <div className="sidebar-subsection-title">Edge weight</div>
