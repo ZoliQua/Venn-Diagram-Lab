@@ -111,25 +111,43 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
 
   const colCount = preview.headers.length;
 
-  // Initialize custom headers when column count changes
-  useEffect(() => {
+  // Initialize custom headers when column count changes.
+  // Adjusted during render (not in an effect). `prevColCount` starts at
+  // `undefined` (never a real colCount) so this always syncs on the very
+  // first render too, matching the previous effect's behaviour of firing
+  // on mount (dependency arrays always run once after the initial commit).
+  const [prevColCount, setPrevColCount] = useState<number | undefined>(undefined);
+  if (colCount !== prevColCount) {
+    setPrevColCount(colCount);
     setCustomHeaders(prev =>
       Array.from({ length: colCount }, (_, i) => prev[i] ?? `Column ${i + 1}`)
     );
-  }, [colCount]);
+  }
 
-  // Auto-configure for gene set formats
-  useEffect(() => {
+  // Auto-configure for gene set formats.
+  // Adjusted during render, keyed on `geneSetParsed`. `prevGeneSetParsed`
+  // starts at `undefined` (distinct from both `null` and any parsed result)
+  // so a gene-set file present from the first render still gets configured,
+  // matching the previous mount-firing effect.
+  const [prevGeneSetParsed, setPrevGeneSetParsed] = useState<typeof geneSetParsed | undefined>(undefined);
+  if (geneSetParsed !== prevGeneSetParsed) {
+    setPrevGeneSetParsed(geneSetParsed);
     if (geneSetParsed) {
       setFileType('aggregated');
       setRowDelimiter('\t');
       setHasHeader(true);
     }
-  }, [geneSetParsed]);
+  }
 
-  // Auto-select columns on file type or delimiter change
-  useEffect(() => {
-    if (!fullCsv) return;
+  // Auto-select columns on file type or delimiter change.
+  // Adjusted during render, keyed on `fileType` + `fullCsv`. Both prev
+  // trackers start at `undefined` so this still runs on the first render
+  // (when `fullCsv` is already available), matching the previous effect.
+  const [prevFileTypeForCols, setPrevFileTypeForCols] = useState<FileType | undefined>(undefined);
+  const [prevFullCsvForCols, setPrevFullCsvForCols] = useState<CsvData | null | undefined>(undefined);
+  if (fullCsv && (fileType !== prevFileTypeForCols || fullCsv !== prevFullCsvForCols)) {
+    setPrevFileTypeForCols(fileType);
+    setPrevFullCsvForCols(fullCsv);
     if (fileType === 'binary') {
       const binCols = getBinaryColumns(fullCsv);
       setSelectedColumns(new Set(binCols));
@@ -137,12 +155,19 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
       setSelectedColumns(new Set(fullCsv.headers.map((_, i) => i)));
     }
     setError(null);
-  }, [fileType, fullCsv]);
+  }
 
-  // Reset delimiter to detected when dialog opens
-  useEffect(() => {
+  // Reset delimiter to detected when dialog opens.
+  // Adjusted during render, keyed on `detectedDelimiter`. `prevDetected`
+  // starts equal to `detectedDelimiter` (mirroring `rowDelimiter`'s own
+  // initializer) so this is a no-op on mount — the initial `rowDelimiter`
+  // state already equals `detectedDelimiter` — and only fires when
+  // `detectedDelimiter` actually changes on a later render.
+  const [prevDetectedDelimiter, setPrevDetectedDelimiter] = useState(detectedDelimiter);
+  if (detectedDelimiter !== prevDetectedDelimiter) {
+    setPrevDetectedDelimiter(detectedDelimiter);
     setRowDelimiter(detectedDelimiter);
-  }, [detectedDelimiter]);
+  }
 
   // Excel workbooks always use the first non-empty row as the header.
   // Adjusted during render (not in an effect) when `isExcel` transitions,
@@ -159,6 +184,8 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
   useEffect(() => {
     if (!isExcel || !excelBuffer || !selectedSheet) return;
     if (selectedSheet === initialSheet && csvData) {
+      // async worksheet-parse completion — legitimate effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExcelCsv(csvData);
       return;
     }
