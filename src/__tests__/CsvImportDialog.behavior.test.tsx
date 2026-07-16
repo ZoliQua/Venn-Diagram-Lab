@@ -10,10 +10,15 @@
 //
 // Effects under test (current line numbers in CsvImportDialog.tsx):
 //   L116 - custom headers initialised from column count
-//   L124 - gene-set auto-config (fileType/rowDelimiter/hasHeader) from geneSetParsed
+//   L124 - gene-set auto-config: only the setFileType('aggregated') call is
+//          pinned here (see scope note at that test) — setRowDelimiter/
+//          setHasHeader in the same effect are not independently
+//          discriminating for any fixture (L144 and the hasHeader default
+//          already reproduce their values).
 //   L135 - column auto-select from fileType + fullCsv (binary vs aggregated branch)
 //   L144 - delimiter reset from detectedDelimiter
-//   L162 - Excel worksheet re-parse (only reachable when isExcel; see Excel section below)
+//   L162 - Excel worksheet re-parse: intentionally NOT characterized here.
+//          See the comment at the end of this file for why.
 
 import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
@@ -102,7 +107,22 @@ describe('CsvImportDialog — characterization (pre-refactor)', () => {
   });
 
   // --- L124 (gene-set auto-config) -------------------------------------------
-  it('GMT input auto-configures file type to aggregated, tab delimiter, and header on', () => {
+  // SCOPE NOTE: the L124 effect also calls setRowDelimiter('\t') and
+  // setHasHeader(true), but neither is independently discriminating for this
+  // (or any) fixture:
+  //  - hasHeader already defaults to true (`useState(true)`), with or without
+  //    this effect, so asserting it stays true proves nothing.
+  //  - rowDelimiter is unconditionally re-set by the separate L144 "reset
+  //    delimiter to detected" effect, which runs after this one on every
+  //    mount and always wins (last setState for the same state in a mount
+  //    batch takes effect). For this GMT fixture, detectedDelimiter is
+  //    already '\t' (see detectDelimiter's tab-consistency scoring), so
+  //    L144 alone reproduces '\t' even with the L124 line removed.
+  // Verified experimentally: commenting out `setRowDelimiter('\t')` and
+  // `setHasHeader(true)` at L125-126 leaves this test green; commenting out
+  // `setFileType('aggregated')` at L124 makes it fail. Only the fileType
+  // assertions below are a genuine, effect-specific pin.
+  it('GMT input auto-configures file type to aggregated', () => {
     // Same GMT fixture used in csvParser.test.ts's parseGmt describe block.
     const rawText = 'SetA\thttp://example.com\tGene1\tGene2\tGene3\nSetB\tna\tGene2\tGene4';
     const onLoad = vi.fn<(result: CsvImportResult) => void>();
@@ -127,18 +147,11 @@ describe('CsvImportDialog — characterization (pre-refactor)', () => {
     expect(radios[1].checked).toBe(true); // Aggregated
     expect(radios[1].disabled).toBe(true);
 
-    // Row delimiter forced to Tab.
-    const selects = container.querySelectorAll<HTMLSelectElement>('select');
-    expect(selects[0].value).toBe('\t');
-
-    // Header checkbox forced on (and disabled, since isGeneSet).
-    const headerCheckbox = container.querySelector<HTMLInputElement>(
-      '.csv-import-checkbox-label input[type="checkbox"]'
-    )!;
-    expect(headerCheckbox.checked).toBe(true);
-    expect(headerCheckbox.disabled).toBe(true);
-
-    // Downstream of L124 + L135: both gene-set columns (SetA, SetB) selected.
+    // Downstream double-check on the same pin: L135's else-branch (fileType
+    // !== 'binary') selects every column. If setFileType('aggregated') were
+    // removed, fileType would stay at its 'binary' default and L135 would
+    // instead run getBinaryColumns on non-numeric gene names, selecting zero
+    // columns instead of both.
     const colCheckboxes = container.querySelectorAll<HTMLInputElement>(
       '.csv-import-col-checkbox input[type="checkbox"]'
     );
@@ -180,43 +193,28 @@ describe('CsvImportDialog — characterization (pre-refactor)', () => {
     expect(rowDelimiterSelect().value).toBe(';');
   });
 
-  // --- L162 (Excel worksheet re-parse) — non-Excel guard only ----------------
-  // Constructing a real .xlsx ArrayBuffer fixture here would be disproportionate
-  // for this characterization pass; the Excel parse path itself (parseExcelFile)
-  // is already covered by src/__tests__/excelParser.test.ts. Here we only pin
-  // the guard clause `if (!isExcel || !excelBuffer || !selectedSheet) return;`:
-  // when sourceFormat is not 'excel', the effect must return immediately and
-  // never touch excelCsv/error state, leaving the dialog to render straight
-  // from the parsed rawText.
-  it('non-Excel input leaves the worksheet re-parse effect a no-op (guard clause)', () => {
-    const rawText = 'A,B,C\n1,2,3\n4,5,6';
-    const onLoad = vi.fn<(result: CsvImportResult) => void>();
-
-    const { container, queryByText } = render(
-      <CsvImportDialog
-        isOpen={true}
-        rawText={rawText}
-        filename="data.csv"
-        // sourceFormat is intentionally omitted/non-excel; excelBuffer is
-        // supplied to prove the guard — not the missing-buffer check — is
-        // what short-circuits the effect.
-        excelBuffer={new ArrayBuffer(8)}
-        onLoad={onLoad}
-        onCancel={noop}
-      />
-    );
-
-    // No Worksheet section (Excel-only UI) is rendered.
-    expect(queryByText('2. Worksheet')).toBeNull();
-
-    // No error surfaced (the effect's .catch(err => setError(...)) never ran).
-    expect(container.querySelector('.csv-import-error')).toBeNull();
-
-    // Data columns/preview reflect the plain CSV parse (from rawText), not an
-    // untouched/empty excelCsv — confirming the guard clause returned before
-    // any state mutation, and preview/fullCsv fall through to the CSV path.
-    const colCheckboxes = container.querySelectorAll('.csv-import-col-checkbox');
-    expect(colCheckboxes).toHaveLength(3);
-    expect(Array.from(colCheckboxes).map(el => el.textContent?.trim())).toEqual(['A', 'B', 'C']);
-  });
+  // --- L162 (Excel worksheet re-parse) — intentionally NOT covered here -----
+  // This effect (`if (!isExcel || !excelBuffer || !selectedSheet) return; ...
+  // parseExcelFile(...).then(setExcelCsv).catch(setError)`) is a legitimate
+  // async effect. The upcoming react-hooks v7 refactor (Task 3) is expected
+  // to leave its behaviour as-is behind a scoped eslint-disable rather than
+  // rewrite it — so it does not need a behaviour-pinning safety net here.
+  //
+  // A prior version of this file had a test claiming to pin the `!isExcel`
+  // guard clause via a non-Excel render. That coverage was fabricated: with
+  // no sheet-context prop (`sheetNames`/`initialSheet`), `selectedSheet`
+  // defaults to '' (`useState(initialSheet ?? sheetNames?.[0] ?? '')`), so
+  // `!selectedSheet` alone short-circuits the guard regardless of `isExcel`;
+  // and the test asserted synchronously, so even if the guard had let an
+  // async `parseExcelFile(...)` through, its `.then`/`.catch` couldn't have
+  // resolved before the assertions ran. The test passed identically whether
+  // or not the `!isExcel` clause existed. Verified experimentally (see
+  // task-2-report.md): removing `!isExcel ||` from the guard left the full
+  // suite green.
+  //
+  // Building a fixture that genuinely discriminates this guard would require
+  // either a real parseable .xlsx ArrayBuffer or mocking parseExcelFile —
+  // both judged disproportionate for an effect that won't be refactored. The
+  // Excel parsing path itself (parseExcelFile) is covered by
+  // src/__tests__/excelParser.test.ts.
 });
