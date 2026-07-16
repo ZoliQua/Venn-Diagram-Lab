@@ -14,7 +14,7 @@
 // self-scheduling loop to fake-timer past and no risk of a hanging test.
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { TourOverlay } from '../components/TourOverlay.tsx';
 import type { TourStep } from '../utils/tourSteps.ts';
 
@@ -101,5 +101,90 @@ describe('TourOverlay — characterization (pre-fix)', () => {
 
     expect(container.firstChild).toBeNull();
     expect(container.querySelector('.tour-overlay')).toBeNull();
+  });
+
+  it('targeted step (populated rect) -> no-selector step -> back to a targeted step: the stale rect must not resurface before it is re-measured', () => {
+    // Real DOM element the TARGETED_STEP selector resolves to. jsdom's
+    // getBoundingClientRect always returns zeros, so stub it to return
+    // non-zero geometry — that is what lets `rect` become non-null and the
+    // highlight ring actually render for the first assertion below.
+    //
+    // Note on why this test is shaped as a 3-phase round-trip rather than a
+    // simple "no ring on the no-selector step" check: `hasTarget` is
+    // `!!step.selector && !!rect`, so on a no-selector step the ring is
+    // ALREADY absent regardless of whether `rect` itself got cleared — that
+    // assertion alone cannot detect whether the render-phase guard ran. The
+    // guard's actual observable effect is that `rect` no longer holds a
+    // stale value once we land back on a *targeted* step — before its rAF
+    // loop has had a chance to re-measure. That's what this test checks.
+    const target = document.createElement('div');
+    target.setAttribute('data-tour', 'toolbar-data-open');
+    document.body.appendChild(target);
+    const rectStub: DOMRect = {
+      top: 100, left: 50, width: 200, height: 40,
+      right: 250, bottom: 140, x: 50, y: 100,
+      toJSON() { return this; },
+    };
+    const getBCRSpy = vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(rectStub);
+
+    const renderAt = (stepIndex: number) => (
+      <TourOverlay
+        active={true}
+        stepIndex={stepIndex}
+        steps={[CENTER_STEP, TARGETED_STEP]}
+        onNext={noop}
+        onPrev={noop}
+        onSkip={noop}
+        onFinish={noop}
+        dispatchAction={noop}
+      />
+    );
+
+    try {
+      const { container, rerender } = render(renderAt(1)); // TARGETED_STEP
+
+      // Flush the rAF loop (faked by vi.useFakeTimers()) so the tracking
+      // effect's tick() reads the stubbed rect and calls setRect(r).
+      act(() => {
+        vi.advanceTimersByTime(50);
+      });
+
+      // Precondition: rect is populated, highlight ring is present.
+      expect(container.querySelector('.tour-highlight-ring')).not.toBeNull();
+      expect(container.querySelector('.tour-overlay')!.className).toContain('tour-overlay-has-target');
+
+      // Move to the no-selector step. The render-phase guard
+      // (rectClearKey/lastRectClearKey around L155-160) must clear the now-
+      // stale rect in the same commit, before paint. (The ring is absent
+      // here either way — this step alone is not the discriminating one.)
+      rerender(renderAt(0)); // CENTER_STEP
+      expect(container.querySelector('.tour-highlight-ring')).toBeNull();
+      expect(container.querySelector('.tour-center-dim')).not.toBeNull();
+
+      // Move back to the targeted step. This re-triggers the tracking
+      // effect (stepIndex changed) which schedules a fresh rAF tick, but
+      // that tick has NOT fired yet — no timers have been advanced since
+      // the rerender. If the stale rect was cleared while on the
+      // no-selector step, `rect` is null right now and the ring must be
+      // absent until the new tick re-measures it. If the clear-guard was
+      // skipped, the old rect object survived untouched across the
+      // no-selector step and immediately resurfaces here, rendering a ring
+      // with never-re-verified, potentially stale geometry.
+      rerender(renderAt(1)); // TARGETED_STEP again, before any timer flush
+      expect(container.querySelector('.tour-highlight-ring')).toBeNull();
+      expect(container.querySelector('.tour-overlay')!.className).toContain('tour-overlay-center');
+      expect(container.querySelector('.tour-overlay')!.className).not.toContain('tour-overlay-has-target');
+
+      // Sanity: once the new tick is allowed to run, the ring legitimately
+      // reappears (proving the selector-targeting path itself still works
+      // and the prior assertion wasn't just a broken test).
+      act(() => {
+        vi.advanceTimersByTime(50);
+      });
+      expect(container.querySelector('.tour-highlight-ring')).not.toBeNull();
+    } finally {
+      getBCRSpy.mockRestore();
+      document.body.removeChild(target);
+    }
   });
 });
