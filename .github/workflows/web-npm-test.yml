@@ -1,0 +1,120 @@
+name: Web + npm tests
+
+on:
+  push:
+    branches: [main, "feature/**"]
+    paths:
+      - "src/**"
+      - "packages/**"
+      - "models/**"
+      - "data/**"
+      - "scripts/**"
+      - "index.html"
+      - "vite.config.ts"
+      - "tsconfig*.json"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/web-npm-test.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "packages/**"
+      - "models/**"
+      - "data/**"
+      - "scripts/**"
+      - "index.html"
+      - "vite.config.ts"
+      - "tsconfig*.json"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/web-npm-test.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }}, node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Vite 8 requires node ^20.19.0 || >=22.12.0; setup-node resolves each
+        # major to its latest release, which satisfies both floors.
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ["20", "22"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # One run covers all three TypeScript surfaces: the web app (src/), the
+      # shared core (packages/core/) and the npm package (packages/node/). The
+      # root vite.config.ts aliases @venn-diagram-lab/core to its *source*, so
+      # nothing needs building first.
+      #
+      # The Windows cells are load-bearing: the npm package byte-compares its
+      # golden fixtures (*.tsv, *.graphml, *.sif) without newline
+      # normalisation, so they verify that the .gitattributes `text eol=lf`
+      # pinning actually survives a Windows checkout.
+      - name: Test
+        run: npm test
+
+  build:
+    name: Typecheck + web build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # `tsc -b` is the typecheck gate (vitest transpiles without type errors,
+      # so the test job alone would not catch a type regression); `vite build`
+      # then proves the production bundle still assembles.
+      - name: Build
+        run: npm run build
+
+  npm-package:
+    name: npm package build + CLI smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Mirrors npm-publish.yml's release path (core build -> package build ->
+      # scoped tests) so packaging breakage surfaces on every push instead of
+      # at `npm-v*` tag time, when it would abort a publish half-way.
+      - name: Build core
+        run: npm run build -w @venn-diagram-lab/core
+
+      - name: Build package
+        run: npm run build -w venn-diagram-lab
+
+      - name: Test package against built core
+        run: npm test -w venn-diagram-lab
+
+      - name: CLI smoke test
+        run: node packages/node/dist/cli.js --version
