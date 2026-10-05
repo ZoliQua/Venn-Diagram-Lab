@@ -91,17 +91,17 @@ fold_enrichment <- function(N, K, n, k) {
     (k * N) / (K * n)
 }
 
-#' Approximate 95% CI for the fold enrichment (log-scale Wald)
+#' Approximate 95\% confidence interval for the fold enrichment
 #'
-#' Only k is random — K/N is the fixed population fraction — so with
-#' p_hat = k/n: SE(log FE) ≈ sqrt(1/k − 1/n) (delta method). A Jeffreys-style
-#' continuity correction (k+0.5 successes, n+1 trials) keeps the interval
-#' finite at k = 0. Bounds are exponentiated back. Byte-parity port of the
-#' TypeScript `foldEnrichmentCI` (packages/core/src/statistics.ts); coverage
-#' is validated by Monte Carlo under the null in scripts/bio_validation.py.
+#' Log-scale Wald interval. Only k is random (K/N is the fixed population
+#' fraction), so with p_hat = k/n: SE(log FE) = SE(log p_hat), approximately
+#' sqrt(1/k - 1/n) by the delta method. A Jeffreys-style continuity correction
+#' (k+0.5 successes, n+1 trials) keeps the interval finite at k = 0. Bounds are
+#' exponentiated back. Byte-parity port of the TypeScript `foldEnrichmentCI`
+#' (packages/core/src/statistics.ts); coverage is validated by Monte Carlo
+#' under the null in scripts/bio_validation.py.
 #'
-#' @param N Universe size. @param K Size of set A. @param n Size of set B.
-#' @param k Observed intersection.
+#' @inheritParams hypergeometric_p_value
 #' @return Numeric length-2 vector `c(low, high)` (>= 0).
 #' @export
 #' @examples

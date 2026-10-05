@@ -103,6 +103,7 @@ reference:
       - overlap_coefficient
       - hypergeometric_p_value
       - fold_enrichment
+      - fold_enrichment_ci
       - bh_fdr
       - compute_pairwise
       - one_vs_rest_enrichment
