@@ -2,6 +2,58 @@
 
 All notable changes to the Venn Diagram Lab project.
 
+## v2.9.0 — 2026-10-05 — Fold-enrichment CI, GMT size filter (all surfaces)
+
+### Added
+
+- **Fold-enrichment 95% confidence interval** (all four surfaces: web, npm, Python, R; byte-parity). Approximate log-scale Wald CI for the fold enrichment — SE(log FE) ≈ sqrt(1/k − 1/n) via the delta method, with a Jeffreys-style continuity correction (k+0.5, n+1) so the interval stays finite at k=0. New `FE_CI_low`/`FE_CI_high` columns in the statistics TSV (now 24 columns), the Enrichment sheet of the XLSX workbook, the Statistics panel (FE CI* column) and the PDF report enrichment table. Calibration verified by Monte Carlo under the null: 95.6% coverage over 20,000 trials (`scripts/bio_validation.py`, section F).
+- **Gene set size filter** in the GMT/GMX import dialog. Min/max set-size inputs plus a "Standard (10–500)" one-click preset (clusterProfiler's default range); out-of-range sets are hidden from the column selector and excluded from the load, with a live "N of M sets within range" counter.
+
+### Changed
+
+- **Parity fixture generator** (`scripts/generate-parity-fixtures.mts`) no longer carries a hand-copied duplicate of the statistics TSV exporter — it delegates to the core `exportStatisticsTsv`, so the goldens can't silently desync from the webapp format again (the FE_CI addition exposed the drift).
+- Package versions bumped in lockstep to 2.9.0 (npm core/node, Python, R).
+
+### Fixed
+
+- **Security — script export injection via crafted session.** The Python script generator interpolated `universeSize` without coercion while `customUniverse` was restored from session files unvalidated; a crafted session JSON could inject executable Python into an exported script. All three generators now truncate to an integer, sessions with a non-numeric/out-of-range `customUniverse` are rejected on import, and `loadSession` sanitizes plot settings unconditionally.
+- **Consistency — GraphML/SIF network exports** now use the same background N as every other view/report when a custom universe is set.
+- **Performance — script/ZIP export of large GMT files** embeds only the mapped columns (previously the full padded transpose — potentially ~100 MB per script — materialized at export time). Also, the sidebar no longer runs binary-column detection on aggregated/GMT data (it forced the full lazy transpose), and the Calculate batch uses a single id→text map instead of linear scans.
+- **Robustness — SVG loader** now also whitelists shape tag names (a `<script id="ShapeA">` in a loaded custom SVG can no longer survive into the re-exported file); GMT lines with only whitespace gene fields are skipped and counted; non-numeric input in the gene-set size filter and a below-union background preset are handled with explicit feedback instead of silent clamping.
+
+## v2.8.0 — 2026-10-05 — Custom enrichment background, ID-namespace detection, small-overlap flag
+
+### Added
+
+- **Custom enrichment background (universe N)** in Data mode. The Statistics panel now offers a background selector (Auto / Human genome ~20,000 / Mouse genome ~22,000 / custom integer) for the hypergeometric enrichment tests. Auto keeps the previous behavior (data rows for binary input, |union| for aggregated). The chosen N applies consistently to the statistics panel, Network view significance, plot editor, PDF/ZIP reports, and the TSV/JSON statistics exports; it is persisted in sessions and written into the exported Python/R/npm analysis scripts (`ds.universe_size` / `result.venn.totalUniqueItems` override). Custom N below the union of all sets is rejected in the UI. Validated against an independent reference implementation (`scripts/bio_validation.py`, new section E).
+- **Identifier-namespace mismatch detection** in the import data-quality report. Columns are classified as gene symbol / Ensembl / Entrez / UniProt by majority vote; when selected set columns mix namespaces (e.g. symbols vs Ensembl IDs) the import dialog warns that biological overlap will be spuriously near zero and IDs should be converted first. (Webapp + npm core; the Python/R quality modules do not emit this field yet.)
+- **Small-overlap caution flag** (intersection < 5 items): a † marker on the fold-enrichment value with an explanatory footnote in the Statistics panel and the PDF report, since FE and p-values are unstable for tiny overlaps.
+
+## v2.7.0 — 2026-10-05 — Exterior-label styling, security hardening, perf & parity fixes
+
+### Added
+
+- **Exterior-label styling controls** (Data mode, Layer view, 5-set models): label size slider, leader-line width and color; exterior labels are clickable (selects the region). The Data-mode Layer-view SVG/PNG export now captures the live rendered diagram (including exterior labels and leader lines).
+
+### Changed
+
+- **Exterior labels are now gated to 5-set models** (was 5+), matching the feature's design: at 7–9 sets the ring cannot hold hundreds of labels without overlap. Ring placement now spaces labels by true visual angle on the ellipse (previously by ellipse parameter, which bunched labels on the long axis of non-square viewBoxes).
+- **GMT import is columnar under the hood.** `parseGmt` no longer materializes the full sets × genes transpose at parse time; `csv.rows` is a lazily materialized, non-enumerable getter and calculations read the columns directly. Large GMT files (e.g. MSigDB c5 with ~7.5k sets) no longer freeze the tab on import. GMT lines with no genes are counted and shown in the file info panel ("Skipped: N empty set(s)").
+- **Binary-mode counting now matches the Python/R packages exactly:** rows with a blank item identifier are skipped (from both the counts and the background universe), and repeated identifiers are merged with OR semantics instead of being counted independently.
+- **95% CI columns** in the statistics panel are now labeled `95% CI*` with a tooltip noting the Wilson approximation, and the About-Report text explains how the enrichment background N is defined for binary vs aggregated input.
+- **Companion package dialog** (Python/R/npm documentation) is lazy-loaded, shrinking the main JS bundle.
+
+### Fixed
+
+- **Security — XSS via enrichment-plot styles.** `font-family`/color style values were interpolated unescaped into SVG markup rendered with `dangerouslySetInnerHTML`; a crafted shared session file could inject markup. All style attribute values are now escaped, and imported sessions sanitize every plot-style field (type, range, and character allowlists) with fallback to defaults.
+- **Security — exported SVGs could carry event handlers.** The SVG editor's loader copied all attributes (including `onclick`/`onload`/`href`) from a loaded custom SVG into the re-exported file. Shape attributes are now whitelisted to geometry only, root attributes to namespace declarations, and all attribute values are XML-escaped on save.
+- **Security — spreadsheet formula injection.** The Statistics and one-vs-rest TSV exports now escape set names beginning with `=`, `+`, `-`, `@`, like the region/item exports already did.
+- **Security — control characters** are stripped from values embedded in comment lines of exported Python/R/npm scripts; local file upload now enforces the same 50 MB cap as URL import.
+- **Consistency — enrichment universe N.** The Network view and the plot-edit canvas computed p-values against `rows.length` while the statistics panel, PDF report and TSV exports used the union size; in aggregated mode these differ. All views now use the same background (`totalUniqueItems`).
+- **Performance — Calculate on large models.** Data-mode Calculate applied every Count/Name/CountSUM text update as a separate document mutation, each deep-cloning the whole SVG document twice (≈1,050 clones of ~1 MB on a 9-set model, flooding the undo history). All Calculate mutations now run as one batched update: a single clone and a single undo step.
+- **Performance — hover re-renders.** Hovering a diagram re-rendered the entire app at up to 60 fps because a fresh region object was created per animation frame; hover state now only updates when the hovered region actually changes. Live text dragging in Edit mode no longer deep-clones the document per pointermove.
+- **Performance — ZIP report session JSON** is now only serialized while the ZIP report dialog is open (previously on every state change, including font-slider drags), and the Network/UpSet/plot-edit derivations are memoized instead of recomputed inline on every render.
+
 ## v2.6.0 — 2026-07-17 — Set-color palettes, hide empty regions, exterior labels
 
 ### Added

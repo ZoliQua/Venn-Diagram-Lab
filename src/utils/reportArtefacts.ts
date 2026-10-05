@@ -30,6 +30,8 @@ export interface ReportArtefactInput {
   n: number;
   setNames: string[];
   totalItems: number;
+  /** Enrichment background N for the network significance coloring (defaults to totalItems). */
+  universeSize?: number;
   pairwiseStats: PairwiseStat[];
 }
 
@@ -83,7 +85,7 @@ export function buildReportArtefacts(input: ReportArtefactInput): ReportArtefact
   const upsetData = upsetDataFromVennResult(vennResult, n);
   const upsetSvg = buildUpsetSvgString(upsetData, setNames);
 
-  const netData = buildNetworkData(vennResult, n, totalItems, setNames, 'intersection');
+  const netData = buildNetworkData(vennResult, n, input.universeSize ?? totalItems, setNames, 'intersection');
   const networkSvg = buildNetworkSvgString(netData, 'intersection');
 
   const letters = 'ABCDEFGHI'.slice(0, n).split('');

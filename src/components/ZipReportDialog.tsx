@@ -13,6 +13,8 @@ interface ZipReportDialogProps {
   n: number;
   setNames: string[];
   totalItems: number;
+  /** Effective enrichment background universe N (defaults to totalItems). */
+  universeSize?: number;
   totalFileRows: number;
   filename: string;
   title: string;
@@ -38,6 +40,7 @@ export function ZipReportDialog({
   filename, title, modelName, columnMapping, fileType, itemDelimiter,
   shapeColors, enrichmentMetric, sessionJson, proportionalAccuracy,
   enrichmentPlotSettings, sourceKind, hasHeader, sheetIndex, headers, rawData,
+  universeSize,
 }: ZipReportDialogProps) {
   const [step, setStep] = useState('Preparing...');
   const [percent, setPercent] = useState(0);
@@ -55,6 +58,7 @@ export function ZipReportDialog({
           itemDelimiter, shapeColors, enrichmentMetric, sessionJson,
           proportionalAccuracy, enrichmentPlotSettings,
           sourceKind, hasHeader, sheetIndex, headers, rawData,
+          universeSize,
           onProgress: (label, pct) => {
             if (cancelled) return;
             setStep(label);

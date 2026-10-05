@@ -47,11 +47,12 @@ export async function buildStatisticsWorkbook(stats: PairwiseStat[]): Promise<Bl
   // Sheet 3 — Intersection Enrichment (sorted by FDR asc)
   const s3 = wb.addWorksheet('Intersection Enrichment');
   s3.addRow(['Pair', 'Name A', 'Name B', 'Size A', 'Size B', 'Intersection', 'Expected',
-    'Fold Enrichment', 'p-value', 'P (2-sided)', 'FDR', 'Bonferroni', 'Significance']);
+    'Fold Enrichment', 'FE CI low', 'FE CI high', 'p-value', 'P (2-sided)', 'FDR', 'Bonferroni', 'Significance']);
   const fdrSorted = [...stats].sort((a, b) => a.fdr - b.fdr);
   for (const s of fdrSorted) {
     s3.addRow([s.label, s.nameA, s.nameB, s.sizeA, s.sizeB, s.intersection,
       Number(s.expected.toFixed(2)), Number(s.foldEnrichment.toFixed(3)),
+      Number(s.feCiLow.toFixed(4)), Number(s.feCiHigh.toFixed(4)),
       formatP(s.pValue), formatP(s.pTwoSided), formatP(s.fdr), formatP(s.bonferroni), sigLabel(s.fdr)]);
   }
 

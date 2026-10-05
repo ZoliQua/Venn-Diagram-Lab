@@ -19,6 +19,8 @@ export interface PdfReportParams {
   n: number;
   setNames: string[];
   totalItems: number;
+  /** Effective enrichment background universe N (defaults to totalItems). */
+  universeSize?: number;
   totalFileRows: number;
   vennImageDataUrl: string;
   vennImageWidth: number;
@@ -350,7 +352,8 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
   } = params;
 
   const letters = 'ABCDEFGHI'.slice(0, n).split('');
-  const stats = pairwiseStatistics(vennResult, n, totalItems, setNames);
+  const universe = params.universeSize ?? totalItems;
+  const stats = pairwiseStatistics(vennResult, n, universe, setNames);
   const now = new Date();
   const timestamp = now.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })
     + ' ' + now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -417,7 +420,7 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
     ['Date', timestamp],
     ['Source file', filename],
     ['Source data rows', String(totalFileRows)],
-    ['Background universe', String(totalItems)],
+    ['Background universe', String(universe) + (universe !== totalItems ? ' (custom)' : '')],
     ['Items assigned to Venn regions', String(processedItems)],
     ['Number of sets', String(n)],
     ['Total regions', String(totalRegions)],
@@ -655,7 +658,8 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
     pairLabel(s),
     String(s.intersection),
     s.expected.toFixed(1),
-    s.foldEnrichment.toFixed(2),
+    s.foldEnrichment.toFixed(2) + (s.intersection < 5 ? ' †' : ''),
+    `[${s.feCiLow.toFixed(2)}, ${s.feCiHigh.toFixed(2)}]`,
     formatP(s.pValue),
     formatP(s.fdr),
     sigLabel(s.fdr),
@@ -665,11 +669,25 @@ export async function generatePdfReport(params: PdfReportParams): Promise<Blob> 
   );
 
   y = drawTable(pdf, M.left, y,
-    ['Pair', 'Obs', 'Exp', 'FE', 'p-value', 'FDR', 'Sig'],
+    ['Pair', 'Obs', 'Exp', 'FE', 'FE CI*', 'p-value', 'FDR', 'Sig'],
     enrichRows,
-    [55, 15, 20, 18, 25, 25, 14],
-    { aligns: ['left', 'right', 'right', 'right', 'right', 'right', 'center'], rowBgColors: enrichBg, fontSize: 7 },
+    [45, 13, 17, 15, 30, 25, 25, 12],
+    { aligns: ['left', 'right', 'right', 'right', 'right', 'right', 'right', 'center'], rowBgColors: enrichBg, fontSize: 7 },
   );
+
+  if (stats.some(s => s.intersection < 5)) {
+    pdf.setFontSize(6.5);
+    pdf.setTextColor(120, 120, 120);
+    const smallOverlapLines = pdf.splitTextToSize(
+      '† Small overlap (< 5 items): fold enrichment and p-value are unstable — interpret with caution.',
+      CONTENT_W,
+    );
+    for (const line of smallOverlapLines) {
+      pdf.text(line, M.left, y + 3);
+      y += 3;
+    }
+    y += 2;
+  }
 
   // ════════════════════════════════════════════
   // PAGE: Enrichment Visualisations

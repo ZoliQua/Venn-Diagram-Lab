@@ -11,6 +11,12 @@ export interface RegionInfo {
   isInclusive?: boolean;  // true when selected via Name/CountSUM click
 }
 
+/** Value-equality for RegionInfo (label + displayed count drive all consumers). */
+function regionInfoEquals(a: RegionInfo | null, b: RegionInfo | null): boolean {
+  if (a === null || b === null) return a === b;
+  return a.label === b.label && a.countValue === b.countValue && a.isInclusive === b.isInclusive;
+}
+
 export function useRegionDetection(doc: VennDocument | null) {
   const [hoveredRegion, setHoveredRegion] = useState<RegionInfo | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<RegionInfo | null>(null);
@@ -43,7 +49,11 @@ export function useRegionDetection(doc: VennDocument | null) {
   const onHover = useCallback((svgX: number, svgY: number) => {
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
-      setHoveredRegion(buildRegionInfo(svgX, svgY));
+      const next = buildRegionInfo(svgX, svgY);
+      // Bail out when the hovered region didn't actually change — otherwise
+      // every rAF tick produces a fresh object and re-renders the whole app
+      // tree at 60 fps even while the pointer stays inside one region.
+      setHoveredRegion(prev => regionInfoEquals(prev, next) ? prev : next);
     });
   }, [buildRegionInfo]);
 
@@ -85,7 +95,8 @@ export function useRegionDetection(doc: VennDocument | null) {
 
   const setHoverByLabel = useCallback((label: string | null) => {
     if (!label) { setHoveredRegion(null); return; }
-    setHoveredRegion(buildRegionFromLabel(label));
+    const next = buildRegionFromLabel(label);
+    setHoveredRegion(prev => regionInfoEquals(prev, next) ? prev : next);
   }, [buildRegionFromLabel]);
 
   const setSelectByLabel = useCallback((label: string, inclusive?: boolean) => {

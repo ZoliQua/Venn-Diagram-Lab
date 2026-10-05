@@ -16,6 +16,10 @@ function cloneDoc(doc: VennDocument): VennDocument {
 
 export function useSvgDocument() {
   const [doc, setDoc] = useState<VennDocument | null>(null);
+  // Mirror of `doc` so mutations can run OUTSIDE the setState updater —
+  // updaters passed to setDoc are double-invoked under StrictMode, which used
+  // to double the clone work and double-push history entries.
+  const docRef = useRef<VennDocument | null>(null);
   const historyRef = useRef<VennDocument[]>([]);
   const historyIndexRef = useRef(-1);
   const savedIndexRef = useRef(-1);
@@ -43,6 +47,7 @@ export function useSvgDocument() {
 
   const loadFromString = useCallback((filename: string, svgString: string) => {
     const parsed = loadSvg(filename, svgString);
+    docRef.current = parsed;
     setDoc(parsed);
     historyRef.current = [cloneDoc(parsed)];
     historyIndexRef.current = 0;
@@ -51,6 +56,7 @@ export function useSvgDocument() {
   }, [syncModified]);
 
   const loadDoc = useCallback((newDoc: VennDocument) => {
+    docRef.current = newDoc;
     setDoc(newDoc);
     historyRef.current = [cloneDoc(newDoc)];
     historyIndexRef.current = 0;
@@ -59,15 +65,43 @@ export function useSvgDocument() {
   }, [syncModified]);
 
   const updateDoc = useCallback((updater: (d: VennDocument) => VennDocument, addToHistory = true) => {
-    setDoc(prev => {
-      if (!prev) return prev;
-      const next = updater(cloneDoc(prev));
-      if (addToHistory) {
-        pushHistory(next);
-      }
-      return next;
-    });
+    const prev = docRef.current;
+    if (!prev) return;
+    const next = updater(cloneDoc(prev));
+    docRef.current = next;
+    setDoc(next);
+    if (addToHistory) {
+      pushHistory(next);
+    }
   }, [pushHistory]);
+
+  /**
+   * Apply any number of mutations as ONE document update: a single clone and
+   * a single history entry. Use this for bulk operations (e.g. Data-mode
+   * Calculate, which rewrites hundreds of Count_/Name/CountSUM texts at once)
+   * instead of looping over the individual update* helpers.
+   */
+  const batchUpdate = useCallback((mutator: (d: VennDocument) => void, addToHistory = true) => {
+    updateDoc(d => {
+      mutator(d);
+      return d;
+    }, addToHistory);
+  }, [updateDoc]);
+
+  /**
+   * Cheap live-update path (no history, no deep clone): produces a new
+   * top-level object so React re-renders, but shares nested structure with
+   * the previous doc. Only safe for transient per-pointermove updates where
+   * the previous doc is immediately discarded (e.g. text dragging) — never
+   * for mutations that must be undoable.
+   */
+  const updateDocLive = useCallback((updater: (d: VennDocument) => VennDocument) => {
+    const prev = docRef.current;
+    if (!prev) return;
+    const next = updater({ ...prev, texts: { ...prev.texts } });
+    docRef.current = next;
+    setDoc(next);
+  }, []);
 
   const updateTextPosition = useCallback((id: string, x: number, y: number) => {
     updateDoc(d => {
@@ -88,25 +122,19 @@ export function useSvgDocument() {
     });
   }, [updateDoc]);
 
-  // Live drag updates (no history push)
+  // Live drag updates (no history push, no deep clone — runs per pointermove)
   const updateTextPositionLive = useCallback((id: string, x: number, y: number) => {
-    updateDoc(d => {
-      const allTexts = [
-        d.texts.header,
-        ...d.texts.names,
-        ...d.texts.values,
-        ...d.texts.sums,
-      ];
-      for (const t of allTexts) {
-        if (t && t.id === id) {
+    updateDocLive(d => {
+      for (const t of allTextsOf(d)) {
+        if (t.id === id) {
           t.x = x;
           t.y = y;
           break;
         }
       }
       return d;
-    }, false);
-  }, [updateDoc]);
+    });
+  }, [updateDocLive]);
 
   const updateTextContent = useCallback((id: string, content: string) => {
     updateDoc(d => {
@@ -297,7 +325,9 @@ export function useSvgDocument() {
     const idx = historyIndexRef.current;
     if (idx > 0) {
       historyIndexRef.current = idx - 1;
-      setDoc(cloneDoc(historyRef.current[idx - 1]));
+      const restored = cloneDoc(historyRef.current[idx - 1]);
+      docRef.current = restored;
+      setDoc(restored);
       syncModified();
     }
   }, [syncModified]);
@@ -307,7 +337,9 @@ export function useSvgDocument() {
     const idx = historyIndexRef.current;
     if (idx < h.length - 1) {
       historyIndexRef.current = idx + 1;
-      setDoc(cloneDoc(h[idx + 1]));
+      const restored = cloneDoc(h[idx + 1]);
+      docRef.current = restored;
+      setDoc(restored);
       syncModified();
     }
   }, [syncModified]);
@@ -323,6 +355,7 @@ export function useSvgDocument() {
   }, [syncModified]);
 
   const clearDoc = useCallback(() => {
+    docRef.current = null;
     setDoc(null);
     historyRef.current = [];
     historyIndexRef.current = -1;
@@ -334,6 +367,7 @@ export function useSvgDocument() {
     doc,
     loadFromString,
     loadDoc,
+    batchUpdate,
     updateTextPosition,
     updateTextPositionLive,
     updateTextContent,
@@ -368,6 +402,51 @@ function getGroupIds(doc: VennDocument, group: string): string[] {
     case 'sums': return doc.texts.sums.map(t => t.id);
     case 'bullets': return doc.bullets.map(b => b.id);
     default: return [];
+  }
+}
+
+/** All text elements of a document (header + names + values + sums). */
+export function allTextsOf(d: VennDocument): VennText[] {
+  return [d.texts.header, ...d.texts.names, ...d.texts.values, ...d.texts.sums]
+    .filter((t): t is VennText => t !== null);
+}
+
+/** Find a text element by id. For use inside `batchUpdate` mutators. */
+export function findTextInDoc(d: VennDocument, id: string): VennText | null {
+  return allTextsOf(d).find(t => t.id === id) ?? null;
+}
+
+/** Set a single style property on a text element, in place. */
+export function setTextStyleInDoc(d: VennDocument, id: string, property: string, value: string): void {
+  const t = findTextInDoc(d, id);
+  if (!t) return;
+  setStyleProp(t, property, value);
+}
+
+/** Set a style property on any element carrying a `style` string, in place. */
+export function setStyleProp(el: { style: string }, property: string, value: string): void {
+  const styleMap = parseStyleString(el.style);
+  styleMap[property] = value;
+  el.style = serializeStyleMap(styleMap);
+}
+
+/** Set a single style property on a shape (or bullet), in place. */
+export function setShapeStyleInDoc(d: VennDocument, id: string, property: string, value: string): void {
+  for (const s of [...d.shapes, ...d.shapesExtras]) {
+    if (s.id === id) {
+      const styleMap = parseStyleString(s.style);
+      styleMap[property] = value;
+      s.style = serializeStyleMap(styleMap);
+      return;
+    }
+  }
+  for (const b of d.bullets) {
+    if (b.id === id) {
+      const styleMap = parseStyleString(b.style);
+      styleMap[property] = value;
+      b.style = serializeStyleMap(styleMap);
+      return;
+    }
   }
 }
 

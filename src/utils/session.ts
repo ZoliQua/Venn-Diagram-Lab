@@ -1,6 +1,7 @@
 import type { CsvData, FileType, Delimiter, GeneSetMeta, VennResult } from './csvParser.ts';
 import type { EnrichmentMetric } from './enrichmentPlotSvg.ts';
-import type { EnrichmentPlotSettings } from './enrichmentPlotStyle.ts';
+import type { EnrichmentPlotSettings, EnrichmentPlotStyle } from './enrichmentPlotStyle.ts';
+import { createDefaultPlotSettings } from './enrichmentPlotStyle.ts';
 import type { UpsetColorMode, UpsetSortMode } from '../components/UpsetPlot.tsx';
 import type { EdgeWeightMetric } from './networkData.ts';
 import type { PaletteId } from './palettes.ts';
@@ -64,6 +65,9 @@ export interface DataSession {
   enrichmentMetric: EnrichmentMetric;
   enrichmentPlotSettings: EnrichmentPlotSettings;
   selectedRegionLabel: string | null;
+  // Custom enrichment background universe N (optional; null/absent = auto:
+  // row count for binary input, |union| for aggregated).
+  customUniverse?: number | null;
   // Import provenance (optional so pre-2.5.0 saved sessions still restore).
   sourceKind?: DataSourceKind;
   hasHeader?: boolean;
@@ -131,6 +135,9 @@ export interface DataSessionInput {
   enrichmentMetric: EnrichmentMetric;
   enrichmentPlotSettings: EnrichmentPlotSettings;
   selectedRegionLabel: string | null;
+  // Custom enrichment background universe N (optional; null/absent = auto:
+  // row count for binary input, |union| for aggregated).
+  customUniverse?: number | null;
   sourceKind?: DataSourceKind;
   hasHeader?: boolean;
   sheetIndex?: number;
@@ -185,6 +192,7 @@ export function buildDataSession(input: DataSessionInput): DataSession {
     dataMoveNames: input.dataMoveNames,
     dataMoveNumbers: input.dataMoveNumbers,
     enrichmentMetric: input.enrichmentMetric,
+    customUniverse: input.customUniverse ?? null,
     enrichmentPlotSettings: input.enrichmentPlotSettings,
     selectedRegionLabel: input.selectedRegionLabel,
     sourceKind: input.sourceKind,
@@ -299,7 +307,16 @@ export function loadSession(): AppSession | null {
   try {
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as AppSession;
+    const session = JSON.parse(raw) as AppSession;
+    if (!session?.data) return null;
+    // Unconditional: a falsy/crafted settings object falls back to defaults
+    // instead of being applied raw (restore reads it without guards).
+    session.data.enrichmentPlotSettings = sanitizeEnrichmentPlotSettings(session.data.enrichmentPlotSettings);
+    const cu = session.data.customUniverse;
+    if (cu !== undefined && cu !== null && (typeof cu !== 'number' || !Number.isFinite(cu) || cu < 1)) {
+      session.data.customUniverse = null;
+    }
+    return session;
   } catch (e) {
     console.warn('Failed to load session:', e);
     return null;
@@ -354,11 +371,84 @@ export async function importSessionFromFile(file: File): Promise<AppSession> {
     if (!isSessionCompatible(parsed as AppSession | null)) {
       throw new Error('The selected file is not a compatible Venn Diagram Lab session.');
     }
-    return parsed as AppSession;
+    const session = parsed as AppSession;
+    session.data.enrichmentPlotSettings = sanitizeEnrichmentPlotSettings(session.data.enrichmentPlotSettings);
+    return session;
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Failed to parse session file.';
     throw new Error(message);
   }
+}
+
+// Field-level guards for enrichment plot styles. A session file is untrusted
+// input: style strings are interpolated into SVG markup by the plot builders,
+// so anything malformed falls back to the default instead of being applied.
+const COLOR_PATTERN = /^(#[0-9a-fA-F]{3,8}|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\)|[a-zA-Z]{1,20})$/;
+const FONT_FAMILY_PATTERN = /^[a-zA-Z0-9 ,.'()-]{1,100}$/;
+
+function validColor(value: unknown, fallback: string): string {
+  return typeof value === 'string' && COLOR_PATTERN.test(value) ? value : fallback;
+}
+
+function validFontFamily(value: unknown, fallback: string): string {
+  return typeof value === 'string' && FONT_FAMILY_PATTERN.test(value) ? value : fallback;
+}
+
+function validNumber(value: unknown, fallback: number, min: number, max: number): number {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? Math.min(max, Math.max(min, value))
+    : fallback;
+}
+
+function validBoolean(value: unknown, fallback: boolean): boolean {
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+function validEnum<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
+  return typeof value === 'string' && (allowed as readonly string[]).includes(value) ? (value as T) : fallback;
+}
+
+/** Sanitize one plot style object; invalid fields fall back to defaults. */
+export function sanitizePlotStyle(input: unknown): EnrichmentPlotStyle {
+  const def = createDefaultPlotSettings().bar;
+  if (!input || typeof input !== 'object') return def;
+  const s = input as Record<string, unknown>;
+  return {
+    sigColor: validColor(s.sigColor, def.sigColor),
+    nsColor: validColor(s.nsColor, def.nsColor),
+    fontSize: validNumber(s.fontSize, def.fontSize, 2, 72),
+    fontFamily: validFontFamily(s.fontFamily, def.fontFamily),
+    background: validEnum(s.background, ['white', 'dark'] as const, def.background),
+    showAxisLabel: validBoolean(s.showAxisLabel, def.showAxisLabel),
+    showPairLabels: validBoolean(s.showPairLabels, def.showPairLabels),
+    showSigMarkers: validBoolean(s.showSigMarkers, def.showSigMarkers),
+    showLegend: validBoolean(s.showLegend, def.showLegend),
+    gradientLowColor: validColor(s.gradientLowColor, def.gradientLowColor),
+    gradientHighFdrColor: validColor(s.gradientHighFdrColor, def.gradientHighFdrColor),
+    gradientHighFeColor: validColor(s.gradientHighFeColor, def.gradientHighFeColor),
+    axisOrder: validEnum(s.axisOrder, ['original', 'cluster'] as const, def.axisOrder),
+    linkageMethod: validEnum(s.linkageMethod, ['average', 'complete', 'single'] as const, def.linkageMethod),
+    dendrogramFraction: validNumber(s.dendrogramFraction, def.dendrogramFraction, 0, 1),
+    showRowDendrogram: validBoolean(s.showRowDendrogram, def.showRowDendrogram),
+    showColDendrogram: validBoolean(s.showColDendrogram, def.showColDendrogram),
+  };
+}
+
+/**
+ * Sanitize imported enrichment plot settings field-by-field. `isSessionCompatible`
+ * only checks the container type; this keeps a crafted session file from
+ * injecting markup through style values (see the SVG plot builders).
+ */
+export function sanitizeEnrichmentPlotSettings(input: unknown): EnrichmentPlotSettings {
+  const def = createDefaultPlotSettings();
+  if (!input || typeof input !== 'object') return def;
+  const s = input as Record<string, unknown>;
+  return {
+    bar: sanitizePlotStyle(s.bar),
+    lollipop: sanitizePlotStyle(s.lollipop),
+    heatmap: sanitizePlotStyle(s.heatmap),
+    shareDistribution: sanitizePlotStyle(s.shareDistribution),
+  };
 }
 
 function readFileWithFileReader(file: File): Promise<string> {
@@ -378,7 +468,10 @@ export function isSessionCompatible(session: AppSession | null): session is AppS
   if (!session.data) return false;
 
   const d = session.data;
-  if (!d.csvData || !Array.isArray(d.csvData.headers) || !Array.isArray(d.csvData.rows)) return false;
+  if (!d.csvData || !Array.isArray(d.csvData.headers)) return false;
+  // Row-based sources carry `rows`; columnar (GMT) sources carry `columns`
+  // (their lazy `rows` getter is non-enumerable and thus not serialized).
+  if (!Array.isArray(d.csvData.rows) && !Array.isArray(d.csvData.columns)) return false;
   if (typeof d.filename !== 'string') return false;
   if (d.fileType !== 'binary' && d.fileType !== 'aggregated') return false;
   if (typeof d.model !== 'string') return false;
@@ -392,6 +485,12 @@ export function isSessionCompatible(session: AppSession | null): session is AppS
   if (!d.enrichmentPlotSettings || typeof d.enrichmentPlotSettings !== 'object') return false;
   if (typeof d.shapeOpacity !== 'number') return false;
   if (typeof d.nameFontSize !== 'number') return false;
+  // customUniverse is optional, but when present it must be a usable
+  // background size — a crafted session could otherwise inject a string into
+  // exported analysis scripts or NaN/Infinity into the statistics.
+  if (d.customUniverse !== undefined && d.customUniverse !== null) {
+    if (typeof d.customUniverse !== 'number' || !Number.isFinite(d.customUniverse) || d.customUniverse < 1) return false;
+  }
 
   return true;
 }

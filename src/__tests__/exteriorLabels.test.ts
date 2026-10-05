@@ -1,66 +1,142 @@
 import { describe, it, expect } from 'vitest';
-import { computeExteriorLabels, type LabelAnchor, type ViewBox } from '../utils/exteriorLabels.ts';
+import {
+  computeExteriorLabels,
+  expandViewBoxForLabels,
+  type ExteriorLabel,
+  type LabelAnchor,
+  type ViewBox,
+} from '../utils/exteriorLabels.ts';
 
 const VB: ViewBox = { x: 0, y: 0, w: 100, h: 100 }; // centre (50,50)
+const TWO_PI = 2 * Math.PI;
+
+// A spread of aspect ratios the models actually produce (square to extreme),
+// including one with a non-zero origin.
+const ASPECT_VBS: ViewBox[] = [
+  { x: 0, y: 0, w: 100, h: 100 }, // square
+  { x: 0, y: 0, w: 200, h: 100 }, // wide
+  { x: 0, y: 0, w: 100, h: 200 }, // tall
+  { x: 0, y: 0, w: 400, h: 50 }, // very wide
+  { x: -30, y: 10, w: 150, h: 120 }, // offset origin
+];
+
+function centre(vb: ViewBox) {
+  return { cx: vb.x + vb.w / 2, cy: vb.y + vb.h / 2 };
+}
+
+// Anchors scattered at varied angles and radii inside the box, like real
+// region-count texts.
+function anchorsFor(vb: ViewBox, n: number): LabelAnchor[] {
+  const { cx, cy } = centre(vb);
+  return Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * TWO_PI + 0.3;
+    const r = Math.min(vb.w, vb.h) * (0.1 + 0.15 * (i % 3));
+    return {
+      id: `Count_${i}`,
+      content: String((i + 1) * 137),
+      x: cx + Math.cos(a) * r,
+      y: cy + Math.sin(a) * r,
+    };
+  });
+}
+
+// Slot angle of a placed label, normalised to [0, 2π).
+function slotAngle(e: ExteriorLabel, vb: ViewBox): number {
+  const { cx, cy } = centre(vb);
+  const a = Math.atan2(e.labelY - cy, e.labelX - cx);
+  return a < 0 ? a + TWO_PI : a;
+}
 
 describe('computeExteriorLabels', () => {
   it('returns [] for no anchors', () => {
     expect(computeExteriorLabels([], VB)).toEqual([]);
   });
 
-  it('places every label on the ring OUTSIDE the viewBox', () => {
-    const anchors: LabelAnchor[] = [
-      { id: 'Count_A', content: '1', x: 60, y: 50 },
-      { id: 'Count_B', content: '2', x: 50, y: 60 },
-      { id: 'Count_C', content: '3', x: 40, y: 50 },
-      { id: 'Count_D', content: '4', x: 50, y: 40 },
-    ];
-    const out = computeExteriorLabels(anchors, VB, { marginFrac: 0.1 });
-    expect(out).toHaveLength(4);
-    for (const e of out) {
-      // ring radius = sqrt(2)*50 + 0.1*100 ≈ 80.71 around centre (50,50) → every point is outside [0,100]
-      const outside = e.labelX < VB.x || e.labelX > VB.x + VB.w || e.labelY < VB.y || e.labelY > VB.y + VB.h;
-      expect(outside, `${e.id} should be outside`).toBe(true);
+  it('places every label beyond the box-inscribed ellipse, across aspect ratios', () => {
+    // The honest contract of the ellipse ring: a label's normalized elliptical
+    // radius u²+v² (u,v normalized by the box half-extents) exceeds 1, i.e. it
+    // sits beyond the largest ellipse the viewBox can inscribe. Diagonal
+    // labels may still fall inside the box's (empty) corners — that is by
+    // design, and the expanded-viewBox clipping contract covers them.
+    for (const vb of ASPECT_VBS) {
+      for (const n of [2, 3, 8]) {
+        for (const gapFrac of [0.05, 0.12, 0.3]) {
+          const out = computeExteriorLabels(anchorsFor(vb, n), vb, { gapFrac });
+          expect(out).toHaveLength(n);
+          const { cx, cy } = centre(vb);
+          for (const e of out) {
+            const u = (e.labelX - cx) / (vb.w / 2);
+            const v = (e.labelY - cy) / (vb.h / 2);
+            expect(
+              u * u + v * v,
+              `${e.id} beyond inscribed ellipse of ${vb.w}x${vb.h} box (gapFrac ${gapFrac})`,
+            ).toBeGreaterThan(1);
+          }
+        }
+      }
     }
   });
 
-  it('places every label outside the viewBox, including the diagonal worst case', () => {
-    // Anchors placed at 45°/135°/225°/315° from centre so the redistributed
-    // slots land exactly on the diagonals — the worst case for an
-    // axis-aligned ellipse ring around a square viewBox, since that is where
-    // an under-scaled ellipse most easily dips back inside the box (the bug
-    // this guards against: rx=ry=w/2+margin puts the diagonal point at
-    // (93.84, 93.84) for a 100x100 box at marginFrac=0.12, which is INSIDE).
-    const angles = [Math.PI / 4, (3 * Math.PI) / 4, (5 * Math.PI) / 4, (7 * Math.PI) / 4];
-    const anchors: LabelAnchor[] = angles.map((a, i) => ({
-      id: `Count_${i}`,
-      content: String(i),
-      x: 50 + Math.cos(a) * 5,
-      y: 50 + Math.sin(a) * 5,
-    }));
-    const out = computeExteriorLabels(anchors, VB, { marginFrac: 0.12 });
-    expect(out).toHaveLength(4);
-    for (const e of out) {
-      const outside = e.labelX < VB.x || e.labelX > VB.x + VB.w || e.labelY < VB.y || e.labelY > VB.y + VB.h;
-      expect(outside, `${e.id} should be outside (label=${e.labelX},${e.labelY})`).toBe(true);
+  it('keeps cardinal-direction labels outside the box edge on their side', () => {
+    for (const vb of ASPECT_VBS) {
+      const { cx, cy } = centre(vb);
+      const anchors: LabelAnchor[] = [
+        { id: 'Count_R', content: '1', x: cx + vb.w * 0.4, y: cy }, // right
+        { id: 'Count_L', content: '2', x: cx - vb.w * 0.4, y: cy }, // left
+      ];
+      const out = computeExteriorLabels(anchors, vb, { gapFrac: 0.12 });
+      const r = out.find(e => e.id === 'Count_R')!;
+      const l = out.find(e => e.id === 'Count_L')!;
+      expect(r.labelX).toBeGreaterThan(vb.x + vb.w);
+      expect(l.labelX).toBeLessThan(vb.x);
     }
   });
 
-  it('places every label outside a NON-square viewBox (aspect ratio guard)', () => {
-    const wideVB: ViewBox = { x: 0, y: 0, w: 200, h: 100 };
-    const angles = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (5 * Math.PI) / 4, (3 * Math.PI) / 2, (7 * Math.PI) / 4];
+  it('gives every label a distinct angular slot, across aspect ratios', () => {
+    for (const vb of ASPECT_VBS) {
+      for (const n of [2, 5, 9, 16]) {
+        const out = computeExteriorLabels(anchorsFor(vb, n), vb);
+        const angles = out.map(e => slotAngle(e, vb));
+        expect(new Set(angles.map(a => a.toFixed(9))).size).toBe(n);
+      }
+    }
+  });
+
+  it('spaces the slots evenly: every circular gap is 2π/n', () => {
+    for (const vb of ASPECT_VBS) {
+      for (const n of [2, 4, 7]) {
+        const out = computeExteriorLabels(anchorsFor(vb, n), vb);
+        const angles = out.map(e => slotAngle(e, vb)).sort((a, b) => a - b);
+        const step = TWO_PI / n;
+        for (let i = 0; i < n; i++) {
+          const next = angles[(i + 1) % n] + (i === n - 1 ? TWO_PI : 0);
+          expect(next - angles[i], `gap ${i} for n=${n}`).toBeCloseTo(step, 9);
+        }
+      }
+    }
+  });
+
+  it('places labels in monotonically increasing slot order matching the anchors\' angular order', () => {
+    // Anchors at known, well-separated angles, fed in a shuffled order.
+    const angles = [2.8, 0.1, -1.5, 1.2, -2.9, 0.9];
     const anchors: LabelAnchor[] = angles.map((a, i) => ({
-      id: `Count_${i}`,
-      content: String(i),
-      x: 100 + Math.cos(a) * 10,
-      y: 50 + Math.sin(a) * 10,
+      id: `Count_${i}`, content: String(i), x: 50 + Math.cos(a) * 20, y: 50 + Math.sin(a) * 20,
     }));
-    const out = computeExteriorLabels(anchors, wideVB, { marginFrac: 0.12 });
-    expect(out).toHaveLength(8);
-    for (const e of out) {
-      const outside =
-        e.labelX < wideVB.x || e.labelX > wideVB.x + wideVB.w || e.labelY < wideVB.y || e.labelY > wideVB.y + wideVB.h;
-      expect(outside, `${e.id} should be outside (label=${e.labelX},${e.labelY})`).toBe(true);
+    const out = computeExteriorLabels(anchors, VB);
+    // Output order must follow the anchors' own raycast-angle order.
+    const expectedOrder = [...anchors]
+      .sort((p, q) => Math.atan2(p.y - 50, p.x - 50) - Math.atan2(q.y - 50, q.x - 50))
+      .map(a => a.id);
+    expect(out.map(e => e.id)).toEqual(expectedOrder);
+    // And the placed slot angles must be strictly increasing around the ring
+    // (unwrapping the circular boundary).
+    const slots = out.map(e => slotAngle(e, VB));
+    let prev = slots[0];
+    for (let i = 1; i < slots.length; i++) {
+      let cur = slots[i];
+      while (cur <= prev) cur += TWO_PI;
+      expect(cur).toBeGreaterThan(prev);
+      prev = cur;
     }
   });
 
@@ -85,31 +161,12 @@ describe('computeExteriorLabels', () => {
     expect(l.textAnchor).toBe('end');
   });
 
-  it('spreads labels evenly around the ring in angular order (no two share a slot)', () => {
-    const anchors: LabelAnchor[] = Array.from({ length: 8 }, (_, i) => ({
-      id: `Count_${i}`, content: String(i), x: 50 + Math.cos(i) * 5, y: 50 + Math.sin(i) * 5,
-    }));
-    const out = computeExteriorLabels(anchors, VB);
-    // all label positions distinct
-    const keys = out.map(e => `${e.labelX.toFixed(3)},${e.labelY.toFixed(3)}`);
-    expect(new Set(keys).size).toBe(out.length);
-  });
-
   it('is deterministic', () => {
     const anchors: LabelAnchor[] = [
       { id: 'Count_A', content: '1', x: 60, y: 55 },
       { id: 'Count_B', content: '2', x: 45, y: 62 },
     ];
     expect(computeExteriorLabels(anchors, VB)).toEqual(computeExteriorLabels(anchors, VB));
-  });
-
-  it('places a single label on the ring at its own angle (N=1)', () => {
-    const anchors: LabelAnchor[] = [{ id: 'Count_A', content: '1', x: 65, y: 60 }];
-    const [e] = computeExteriorLabels(anchors, VB, { marginFrac: 0.1 });
-    const cx = 50, cy = 50, rx = Math.SQRT2 * 50 + 10, ry = Math.SQRT2 * 50 + 10;
-    const angle = Math.atan2(60 - cy, 65 - cx);
-    expect(e.labelX).toBeCloseTo(cx + rx * Math.cos(angle), 9);
-    expect(e.labelY).toBeCloseTo(cy + ry * Math.sin(angle), 9);
   });
 
   it('handles an anchor exactly at the centre without collapsing to angle 0', () => {
@@ -120,24 +177,21 @@ describe('computeExteriorLabels', () => {
     const out = computeExteriorLabels(anchors, VB);
     const a = out.find(e => e.id === 'Count_A')!;
     const b = out.find(e => e.id === 'Count_B')!;
-    // The degenerate anchor must not land exactly on the same ring slot as the angle-0 anchor.
     expect(a.labelX === b.labelX && a.labelY === b.labelY).toBe(false);
-    // Leader-line start must still be the original (centre) point.
     expect(a.anchorX).toBe(50);
     expect(a.anchorY).toBe(50);
   });
 
-  it('honours a custom marginFrac to change the ring radius', () => {
+  it('moves labels further out for a larger gapFrac', () => {
     const anchors: LabelAnchor[] = [{ id: 'Count_A', content: '1', x: 90, y: 50 }];
-    const small = computeExteriorLabels(anchors, VB, { marginFrac: 0.05 })[0];
-    const large = computeExteriorLabels(anchors, VB, { marginFrac: 0.5 })[0];
+    const small = computeExteriorLabels(anchors, VB, { gapFrac: 0.05 })[0];
+    const large = computeExteriorLabels(anchors, VB, { gapFrac: 0.5 })[0];
     const dSmall = Math.hypot(small.labelX - 50, small.labelY - 50);
     const dLarge = Math.hypot(large.labelX - 50, large.labelY - 50);
     expect(dLarge).toBeGreaterThan(dSmall);
   });
 
   it('sorts ties in angle deterministically by id', () => {
-    // Two anchors at the exact same angle from centre (both due right) — tie-break by id.
     const anchors: LabelAnchor[] = [
       { id: 'Count_Z', content: 'z', x: 80, y: 50 },
       { id: 'Count_A', content: 'a', x: 60, y: 50 },
@@ -145,5 +199,66 @@ describe('computeExteriorLabels', () => {
     const out1 = computeExteriorLabels(anchors, VB);
     const out2 = computeExteriorLabels([...anchors].reverse(), VB);
     expect(out1.map(e => e.id)).toEqual(out2.map(e => e.id));
+  });
+});
+
+describe('expandViewBoxForLabels (renderViewBox clipping contract)', () => {
+  it('returns the base box unchanged when there are no labels', () => {
+    for (const vb of ASPECT_VBS) {
+      expect(expandViewBoxForLabels(vb, [], 12)).toEqual(vb);
+    }
+  });
+
+  it('contains the original viewBox and grows every side by at least the pad', () => {
+    for (const vb of ASPECT_VBS) {
+      const labels = computeExteriorLabels(anchorsFor(vb, 6), vb);
+      const fs = 12;
+      const expanded = expandViewBoxForLabels(vb, labels, fs);
+      const pad = Math.max(vb.w, vb.h) * 0.03;
+      // Contains the original box...
+      expect(expanded.x).toBeLessThanOrEqual(vb.x);
+      expect(expanded.y).toBeLessThanOrEqual(vb.y);
+      expect(expanded.x + expanded.w).toBeGreaterThanOrEqual(vb.x + vb.w);
+      expect(expanded.y + expanded.h).toBeGreaterThanOrEqual(vb.y + vb.h);
+      // ...and since labels sit outside the box, every side grows by >= pad.
+      expect(vb.x - expanded.x).toBeGreaterThanOrEqual(pad - 1e-9);
+      expect(vb.y - expanded.y).toBeGreaterThanOrEqual(pad - 1e-9);
+      expect((expanded.x + expanded.w) - (vb.x + vb.w)).toBeGreaterThanOrEqual(pad - 1e-9);
+      expect((expanded.y + expanded.h) - (vb.y + vb.h)).toBeGreaterThanOrEqual(pad - 1e-9);
+    }
+  });
+
+  it('contains every ring point plus its worst-case text extent (nothing clipped)', () => {
+    const EPS = 1e-9;
+    for (const vb of ASPECT_VBS) {
+      for (const fs of [8, 12, 40]) {
+        const labels = computeExteriorLabels(anchorsFor(vb, 8), vb);
+        const expanded = expandViewBoxForLabels(vb, labels, fs);
+        for (const e of labels) {
+          // Same worst-case text extent renderViewBox accounts for.
+          const textW = Math.max(1, e.content.length) * fs * 0.65;
+          const x0 = e.textAnchor === 'end' ? e.labelX - textW : e.labelX;
+          const x1 = e.textAnchor === 'end' ? e.labelX : e.labelX + textW;
+          expect(x0).toBeGreaterThanOrEqual(expanded.x - EPS);
+          expect(x1).toBeLessThanOrEqual(expanded.x + expanded.w + EPS);
+          expect(e.labelY - fs).toBeGreaterThanOrEqual(expanded.y - EPS);
+          expect(e.labelY + fs).toBeLessThanOrEqual(expanded.y + expanded.h + EPS);
+        }
+      }
+    }
+  });
+
+  it('never clips long multi-character contents anchored to the left side', () => {
+    const vb: ViewBox = { x: 0, y: 0, w: 100, h: 100 };
+    const anchors: LabelAnchor[] = [
+      { id: 'Count_LONG', content: '1234567890', x: 10, y: 50 }, // left side, end anchor
+    ];
+    const fs = 16;
+    const labels = computeExteriorLabels(anchors, vb);
+    const expanded = expandViewBoxForLabels(vb, labels, fs);
+    const [e] = labels;
+    expect(e.textAnchor).toBe('end');
+    const textW = e.content.length * fs * 0.65;
+    expect(e.labelX - textW).toBeGreaterThanOrEqual(expanded.x - 1e-9);
   });
 });

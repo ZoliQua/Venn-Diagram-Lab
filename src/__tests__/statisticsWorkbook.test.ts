@@ -34,6 +34,7 @@ const stats: PairwiseStat[] = [
     pValue: 0.02, fdr: 0.04, bonferroni: 0.06, pTwoSided: 0.03,
     jaccardCiLow: 0.1, jaccardCiHigh: 0.5,
     diceCiLow: 0.2, diceCiHigh: 0.6,
+    feCiLow: 0.5, feCiHigh: 3.1,
     significant: true, highlySignificant: false,
   },
 ];

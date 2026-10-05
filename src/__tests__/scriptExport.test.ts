@@ -234,3 +234,52 @@ describe('Task 2: import-path parity', () => {
     expect(py).not.toContain('open(FILE');
   });
 });
+
+describe('custom universe (background N) override', () => {
+  it('omits the override when universeSize is null (auto background)', () => {
+    expect(generatePythonScript(baseParams)).not.toContain('universe_size=');
+    expect(generateRScript(baseParams)).not.toContain('custom background');
+    expect(generateNpmScript(baseParams)).not.toContain('totalUniqueItems =');
+  });
+
+  it('Python: ds is replaced with the custom universe_size', () => {
+    const s = generatePythonScript({ ...baseParams, universeSize: 20000 });
+    expect(s).toContain('from dataclasses import replace');
+    expect(s).toContain('ds = replace(ds, universe_size=20000)');
+  });
+
+  it('R: VennDataset is constructed with the custom universe_size', () => {
+    const s = generateRScript({ ...baseParams, universeSize: 20000 });
+    expect(s).toContain('universe_size = 20000L');
+    expect(s).toContain('custom background');
+  });
+
+  it('npm: totalUniqueItems is overridden after analyzeCsv', () => {
+    const s = generateNpmScript({ ...baseParams, universeSize: 20000 });
+    expect(s).toContain('result.venn.totalUniqueItems = 20000;');
+  });
+
+  it('R aggregated branch uses the custom value instead of NULL', () => {
+    const s = generateRScript({ ...baseParams, fileType: 'aggregated', delimiter: ',', universeSize: 22000 });
+    expect(s).toContain('universe_size = 22000L');
+    expect(s).not.toContain('universe_size = NULL');
+  });
+});
+
+describe('custom universe — injection hardening', () => {
+  it('truncates fractional universe sizes in all three generators', () => {
+    const p = { ...baseParams, universeSize: 20000.9 };
+    expect(generatePythonScript(p)).toContain('universe_size=20000');
+    expect(generateRScript(p)).toContain('universe_size = 20000L');
+    expect(generateNpmScript(p)).toContain('totalUniqueItems = 20000;');
+  });
+
+  it('a non-number runtime value degrades to inert NaN, never code', () => {
+    // Simulates a crafted session file: the TS type says number, but JSON can
+    // carry anything. All generators must coerce, never interpolate raw.
+    const evil = '5)\nimport os; os.system("id")\nx=(' as unknown as number;
+    const py = generatePythonScript({ ...baseParams, universeSize: evil });
+    expect(py).not.toContain('os.system');
+    expect(py).toContain('universe_size=NaN');
+  });
+});

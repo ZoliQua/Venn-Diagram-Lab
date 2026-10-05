@@ -6,7 +6,7 @@ Venn Diagram Lab — interactive viewer, editor, and data visualization tool for
 
 **Repository:** https://github.com/ZoliQua/Venn-Diagram-Lab
 **Tech stack:** React 19 + TypeScript 5.9 + Vite 8 + Vitest 4
-**Version file:** `src/version.ts` (currently 1.9.3)
+**Version file:** `src/version.ts` (currently 2.7.0)
 
 ## Recent Notes
 
@@ -70,14 +70,14 @@ Venn Diagram Lab — interactive viewer, editor, and data visualization tool for
 │   │   ├── TestSidebar.tsx      Data mode sidebar (file info, model, column mapping, view settings, export)
 │   │   └── ...
 │   ├── hooks/
-│   │   ├── useSvgDocument.ts    Document state + undo/redo
+│   │   ├── useSvgDocument.ts    Document state + undo/redo (batchUpdate for bulk mutations: one clone, one history entry)
 │   │   ├── useRegionDetection.ts Hit-testing + label-based detection
 │   │   └── useZoomPan.ts        Zoom & pan
 │   ├── parser/                  SVG parser & serializer
 │   ├── utils/
 │   │   ├── hitTest.ts           Shape containment detection
 │   │   ├── regions.ts           Region enumeration (2^n - 1 subsets)
-│   │   ├── csvParser.ts         CSV/TSV/GMT/GMX parser, binary & aggregated Venn calculation
+│   │   ├── csvParser.ts         CSV/TSV/GMT/GMX parser, binary & aggregated Venn calculation (GMT stored columnar; `csv.rows` is a lazy getter — use `csvRowCount`/`csvPreviewRows`/`hydrateCsvRows`)
 │   │   ├── statistics.ts        Statistical tests (Jaccard, Dice, hypergeometric, BH-FDR)
 │   │   ├── exportData.ts        TSV export (Region Summary + Item Matrix)
 │   │   ├── upsetData.ts         UpSet data conversion + sorting utilities

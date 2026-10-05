@@ -13,6 +13,11 @@ interface DataSummaryPanelProps {
   n: number;
   setNames: string[];
   totalItems: number;
+  /** Effective enrichment background universe N (auto = totalItems). */
+  universeSize?: number;
+  /** Custom background N chosen by the user (null = auto). */
+  customUniverse?: number | null;
+  onUniverseChange?: (value: number | null) => void;
   matrix: readonly (readonly number[])[];
   selectedRegionLabel: string | null;
   datasetName?: string;
@@ -44,7 +49,7 @@ function jaccardBgColor(j: number): string | undefined {
 }
 
 export function DataSummaryPanel({
-  vennResult, n, setNames, totalItems, matrix, datasetName,
+  vennResult, n, setNames, totalItems, universeSize, customUniverse, onUniverseChange, matrix, datasetName,
   enrichmentMetric, onEnrichmentMetricChange,
   enrichmentPlotSettings, activeEnrichmentPlot, onEnterPlotEdit,
   forceEnrichmentPlotsOpen,
@@ -59,12 +64,28 @@ export function DataSummaryPanel({
   const [enrichmentOpen, setEnrichmentOpen] = useState(true);
   const [exportOpen, setExportOpen] = useState(true);
   const [xlsxExporting, setXlsxExporting] = useState(false);
+  const [universeInput, setUniverseInput] = useState('');
+  const [universeRejected, setUniverseRejected] = useState<number | null>(null);
 
   const letters = 'ABCDEFGHI'.slice(0, n).split('');
+  // The N every enrichment statistic in this panel is computed against.
+  const universe = universeSize ?? totalItems;
+  // A custom N below the auto background is invalid (sets can't exceed the
+  // population). Auto = data rows (binary) or |union| (aggregated).
+  const unionSize = vennResult.totalUniqueItems;
+  const universeError = universeRejected !== null
+    ? `Background N (${universeRejected}) is below the auto background (${unionSize}) — sets cannot exceed the population. Not applied.`
+    : null;
+
+  const universeChoice =
+    customUniverse === null || customUniverse === undefined ? 'auto'
+    : customUniverse === 20000 ? 'human'
+    : customUniverse === 22000 ? 'mouse'
+    : 'custom';
 
   const pairStats = useMemo(() =>
-    pairwiseStatistics(vennResult, n, totalItems, setNames),
-    [vennResult, n, totalItems, setNames]
+    pairwiseStatistics(vennResult, n, universe, setNames),
+    [vennResult, n, universe, setNames]
   );
 
   // Overview data
@@ -93,7 +114,7 @@ export function DataSummaryPanel({
 
   // Export all statistics as TSV
   const handleExportStats = () => {
-    downloadFile(exportStatisticsTsv(vennResult, n, totalItems, setNames), `venn_${n}set_statistics.tsv`);
+    downloadFile(exportStatisticsTsv(vennResult, n, universe, setNames), `venn_${n}set_statistics.tsv`);
   };
 
   // Export the same statistics as an Excel workbook (3 sheets: Jaccard, Dice, Enrichment)
@@ -187,7 +208,7 @@ export function DataSummaryPanel({
           <div className="stats-table-scroll">
             <table className="data-summary-compact-table">
               <thead>
-                <tr><th>Pair</th><th>Inter</th><th>Union</th><th>Jaccard</th><th>95% CI</th><th>OC</th></tr>
+                <tr><th>Pair</th><th>Inter</th><th>Union</th><th>Jaccard</th><th title="Wilson score interval (binomial approximation of the ratio)">95% CI*</th><th>OC</th></tr>
               </thead>
               <tbody>
                 {jaccardSorted.map(s => (
@@ -215,7 +236,7 @@ export function DataSummaryPanel({
           <div className="stats-table-scroll">
             <table className="data-summary-compact-table">
               <thead>
-                <tr><th>Pair</th><th>Dice</th><th>95% CI</th></tr>
+                <tr><th>Pair</th><th>Dice</th><th title="Wilson score interval (binomial approximation of the ratio)">95% CI*</th></tr>
               </thead>
               <tbody>
                 {jaccardSorted.map(s => (
@@ -240,12 +261,60 @@ export function DataSummaryPanel({
           <>
             <div className="data-summary-hint">
               Hypergeometric test (one-sided, over-representation) + two-sided Fisher's exact test.
-              Background: {totalItems} items. FDR: Benjamini-Hochberg. Bonferroni: family-wise error rate.
+              FDR: Benjamini-Hochberg. Bonferroni: family-wise error rate.
             </div>
+            {onUniverseChange && (
+              <div className="data-summary-hint" style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <span>Background (N):</span>
+                <select
+                  className="test-column-select"
+                  value={universeChoice}
+                  onChange={e => {
+                    const v = e.target.value;
+                    if (v === 'auto') {
+                      setUniverseRejected(null);
+                      onUniverseChange(null);
+                      return;
+                    }
+                    const target = v === 'human' ? 20000
+                      : v === 'mouse' ? 22000
+                      : Math.max(customUniverse ?? 0, unionSize);
+                    // Never apply a background smaller than the auto one —
+                    // the statistics would silently clamp K=N otherwise.
+                    if (target < unionSize) {
+                      setUniverseRejected(target);
+                      return;
+                    }
+                    setUniverseRejected(null);
+                    onUniverseChange(target);
+                  }}
+                >
+                  <option value="auto">Auto ({unionSize} — {unionSize === totalItems ? 'data rows' : 'union of sets'})</option>
+                  <option value="human">Human genome (~20,000)</option>
+                  <option value="mouse">Mouse genome (~22,000)</option>
+                  <option value="custom">Custom…</option>
+                </select>
+                {universeChoice === 'custom' && (
+                  <input
+                    type="number" min={unionSize} step={1} style={{ width: 90 }}
+                    value={universeInput !== '' ? universeInput : (customUniverse ?? unionSize)}
+                    onChange={e => {
+                      setUniverseInput(e.target.value);
+                      const v = parseInt(e.target.value, 10);
+                      if (Number.isFinite(v) && v >= unionSize) onUniverseChange(v);
+                    }}
+                  />
+                )}
+                {universeChoice !== 'auto' && <span>= {universe} items</span>}
+              </div>
+            )}
+            {universeError && (
+              <div className="data-summary-hint" style={{ color: 'var(--sig-neg-bg)' }}>{universeError}</div>
+            )}
             <div className="stats-table-scroll">
               <table className="data-summary-compact-table">
                 <thead>
-                  <tr><th>Pair</th><th>Obs</th><th>Exp</th><th>FE</th><th>p-value</th><th>p (2-sided)</th><th>FDR</th><th>Bonferroni</th><th>Sig</th></tr>
+                  <tr><th>Pair</th><th>Obs</th><th>Exp</th><th>FE</th><th title="Approximate log-scale Wald 95% CI of the fold enrichment">FE CI*</th><th>p-value</th><th>p (2-sided)</th><th>FDR</th><th>Bonferroni</th><th>Sig</th></tr>
                 </thead>
                 <tbody>
                   {pairStats.map(s => (
@@ -253,7 +322,10 @@ export function DataSummaryPanel({
                       <td>{s.a}{s.b}</td>
                       <td>{s.intersection}</td>
                       <td>{s.expected.toFixed(1)}</td>
-                      <td>{s.foldEnrichment.toFixed(2)}</td>
+                      <td title={s.intersection < 5 ? 'Small overlap (< 5 items): FE and p-value are unstable — interpret with caution' : undefined}>
+                        {s.foldEnrichment.toFixed(2)}{s.intersection < 5 ? ' †' : ''}
+                      </td>
+                      <td>[{s.feCiLow.toFixed(2)}, {s.feCiHigh.toFixed(2)}]</td>
                       <td>{formatP(s.pValue)}</td>
                       <td>{formatP(s.pTwoSided)}</td>
                       <td>{formatP(s.fdr)}</td>
@@ -264,6 +336,11 @@ export function DataSummaryPanel({
                 </tbody>
               </table>
             </div>
+            {pairStats.some(s => s.intersection < 5) && (
+              <div className="data-summary-hint" style={{ marginTop: 4 }}>
+                † Small overlap (&lt; 5 items): fold enrichment and p-value are unstable — interpret with caution.
+              </div>
+            )}
           </>
         )}
       </div>

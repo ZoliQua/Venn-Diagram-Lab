@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
-import { useSvgDocument } from './hooks/useSvgDocument.ts';
+import { useSvgDocument, setShapeStyleInDoc, allTextsOf, setStyleProp } from './hooks/useSvgDocument.ts';
 import { useSelection } from './hooks/useSelection.ts';
 import { useZoomPan } from './hooks/useZoomPan.ts';
 import { useDrag } from './hooks/useDrag.ts';
@@ -28,6 +28,7 @@ import { EnrichmentPlotCanvas } from './components/EnrichmentPlotCanvas.tsx';
 import { pairwiseStatistics } from './utils/statistics.ts';
 import type { Region } from './utils/regions.ts';
 import { calculateVennCounts, calculateVennCountsFromAggregated } from './utils/csvParser.ts';
+import { csvRowCount, hydrateCsvRows, sliceForScriptEmbed } from './utils/csvParser.ts';
 import type { CsvData, FileType, Delimiter, CsvImportResult, VennResult, GeneSetFormat, GeneSetMeta } from './utils/csvParser.ts';
 import { truncateName } from './utils/truncateName.ts';
 import { detectGeneSetFormat } from './utils/csvParser.ts';
@@ -174,6 +175,10 @@ export default function App() {
   const [testShowSums, setTestShowSums] = useState(true);
   const [dataHideEmpty, setDataHideEmpty] = useState(false);
   const [dataExteriorLabels, setDataExteriorLabels] = useState(false);
+  // Exterior-label styling (only meaningful when dataExteriorLabels is on).
+  const [dataExteriorFontSize, setDataExteriorFontSize] = useState(22);
+  const [dataExteriorLineWidth, setDataExteriorLineWidth] = useState(1);
+  const [dataExteriorLineColor, setDataExteriorLineColor] = useState('#888888');
   const [testNameFontSize, setTestNameFontSize] = useState(24);
   const [testNameFontFamily, setTestNameFontFamily] = useState('Tahoma');
   // v1.13.4: "Max name length" slider — null = no truncation (full column name).
@@ -189,6 +194,9 @@ export default function App() {
 
   // Enrichment plot editor (v1.11.0)
   const [testEnrichmentMetric, setTestEnrichmentMetric] = useState<EnrichmentMetric>('neglog10fdr');
+  // Custom enrichment background universe N (null = auto: row count for
+  // binary input, |union| for aggregated/paste/GMT).
+  const [testCustomUniverse, setTestCustomUniverse] = useState<number | null>(null);
   const [testEnrichmentPlotSettings, setTestEnrichmentPlotSettings] = useState<EnrichmentPlotSettings>(
     () => createDefaultPlotSettings(),
   );
@@ -563,19 +571,28 @@ export default function App() {
         return;
       }
     }
-    // In cut/upset/network view, export the visible SVG from DOM
-    if ((mode === 'view' || mode === 'data') && viewStyle !== 'layer') {
+    // Data mode (any view, incl. Layer) and non-layer View mode: export exactly
+    // what is on screen by cloning the live SVG DOM. This captures render-only
+    // overlays that never live in the document model — the exterior-labels ring
+    // + leader lines, the expanded viewBox, hide-empty filtering, palette
+    // colors — so the saved SVG matches the visible diagram. (Edit mode and
+    // plain View-mode Layer still serialize the document model below.)
+    if (mode === 'data' || (mode === 'view' && viewStyle !== 'layer')) {
       const svgEl = document.querySelector('.canvas-svg') as SVGSVGElement | null;
       if (svgEl) {
         const clone = svgEl.cloneNode(true) as SVGSVGElement;
         clone.querySelectorAll('.selection-rect, [data-hover]').forEach(el => el.remove());
+        // Drop any locked/hovered region highlight styling from the export.
+        clone.querySelectorAll('[style*="stroke-width: 3"]').forEach(el => {
+          (el as SVGElement).style.removeProperty('stroke-width');
+        });
         const serializer = new XMLSerializer();
         const svgString = serializer.serializeToString(clone);
         const blob = new Blob([svgString], { type: 'image/svg+xml' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = doc.filename.replace('.svg', `_${viewStyle}.svg`);
+        a.download = viewStyle === 'layer' ? doc.filename : doc.filename.replace('.svg', `_${viewStyle}.svg`);
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -583,7 +600,7 @@ export default function App() {
         return;
       }
     }
-    // Layer/Edit mode: save from document model
+    // Edit mode (and plain View-mode Layer): save from document model
     const svgString = svgDoc.saveToString({ hideEmptyCounts: mode === 'data' && dataHideEmpty });
     const blob = new Blob([svgString], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -600,11 +617,18 @@ export default function App() {
   const handleExportScript = useCallback((kind: 'python' | 'r' | 'npm') => {
     if (!testCsvData || !testModel || testColumnMapping.length < 2 || !testVennResult) return;
     const setNames = testColumnMapping.map(i => testCsvData.headers[i] ?? '');
+    // Inline-embedded sources (paste/url/GMT/GMX) get sliced to the mapped
+    // columns — embedding the full GMT transpose would produce ~100 MB scripts.
+    const willEmbed = testSourceKind === 'paste' || testSourceKind === 'url'
+      || detectGeneSetFormat(testCsvFilename ?? '') !== null;
+    const embed = willEmbed
+      ? sliceForScriptEmbed(testCsvData, testColumnMapping, testFileType)
+      : null;
     const params: ScriptExportParams = {
       filename: testCsvFilename ?? 'data.csv',
       fileType: testFileType,
       delimiter: testItemDelimiter,
-      columnMapping: testColumnMapping,
+      columnMapping: embed ? embed.columnMapping : testColumnMapping,
       setNames,
       model: testModel,
       shapeColors: testShapeColors,
@@ -613,8 +637,9 @@ export default function App() {
       sourceKind: testSourceKind,
       hasHeader: testHasHeader,
       sheetIndex: testSheetIndex,
-      headers: testCsvData.headers,
-      rawData: testCsvData.rows,
+      headers: embed ? embed.headers : testCsvData.headers,
+      rawData: embed ? embed.rows : testCsvData.rows,
+      universeSize: testCustomUniverse,
     };
     if (kind === 'python') {
       const script = generatePythonScript(params);
@@ -629,7 +654,7 @@ export default function App() {
       downloadFile(script, `venn_${testColumnMapping.length}set_analysis.mjs`, 'text/javascript', false);
       trackEvent('export_script', 'export', 'npm');
     }
-  }, [testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testModel, testShapeColors, testEnrichmentMetric, testVennResult, testSourceKind, testHasHeader, testSheetIndex]);
+  }, [testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testModel, testShapeColors, testEnrichmentMetric, testVennResult, testSourceKind, testHasHeader, testSheetIndex, testCustomUniverse]);
 
   const handleExportImage = useCallback((format: 'png' | 'jpg') => {
     trackEvent('export_image', 'export', format);
@@ -897,6 +922,12 @@ export default function App() {
 
   const handleTestFileUpload = useCallback(async (file: File) => {
     setTestSourceKind('file');
+    // Same 50 MB cap as URL import — readAsText/arrayBuffer load the whole
+    // file into tab memory.
+    if (file.size > 50 * 1024 * 1024) {
+      setTestError(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum supported size is 50 MB.`);
+      return;
+    }
     if (file.name.toLowerCase().endsWith('.xlsx')) {
       try {
         const buffer = await file.arrayBuffer();
@@ -940,6 +971,7 @@ export default function App() {
     setTestGeneSetMeta(null);
     setTestError(null);
     setTestCalculated(false);
+    setTestCustomUniverse(null);
     setTestSourceKind('paste');
     setTestHasHeader(result.hasHeader);
     setTestSheetIndex(0);
@@ -990,6 +1022,7 @@ export default function App() {
     setTestGeneSetMeta(result.geneSetMeta ?? null);
     setTestError(null);
     setTestCalculated(false);
+    setTestCustomUniverse(null);
     setTestHasHeader(result.hasHeader);
     setTestSheetIndex(result.sheetIndex ?? 0);
     // For aggregated: selectedColumns are the set columns; for binary: column indices
@@ -1023,6 +1056,7 @@ export default function App() {
     setTestOriginalColumns([]);
     setTestCalculated(false);
     setTestVennResult(null);
+    setTestCustomUniverse(null);
     setTestGeneSetMeta(null);
     setTestExclusiveItems(null);
     setTestInclusiveItems(null);
@@ -1041,7 +1075,7 @@ export default function App() {
   const restoreDataSession = useCallback((session: AppSession) => {
     const data = session.data;
 
-    setTestCsvData(data.csvData);
+    setTestCsvData(hydrateCsvRows(data.csvData));
     setTestCsvFilename(data.filename || null);
     setTestFileType(data.fileType);
     setTestItemDelimiter(data.itemDelimiter);
@@ -1067,6 +1101,7 @@ export default function App() {
     setPaletteId(data.paletteId ?? STANDARD_PALETTE_ID);
     setDataHideEmpty(data.hideEmpty ?? false);
     setDataExteriorLabels(data.exteriorLabels ?? false);
+    setTestCustomUniverse(data.customUniverse ?? null);
     setViewStyleRaw(data.viewStyle);
     setCutColorMode(data.cutColorMode);
     setHeatmapColors(data.heatmapColors);
@@ -1155,6 +1190,7 @@ export default function App() {
       paletteId,
       hideEmpty: dataHideEmpty,
       exteriorLabels: dataExteriorLabels,
+      customUniverse: testCustomUniverse,
     };
     return {
       version: '1',
@@ -1163,7 +1199,7 @@ export default function App() {
       theme,
       data: buildDataSession(dataSessionInput),
     };
-  }, [theme, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, testSourceKind, testHasHeader, testSheetIndex, paletteId, dataHideEmpty, dataExteriorLabels]);
+  }, [theme, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, testSourceKind, testHasHeader, testSheetIndex, paletteId, dataHideEmpty, dataExteriorLabels, testCustomUniverse]);
 
   const handleExportSessionToFile = useCallback(() => {
     const session = buildAppSession();
@@ -1211,6 +1247,7 @@ export default function App() {
       setTestGeneSetMeta(null);
       setTestError(null);
       setTestCalculated(false);
+      setTestCustomUniverse(null);
       setTestSourceKind('sample');
       setTestHasHeader(true);
       setTestSheetIndex(0);
@@ -1298,6 +1335,7 @@ export default function App() {
       setTestInclusiveItems(result.inclusiveItems);
 
       const letters = 'ABCDEFGHI'.slice(0, n).split('');
+      let usedFixedModel = false;
 
       if (testModel === PROPORTIONAL_MODEL) {
         // ═══════ PROPORTIONAL PATH ═══════
@@ -1345,41 +1383,13 @@ export default function App() {
         setRegionData(regData);
         setCurrentModel(testModel);
         setProportionalAccuracy(null);
+        usedFixedModel = true;
 
         if (testModel.includes('venn-8-set')) {
           setZoom(0.6);
         } else {
           resetZoom();
         }
-
-        // Update Count, Name, CountSUM texts for fixed model
-        for (const [label, count] of result.exclusive) {
-          svgDoc.updateTextContent(`Count_${label}`, String(count));
-          svgDoc.updateTextStyle(`Count_${label}`, 'text-anchor', 'middle');
-        }
-        for (let i = 0; i < n; i++) {
-          const rawName = testCsvData.headers[testColumnMapping[i]];
-          const displayName = testNameMaxChars !== null
-            ? truncateName(rawName, testNameMaxChars)
-            : rawName;
-          svgDoc.updateTextContent(`Name${letters[i]}`, displayName);
-        }
-        for (let i = 0; i < n; i++) {
-          const total = result.inclusive.get(letters[i]) ?? 0;
-          svgDoc.updateTextContent(`CountSUM_${letters[i]}`, String(total));
-          svgDoc.updateTextStyle(`CountSUM_${letters[i]}`, 'text-anchor', 'middle');
-        }
-      }
-
-      // ═══════ COMMON: Apply visual settings ═══════
-      for (let i = 0; i < n; i++) {
-        const letter = letters[i];
-        const color = testShapeColors[letter];
-        if (color) {
-          svgDoc.updateShapeStyle(`Shape${letter}`, 'fill', color);
-          svgDoc.updateShapeStyle(`Bullet${letter}`, 'fill', color);
-        }
-        svgDoc.updateShapeStyle(`Shape${letter}`, 'opacity', String(testShapeOpacity));
       }
 
       // Auto-cap name font size based on the longest *displayed* name length.
@@ -1404,19 +1414,76 @@ export default function App() {
         : testNameFontSize;
       if (autoCap !== null && testNameFontSize > autoCap) setTestNameFontSize(autoCap);
 
-      // Re-apply view settings (font size, font family, visibility)
-      for (let i = 0; i < testColumnMapping.length; i++) {
-        svgDoc.updateTextStyle(`Name${letters[i]}`, 'font-size', String(effectiveNameFontSize));
-        svgDoc.updateTextStyle(`Name${letters[i]}`, 'font-family', `'${testNameFontFamily}'`);
-      }
-      if (svgDoc.doc?.texts.header) {
-        svgDoc.updateTextStyle(svgDoc.doc.texts.header.id, 'font-size', String(testTitleFontSize));
-        svgDoc.updateTextStyle(svgDoc.doc.texts.header.id, 'font-family', `'${testTitleFontFamily}'`);
-      }
-      // Re-apply visibility toggles
-      if (!testShowTitle && svgDoc.doc) svgDoc.toggleMeta('headerHidden');
-      if (!testShowNames && svgDoc.doc) svgDoc.toggleGroupVisibility('names');
-      if (!testShowSums && svgDoc.doc) svgDoc.toggleGroupVisibility('sums');
+      // ═══════ ALL DOC MUTATIONS IN ONE BATCH ═══════
+      // One clone + one history entry for the whole Calculate (previously
+      // ~1050 individual updates on a 9-set model, each cloning the doc twice).
+      svgDoc.batchUpdate(d => {
+        // One id→text map for the whole batch (linear scans would be O(n²)
+        // over the 511 Count_ texts of a 9-set model).
+        const textById = new Map(allTextsOf(d).map(t => [t.id, t]));
+        if (usedFixedModel) {
+          // Update Count, Name, CountSUM texts for fixed model
+          for (const [label, count] of result.exclusive) {
+            const t = textById.get(`Count_${label}`);
+            if (t) {
+              t.content = String(count);
+              setStyleProp(t, 'text-anchor', 'middle');
+            }
+          }
+          for (let i = 0; i < n; i++) {
+            const rawName = testCsvData.headers[testColumnMapping[i]];
+            const displayName = testNameMaxChars !== null
+              ? truncateName(rawName, testNameMaxChars)
+              : rawName;
+            const t = textById.get(`Name${letters[i]}`);
+            if (t) t.content = displayName;
+          }
+          for (let i = 0; i < n; i++) {
+            const total = result.inclusive.get(letters[i]) ?? 0;
+            const t = textById.get(`CountSUM_${letters[i]}`);
+            if (t) {
+              t.content = String(total);
+              setStyleProp(t, 'text-anchor', 'middle');
+            }
+          }
+        }
+
+        // Apply visual settings (shape colors / opacity)
+        for (let i = 0; i < n; i++) {
+          const letter = letters[i];
+          const color = testShapeColors[letter];
+          if (color) {
+            setShapeStyleInDoc(d, `Shape${letter}`, 'fill', color);
+            setShapeStyleInDoc(d, `Bullet${letter}`, 'fill', color);
+          }
+          setShapeStyleInDoc(d, `Shape${letter}`, 'opacity', String(testShapeOpacity));
+        }
+
+        // Re-apply view settings (font size, font family)
+        for (let i = 0; i < testColumnMapping.length; i++) {
+          const t = textById.get(`Name${letters[i]}`);
+          if (t) {
+            setStyleProp(t, 'font-size', String(effectiveNameFontSize));
+            setStyleProp(t, 'font-family', `'${testNameFontFamily}'`);
+          }
+        }
+        if (d.texts.header) {
+          setStyleProp(d.texts.header, 'font-size', String(testTitleFontSize));
+          setStyleProp(d.texts.header, 'font-family', `'${testTitleFontFamily}'`);
+        }
+
+        // Re-apply visibility toggles (fresh model docs start fully visible,
+        // so setting the hidden flags directly matches the old toggle calls).
+        if (!testShowTitle) d.meta.headerHidden = true;
+        if (!testShowNames) {
+          d.meta.hiddenGroups.add('names');
+          for (const t of d.texts.names) d.meta.hiddenIds.add(t.id);
+        }
+        if (!testShowSums) {
+          d.meta.hiddenGroups.add('sums');
+          for (const t of d.texts.sums) d.meta.hiddenIds.add(t.id);
+        }
+      });
 
       setTestCalculated(true);
       trackEvent('calculate', 'data', `${testModel}_${testColumnMapping.length}set`);
@@ -1572,6 +1639,7 @@ export default function App() {
         paletteId,
         hideEmpty: dataHideEmpty,
         exteriorLabels: dataExteriorLabels,
+        customUniverse: testCustomUniverse,
       };
       const session: AppSession = {
         version: '1',
@@ -1583,7 +1651,7 @@ export default function App() {
       saveSession(session);
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [mode, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, theme, testSourceKind, testHasHeader, testSheetIndex, paletteId, dataHideEmpty, dataExteriorLabels]);
+  }, [mode, testCsvData, testCsvFilename, testFileType, testItemDelimiter, testColumnMapping, testOriginalColumns, testGeneSetMeta, testModel, testCalculated, testError, testShowTitle, testShowNames, testShowSums, testNameFontSize, testNameFontFamily, testTitleFontSize, testTitleFontFamily, testNameMaxChars, testShapeOpacity, testShapeColors, viewStyle, cutColorMode, heatmapColors, heatmapLegendPosition, upsetColorMode, upsetSortMode, upsetThreshold, upsetCustomColor, networkMetric, networkSigOnly, networkEdgeLabels, networkNodeSizes, networkMinWeight, networkMoveNodes, plotBackground, dataMoveNames, dataMoveNumbers, testEnrichmentMetric, testEnrichmentPlotSettings, regionDetection.selectedRegion?.label, theme, testSourceKind, testHasHeader, testSheetIndex, paletteId, dataHideEmpty, dataExteriorLabels, testCustomUniverse]);
 
   // Keep a stable ref to the latest setSelectByLabel for the restore effect
   useEffect(() => {
@@ -1614,6 +1682,54 @@ export default function App() {
     return matrix;
   }, [testVennResult, testColumnMapping]);
 
+  // Effective enrichment background universe N: the user's custom value when
+  // set, otherwise the auto background (binary: data rows; aggregated: |union|).
+  // Every statistics consumer (panel, network, plot editor, PDF/ZIP report,
+  // TSV/JSON exports) must use THIS value so p-values stay consistent.
+  const effectiveUniverse = testCustomUniverse ?? testVennResult?.totalUniqueItems ?? 0;
+
+  // Memoized heavy derivations for the network / plot-edit / upset views.
+  const networkPlotData = useMemo(() => {
+    if (!testVennResult || !testCsvData) return null;
+    return buildNetworkData(
+      testVennResult,
+      testColumnMapping.length,
+      effectiveUniverse,
+      testColumnMapping.map(i => testCsvData.headers[i] ?? ''),
+      networkMetric,
+    );
+  }, [testVennResult, testCsvData, testColumnMapping, networkMetric, effectiveUniverse]);
+
+  const plotEditStats = useMemo(() => {
+    if (!testVennResult || !testCsvData || testPlotEditState === null) return null;
+    return pairwiseStatistics(
+      testVennResult,
+      testColumnMapping.length,
+      effectiveUniverse,
+      testColumnMapping.map(i => testCsvData.headers[i] ?? ''),
+    );
+  }, [testVennResult, testCsvData, testColumnMapping, testPlotEditState, effectiveUniverse]);
+
+  const upsetPlotData = useMemo(() => {
+    if (mode === 'data' && testVennResult) {
+      return upsetDataFromVennResult(testVennResult, testColumnMapping.length);
+    }
+    if (regionData && doc) {
+      return upsetDataFromRegionData(regionData, doc);
+    }
+    return null;
+  }, [mode, testVennResult, testColumnMapping, regionData, doc]);
+
+  const cutCountOverrides = useMemo(() => {
+    if (mode !== 'data' || !doc) return null;
+    const m = new Map<string, string>();
+    for (const t of doc.texts.values) {
+      const label = t.id.replace('Count_', '');
+      if (label !== t.id) m.set(label, t.content);
+    }
+    return m;
+  }, [mode, doc]);
+
   // Viewer: region list hover/click
   const handleSidebarHoverRegion = useCallback(() => {
     // Sidebar hover could drive canvas highlight in the future
@@ -1634,10 +1750,13 @@ export default function App() {
 
   const modelsBySet = useMemo(() => getModelsBySetCount(), []);
 
+  // Only stringify the session (which embeds the full dataset) when the ZIP
+  // report dialog is actually open — it is the sole consumer of sessionJson.
   const sessionJson = useMemo(() => {
+    if (!zipReportOpen) return undefined;
     const session = buildAppSession();
     return session ? JSON.stringify(session, null, 2) : undefined;
-  }, [buildAppSession]);
+  }, [zipReportOpen, buildAppSession]);
 
   return (
     <div className="app">
@@ -1744,6 +1863,7 @@ export default function App() {
             csvFilename={testCsvFilename}
             fileType={testFileType}
             geneSetFormat={testGeneSetMeta?.format}
+            geneSetSkippedSets={testGeneSetMeta?.skippedSets}
             selectedModel={testModel}
             onSelectModel={(filename, setCount) => {
               setTestModel(filename);
@@ -1784,6 +1904,12 @@ export default function App() {
             onToggleHideEmpty={() => { setDataHideEmpty(v => !v); }}
             exteriorLabels={dataExteriorLabels}
             onToggleExteriorLabels={() => { setDataExteriorLabels(v => !v); }}
+            exteriorFontSize={dataExteriorFontSize}
+            onExteriorFontSizeChange={setDataExteriorFontSize}
+            exteriorLineWidth={dataExteriorLineWidth}
+            onExteriorLineWidthChange={setDataExteriorLineWidth}
+            exteriorLineColor={dataExteriorLineColor}
+            onExteriorLineColorChange={setDataExteriorLineColor}
             shapeOpacity={testShapeOpacity}
             onShapeOpacityChange={(opacity) => {
               setTestShapeOpacity(opacity);
@@ -1880,12 +2006,12 @@ export default function App() {
             onSetNetworkMoveNodes={setNetworkMoveNodes}
             onExportNetworkGraphml={testVennResult && testCsvData ? () => {
               const setNames = testColumnMapping.map(i => testCsvData.headers[i] ?? '');
-              const data = buildNetworkData(testVennResult, testColumnMapping.length, testVennResult.totalUniqueItems, setNames, networkMetric);
+              const data = buildNetworkData(testVennResult, testColumnMapping.length, effectiveUniverse, setNames, networkMetric);
               downloadFile(toGraphml(data), `venn_${testColumnMapping.length}set_network.graphml`, 'application/graphml+xml', false);
             } : undefined}
             onExportNetworkSif={testVennResult && testCsvData ? () => {
               const setNames = testColumnMapping.map(i => testCsvData.headers[i] ?? '');
-              const data = buildNetworkData(testVennResult, testColumnMapping.length, testVennResult.totalUniqueItems, setNames, networkMetric);
+              const data = buildNetworkData(testVennResult, testColumnMapping.length, effectiveUniverse, setNames, networkMetric);
               downloadFile(toSif(data), `venn_${testColumnMapping.length}set_network.sif`, 'text/plain', false);
             } : undefined}
             plotBackground={plotBackground}
@@ -1906,6 +2032,9 @@ export default function App() {
               setTestShowSums(true);
               setDataHideEmpty(false);
               setDataExteriorLabels(false);
+              setDataExteriorFontSize(22);
+              setDataExteriorLineWidth(1);
+              setDataExteriorLineColor('#888888');
               setDataMoveNames(false);
               setDataMoveNumbers(false);
               setTestPendingCalculate(true);
@@ -1962,12 +2091,7 @@ export default function App() {
               >
                 <EnrichmentPlotCanvas
                   plotType={testPlotEditState.plotType}
-                  stats={pairwiseStatistics(
-                    testVennResult,
-                    testColumnMapping.length,
-                    testCsvData.rows.length,
-                    testColumnMapping.map(i => testCsvData.headers[i] ?? ''),
-                  )}
+                  stats={plotEditStats ?? []}
                   setLetters={'ABCDEFGHI'.slice(0, testColumnMapping.length).split('')}
                   setNames={testColumnMapping.map(i => testCsvData.headers[i] ?? '')}
                   matrix={testItemSetMatrix}
@@ -1980,13 +2104,7 @@ export default function App() {
             (mode === 'view' || mode === 'data') && viewStyle === 'network' && testVennResult && testCsvData ? (
               <div className="canvas-container" ref={setContainerRef} onWheel={onWheel}>
                 <NetworkPlot
-                  data={buildNetworkData(
-                    testVennResult,
-                    testColumnMapping.length,
-                    testCsvData.rows.length,
-                    testColumnMapping.map(i => testCsvData.headers[i] ?? ''),
-                    networkMetric,
-                  )}
+                  data={networkPlotData ?? { nodes: [], edges: [] }}
                   scale={zoomState.scale}
                   edgeMetric={networkMetric}
                   showSigOnly={networkSigOnly}
@@ -2007,10 +2125,7 @@ export default function App() {
             (mode === 'view' || mode === 'data') && viewStyle === 'upset' && regionData ? (
               <div className="canvas-container" ref={setContainerRef} onWheel={onWheel}>
                 <UpsetPlot
-                  data={mode === 'data' && testVennResult
-                    ? upsetDataFromVennResult(testVennResult, testColumnMapping.length)
-                    : upsetDataFromRegionData(regionData, doc)
-                  }
+                  data={upsetPlotData ?? { intersections: [], sets: [] }}
                   scale={zoomState.scale}
                   colorMode={upsetColorMode}
                   customColor={upsetCustomColor}
@@ -2033,14 +2148,7 @@ export default function App() {
                   onRegionClick={regionDetection.setSelectByLabel}
                   onBackgroundClick={regionDetection.clearSelection}
                   lockedLabel={regionDetection.selectedRegion?.label ?? null}
-                  countOverrides={mode === 'data' && doc ? (() => {
-                    const m = new Map<string, string>();
-                    for (const t of doc.texts.values) {
-                      const label = t.id.replace('Count_', '');
-                      if (label !== t.id) m.set(label, t.content);
-                    }
-                    return m;
-                  })() : null}
+                  countOverrides={cutCountOverrides}
                   colorMode={mode === 'data' ? cutColorMode : 'depth'}
                   heatmapColors={heatmapColors}
                   legendPosition={heatmapLegendPosition}
@@ -2125,7 +2233,11 @@ export default function App() {
                 onRegionLeave={regionDetection.clearHover}
                 onReadOnlyTextClick={(letter) => regionDetection.setSelectByLabel(letter, true)}
                 hideEmpty={mode === 'data' ? dataHideEmpty : false}
-                exteriorLabels={mode === 'data' && viewStyle === 'layer' && testColumnMapping.length >= 5 ? dataExteriorLabels : false}
+                exteriorLabels={mode === 'data' && viewStyle === 'layer' && testColumnMapping.length === 5 ? dataExteriorLabels : false}
+                exteriorFontSize={dataExteriorFontSize}
+                exteriorLineWidth={dataExteriorLineWidth}
+                exteriorLineColor={dataExteriorLineColor}
+                onExteriorLabelClick={(label) => regionDetection.setSelectByLabel(label)}
               />
           ) : mode === 'view' && !welcomeOpen ? (
             <div className="canvas-model-browser">
@@ -2325,8 +2437,11 @@ export default function App() {
                 <DataSummaryPanel
                   vennResult={testVennResult}
                   n={testColumnMapping.length}
+                  universeSize={effectiveUniverse}
+                  customUniverse={testCustomUniverse}
+                  onUniverseChange={setTestCustomUniverse}
                   setNames={testColumnMapping.map(i => testCsvData?.headers[i] ?? '')}
-                  totalItems={testVennResult?.totalUniqueItems ?? testCsvData?.rows.length ?? 0}
+                  totalItems={testVennResult?.totalUniqueItems ?? (testCsvData ? csvRowCount(testCsvData) : 0)}
                   matrix={testItemSetMatrix}
                   selectedRegionLabel={regionDetection.selectedRegion?.label ?? null}
                   datasetName={testCsvFilename ?? undefined}
@@ -2350,13 +2465,13 @@ export default function App() {
                   } : undefined}
                   onExportOneVsRest={testVennResult ? () => {
                     const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
-                    const tsv = exportOneVsRestTsv(testVennResult, testColumnMapping.length, testVennResult.totalUniqueItems, setNames);
+                    const tsv = exportOneVsRestTsv(testVennResult, testColumnMapping.length, effectiveUniverse, setNames);
                     downloadFile(tsv, `venn_${testColumnMapping.length}set_one_vs_rest.tsv`);
                   } : undefined}
                   onExportJson={testVennResult ? () => {
                     const setNames = testColumnMapping.map(ci => testCsvData?.headers[ci] ?? '');
                     const model = testModel ? testModel.replace(/\.svg$/, '') : `venn-${testColumnMapping.length}-set`;
-                    const json = exportResultJson(testVennResult, testColumnMapping.length, setNames, testVennResult.totalUniqueItems, model);
+                    const json = exportResultJson(testVennResult, testColumnMapping.length, setNames, effectiveUniverse, model);
                     downloadFile(json, `venn_${testColumnMapping.length}set_result.json`, 'application/json', false);
                   } : undefined}
                 />
@@ -2521,8 +2636,9 @@ export default function App() {
           doc={doc}
           n={testColumnMapping.length}
           setNames={testColumnMapping.map(i => testCsvData.headers[i] ?? '')}
-          totalItems={testVennResult?.totalUniqueItems ?? testCsvData.rows.length}
-          totalFileRows={testCsvData.rows.length}
+          totalItems={testVennResult?.totalUniqueItems ?? csvRowCount(testCsvData)}
+          universeSize={effectiveUniverse}
+          totalFileRows={csvRowCount(testCsvData)}
           filename={testCsvFilename ?? 'data'}
           title={doc.texts.header?.content ?? testCsvFilename ?? 'Venn Diagram Report'}
           modelName={testModel ?? ''}
@@ -2532,7 +2648,16 @@ export default function App() {
         />
       )}
 
-      {zipReportOpen && testVennResult && testCsvData && doc && (
+      {zipReportOpen && testVennResult && testCsvData && doc && (() => {
+        // Slice inline-embedded data to the mapped columns (same rule as
+        // handleExportScript) so a large GMT never materializes its full
+        // transpose when the ZIP dialog opens.
+        const willEmbed = testSourceKind === 'paste' || testSourceKind === 'url'
+          || detectGeneSetFormat(testCsvFilename ?? '') !== null;
+        const embed = willEmbed
+          ? sliceForScriptEmbed(testCsvData, testColumnMapping, testFileType)
+          : null;
+        return (
         <ZipReportDialog
           isOpen={zipReportOpen}
           onClose={() => setZipReportOpen(false)}
@@ -2540,12 +2665,13 @@ export default function App() {
           doc={doc}
           n={testColumnMapping.length}
           setNames={testColumnMapping.map(i => testCsvData.headers[i] ?? '')}
-          totalItems={testVennResult?.totalUniqueItems ?? testCsvData.rows.length}
-          totalFileRows={testCsvData.rows.length}
+          totalItems={testVennResult?.totalUniqueItems ?? csvRowCount(testCsvData)}
+          universeSize={effectiveUniverse}
+          totalFileRows={csvRowCount(testCsvData)}
           filename={testCsvFilename ?? 'data'}
           title={doc.texts.header?.content ?? testCsvFilename ?? 'Venn Diagram Report'}
           modelName={testModel ?? ''}
-          columnMapping={testColumnMapping}
+          columnMapping={embed ? embed.columnMapping : testColumnMapping}
           fileType={testFileType}
           itemDelimiter={testItemDelimiter}
           shapeColors={testShapeColors}
@@ -2556,10 +2682,11 @@ export default function App() {
           sourceKind={testSourceKind}
           hasHeader={testHasHeader}
           sheetIndex={testSheetIndex}
-          headers={testCsvData.headers}
-          rawData={testCsvData.rows}
+          headers={embed ? embed.headers : testCsvData.headers}
+          rawData={embed ? embed.rows : testCsvData.rows}
         />
-      )}
+        );
+      })()}
 
       <SampleDataDialog
         isOpen={sampleDataDialog}

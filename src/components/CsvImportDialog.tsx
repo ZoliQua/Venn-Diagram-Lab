@@ -11,6 +11,9 @@ import {
   parseGmx,
   parseExcelFile,
   analyzeDataQuality,
+  csvPreviewRows,
+  csvRowCount,
+  hydrateCsvRows,
 } from '../utils/csvParser.ts';
 import type { CsvData } from '../utils/csvParser.ts';
 
@@ -87,7 +90,7 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
   // Re-parse preview when delimiter or header changes
   const preview = useMemo(() => {
     if (geneSetParsed) {
-      return { headers: geneSetParsed.csv.headers, rows: geneSetParsed.csv.rows.slice(0, 5) };
+      return { headers: geneSetParsed.csv.headers, rows: csvPreviewRows(geneSetParsed.csv, 5) };
     }
     if (isExcel && excelCsv) {
       return { headers: excelCsv.headers, rows: excelCsv.rows.slice(0, 5) };
@@ -235,6 +238,46 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
     setError(null);
   };
 
+  // ── Gene set size filter (GMT/GMX only) ──
+  // Standard ORA practice (e.g. clusterProfiler defaults) keeps gene sets in
+  // the 10–500 range: smaller sets are noisy, larger ones unspecific.
+  const [minSetSize, setMinSetSize] = useState('');
+  const [maxSetSize, setMaxSetSize] = useState('');
+
+  // Per-column non-empty item counts. Columnar (GMT) sources read the column
+  // arrays directly; row-based (GMX) sources scan the rows once.
+  const setSizes = useMemo(() => {
+    if (!isGeneSet || !geneSetParsed) return null;
+    const csv = geneSetParsed.csv;
+    if (csv.columns) {
+      return csv.columns.map(col => col.reduce((acc, cell) => acc + (cell.trim() !== '' ? 1 : 0), 0));
+    }
+    return csv.headers.map((_, ci) =>
+      csv.rows.reduce((acc, row) => acc + ((row[ci] ?? '').trim() !== '' ? 1 : 0), 0));
+  }, [isGeneSet, geneSetParsed]);
+
+  // Column indices passing the size filter (null = filter inactive / not a gene-set file).
+  const visibleColumnSet = useMemo(() => {
+    if (!setSizes) return null;
+    const minParsed = parseInt(minSetSize, 10);
+    const maxParsed = parseInt(maxSetSize, 10);
+    const min = minSetSize === '' || !Number.isFinite(minParsed) ? null : minParsed;
+    const max = maxSetSize === '' || !Number.isFinite(maxParsed) ? null : maxParsed;
+    if (min === null && max === null) return null;
+    const s = new Set<number>();
+    setSizes.forEach((sz, i) => {
+      if ((min === null || sz >= min) && (max === null || sz <= max)) s.add(i);
+    });
+    return s;
+  }, [setSizes, minSetSize, maxSetSize]);
+
+  // Columns that are both selected and within the size filter.
+  const effectiveColumns = useMemo(() => {
+    const cols = Array.from(selectedColumns);
+    if (!visibleColumnSet) return cols.sort((a, b) => a - b);
+    return cols.filter(i => visibleColumnSet.has(i)).sort((a, b) => a - b);
+  }, [selectedColumns, visibleColumnSet]);
+
   // The csv as it will actually be imported: custom headers applied (when no
   // header row) and row filtering applied (when "Import Selected Rows" is used).
   // Factored out so both handleLoad and the data-quality preview analyze the
@@ -244,7 +287,9 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
 
     let csv = fullCsv;
     if (!hasHeader) {
-      csv = { ...fullCsv, headers: customHeaders.slice(0, colCount) };
+      // Spread drops the non-enumerable lazy `rows` getter of columnar (GMT)
+      // sources — re-attach it.
+      csv = hydrateCsvRows({ ...fullCsv, headers: customHeaders.slice(0, colCount) });
     }
 
     if (rowMode === 'selected') {
@@ -277,14 +322,14 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
   // Purely informational — never prevents Load Data.
   const qualityReport = useMemo(() => {
     if (!finalCsv) return null;
-    const cols = Array.from(selectedColumns).sort((a, b) => a - b);
+    const cols = effectiveColumns;
     if (cols.length < 2) return null;
     try {
       return analyzeDataQuality(finalCsv, cols, fileType, itemDelimiter);
     } catch {
       return null;
     }
-  }, [finalCsv, selectedColumns, fileType, itemDelimiter]);
+  }, [finalCsv, effectiveColumns, fileType, itemDelimiter]);
 
   const handleLoad = () => {
     if (!finalCsv) {
@@ -292,7 +337,7 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
       return;
     }
 
-    const cols = Array.from(selectedColumns).sort((a, b) => a - b);
+    const cols = effectiveColumns;
 
     // Validate
     const validationError = fileType === 'binary'
@@ -440,17 +485,49 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
             </div>
           )}
 
+          {/* Gene set size filter (GMT/GMX only) */}
+          {isGeneSet && setSizes && (
+            <div className="csv-import-section">
+              <div className="csv-import-section-title">Gene Set Size Filter</div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                <label className="csv-import-hint">
+                  Min <input type="number" min={0} style={{ width: 64 }} value={minSetSize} placeholder="none"
+                    onChange={e => setMinSetSize(e.target.value)} />
+                </label>
+                <label className="csv-import-hint">
+                  Max <input type="number" min={0} style={{ width: 64 }} value={maxSetSize} placeholder="none"
+                    onChange={e => setMaxSetSize(e.target.value)} />
+                </label>
+                <button className="btn btn-xs" onClick={() => { setMinSetSize('10'); setMaxSetSize('500'); }}>
+                  Standard (10–500)
+                </button>
+                {(minSetSize !== '' || maxSetSize !== '') && (
+                  <button className="btn btn-xs" onClick={() => { setMinSetSize(''); setMaxSetSize(''); }}>
+                    Clear
+                  </button>
+                )}
+              </div>
+              <div className="csv-import-hint" style={{ marginTop: 4 }}>
+                {visibleColumnSet
+                  ? `${visibleColumnSet.size} of ${setSizes.length} sets within range. `
+                  : `${setSizes.length} sets. `}
+                Standard ORA practice (e.g. clusterProfiler) filters gene sets to 10–500 genes:
+                smaller sets are noisy, larger ones unspecific.
+              </div>
+            </div>
+          )}
+
           {/* 4. Data Columns */}
           <div className="csv-import-section">
             <div className="csv-import-section-title-row">
-              <span className="csv-import-section-title">4. Data Columns <span className="csv-import-hint">({selectedColumns.size} selected, min 2)</span></span>
+              <span className="csv-import-section-title">4. Data Columns <span className="csv-import-hint">({effectiveColumns.length} selected{visibleColumnSet ? `, ${visibleColumnSet.size} in size range` : ''}, min 2)</span></span>
               <div className="csv-import-select-buttons">
-                <button className="btn btn-xs" onClick={() => setSelectedColumns(new Set(headers.map((_, i) => i)))}>Select All</button>
+                <button className="btn btn-xs" onClick={() => setSelectedColumns(new Set(headers.map((_, i) => i).filter(i => !visibleColumnSet || visibleColumnSet.has(i))))}>Select All</button>
                 <button className="btn btn-xs" onClick={() => setSelectedColumns(new Set())}>Deselect All</button>
               </div>
             </div>
             <div className="csv-import-checkbox-row">
-              {headers.map((h, i) => (
+              {headers.map((h, i) => ({ h, i })).filter(({ i }) => !visibleColumnSet || visibleColumnSet.has(i)).map(({ h, i }) => (
                 <label key={i} className={`csv-import-col-checkbox ${selectedColumns.has(i) ? 'csv-import-col-selected' : ''}`}>
                   <input type="checkbox" checked={selectedColumns.has(i)} onChange={() => toggleColumn(i)} />
                   {h}
@@ -487,7 +564,7 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
 
           {/* 5. Data Rows */}
           <div className="csv-import-section">
-            <div className="csv-import-section-title">5. Data Rows {fullCsv && <span className="csv-import-hint">({fullCsv.rows.length} total)</span>}</div>
+            <div className="csv-import-section-title">5. Data Rows {fullCsv && <span className="csv-import-hint">({csvRowCount(fullCsv)} total)</span>}</div>
             <div className="csv-import-radio-group">
               <label className="csv-import-radio">
                 <input type="radio" checked={rowMode === 'all'} onChange={() => setRowMode('all')} />
@@ -528,6 +605,17 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
               <div className="csv-import-warning-panel">
                 <div className="csv-import-warning-title">Data quality notice</div>
                 <ul className="csv-import-warning-list">
+                  {qualityReport.namespaceMismatch && (
+                    <li>
+                      <strong>Identifier type mismatch:</strong> the selected columns appear to use different
+                      identifier namespaces (
+                      {qualityReport.idNamespaces
+                        .map(e => `${e.columnName}: ${e.namespace === 'symbol' ? 'gene symbol' : e.namespace}`)
+                        .join(', ')}
+                      ). Overlaps between different namespaces are spuriously near zero — convert identifiers
+                      (e.g. to gene symbols) before comparing.
+                    </li>
+                  )}
                   {qualityReport.duplicatesRemoved.map(d => (
                     <li key={d.column}>
                       {d.count} duplicate{d.count === 1 ? '' : 's'} in "{d.columnName}"
@@ -556,7 +644,7 @@ export function CsvImportDialog({ isOpen, rawText, filename, geneSetFormat, defa
         </div>
 
         <div className="csv-import-actions">
-          <button className="btn btn-accent" onClick={handleLoad} disabled={selectedColumns.size < 2}>Load Data</button>
+          <button className="btn btn-accent" onClick={handleLoad} disabled={effectiveColumns.length < 2}>Load Data</button>
           <button className="btn" onClick={onCancel}>Cancel</button>
         </div>
       </div>

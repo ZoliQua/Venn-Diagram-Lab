@@ -3,7 +3,7 @@ import type { VennDocument, VennText, SelectableElement } from '../types.ts';
 import type { ZoomPanState } from '../hooks/useZoomPan.ts';
 import type { RegionInfo } from '../hooks/useRegionDetection.ts';
 import { isEmptyCountValue } from '../utils/regionDisplay.ts';
-import { computeExteriorLabels } from '../utils/exteriorLabels.ts';
+import { computeExteriorLabels, expandViewBoxForLabels } from '../utils/exteriorLabels.ts';
 
 interface CanvasProps {
   doc: VennDocument;
@@ -38,6 +38,10 @@ interface CanvasProps {
   onReadOnlyTextClick?: (id: string) => void;
   hideEmpty?: boolean;
   exteriorLabels?: boolean;
+  exteriorFontSize?: number;
+  exteriorLineWidth?: number;
+  exteriorLineColor?: string;
+  onExteriorLabelClick?: (regionLabel: string) => void;
 }
 
 function getSelectedId(sel: SelectableElement | null): string | null {
@@ -306,6 +310,10 @@ export function Canvas({
   onReadOnlyTextClick,
   hideEmpty,
   exteriorLabels,
+  exteriorFontSize,
+  exteriorLineWidth,
+  exteriorLineColor,
+  onExteriorLabelClick,
 }: CanvasProps) {
   const isCutView = readOnly && viewStyle === 'cut';
   const svgElRef = useRef<SVGSVGElement>(null);
@@ -359,14 +367,23 @@ export function Canvas({
     return computeExteriorLabels(anchors, doc.viewBox);
   }, [exteriorLabels, doc.texts.values, doc.meta.hiddenIds, doc.meta.hiddenGroups, hideEmpty, doc.viewBox]);
 
-  // Font size for exterior labels scales with the diagram's viewBox so it
+  // Exterior-label font size: user-controlled when a value is provided,
+  // otherwise a viewBox-relative default (clamped to a legible range) so it
   // stays readable across the very different model sizes (700x700 up to
-  // 2000x2000) — clamped to a small, legible range. Tunable if it doesn't
-  // look right on a given model.
-  const exteriorLabelFontSize = useMemo(
-    () => Math.max(9, Math.min(16, doc.viewBox.w / 60)),
-    [doc.viewBox.w],
-  );
+  // 2000x2000).
+  const exteriorLabelFontSize = exteriorFontSize ?? Math.max(9, Math.min(16, doc.viewBox.w / 60));
+
+  // When exterior labels are on, the ring sits OUTSIDE the diagram's viewBox
+  // (it circumscribes the shapes), so the labels would be clipped by the SVG
+  // viewport. Expand the rendered viewBox (and hence the SVG's own white
+  // background) to include every exterior label plus its text, so the whole
+  // ring is visible. The diagram itself is unchanged — only the visible window
+  // grows. Geometry lives in expandViewBoxForLabels (unit-tested there).
+  const renderViewBox = useMemo(() => {
+    const base = doc.viewBox;
+    if (!exteriorLabels || exteriorLabelResults.length === 0) return base;
+    return expandViewBoxForLabels(base, exteriorLabelResults, exteriorLabelFontSize);
+  }, [exteriorLabels, exteriorLabelResults, doc.viewBox, exteriorLabelFontSize]);
 
   // Validation: compute which Count texts are in wrong position
   const [invalidIds, setInvalidIds] = useState<Set<string>>(new Set());
@@ -472,9 +489,9 @@ export function Canvas({
         className="canvas-inner"
       >
         <svg
-          viewBox={`${doc.viewBox.x} ${doc.viewBox.y} ${doc.viewBox.w} ${doc.viewBox.h}`}
-          width={doc.viewBox.w * zoomPan.scale}
-          height={doc.viewBox.h * zoomPan.scale}
+          viewBox={`${renderViewBox.x} ${renderViewBox.y} ${renderViewBox.w} ${renderViewBox.h}`}
+          width={renderViewBox.w * zoomPan.scale}
+          height={renderViewBox.h * zoomPan.scale}
           xmlns="http://www.w3.org/2000/svg"
           className="canvas-svg"
           ref={svgElRef}
@@ -693,7 +710,7 @@ export function Canvas({
                 written back to doc.texts.values. Drawn after Group_Values so
                 leader lines + ring labels sit on top of the diagram. */}
             {exteriorLabels && exteriorLabelResults.length > 0 && (
-              <g id="Group_ExteriorLabels" style={{ pointerEvents: 'none' }}>
+              <g id="Group_ExteriorLabels">
                 {exteriorLabelResults.map(e => (
                   <g key={e.id}>
                     <line
@@ -701,19 +718,21 @@ export function Canvas({
                       y1={e.anchorY}
                       x2={e.labelX}
                       y2={e.labelY}
-                      stroke="#888888"
-                      strokeOpacity={0.5}
-                      strokeWidth={0.5}
+                      stroke={exteriorLineColor ?? '#888888'}
+                      strokeWidth={exteriorLineWidth ?? 0.5}
+                      style={{ pointerEvents: 'none' }}
                     />
                     <text
                       x={e.labelX}
                       y={e.labelY}
                       textAnchor={e.textAnchor}
                       dominantBaseline="central"
+                      onClick={onExteriorLabelClick ? (ev) => { ev.stopPropagation(); onExteriorLabelClick(e.id.replace('Count_', '')); } : undefined}
                       style={{
                         fill: '#555555',
                         fontFamily: 'Tahoma, sans-serif',
                         fontSize: exteriorLabelFontSize,
+                        cursor: onExteriorLabelClick ? 'pointer' : undefined,
                       }}
                     >
                       {e.content}

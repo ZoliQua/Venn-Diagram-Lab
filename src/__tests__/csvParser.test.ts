@@ -11,6 +11,12 @@ import {
   detectGeneSetFormat,
   parseGmt,
   parseGmx,
+  csvRowCount,
+  csvPreviewRows,
+  hydrateCsvRows,
+  detectIdNamespace,
+  analyzeDataQuality,
+  sliceForScriptEmbed,
 } from '../utils/csvParser.ts';
 import type { CsvData } from '../utils/csvParser.ts';
 
@@ -386,3 +392,222 @@ describe('VennResult.totalUniqueItems', () => {
     expect(result.totalUniqueItems).toBe(4);  // g1, g2, g3, g4
   });
 });
+
+describe('calculateVennCounts — Python/R parity (dedupe + blank IDs)', () => {
+  it('merges duplicate identifiers with OR semantics across sets', () => {
+    // Same gene on two rows with complementary memberships → counts as AB once.
+    const csv: CsvData = {
+      headers: ['item', 'A', 'B'],
+      rows: [
+        ['g1', '1', '0'],
+        ['g1', '0', '1'],
+        ['g2', '1', '0'],
+      ],
+    };
+    const result = calculateVennCounts(csv, [1, 2]);
+    expect(result.exclusive.get('AB')).toBe(1); // g1
+    expect(result.exclusive.get('A')).toBe(1);  // g2
+    expect(result.exclusive.get('B')).toBe(0);
+    expect(result.exclusiveItems.get('AB')).toEqual(['g1']);
+  });
+
+  it('skips blank-identifier rows from counts and from the universe', () => {
+    const csv: CsvData = {
+      headers: ['item', 'A', 'B'],
+      rows: [
+        ['g1', '1', '0'],
+        ['', '1', '1'],
+        ['   ', '0', '1'],
+        ['g2', '0', '0'],
+      ],
+    };
+    const result = calculateVennCounts(csv, [1, 2]);
+    expect(result.exclusive.get('A')).toBe(1);
+    expect(result.exclusive.get('AB')).toBe(0);
+    expect(result.exclusive.get('B')).toBe(0);
+    // Universe = non-blank rows only (g1, g2), matching Python universe_size.
+    expect(result.totalUniqueItems).toBe(2);
+  });
+
+  it('keeps all-zero rows in the universe but out of region counts', () => {
+    const csv: CsvData = {
+      headers: ['item', 'A', 'B'],
+      rows: [
+        ['g1', '1', '0'],
+        ['g2', '0', '0'],
+        ['g3', '0', '0'],
+      ],
+    };
+    const result = calculateVennCounts(csv, [1, 2]);
+    expect(result.exclusive.get('A')).toBe(1);
+    expect(result.totalUniqueItems).toBe(3);
+  });
+});
+
+describe('parseGmt — columnar storage', () => {
+  it('stores genes column-wise and materializes rows lazily', () => {
+    const text = 'SetA\tna\tG1\tG2\tG3\nSetB\tna\tG2\tG4';
+    const { csv } = parseGmt(text);
+    expect(csv.columns).toEqual([['G1', 'G2', 'G3'], ['G2', 'G4']]);
+    // Lazy transpose still satisfies row-oriented consumers.
+    expect(csv.rows.length).toBe(3);
+    expect(csv.rows[0]).toEqual(['G1', 'G2']);
+  });
+
+  it('keeps the lazy rows getter out of JSON serialization', () => {
+    const text = 'SetA\tna\tG1\tG2\nSetB\tna\tG2\tG4';
+    const { csv } = parseGmt(text);
+    const restored = JSON.parse(JSON.stringify(csv)) as CsvData;
+    expect(restored.rows).toBeUndefined();
+    expect(restored.columns).toEqual([['G1', 'G2'], ['G2', 'G4']]);
+    // Rehydration re-attaches the working transpose.
+    const hydrated = hydrateCsvRows(restored);
+    expect(hydrated.rows.length).toBe(2);
+    expect(hydrated.rows[1]).toEqual(['G2', 'G4']);
+  });
+
+  it('counts skipped 0-gene lines in meta.skippedSets', () => {
+    // 'Empty' has no gene columns; the '\t\t' line is blank after trim and is
+    // dropped by the line filter before parsing, so only one skip is counted.
+    const text = 'SetA\tna\tG1\nEmpty\thttp://x.com\n\t\t\nSetB\tna\tG2';
+    const { meta } = parseGmt(text);
+    expect(meta.skippedSets).toBe(1);
+  });
+
+  it('csvRowCount and csvPreviewRows read columns without the transpose', () => {
+    const text = 'A\tna\tX\tY\tZ\nB\tna\tY';
+    const { csv } = parseGmt(text);
+    expect(csvRowCount(csv)).toBe(3);
+    expect(csvPreviewRows(csv, 2)).toEqual([['X', 'Y'], ['Y', '']]);
+    // Preview did not force materialization.
+    expect(Object.prototype.propertyIsEnumerable.call(csv, 'rows')).toBe(false);
+  });
+});
+
+describe('detectIdNamespace', () => {
+  it('detects gene symbols', () => {
+    expect(detectIdNamespace(['TP53', 'BRCA1', 'HLA-A', 'A1CF'])).toBe('symbol');
+  });
+
+  it('detects Ensembl IDs, including version suffixes and mouse prefixes', () => {
+    expect(detectIdNamespace(['ENSG00000141510', 'ENSG00000141510.17', 'ENSMUSG00000029552'])).toBe('ensembl');
+  });
+
+  it('detects Entrez numeric IDs', () => {
+    expect(detectIdNamespace(['7157', '672', '1956'])).toBe('entrez');
+  });
+
+  it('detects UniProt accessions', () => {
+    expect(detectIdNamespace(['P04637', 'Q9Y6K9', 'A0A075B6H7'])).toBe('uniprot');
+  });
+
+  it('returns mixed when no namespace reaches the majority threshold', () => {
+    const values = ['TP53', 'BRCA1', 'ENSG00000141510', 'ENSG00000012048', '7157'];
+    expect(detectIdNamespace(values)).toBe('mixed');
+  });
+
+  it('returns empty for blank input', () => {
+    expect(detectIdNamespace(['', '   '])).toBe('empty');
+  });
+});
+
+describe('analyzeDataQuality — namespace mismatch', () => {
+  it('flags aggregated columns with different identifier namespaces', () => {
+    const csv: CsvData = {
+      headers: ['Symbols', 'Ensembl'],
+      rows: [
+        ['TP53', 'ENSG00000141510'],
+        ['BRCA1', 'ENSG00000012048'],
+        ['PTEN', 'ENSG00000171862'],
+        ['KRAS', 'ENSG00000133703'],
+      ],
+    };
+    const report = analyzeDataQuality(csv, [0, 1], 'aggregated', ',');
+    expect(report.namespaceMismatch).toBe(true);
+    expect(report.idNamespaces.find(e => e.columnName === 'Symbols')?.namespace).toBe('symbol');
+    expect(report.idNamespaces.find(e => e.columnName === 'Ensembl')?.namespace).toBe('ensembl');
+    expect(report.hasWarnings).toBe(true);
+  });
+
+  it('does not flag same-namespace columns', () => {
+    const csv: CsvData = {
+      headers: ['A', 'B'],
+      rows: [
+        ['TP53', 'BRCA1'],
+        ['PTEN', 'KRAS'],
+        ['EGFR', 'MYC'],
+      ],
+    };
+    const report = analyzeDataQuality(csv, [0, 1], 'aggregated', ',');
+    expect(report.namespaceMismatch).toBe(false);
+  });
+
+  it('reports the identifier column namespace in binary mode without mismatch', () => {
+    const csv: CsvData = {
+      headers: ['Gene', 'A', 'B'],
+      rows: [
+        ['ENSG00000141510', '1', '0'],
+        ['ENSG00000012048', '0', '1'],
+      ],
+    };
+    const report = analyzeDataQuality(csv, [1, 2], 'binary');
+    expect(report.idNamespaces[0]?.namespace).toBe('ensembl');
+    expect(report.namespaceMismatch).toBe(false);
+  });
+});
+
+describe('sliceForScriptEmbed', () => {
+  it('binary mode keeps the ID column and remaps set columns to 1..n', () => {
+    const csv: CsvData = {
+      headers: ['ID', 'X', 'A', 'Y', 'B'],
+      rows: [
+        ['g1', '0', '1', '9', '0'],
+        ['g2', '0', '0', '9', '1'],
+      ],
+    };
+    const out = sliceForScriptEmbed(csv, [2, 4], 'binary');
+    expect(out.headers).toEqual(['ID', 'A', 'B']);
+    expect(out.columnMapping).toEqual([1, 2]);
+    expect(out.rows).toEqual([
+      ['g1', '1', '0'],
+      ['g2', '0', '1'],
+    ]);
+  });
+
+  it('aggregated mode slices to the mapped columns with identity mapping', () => {
+    const csv: CsvData = {
+      headers: ['A', 'DropMe', 'B'],
+      rows: [
+        ['x', 'q', 'y'],
+        ['z', 'q', ''],
+      ],
+    };
+    const out = sliceForScriptEmbed(csv, [0, 2], 'aggregated');
+    expect(out.headers).toEqual(['A', 'B']);
+    expect(out.columnMapping).toEqual([0, 1]);
+    expect(out.rows).toEqual([['x', 'y'], ['z', '']]);
+  });
+
+  it('columnar (GMT) sources are sliced without the full transpose', () => {
+    const text = 'Big\tna\t' + Array.from({ length: 50 }, (_, i) => `B${i}`).join('\t')
+      + '\nSmall\tna\tS1\tS2';
+    const { csv } = parseGmt(text);
+    const out = sliceForScriptEmbed(csv, [1, 0], 'aggregated');
+    // Only the two selected columns, row count = longest SELECTED column.
+    expect(out.headers).toEqual(['Small', 'Big']);
+    expect(out.rows.length).toBe(50);
+    expect(out.rows[0]).toEqual(['S1', 'B0']);
+    expect(out.rows[1]).toEqual(['S2', 'B1']);
+    expect(out.rows[2]).toEqual(['', 'B2']);
+    // The lazy transpose was not materialized.
+    expect(Object.prototype.propertyIsEnumerable.call(csv, 'rows')).toBe(false);
+  });
+});
+
+  it('skips 0-gene sets and counts them in meta.skippedSets', () => {
+    // 'Empty' has a name and description but only whitespace gene fields.
+    const text = 'SetA\tna\tG1\nEmpty\thttp://x.com\t \t\nSetB\tna\tG2';
+    const { csv, meta } = parseGmt(text);
+    expect(csv.headers).toEqual(['SetA', 'SetB']);
+    expect(meta.skippedSets).toBe(1);
+  });

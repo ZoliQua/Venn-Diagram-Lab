@@ -200,6 +200,7 @@ function makeSampleDataSession(): DataSession {
     paletteId: 'okabe-ito',
     hideEmpty: true,
     exteriorLabels: true,
+    customUniverse: null,
   };
 }
 
@@ -300,7 +301,7 @@ describe('buildDataSession', () => {
       'networkMinWeight', 'networkMoveNodes', 'plotBackground', 'dataMoveNames',
       'dataMoveNumbers', 'enrichmentMetric', 'enrichmentPlotSettings',
       'selectedRegionLabel', 'sourceKind', 'hasHeader', 'sheetIndex', 'paletteId',
-      'hideEmpty', 'exteriorLabels',
+      'hideEmpty', 'exteriorLabels', 'customUniverse',
     ];
     for (const k of requiredKeys) expect(k in ds).toBe(true);
   });
@@ -378,6 +379,20 @@ describe('buildDataSession', () => {
     delete bag.exteriorLabels;
     const ds = buildDataSession(bag);
     expect(ds.exteriorLabels).toBeUndefined();
+  });
+
+  it('round-trips customUniverse', () => {
+    const bag = sampleStateBag();
+    bag.customUniverse = 20000;
+    const ds = buildDataSession(bag);
+    expect(ds.customUniverse).toBe(20000);
+  });
+
+  it('defaults customUniverse to null when absent, like older pre-custom-universe sessions', () => {
+    const bag = sampleStateBag();
+    delete bag.customUniverse;
+    const ds = buildDataSession(bag);
+    expect(ds.customUniverse).toBeNull();
   });
 });
 

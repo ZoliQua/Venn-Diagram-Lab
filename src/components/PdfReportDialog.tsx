@@ -16,6 +16,8 @@ interface PdfReportDialogProps {
   n: number;
   setNames: string[];
   totalItems: number;
+  /** Effective enrichment background universe N (defaults to totalItems). */
+  universeSize?: number;
   totalFileRows: number;
   filename: string;
   title: string;
@@ -29,8 +31,9 @@ export function PdfReportDialog({
   isOpen, onClose,
   vennResult, doc, n, setNames, totalItems, totalFileRows,
   filename, title, modelName, proportionalAccuracy,
-  enrichmentPlotSettings, shapeColors,
+  enrichmentPlotSettings, shapeColors, universeSize,
 }: PdfReportDialogProps) {
+  const universe = universeSize ?? totalItems;
   const [step, setStep] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -42,9 +45,9 @@ export function PdfReportDialog({
       try {
         // Build every SVG artefact in one pass
         setStep('Rendering Venn diagram...');
-        const pairwiseStats = pairwiseStatistics(vennResult, n, totalItems, setNames);
+        const pairwiseStats = pairwiseStatistics(vennResult, n, universe, setNames);
         const art = buildReportArtefacts({
-          doc, vennResult, n, setNames, totalItems, pairwiseStats,
+          doc, vennResult, n, setNames, totalItems, universeSize: universe, pairwiseStats,
         });
 
         const vennImage = await svgStringToDataUrl(art.vennSvgPrepared);
@@ -72,6 +75,7 @@ export function PdfReportDialog({
           n,
           setNames,
           totalItems,
+          universeSize: universe,
           totalFileRows,
           vennImageDataUrl: vennImage.dataUrl,
           vennImageWidth: vennImage.width,
@@ -128,7 +132,7 @@ export function PdfReportDialog({
 
     generate();
     return () => { cancelled = true; };
-  }, [doc, filename, isOpen, modelName, n, onClose, proportionalAccuracy, setNames, title, totalFileRows, totalItems, vennResult, enrichmentPlotSettings, shapeColors]);
+  }, [doc, filename, isOpen, modelName, n, onClose, proportionalAccuracy, setNames, title, totalFileRows, totalItems, universe, vennResult, enrichmentPlotSettings, shapeColors]);
 
   if (!isOpen) return null;
 

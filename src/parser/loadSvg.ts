@@ -37,15 +37,29 @@ function parseTextElement(el: Element): VennText {
   return result;
 }
 
-function parseShape(el: Element): VennShape {
-  const id = el.getAttribute('id') || '';
+// Geometry-only attribute whitelist for parsed shapes. Anything else
+// (event handlers like onclick/onload, href, etc.) is dropped so a crafted
+// "custom SVG" can't carry executable markup into the editor or the
+// re-exported file.
+const SHAPE_ATTR_WHITELIST = new Set([
+  'd', 'cx', 'cy', 'r', 'rx', 'ry', 'x', 'y', 'x1', 'y1', 'x2', 'y2',
+  'width', 'height', 'points', 'transform',
+]);
+
+// Only real shape elements are accepted under #Shapes / #ShapesExtras —
+// a <script id="ShapeA"> would otherwise be re-emitted verbatim by saveSvg.
+const SHAPE_TAG_WHITELIST = new Set(['circle', 'ellipse', 'rect', 'path', 'polygon', 'line']);
+
+function parseShape(el: Element): VennShape | null {
   const tagName = el.tagName.toLowerCase();
+  if (!SHAPE_TAG_WHITELIST.has(tagName)) return null;
+  const id = el.getAttribute('id') || '';
   const style = el.getAttribute('style') || '';
 
   const attributes: Record<string, string> = {};
   for (let i = 0; i < el.attributes.length; i++) {
     const attr = el.attributes[i];
-    if (attr.name === 'id' || attr.name === 'style') continue;
+    if (!SHAPE_ATTR_WHITELIST.has(attr.name)) continue;
     attributes[attr.name] = attr.value;
   }
 
@@ -79,12 +93,15 @@ export function loadSvg(filename: string, svgString: string): VennDocument {
   const svgEl = xmlDoc.querySelector('svg');
   if (!svgEl) throw new Error('No <svg> element found');
 
-  // Extract raw SVG attributes
+  // Extract raw SVG attributes (whitelisted: namespace declarations and
+  // placement only — event handlers and any other attributes are dropped so
+  // they can't survive into the re-exported SVG).
+  const ROOT_ATTR_WHITELIST = new Set(['xmlns', 'xmlns:xlink', 'version', 'x', 'y', 'width', 'height']);
   const attrParts: string[] = [];
   for (let i = 0; i < svgEl.attributes.length; i++) {
     const attr = svgEl.attributes[i];
-    if (attr.name === 'viewBox') continue; // handled separately
-    attrParts.push(`${attr.name}="${attr.value}"`);
+    if (!ROOT_ATTR_WHITELIST.has(attr.name)) continue;
+    attrParts.push(`${attr.name}="${attr.value.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"`);
   }
   const rawSvgAttrs = attrParts.join('\n\t ');
 
@@ -113,7 +130,8 @@ export function loadSvg(filename: string, svgString: string): VennDocument {
   const shapesGroup = svgEl.querySelector('#Shapes');
   if (shapesGroup) {
     for (let i = 0; i < shapesGroup.children.length; i++) {
-      shapes.push(parseShape(shapesGroup.children[i]));
+      const shape = parseShape(shapesGroup.children[i]);
+      if (shape) shapes.push(shape);
     }
   }
 
@@ -122,7 +140,8 @@ export function loadSvg(filename: string, svgString: string): VennDocument {
   const shapesExtrasGroup = svgEl.querySelector('#ShapesExtras');
   if (shapesExtrasGroup) {
     for (let i = 0; i < shapesExtrasGroup.children.length; i++) {
-      shapesExtras.push(parseShape(shapesExtrasGroup.children[i]));
+      const shape = parseShape(shapesExtrasGroup.children[i]);
+      if (shape) shapesExtras.push(shape);
     }
   }
 

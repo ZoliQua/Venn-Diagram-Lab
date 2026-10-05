@@ -5,7 +5,7 @@ import type { EdgeWeightMetric } from '../utils/networkData.ts';
 import type { ProportionalAccuracy } from '../utils/proportionalLayout.ts';
 import { MODEL_LIST, getModelsBySetCount } from '../models.ts';
 import type { CsvData } from '../utils/csvParser.ts';
-import { getBinaryColumns } from '../utils/csvParser.ts';
+import { getBinaryColumns, csvRowCount } from '../utils/csvParser.ts';
 import type { EnrichmentMetric } from '../utils/enrichmentPlotSvg.ts';
 import type { EnrichmentPlotStyle, EnrichmentPlotSettings, PlotEditState } from '../utils/enrichmentPlotStyle.ts';
 import { EnrichmentPlotEditor } from './EnrichmentPlotEditor.tsx';
@@ -55,6 +55,8 @@ interface TestSidebarProps {
   csvFilename: string | null;
   fileType?: 'binary' | 'aggregated';
   geneSetFormat?: 'gmt' | 'gmx' | null;
+  /** Number of source lines skipped at GMT parse time (0-gene sets). */
+  geneSetSkippedSets?: number;
   selectedModel: string | null;
   onSelectModel: (filename: string, setCount: number) => void;
   columnMapping: number[];  // indices into csv headers for A, B, C, ...
@@ -82,6 +84,12 @@ interface TestSidebarProps {
   onToggleHideEmpty: () => void;
   exteriorLabels: boolean;
   onToggleExteriorLabels: () => void;
+  exteriorFontSize: number;
+  onExteriorFontSizeChange: (size: number) => void;
+  exteriorLineWidth: number;
+  onExteriorLineWidthChange: (w: number) => void;
+  exteriorLineColor: string;
+  onExteriorLineColorChange: (c: string) => void;
   nameFontSize: number;
   onNameFontSizeChange: (size: number) => void;
   nameFontFamily: string;
@@ -146,7 +154,7 @@ interface TestSidebarProps {
 }
 
 export function TestSidebar({
-  csvData, csvFilename, fileType, geneSetFormat,
+  csvData, csvFilename, fileType, geneSetFormat, geneSetSkippedSets,
   selectedModel, onSelectModel,
   columnMapping, originalColumnCount, onSetColumnMapping,
   isCalculated,
@@ -160,6 +168,9 @@ export function TestSidebar({
   onToggleTitle, onToggleNames, onToggleSums,
   hideEmpty, onToggleHideEmpty,
   exteriorLabels, onToggleExteriorLabels,
+  exteriorFontSize, onExteriorFontSizeChange,
+  exteriorLineWidth, onExteriorLineWidthChange,
+  exteriorLineColor, onExteriorLineColorChange,
   nameFontSize, onNameFontSizeChange,
   nameFontFamily, onNameFontFamilyChange,
   nameMaxChars, nameMaxCharsMax, onNameMaxCharsChange,
@@ -210,9 +221,11 @@ export function TestSidebar({
   const [exportOpen, setExportOpen] = useState(true);
 
   const binaryColumns = useMemo(() => {
-    if (!csvData) return [];
+    // Aggregated (GMT/GMX/paste) sources are never binary — and for columnar
+    // GMT data getBinaryColumns would force the full lazy transpose.
+    if (!csvData || fileType === 'aggregated') return [];
     return getBinaryColumns(csvData);
-  }, [csvData]);
+  }, [csvData, fileType]);
 
   const handleColumnChange = useCallback((setIndex: number, colIndex: number) => {
     const newMapping = [...columnMapping];
@@ -257,7 +270,10 @@ export function TestSidebar({
                 }</div>
                 <div><span className="file-info-label">Columns:</span> {csvData.headers.length} columns</div>
                 {fileType !== 'aggregated' && <div><span className="file-info-label">Binary:</span> {binaryColumns.length} detected</div>}
-                <div><span className="file-info-label">Rows:</span> {csvData.rows.length}</div>
+                <div><span className="file-info-label">Rows:</span> {csvRowCount(csvData)}</div>
+                {geneSetSkippedSets ? (
+                  <div><span className="file-info-label">Skipped:</span> {geneSetSkippedSets} empty set(s)</div>
+                ) : null}
               </div>
               <button className="btn btn-sm" style={{ width: '100%', marginTop: 6 }}
                 onClick={() => {
@@ -445,7 +461,7 @@ export function TestSidebar({
             >Hide empty</button>
           </div>
           )}
-          {viewStyle === 'layer' && n >= 5 && (
+          {viewStyle === 'layer' && n === 5 && (
           <div className="test-show-inline" style={{ marginTop: 4 }}>
             <span className="test-show-label">Labels</span>
             <button
@@ -454,6 +470,26 @@ export function TestSidebar({
               title="Move region labels outside the diagram with leader lines (declutters dense diagrams)"
             >Exterior labels</button>
           </div>
+          )}
+          {viewStyle === 'layer' && n === 5 && exteriorLabels && (
+            <div className="test-exterior-controls" style={{ marginTop: 6, paddingLeft: 4 }}>
+              <div className="test-font-size">
+                <label>Label size: {exteriorFontSize}</label>
+                <input type="range" min="8" max="60" value={exteriorFontSize}
+                  onChange={e => onExteriorFontSizeChange(parseInt(e.target.value))} />
+              </div>
+              <div className="test-font-size" style={{ marginTop: 4 }}>
+                <label>Leader width: {exteriorLineWidth}</label>
+                <input type="range" min="0.5" max="4" step="0.5" value={exteriorLineWidth}
+                  onChange={e => onExteriorLineWidthChange(parseFloat(e.target.value))} />
+              </div>
+              <div className="test-show-inline" style={{ marginTop: 4 }}>
+                <span className="test-show-label">Leader color</span>
+                <input type="color" className="test-color-input" value={exteriorLineColor}
+                  onChange={e => onExteriorLineColorChange(e.target.value)}
+                  title="Leader line color" />
+              </div>
+            </div>
           )}
           {viewStyle === 'network' && (
             <div style={{ marginTop: 8 }}>

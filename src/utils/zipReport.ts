@@ -32,6 +32,8 @@ export interface ZipReportParams {
   n: number;
   setNames: string[];
   totalItems: number;
+  /** Effective enrichment background universe N (defaults to totalItems). */
+  universeSize?: number;
   totalFileRows: number;
   filename: string;
   title: string;
@@ -82,6 +84,9 @@ function buildReadme(params: ZipReportParams, stats: PairwiseStat[]): string {
   lines.push(`Number of sets  : ${n}`);
   lines.push(`Pairs tested    : ${stats.length}`);
   lines.push(`Total items     : ${params.totalItems}`);
+  if (params.universeSize != null && params.universeSize !== params.totalItems) {
+    lines.push(`Background (N)    : ${params.universeSize} (custom — enrichment statistics use this universe)`);
+  }
   lines.push(`Source rows     : ${params.totalFileRows}`);
   lines.push('');
   lines.push('Set names:');
@@ -151,13 +156,15 @@ export async function generateZipReport(params: ZipReportParams): Promise<Blob> 
 
   // 1. Build all SVG artefacts in one pass
   progress(params, 0, 'Rendering Venn diagram...');
-  const pairwiseStats = pairwiseStatistics(params.vennResult, n, params.totalItems, params.setNames);
+  const universe = params.universeSize ?? params.totalItems;
+  const pairwiseStats = pairwiseStatistics(params.vennResult, n, universe, params.setNames);
   const art = buildReportArtefacts({
     doc: params.doc,
     vennResult: params.vennResult,
     n,
     setNames: params.setNames,
     totalItems: params.totalItems,
+    universeSize: universe,
     pairwiseStats,
   });
 
@@ -184,6 +191,7 @@ export async function generateZipReport(params: ZipReportParams): Promise<Blob> 
     n,
     setNames: params.setNames,
     totalItems: params.totalItems,
+    universeSize: universe,
     totalFileRows: params.totalFileRows,
     vennImageDataUrl: vennImage.dataUrl,
     vennImageWidth: vennImage.width,
@@ -259,6 +267,7 @@ export async function generateZipReport(params: ZipReportParams): Promise<Blob> 
     sheetIndex: params.sheetIndex,
     headers: params.headers,
     rawData: params.rawData,
+    universeSize: params.universeSize ?? null,
   };
   zip.file('analysis_script.py', generatePythonScript(scriptParams));
   zip.file('analysis_script.R', generateRScript(scriptParams));

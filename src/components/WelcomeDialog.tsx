@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { APP_NAME, APP_VERSION, APP_RELEASE_DATE } from '../version.ts';
 import type { AppMode } from '../App.tsx';
 import { AboutVennDialog } from './AboutVennDialog.tsx';
-import { CompanionPackageDialog } from './CompanionPackageDialog.tsx';
 import { CitationDialog } from './CitationDialog.tsx';
+
+// Lazy: ~3,000 lines of dialog + documentation text, rarely opened — keep it
+// out of the main bundle.
+const CompanionPackageDialog = lazy(() =>
+  import('./CompanionPackageDialog.tsx').then(m => ({ default: m.CompanionPackageDialog }))
+);
 
 interface WelcomeDialogProps {
   isOpen: boolean;
@@ -56,11 +61,13 @@ export function WelcomeDialog({ isOpen, onSelectMode, onSummary, onStartTour, ha
 
   if (companionDialog) {
     return (
-      <CompanionPackageDialog
-        isOpen={true}
-        onClose={() => setCompanionDialog(null)}
-        kind={companionDialog}
-      />
+      <Suspense fallback={null}>
+        <CompanionPackageDialog
+          isOpen={true}
+          onClose={() => setCompanionDialog(null)}
+          kind={companionDialog}
+        />
+      </Suspense>
     );
   }
 

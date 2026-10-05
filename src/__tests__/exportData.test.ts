@@ -70,11 +70,12 @@ describe('exportStatisticsTsv', () => {
       'Expected', 'Fold_Enrichment', 'P_value', 'FDR',
       'Bonferroni', 'P_two_sided',
       'Jaccard_CI_low', 'Jaccard_CI_high', 'Dice_CI_low', 'Dice_CI_high',
+      'FE_CI_low', 'FE_CI_high',
       'Significant',
     ].join('\t'));
     // One data row (single pair AB); Significant stays the final column.
     const cols = lines[1].split('\t');
-    expect(cols).toHaveLength(22);
+    expect(cols).toHaveLength(24);
     expect(cols[cols.length - 1]).toMatch(/^(\*{1,3}|ns)$/);
     // CI columns are 4-dp fixed.
     expect(cols[17]).toMatch(/^\d\.\d{4}$/); // Jaccard_CI_low

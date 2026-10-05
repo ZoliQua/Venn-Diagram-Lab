@@ -34,24 +34,23 @@ const TWO_PI = 2 * Math.PI;
 export function computeExteriorLabels(
   anchors: LabelAnchor[],
   viewBox: ViewBox,
-  opts?: { marginFrac?: number },
+  opts?: { gapFrac?: number },
 ): ExteriorLabel[] {
   const n = anchors.length;
   if (n === 0) return [];
 
   const cx = viewBox.x + viewBox.w / 2;
   const cy = viewBox.y + viewBox.h / 2;
-  const marginFrac = opts?.marginFrac ?? 0.12;
-  const margin = marginFrac * Math.max(viewBox.w, viewBox.h);
-  // The ring must circumscribe the rectangular viewBox so every angle on it
-  // lands outside the box, not just the cardinal directions. An ellipse
-  // (x/rx)^2 + (y/ry)^2 = 1 contains the box's corner (w/2, h/2) — and thus
-  // the whole box — whenever (a/rx)^2 + (b/ry)^2 <= 1 for a=w/2, b=h/2.
-  // Scaling both half-extents by sqrt(2) guarantees this for any aspect
-  // ratio: rx > sqrt(2)*a makes (a/rx)^2 < 1/2, same for ry/b, so the sum is
-  // strictly < 1 and the whole rectangle sits strictly inside the ellipse.
-  const rx = Math.SQRT2 * (viewBox.w / 2) + margin;
-  const ry = Math.SQRT2 * (viewBox.h / 2) + margin;
+  // The ring is an ellipse a small fraction beyond the diagram's half-extents,
+  // so labels sit just outside the shapes (cardinal directions) or in the
+  // otherwise-empty corners (diagonals) — close to the diagram rather than far
+  // out. The caller (Canvas) expands the rendered viewBox to include the ring,
+  // so labels near the diagonals are never clipped even though they may fall
+  // just inside the original box corners. `gapFrac` is how far beyond the
+  // half-extent the ring sits (0.12 = 12% past the edge).
+  const gapFrac = opts?.gapFrac ?? 0.12;
+  const rx = (viewBox.w / 2) * (1 + gapFrac);
+  const ry = (viewBox.h / 2) * (1 + gapFrac);
 
   // Step 1: raycast angle per anchor. A degenerate anchor sitting exactly at
   // the centre has no well-defined direction (atan2(0,0) would collapse every
@@ -71,14 +70,19 @@ export function computeExteriorLabels(
   });
 
   // Step 3: redistribute evenly around the ring, preserving sorted order, so
-  // labels never share a slot regardless of how the anchors cluster.
+  // labels never share a slot regardless of how the anchors cluster. Slots are
+  // evenly spaced in VISUAL angle (as seen from the centre) — on the ellipse
+  // ring an equal parameter step would bunch labels on the long axis, so the
+  // visual angle is converted to the ellipse parameter first:
+  //   θ (visual) → t (param) via t = atan2(rx·sinθ, ry·cosθ).
   const baseAngle = sorted[0].angle0;
   const step = TWO_PI / n;
 
   return sorted.map(({ anchor }, i) => {
     const slot = baseAngle + i * step;
-    const labelX = cx + rx * Math.cos(slot);
-    const labelY = cy + ry * Math.sin(slot);
+    const t = Math.atan2(rx * Math.sin(slot), ry * Math.cos(slot));
+    const labelX = cx + rx * Math.cos(t);
+    const labelY = cy + ry * Math.sin(t);
     const textAnchor: 'start' | 'end' = labelX >= cx ? 'start' : 'end';
     return {
       id: anchor.id,
@@ -90,4 +94,32 @@ export function computeExteriorLabels(
       textAnchor,
     };
   });
+}
+
+/**
+ * Grow a viewBox so every exterior label — its ring point plus a worst-case
+ * text extent — is visible, with a small proportional padding margin. This is
+ * the geometry behind Canvas.renderViewBox; it lives here so the clipping
+ * contract can be unit-tested.
+ */
+export function expandViewBoxForLabels(
+  base: ViewBox,
+  labels: ExteriorLabel[],
+  fontSize: number,
+  padFrac = 0.03,
+): ViewBox {
+  if (labels.length === 0) return base;
+  let minX = base.x, minY = base.y;
+  let maxX = base.x + base.w, maxY = base.y + base.h;
+  for (const e of labels) {
+    const textW = Math.max(1, e.content.length) * fontSize * 0.65; // rough advance width
+    const x0 = e.textAnchor === 'end' ? e.labelX - textW : e.labelX;
+    const x1 = e.textAnchor === 'end' ? e.labelX : e.labelX + textW;
+    minX = Math.min(minX, x0);
+    maxX = Math.max(maxX, x1);
+    minY = Math.min(minY, e.labelY - fontSize);
+    maxY = Math.max(maxY, e.labelY + fontSize);
+  }
+  const pad = Math.max(base.w, base.h) * padFrac;
+  return { x: minX - pad, y: minY - pad, w: (maxX - minX) + 2 * pad, h: (maxY - minY) + 2 * pad };
 }
