@@ -32,8 +32,15 @@ export interface ShareDistOptions {
   style?: ShareDistStyle;
 }
 
+// Escape for both text content and double-quoted attribute values: style
+// fields (fontFamily, fontSize) are user-controllable via the plot editor and
+// session import, and this SVG is injected with dangerouslySetInnerHTML.
 function esc(s: string | number): string {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function lerpHex(a: string, b: string, t: number): string {
@@ -76,12 +83,13 @@ export function buildShareDistributionSvg(
 
   const bg = style.background === 'dark' ? '#222' : '#ffffff';
   const fg = style.background === 'dark' ? '#eee' : '#333';
+  const ff = esc(style.fontFamily);
 
   const parts: string[] = [];
   parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`);
   parts.push(`<rect width="${W}" height="${H}" fill="${bg}"/>`);
   if (style.showAxisLabel) {
-    parts.push(`<text x="${W / 2}" y="${margin.top - 12}" text-anchor="middle" fill="${fg}" font-family="${style.fontFamily}" font-size="${style.fontSize + 1}">Item Share Distribution</text>`);
+    parts.push(`<text x="${W / 2}" y="${margin.top - 12}" text-anchor="middle" fill="${fg}" font-family="${ff}" font-size="${esc(style.fontSize + 1)}">Item Share Distribution</text>`);
   }
 
   bins.forEach(([k, v], i) => {
@@ -92,14 +100,14 @@ export function buildShareDistributionSvg(
     const h = (margin.top + plotH) - yTop;
     parts.push(`<rect class="sd-bar" x="${x.toFixed(2)}" y="${yTop.toFixed(2)}" width="${barW.toFixed(2)}" height="${h.toFixed(2)}" fill="${fill}"/>`);
     const label = style.showPercent ? `${v} (${((v / total) * 100).toFixed(0)}%)` : `${v}`;
-    parts.push(`<text x="${(x + barW / 2).toFixed(2)}" y="${(yTop - 4).toFixed(2)}" text-anchor="middle" fill="${fg}" font-family="${style.fontFamily}" font-size="${style.fontSize}">${esc(label)}</text>`);
+    parts.push(`<text x="${(x + barW / 2).toFixed(2)}" y="${(yTop - 4).toFixed(2)}" text-anchor="middle" fill="${fg}" font-family="${ff}" font-size="${esc(style.fontSize)}">${esc(label)}</text>`);
     const tick = k === 1 ? '1 set' : `${k} sets`;
-    parts.push(`<text x="${(x + barW / 2).toFixed(2)}" y="${(margin.top + plotH + 16).toFixed(2)}" text-anchor="middle" fill="${fg}" font-family="${style.fontFamily}" font-size="${style.fontSize}">${esc(tick)}</text>`);
+    parts.push(`<text x="${(x + barW / 2).toFixed(2)}" y="${(margin.top + plotH + 16).toFixed(2)}" text-anchor="middle" fill="${fg}" font-family="${ff}" font-size="${esc(style.fontSize)}">${esc(tick)}</text>`);
   });
 
   parts.push(`<line x1="${margin.left}" x2="${margin.left + plotW}" y1="${margin.top + plotH}" y2="${margin.top + plotH}" stroke="${fg}" stroke-width="1"/>`);
   if (style.showPercent) {
-    parts.push(`<text x="${margin.left}" y="${margin.top - 6}" fill="${fg}" font-family="${style.fontFamily}" font-size="${style.fontSize - 1}">% labels include the per-bin share of total items</text>`);
+    parts.push(`<text x="${margin.left}" y="${margin.top - 6}" fill="${fg}" font-family="${ff}" font-size="${esc(style.fontSize - 1)}">% labels include the per-bin share of total items</text>`);
   }
   parts.push(`</svg>`);
   return parts.join('');

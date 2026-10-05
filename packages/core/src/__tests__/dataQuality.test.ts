@@ -66,6 +66,11 @@ describe('analyzeDataQuality — aggregated mode', () => {
       duplicatesRemoved: [],
       emptyCellsSkipped: 0,
       caseCollisions: [],
+      idNamespaces: [
+        { column: 0, columnName: 'SetA', namespace: 'symbol' },
+        { column: 1, columnName: 'SetB', namespace: 'symbol' },
+      ],
+      namespaceMismatch: false,
       hasWarnings: false,
     });
   });
@@ -133,6 +138,10 @@ describe('analyzeDataQuality — binary mode', () => {
       duplicatesRemoved: [],
       emptyCellsSkipped: 0,
       caseCollisions: [],
+      idNamespaces: [
+        { column: 0, columnName: 'Gene', namespace: 'symbol' },
+      ],
+      namespaceMismatch: false,
       hasWarnings: false,
     });
   });

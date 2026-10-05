@@ -285,7 +285,6 @@ Supernatural	1	1	0	1	0	0	0	0	ABD
 Avatar	0	0	1	1	0	0	0	0	CD
 Spider-Man: No Way Home	1	0	1	1	0	0	0	0	ACD
 Frostbite	0	1	1	1	0	0	0	0	BCD
-Dark Matter	1	1	1	1	0	0	0	0	ABCD
 Napoleon	0	0	0	0	1	0	0	0	E
 Presumed Innocent	0	0	0	0	1	0	0	0	E
 Ghosted	0	0	0	0	1	0	0	0	E
@@ -297,7 +296,6 @@ Monarch: Legacy of Monsters	0	0	0	0	1	0	0	0	E
 Ted Lasso	0	0	0	0	1	0	0	0	E
 Lessons in Chemistry	0	0	0	0	1	0	0	0	E
 Project Hail Mary	0	0	0	0	1	0	0	0	E
-Dark Matter	0	0	0	0	1	0	0	0	E
 Fly Me to the Moon	0	0	0	0	1	0	0	0	E
 Finch	0	0	0	0	1	0	0	0	E
 Lisey's Story	0	0	0	0	1	0	0	0	E
@@ -345,6 +343,7 @@ Xero	0	0	1	1	1	0	0	0	CDE
 Kaleidoscope: Season 2	1	0	1	1	1	0	0	0	ACDE
 Gale Force	0	1	1	1	1	0	0	0	BCDE
 Velocity	1	1	1	1	1	0	0	0	ABCDE
+Dark Matter	1	1	1	1	1	0	0	0	ABCDE
 Tulsa King	0	0	0	0	0	1	0	0	F
 Halo	0	0	0	0	0	1	0	0	F
 Dungeons & Dragons: Honor Among Thieves	0	0	0	0	0	1	0	0	F

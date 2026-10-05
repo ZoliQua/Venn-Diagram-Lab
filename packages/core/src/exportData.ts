@@ -86,8 +86,13 @@ export function sigLabel(fdr: number): string {
 
 /**
  * FORMAT C: pairwise Statistics TSV — byte-identical to the web tool's
- * "Export -> Statistics" (DataSummaryPanel.handleExportStats). This format
- * intentionally does NOT escape cells (mirror the web app exactly).
+ * "Export -> Statistics" (DataSummaryPanel.handleExportStats). Set names are
+ * user-controlled (CSV headers), so they pass through escapeSpreadsheetCell
+ * like the other exports — otherwise a header starting with =, +, - or @
+ * becomes a live formula when the TSV is opened in Excel.
+ *
+ * Columns include Wilson 95% CIs for Jaccard/Dice and the approximate
+ * log-scale 95% CI for Fold_Enrichment (FE_CI_low/high, v2.9.0+).
  */
 export function exportStatisticsTsv(
   vennResult: VennResult,
@@ -103,10 +108,11 @@ export function exportStatisticsTsv(
     'Expected', 'Fold_Enrichment', 'P_value', 'FDR',
     'Bonferroni', 'P_two_sided',
     'Jaccard_CI_low', 'Jaccard_CI_high', 'Dice_CI_low', 'Dice_CI_high',
+    'FE_CI_low', 'FE_CI_high',
     'Significant',
   ].join('\t');
   const rows = pairStats.map(s => [
-    s.a, s.b, s.nameA, s.nameB, s.sizeA, s.sizeB,
+    s.a, s.b, escapeSpreadsheetCell(s.nameA), escapeSpreadsheetCell(s.nameB), s.sizeA, s.sizeB,
     s.intersection, s.union,
     s.jaccard.toFixed(4), s.overlapCoeff.toFixed(4), s.dice.toFixed(4),
     s.expected.toFixed(2), s.foldEnrichment.toFixed(3),
@@ -116,6 +122,7 @@ export function exportStatisticsTsv(
     fmtP(s.pTwoSided),
     s.jaccardCiLow.toFixed(4), s.jaccardCiHigh.toFixed(4),
     s.diceCiLow.toFixed(4), s.diceCiHigh.toFixed(4),
+    s.feCiLow.toFixed(4), s.feCiHigh.toFixed(4),
     sigLabel(s.fdr),
   ].join('\t'));
   return [header, ...rows].join('\n');
@@ -124,8 +131,8 @@ export function exportStatisticsTsv(
 /**
  * FORMAT D: one-vs-rest Enrichment TSV — each set S tested against the union of
  * the inclusive members of all OTHER sets, via the shared hypergeometric
- * machinery. Number formatting mirrors the pairwise Statistics TSV. Like that
- * export, cells are intentionally NOT escaped.
+ * machinery. Number formatting mirrors the pairwise Statistics TSV, and set
+ * names are escaped against spreadsheet formula injection the same way.
  *
  * Columns: Set | Name | Size | Rest_Size | Intersection | Expected |
  *          Fold_Enrichment | P_value | FDR | Bonferroni | Significant
@@ -143,7 +150,7 @@ export function exportOneVsRestTsv(
     'Fold_Enrichment', 'P_value', 'FDR', 'Bonferroni', 'Significant',
   ].join('\t');
   const rows = stats.map(s => [
-    s.set, s.name, s.size, s.restSize, s.intersection,
+    s.set, escapeSpreadsheetCell(s.name), s.size, s.restSize, s.intersection,
     s.expected.toFixed(2), s.foldEnrichment.toFixed(3),
     fmtP(s.pValue), fmtP(s.fdr), fmtP(s.bonferroni),
     sigLabel(s.fdr),

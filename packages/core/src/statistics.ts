@@ -121,6 +121,25 @@ export function foldEnrichment(N: number, K: number, n: number, k: number): numb
   return (k * N) / (K * n);
 }
 
+/**
+ * Approximate 95% confidence interval for the fold enrichment, on the log
+ * scale (Wald). Only k is random — K/N is the fixed population fraction — so
+ * with p̂ = k/n:  SE(log FE) = SE(log p̂) ≈ sqrt(1/k − 1/n)  (delta method).
+ * A Jeffreys-style continuity correction (k+0.5 successes, n+1 trials) keeps
+ * the interval finite at k = 0. Bounds are exponentiated back; range [0, ∞).
+ *
+ * Approximation caveat (same class as the Wilson Jaccard/Dice CIs): coverage
+ * is validated by Monte Carlo under the null in scripts/bio_validation.py.
+ */
+export function foldEnrichmentCI(N: number, K: number, n: number, k: number): [number, number] {
+  if (K === 0 || n === 0 || N === 0) return [0, 0];
+  const kc = k + 0.5;
+  const nc = n + 1;
+  const center = Math.log(kc / nc) - Math.log(K / N);
+  const se = Math.sqrt(Math.max(0, 1 / kc - 1 / nc));
+  return [Math.exp(center - Z * se), Math.exp(center + Z * se)];
+}
+
 /** Benjamini-Hochberg FDR correction */
 export function adjustPValues(pValues: number[]): number[] {
   const m = pValues.length;
@@ -174,6 +193,9 @@ export interface PairwiseStat {
   jaccardCiHigh: number;
   diceCiLow: number;
   diceCiHigh: number;
+  /** Approximate 95% CI for fold enrichment (log-scale Wald; see foldEnrichmentCI). */
+  feCiLow: number;
+  feCiHigh: number;
   significant: boolean;
   highlySignificant: boolean;
 }
@@ -213,6 +235,7 @@ export function pairwiseStatistics(
       const pTwo = twoSidedFisher(N, sizeA, sizeB, inter);
       const [jLo, jHi] = jaccardCI(inter, union);
       const [dLo, dHi] = diceCI(inter, sizeA, sizeB);
+      const [feLo, feHi] = foldEnrichmentCI(N, sizeA, sizeB, inter);
 
       stats.push({
         a, b, label,
@@ -234,6 +257,8 @@ export function pairwiseStatistics(
         jaccardCiHigh: jHi,
         diceCiLow: dLo,
         diceCiHigh: dHi,
+        feCiLow: feLo,
+        feCiHigh: feHi,
         significant: false,
         highlySignificant: false,
       });

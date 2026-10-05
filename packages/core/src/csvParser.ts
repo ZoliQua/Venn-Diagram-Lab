@@ -1,6 +1,15 @@
 export interface CsvData {
   headers: string[];
   rows: string[][];
+  /**
+   * Columnar storage for column-oriented sources (GMT). When present, this is
+   * the source of truth and `rows` may be a lazily materialized transpose
+   * (non-enumerable getter) so that huge GMT files (thousands of sets ×
+   * thousands of genes) never materialize the full matrix unless a
+   * row-oriented consumer actually reads it. Column-oriented consumers should
+   * prefer `columns` when available. See {@link hydrateCsvRows}.
+   */
+  columns?: string[][];
 }
 
 export type FileType = 'binary' | 'aggregated';
@@ -10,6 +19,114 @@ export type GeneSetFormat = 'gmt' | 'gmx' | null;
 export interface GeneSetMeta {
   format: GeneSetFormat;
   descriptions: Record<string, string>;
+  /** Number of source lines skipped because they had no genes (GMT only). */
+  skippedSets?: number;
+}
+
+/**
+ * Number of logical data rows in `csv` without forcing a lazy GMT transpose.
+ */
+export function csvRowCount(csv: CsvData): number {
+  if (csv.columns) {
+    let max = 0;
+    for (const col of csv.columns) if (col.length > max) max = col.length;
+    return max;
+  }
+  return csv.rows.length;
+}
+
+/**
+ * First `maxRows` data rows for preview, read column-wise when possible so a
+ * large GMT never materializes its full row matrix for a 5-row preview.
+ */
+export function csvPreviewRows(csv: CsvData, maxRows: number): string[][] {
+  if (!csv.columns) return csv.rows.slice(0, maxRows);
+  const nCols = csv.columns.length;
+  const out: string[][] = [];
+  for (let ri = 0; ri < maxRows; ri++) {
+    const row: string[] = [];
+    let any = false;
+    for (let ci = 0; ci < nCols; ci++) {
+      const v = ri < csv.columns[ci].length ? csv.columns[ci][ri] : '';
+      if (v) any = true;
+      row.push(v);
+    }
+    if (!any) break;
+    out.push(row);
+  }
+  return out;
+}
+
+/**
+ * Re-attach the lazy `rows` transpose to a `CsvData` that carries only
+ * `columns` (e.g. after JSON session restore, where the non-enumerable
+ * getter is lost). Mutates and returns `csv`.
+ */
+export function hydrateCsvRows(csv: CsvData): CsvData {
+  // After JSON.parse the lazy getter is gone and `rows` is simply absent;
+  // avoid touching `csv.rows` here (that would trigger the getter). The cast
+  // defeats the static "rows is always present" narrowing of the `in` check.
+  const rec = csv as unknown as Record<string, unknown>;
+  if (csv.columns && !('rows' in rec)) {
+    attachLazyRows(csv, csv.columns);
+  }
+  return csv;
+}
+
+/**
+ * Slice a dataset down to the columns an exported analysis script actually
+ * needs — the identifier column (binary) plus the mapped set columns — and
+ * return adjusted headers/rows/columnMapping for inline embedding. Columnar
+ * (GMT) sources are sliced WITHOUT materializing the full transpose: only
+ * the selected columns' arrays are read, and the row count is the longest
+ * SELECTED column (not the file-wide maximum). This keeps a 7.5k-set MSigDB
+ * GMT from producing a ~100 MB inline literal in an exported script.
+ */
+export function sliceForScriptEmbed(
+  csv: CsvData,
+  columnMapping: number[],
+  fileType: FileType,
+): { headers: string[]; rows: string[][]; columnMapping: number[] } {
+  const indices = fileType === 'binary' ? [0, ...columnMapping] : [...columnMapping];
+  const headers = indices.map(i => csv.headers[i] ?? `Column ${i + 1}`);
+  const columnMappingOut = fileType === 'binary'
+    ? columnMapping.map((_, i) => i + 1)
+    : columnMapping.map((_, i) => i);
+
+  let rows: string[][];
+  if (csv.columns) {
+    const cols = indices.map(i => csv.columns![i] ?? []);
+    const nRows = cols.reduce((m, c) => Math.max(m, c.length), 0);
+    rows = [];
+    for (let ri = 0; ri < nRows; ri++) {
+      rows.push(cols.map(c => (ri < c.length ? c[ri] : '')));
+    }
+  } else {
+    rows = csv.rows.map(row => indices.map(i => row[i] ?? ''));
+  }
+  return { headers, rows, columnMapping: columnMappingOut };
+}
+
+/** Define `rows` as a non-enumerable lazily-materialized transpose of `columns`. */function attachLazyRows(csv: CsvData, columns: string[][]): void {
+  let materialized: string[][] | null = null;
+  Object.defineProperty(csv, 'rows', {
+    enumerable: false, // keep JSON.stringify (session save) off the full transpose
+    get() {
+      if (!materialized) {
+        const maxGenes = columns.reduce((m, c) => Math.max(m, c.length), 0);
+        const rows: string[][] = [];
+        for (let gi = 0; gi < maxGenes; gi++) {
+          const row: string[] = [];
+          for (const col of columns) {
+            row.push(gi < col.length ? col[gi] : '');
+          }
+          rows.push(row);
+        }
+        materialized = rows;
+      }
+      return materialized;
+    },
+  });
 }
 
 export interface CsvImportResult {
@@ -165,7 +282,9 @@ export function validateAggregatedColumns(csv: CsvData, columns: number[]): stri
   for (const colIdx of columns) {
     if (colIdx < 0 || colIdx >= csv.headers.length) return `Column index ${colIdx} out of range`;
     const header = csv.headers[colIdx];
-    const hasContent = csv.rows.some(row => (row[colIdx] ?? '').trim() !== '');
+    const hasContent = csv.columns
+      ? (csv.columns[colIdx] ?? []).some(cell => cell.trim() !== '')
+      : csv.rows.some(row => (row[colIdx] ?? '').trim() !== '');
     if (!hasContent) return `Column "${header}" is completely empty`;
   }
   return null;
@@ -184,16 +303,31 @@ export function calculateVennCountsFromAggregated(
   const n = selectedColumns.length;
   const letters = 'ABCDEFGHI'.slice(0, n).split('');
 
-  // Collect items per set
+  // Collect items per set. Columnar sources (GMT) are read column-wise so the
+  // lazy row transpose is never materialized for a ≤9-column calculation.
   const sets: Set<string>[] = selectedColumns.map(() => new Set<string>());
-  for (const row of csv.rows) {
+  if (csv.columns) {
     for (let i = 0; i < n; i++) {
-      const cell = (row[selectedColumns[i]] ?? '').trim();
-      if (!cell) continue;
-      // Split cell by item delimiter
-      const items = cell.split(itemDelimiter).map(s => s.trim()).filter(s => s);
-      for (const item of items) {
-        sets[i].add(item);
+      const col = csv.columns[selectedColumns[i]] ?? [];
+      for (const cellRaw of col) {
+        const cell = cellRaw.trim();
+        if (!cell) continue;
+        const items = cell.split(itemDelimiter).map(s => s.trim()).filter(s => s);
+        for (const item of items) {
+          sets[i].add(item);
+        }
+      }
+    }
+  } else {
+    for (const row of csv.rows) {
+      for (let i = 0; i < n; i++) {
+        const cell = (row[selectedColumns[i]] ?? '').trim();
+        if (!cell) continue;
+        // Split cell by item delimiter
+        const items = cell.split(itemDelimiter).map(s => s.trim()).filter(s => s);
+        for (const item of items) {
+          sets[i].add(item);
+        }
       }
     }
   }
@@ -251,7 +385,9 @@ export interface VennResult {
   exclusiveItems: Map<string, string[]>;
   /**
    * Size of the hypergeometric background universe.
-   * Binary mode: equals the number of data rows (one row per unique item).
+   * Binary mode: number of data rows with a non-empty identifier (one row per
+   * item in well-formed input; all-zero rows count as background), matching
+   * the Python/R `universe_size`.
    * Aggregated mode: equals |union of items across all mapped columns|
    * (not rows.length, which reflects the longest column after GMT padding).
    */
@@ -278,7 +414,16 @@ export function calculateVennCounts(
     exclusiveItems.set(label, []);
   }
 
+  // Collapse rows by item identifier (column 0), mirroring the Python and R
+  // implementations: rows with a blank identifier are skipped entirely (they
+  // are neither counted nor part of the universe), and repeated identifiers
+  // merge with OR semantics across the selected sets.
+  const maskByItem = new Map<string, number>();
+  let universeRows = 0;
   for (const row of csv.rows) {
+    const title = (row[0] ?? '').trim();
+    if (!title) continue;
+    universeRows++;
     let rowMask = 0;
     for (let i = 0; i < n; i++) {
       const val = row[selectedColumns[i]];
@@ -286,9 +431,11 @@ export function calculateVennCounts(
         rowMask |= (1 << i);
       }
     }
-    if (rowMask === 0) continue;
+    maskByItem.set(title, (maskByItem.get(title) ?? 0) | rowMask);
+  }
 
-    const title = row[0] ?? '';
+  for (const [title, rowMask] of maskByItem) {
+    if (rowMask === 0) continue;
 
     const exLabel = letters.filter((_, i) => rowMask & (1 << i)).join('');
     exclusive.set(exLabel, (exclusive.get(exLabel) ?? 0) + 1);
@@ -303,7 +450,7 @@ export function calculateVennCounts(
     }
   }
 
-  return { inclusive, exclusive, inclusiveItems, exclusiveItems, totalUniqueItems: csv.rows.length };
+  return { inclusive, exclusive, inclusiveItems, exclusiveItems, totalUniqueItems: universeRows };
 }
 
 /**
@@ -332,12 +479,10 @@ export function calculateVennCounts(
  *     `calculateVennCounts`), reporting duplicate identifier values across
  *     rows that contribute to the count (i.e. at least one of the selected
  *     `columns` is truthy for that row — mirrors `calculateVennCounts`'
- *     own `if (rowMask === 0) continue;` skip). `count` = sum over duplicated
- *     identifiers of (occurrences - 1). NOTE: `calculateVennCounts` itself
- *     does NOT dedupe repeated identifiers (each row is counted
- *     independently, inflating region counts) — this entry is a pure warning
- *     flagging that the source data has repeated identifiers, it does not
- *     describe something the counting function actually removed.
+ *     own skip of items whose merged mask is 0). `count` = sum over duplicated
+ *     identifiers of (occurrences - 1), i.e. the number of redundant rows that
+ *     `calculateVennCounts` collapses when it merges repeated identifiers with
+ *     OR semantics (matching the Python/R set semantics).
  *   - `examples`: up to 5 example item/identifier strings found duplicated,
  *     in order of first becoming a duplicate (i.e. on their 2nd occurrence).
  *
@@ -369,11 +514,81 @@ export interface DataQualityReport {
   duplicatesRemoved: { column: number; columnName: string; count: number; examples: string[] }[];
   emptyCellsSkipped: number;
   caseCollisions: { items: string[] }[];
+  /**
+   * Detected identifier namespace per selected column (aggregated: each set
+   * column; binary: the row-identifier column). Informational on its own —
+   * the actionable signal is `namespaceMismatch`.
+   */
+  idNamespaces: { column: number; columnName: string; namespace: IdNamespace }[];
+  /**
+   * True when 2+ selected columns use different non-empty identifier
+   * namespaces (e.g. gene symbols vs Ensembl). Biological overlap between
+   * such columns is spuriously near zero — the user should convert IDs first.
+   */
+  namespaceMismatch: boolean;
   /** True if any of the above arrays is non-empty or emptyCellsSkipped > 0. */
   hasWarnings: boolean;
 }
 
 const MAX_DUPLICATE_EXAMPLES = 5;
+
+// ---------------------------------------------------------------------------
+// Identifier-namespace detection (P2)
+//
+// Real-world list comparisons often fail silently because one column uses
+// gene symbols (TP53) while another uses Ensembl (ENSG00000141510) or Entrez
+// (7157) identifiers — intersections then look empty for the wrong reason.
+// These heuristics classify the identifier style of a column so the quality
+// report can warn when the selected columns mix namespaces.
+// ---------------------------------------------------------------------------
+
+export type IdNamespace = 'ensembl' | 'entrez' | 'uniprot' | 'symbol' | 'mixed' | 'empty';
+
+// Ensembl: ENSG00000141510, ENSMUSG00000029552, ... (optional .version suffix)
+const ENSEMBL_RE = /^ENS[A-Z]{0,10}\d{6,}$/i;
+// Entrez Gene: pure numeric.
+const ENTREZ_RE = /^\d{1,10}$/;
+// UniProtKB accession (6 or 10 chars, canonical pattern).
+const UNIPROT_RE = /^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9][A-Z][A-Z0-9]{2}[0-9])([A-Z][A-Z0-9]{2}[0-9])?$/;
+
+const NAMESPACE_MAJORITY = 0.8;
+const MAX_NAMESPACE_SAMPLE = 1000;
+
+function classifyId(value: string): Exclude<IdNamespace, 'mixed' | 'empty'> {
+  const base = value.replace(/\.\d+$/, ''); // strip Ensembl-style version suffix
+  if (ENSEMBL_RE.test(base)) return 'ensembl';
+  if (ENTREZ_RE.test(base)) return 'entrez';
+  if (UNIPROT_RE.test(base)) return 'uniprot';
+  return 'symbol';
+}
+
+/**
+ * Majority-vote identifier namespace of a collection of item strings
+ * (>= 80% of non-empty values must agree, otherwise 'mixed'). Empty input
+ * yields 'empty'. Anything not matching Ensembl/Entrez/UniProt patterns is
+ * treated as a gene symbol.
+ */
+export function detectIdNamespace(values: Iterable<string>): IdNamespace {
+  const counts = new Map<string, number>();
+  let total = 0;
+  for (const raw of values) {
+    const v = raw.trim();
+    if (!v) continue;
+    const ns = classifyId(v);
+    counts.set(ns, (counts.get(ns) ?? 0) + 1);
+    total++;
+  }
+  if (total === 0) return 'empty';
+  let best: IdNamespace = 'symbol';
+  let bestCount = 0;
+  for (const [ns, c] of counts) {
+    if (c > bestCount) {
+      best = ns as IdNamespace;
+      bestCount = c;
+    }
+  }
+  return bestCount / total >= NAMESPACE_MAJORITY ? best : 'mixed';
+}
 
 /**
  * Pure, read-only analysis of data-quality issues (duplicates, empty cells,
@@ -388,6 +603,7 @@ export function analyzeDataQuality(
   itemDelimiter: Delimiter = ',',
 ): DataQualityReport {
   const duplicatesRemoved: DataQualityReport['duplicatesRemoved'] = [];
+  const idNamespaces: DataQualityReport['idNamespaces'] = [];
   let emptyCellsSkipped = 0;
 
   // Tracks, in order of first appearance, every distinct case-sensitive item
@@ -410,13 +626,22 @@ export function analyzeDataQuality(
   };
 
   if (fileType === 'aggregated') {
+    // Columnar sources (GMT) stream cells column-wise to avoid the transpose.
+    const iterCells = function* (colIdx: number): Generator<string> {
+      if (csv.columns) {
+        for (const cell of csv.columns[colIdx] ?? []) yield cell;
+      } else {
+        for (const row of csv.rows) yield row[colIdx] ?? '';
+      }
+    };
     for (const colIdx of columns) {
       const header = csv.headers[colIdx] ?? `Column ${colIdx + 1}`;
       const seen = new Map<string, number>(); // item -> occurrence count within this column
       const exampleOrder: string[] = [];
+      const namespaceSample: string[] = [];
 
-      for (const row of csv.rows) {
-        const cell = (row[colIdx] ?? '').trim();
+      for (const cellRaw of iterCells(colIdx)) {
+        const cell = cellRaw.trim();
         if (!cell) {
           emptyCellsSkipped++;
           continue;
@@ -426,9 +651,16 @@ export function analyzeDataQuality(
           const count = (seen.get(item) ?? 0) + 1;
           seen.set(item, count);
           if (count === 2) exampleOrder.push(item); // first moment it becomes a duplicate
+          if (namespaceSample.length < MAX_NAMESPACE_SAMPLE) namespaceSample.push(item);
           registerForCaseCollision(item);
         }
       }
+
+      idNamespaces.push({
+        column: colIdx,
+        columnName: header,
+        namespace: detectIdNamespace(namespaceSample),
+      });
 
       let colDuplicateCount = 0;
       for (const count of seen.values()) {
@@ -451,6 +683,7 @@ export function analyzeDataQuality(
     const idColumnName = csv.headers[idColumn] ?? 'Column 1';
     const seen = new Map<string, number>();
     const exampleOrder: string[] = [];
+    const namespaceSample: string[] = [];
 
     for (const row of csv.rows) {
       let rowMask = 0;
@@ -472,8 +705,15 @@ export function analyzeDataQuality(
       const count = (seen.get(id) ?? 0) + 1;
       seen.set(id, count);
       if (count === 2) exampleOrder.push(id);
+      if (namespaceSample.length < MAX_NAMESPACE_SAMPLE) namespaceSample.push(id);
       registerForCaseCollision(id);
     }
+
+    idNamespaces.push({
+      column: idColumn,
+      columnName: idColumnName,
+      namespace: detectIdNamespace(namespaceSample),
+    });
 
     let idDuplicateCount = 0;
     for (const count of seen.values()) {
@@ -501,11 +741,24 @@ export function analyzeDataQuality(
     }
   }
 
+  // Mismatch = 2+ distinct real namespaces among the selected columns
+  // ('mixed'/'empty' columns are not evidence of a namespace clash).
+  const realNamespaces = new Set(
+    idNamespaces
+      .map(e => e.namespace)
+      .filter(ns => ns !== 'mixed' && ns !== 'empty'),
+  );
+  const namespaceMismatch = fileType === 'aggregated' && realNamespaces.size > 1;
+
   return {
     duplicatesRemoved,
     emptyCellsSkipped,
     caseCollisions,
-    hasWarnings: duplicatesRemoved.length > 0 || emptyCellsSkipped > 0 || caseCollisions.length > 0,
+    idNamespaces,
+    namespaceMismatch,
+    hasWarnings:
+      duplicatesRemoved.length > 0 || emptyCellsSkipped > 0 ||
+      caseCollisions.length > 0 || namespaceMismatch,
   };
 }
 
@@ -537,21 +790,32 @@ export function detectGeneSetFormat(filename: string): GeneSetFormat {
 /**
  * Parse GMT (Gene Matrix Transposed) format.
  * Each row = one gene set: setName\tdescription\tgene1\tgene2\t...
- * Returns CsvData with sets as columns (transposed) + metadata with descriptions.
+ * Returns CsvData with sets as columns + metadata with descriptions.
+ *
+ * The result stores genes COLUMN-wise (`csv.columns`); the row-wise transpose
+ * (`csv.rows`) is a lazily materialized non-enumerable getter, so a large GMT
+ * (e.g. MSigDB c5: ~7.5k sets × ~2k genes ≈ 15M cell strings) never builds
+ * the full matrix at parse time. Lines with no genes or an empty set name are
+ * skipped and counted in `meta.skippedSets`.
  */
 export function parseGmt(text: string): { csv: CsvData; meta: GeneSetMeta } {
   const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim().split('\n').filter(l => l.trim());
   if (lines.length === 0) throw new Error('GMT file is empty');
 
   const sets: { name: string; description: string; genes: string[] }[] = [];
+  let skippedSets = 0;
 
   for (const line of lines) {
     const parts = line.split('\t');
-    if (parts.length < 3) continue;
+    if (parts.length < 3) {
+      skippedSets++;
+      continue;
+    }
     const name = parts[0].trim();
     const description = parts[1].trim();
     const genes = parts.slice(2).map(g => g.trim()).filter(g => g);
-    if (name) sets.push({ name, description, genes });
+    if (name && genes.length > 0) sets.push({ name, description, genes });
+    else skippedSets++;
   }
 
   if (sets.length === 0) throw new Error('GMT file has no valid gene sets');
@@ -564,19 +828,13 @@ export function parseGmt(text: string): { csv: CsvData; meta: GeneSetMeta } {
     }
   }
 
-  const maxGenes = Math.max(...sets.map(s => s.genes.length));
-  const rows: string[][] = [];
-  for (let gi = 0; gi < maxGenes; gi++) {
-    const row: string[] = [];
-    for (const s of sets) {
-      row.push(gi < s.genes.length ? s.genes[gi] : '');
-    }
-    rows.push(row);
-  }
+  const columns = sets.map(s => s.genes);
+  const csv = { headers, columns } as CsvData;
+  attachLazyRows(csv, columns);
 
   return {
-    csv: { headers, rows },
-    meta: { format: 'gmt', descriptions },
+    csv,
+    meta: { format: 'gmt', descriptions, skippedSets },
   };
 }
 

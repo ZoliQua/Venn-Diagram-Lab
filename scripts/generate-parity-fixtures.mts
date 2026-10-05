@@ -31,8 +31,8 @@ import {
   exportMatrixTsv,
   exportOneVsRestTsv,
   exportResultJson,
+  exportStatisticsTsv,
 } from '../src/utils/exportData.ts';
-import { pairwiseStatistics } from '../src/utils/statistics.ts';
 import { buildNetworkData, toGraphml, toSif } from '../src/utils/networkData.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -88,34 +88,6 @@ function buildSelectedColumns(headers: string[], spec: SampleSpec): number[] {
   return Array.from({ length: headers.length }, (_, i) => i);
 }
 
-function exportStatisticsTsv(stats: ReturnType<typeof pairwiseStatistics>): string {
-  // Mirrors src/components/DataSummaryPanel.tsx::handleExportStats byte-for-byte.
-  const sigLabel = (fdr: number) =>
-    fdr < 0.001 ? '***' : fdr < 0.01 ? '**' : fdr < 0.05 ? '*' : 'ns';
-  const fmtP = (p: number) =>
-    p < 0.001 ? p.toExponential(2) : p.toFixed(6);
-  const header = [
-    'Set_A', 'Set_B', 'Name_A', 'Name_B', 'Size_A', 'Size_B',
-    'Intersection', 'Union', 'Jaccard', 'Overlap_Coeff', 'Dice',
-    'Expected', 'Fold_Enrichment', 'P_value', 'FDR',
-    'Bonferroni', 'P_two_sided',
-    'Jaccard_CI_low', 'Jaccard_CI_high', 'Dice_CI_low', 'Dice_CI_high',
-    'Significant',
-  ].join('\t');
-  const rows = stats.map(s => [
-    s.a, s.b, s.nameA, s.nameB, s.sizeA, s.sizeB,
-    s.intersection, s.union,
-    s.jaccard.toFixed(4), s.overlapCoeff.toFixed(4), s.dice.toFixed(4),
-    s.expected.toFixed(2), s.foldEnrichment.toFixed(3),
-    fmtP(s.pValue), fmtP(s.fdr),
-    fmtP(s.bonferroni), fmtP(s.pTwoSided),
-    s.jaccardCiLow.toFixed(4), s.jaccardCiHigh.toFixed(4),
-    s.diceCiLow.toFixed(4), s.diceCiHigh.toFixed(4),
-    sigLabel(s.fdr),
-  ].join('\t'));
-  return [header, ...rows].join('\n');
-}
-
 function generateForSample(spec: SampleSpec): { regionSummary: string; matrix: string; statistics: string; oneVsRest: string; resultJson: string; networkGraphml: string; networkSif: string; setNames: string[]; rowCount: number; } {
   const path = join(SAMPLES_DIR, `${spec.name}.${spec.ext}`);
   const csv = loadCsv(path, spec.ext);
@@ -133,8 +105,7 @@ function generateForSample(spec: SampleSpec): { regionSummary: string; matrix: s
 
   const regionSummary = exportRegionSummaryTsv(result, n, setNames, totalItems);
   const matrix = exportMatrixTsv(result, n, setNames);
-  const stats = pairwiseStatistics(result, n, totalItems, setNames);
-  const statistics = exportStatisticsTsv(stats);
+  const statistics = exportStatisticsTsv(result, n, totalItems, setNames);
   const oneVsRest = exportOneVsRestTsv(result, n, totalItems, setNames);
   const resultJson = exportResultJson(result, n, setNames, totalItems, spec.model);
 

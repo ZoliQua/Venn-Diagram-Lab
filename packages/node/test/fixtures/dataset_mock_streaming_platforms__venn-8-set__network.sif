@@ -2,8 +2,8 @@ C	overlap	G
 E	overlap	F
 D	overlap	H
 E	overlap	H
-F	overlap	H
 C	overlap	E
+F	overlap	H
 E	overlap	G
 D	overlap	F
 B	overlap	D
@@ -14,15 +14,15 @@ A	overlap	G
 A	overlap	H
 F	overlap	G
 B	overlap	H
-A	overlap	F
 A	overlap	E
+A	overlap	F
 C	overlap	H
 B	overlap	F
 A	overlap	D
 A	overlap	B
+D	overlap	E
 B	overlap	G
 D	overlap	G
-D	overlap	E
 B	overlap	C
 A	overlap	C
 C	overlap	D

@@ -150,7 +150,9 @@ export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlo
   const plotW = width - M.left - M.right;
   const plotH = height - M.top - M.bottom;
 
-  const ff = style.fontFamily;
+  const ff = esc(style.fontFamily);
+  const sigC = esc(style.sigColor);
+  const nsC = esc(style.nsColor);
 
   const parts: string[] = [];
   parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`);
@@ -190,7 +192,7 @@ export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlo
     const cx = plotX + slotW * i + slotW / 2;
     const barH = yMax > 0 ? Math.max(0, (v / yMax) * plotH) : 0;
     const y = plotY + plotH - barH;
-    const color = s.fdr < 0.05 ? style.sigColor : style.nsColor;
+    const color = s.fdr < 0.05 ? sigC : nsC;
 
     parts.push(`<rect x="${cx - barW / 2}" y="${y}" width="${barW}" height="${barH}" rx="1.5" fill="${color}" opacity="0.85"/>`);
 
@@ -218,9 +220,9 @@ export function buildEnrichmentBarSvg(stats: PairwiseStat[], opts: EnrichmentPlo
   // Bottom legend
   if (style.showLegend) {
     const legendY = height - 12;
-    parts.push(`<rect x="${plotX}" y="${legendY - 6}" width="8" height="8" fill="${style.sigColor}" opacity="0.85"/>`);
+    parts.push(`<rect x="${plotX}" y="${legendY - 6}" width="8" height="8" fill="${sigC}" opacity="0.85"/>`);
     parts.push(`<text x="${plotX + 12}" y="${legendY}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(9, style)}">FDR &lt; 0.05</text>`);
-    parts.push(`<rect x="${plotX + 70}" y="${legendY - 6}" width="8" height="8" fill="${style.nsColor}" opacity="0.85"/>`);
+    parts.push(`<rect x="${plotX + 70}" y="${legendY - 6}" width="8" height="8" fill="${nsC}" opacity="0.85"/>`);
     parts.push(`<text x="${plotX + 82}" y="${legendY}" fill="${pal.textMuted}" font-family="${ff}" font-size="${scaleFs(9, style)}">not significant</text>`);
   }
 
@@ -241,7 +243,9 @@ export function buildEnrichmentLollipopSvg(stats: PairwiseStat[], opts: Enrichme
   const plotW = width - M.left - M.right;
   const plotH = height - M.top - M.bottom;
 
-  const ff = style.fontFamily;
+  const ff = esc(style.fontFamily);
+  const sigC = esc(style.sigColor);
+  const nsC = esc(style.nsColor);
 
   const parts: string[] = [];
   parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`);
@@ -279,7 +283,7 @@ export function buildEnrichmentLollipopSvg(stats: PairwiseStat[], opts: Enrichme
     const v = values[i];
     const cx = plotX + slotW * i + slotW / 2;
     const dotY = yMax > 0 ? plotY + plotH - (v / yMax) * plotH : plotY + plotH;
-    const color = s.fdr < 0.05 ? style.sigColor : style.nsColor;
+    const color = s.fdr < 0.05 ? sigC : nsC;
     const t = Math.sqrt(s.intersection / maxIntersection);
     const r = minDotR + (maxDotR - minDotR) * t;
 
@@ -371,7 +375,7 @@ export function buildEnrichmentHeatmapSvg(
   const width = gridX + gridW + legendSlot + paddingR;
   const height = gridY + gridH + paddingB;
 
-  const ff = style.fontFamily;
+  const ff = esc(style.fontFamily);
 
   const parts: string[] = [];
   parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`);

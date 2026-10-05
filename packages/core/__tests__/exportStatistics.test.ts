@@ -7,19 +7,20 @@ const csv = {
 };
 
 describe('exportStatisticsTsv', () => {
-  it('emits the 22-column header ending in Significant', () => {
+  it('emits the 24-column header ending in Significant', () => {
     const venn = calculateVennCounts(csv, [1, 2]);
     const tsv = exportStatisticsTsv(venn, 2, venn.totalUniqueItems, ['A', 'B']);
     const cols = tsv.split('\n')[0].split('\t');
-    expect(cols).toHaveLength(22);
+    expect(cols).toHaveLength(24);
     expect(cols[0]).toBe('Set_A');
     // New columns after FDR (index 14), before the final Significant column.
     expect(cols.slice(14)).toEqual([
       'FDR', 'Bonferroni', 'P_two_sided',
       'Jaccard_CI_low', 'Jaccard_CI_high', 'Dice_CI_low', 'Dice_CI_high',
+      'FE_CI_low', 'FE_CI_high',
       'Significant',
     ]);
-    expect(cols[21]).toBe('Significant');
+    expect(cols[23]).toBe('Significant');
   });
 
   it('formats the A/B pair row with web-tool number formats', () => {

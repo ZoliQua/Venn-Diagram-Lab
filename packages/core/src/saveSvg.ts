@@ -19,14 +19,14 @@ function textTransform(t: VennText): string {
 }
 
 function serializeText(t: VennText, indent: string): string {
-  return `${indent}<text id="${t.id}" transform="${textTransform(t)}" style="${t.style}">${escapeXml(t.content)}</text>`;
+  return `${indent}<text id="${escapeAttr(t.id)}" transform="${textTransform(t)}" style="${escapeAttr(t.style)}">${escapeXml(t.content)}</text>`;
 }
 
 function serializeShape(s: VennShape, indent: string): string {
   const attrStr = Object.entries(s.attributes)
-    .map(([k, v]) => `${k}="${v}"`)
+    .map(([k, v]) => `${k}="${escapeAttr(v)}"`)
     .join(' ');
-  const parts = [`${indent}<${s.tagName} id="${s.id}" style="${s.style}"`];
+  const parts = [`${indent}<${s.tagName} id="${escapeAttr(s.id)}" style="${escapeAttr(s.style)}"`];
   if (attrStr) {
     parts[0] += ` ${attrStr}`;
   }
@@ -35,7 +35,7 @@ function serializeShape(s: VennShape, indent: string): string {
 }
 
 function serializeBullet(b: VennBullet, indent: string): string {
-  return `${indent}<circle id="${b.id}" style="${b.style}" cx="${r1(b.cx)}" cy="${r1(b.cy)}" r="${r1(b.r)}"/>`;
+  return `${indent}<circle id="${escapeAttr(b.id)}" style="${escapeAttr(b.style)}" cx="${r1(b.cx)}" cy="${r1(b.cy)}" r="${r1(b.r)}"/>`;
 }
 
 function escapeXml(s: string): string {
@@ -45,12 +45,19 @@ function escapeXml(s: string): string {
     .replace(/>/g, '&gt;');
 }
 
+/** Escape a value placed inside a double-quoted XML attribute. */
+function escapeAttr(s: string): string {
+  return escapeXml(s).replace(/"/g, '&quot;');
+}
+
 export function saveSvg(doc: VennDocument): string {
   const lines: string[] = [];
 
   lines.push('<?xml version="1.0" encoding="utf-8"?>');
   if (doc.comment) {
-    lines.push(`<!-- ${doc.comment} -->`);
+    // XML comments cannot contain '--'; neutralize it so a crafted source
+    // comment can't break out of the comment node.
+    lines.push(`<!-- ${doc.comment.replace(/--/g, '-\u2010')} -->`);
   }
 
   const vb = `${r1(doc.viewBox.x)} ${r1(doc.viewBox.y)} ${r1(doc.viewBox.w)} ${r1(doc.viewBox.h)}`;
@@ -136,13 +143,13 @@ function serializeShapeMultiline(s: VennShape, lines: string[]): void {
   const d = s.attributes['d'];
   if (d && d.includes('\n')) {
     // Multi-line path: output opening tag parts, then d on continuation lines
-    let line = `\t<${s.tagName} id="${s.id}" style="${s.style}"`;
+    let line = `\t<${s.tagName} id="${escapeAttr(s.id)}" style="${escapeAttr(s.style)}"`;
     // Add non-d attributes
     for (const [k, v] of Object.entries(s.attributes)) {
       if (k === 'd') continue;
-      line += ` ${k}="${v}"`;
+      line += ` ${k}="${escapeAttr(v)}"`;
     }
-    line += ` d="${d}"/>`;
+    line += ` d="${escapeAttr(d)}"/>`;
     lines.push(line);
   } else {
     lines.push(serializeShape(s, '\t'));
