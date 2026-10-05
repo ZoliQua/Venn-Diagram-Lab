@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">vennDiagramLab</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,7 +146,7 @@
 </div>
 <div class="section level3">
 <h3 id="e-cran-submission">E. CRAN submission<a class="anchor" aria-label="anchor" href="#e-cran-submission"></a></h3>
-<p>The recommended path is <code><a href="https://devtools.r-lib.org/reference/release.html" class="external-link">devtools::release()</a></code> — interactive, walks through all checks + uploads via the CRAN web form.</p>
+<p>The recommended path is <code>devtools::release()</code> — interactive, walks through all checks + uploads via the CRAN web form.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="bu">cd</span> /Users/Zoli/Code/Orthologs/2-venn-diagram</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'devtools::release(pkg = "r")'</span></span></code></pre></div>
 <p>The interactive prompts (paraphrased):</p>
@@ -171,7 +171,7 @@ Are you ready to upload?
 <li>Provide <code>\dontrun{}</code> justification (we use <code>\donttest{}</code> already; should be fine)</li>
 <li>Adjust <code>Authors@R</code> cre vs aut roles</li>
 </ul></li>
-<li>For each review feedback round: address in code, bump to v2.0.X+1, push, re-run <code><a href="https://devtools.r-lib.org/reference/release.html" class="external-link">devtools::release()</a></code>.</li>
+<li>For each review feedback round: address in code, bump to v2.0.X+1, push, re-run <code>devtools::release()</code>.</li>
 <li>On acceptance: package live on <a href="https://cran.r-project.org/package=vennDiagramLab" class="external-link uri">https://cran.r-project.org/package=vennDiagramLab</a> within 1-2 days, mirrored worldwide.</li>
 </ul></div>
 <div class="section level3">

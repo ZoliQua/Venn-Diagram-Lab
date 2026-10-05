@@ -74,7 +74,7 @@ compute_pairwise(
 #> 1     A     B            5      0.8 0.0001636692 0.0001636692 0.0001636692
 #>    p_two_sided jaccard_ci_low jaccard_ci_high dice_ci_low dice_ci_high
 #> 1 0.0001636692      0.1770971       0.6447711   0.2499951            1
-#>   significant highly_significant
-#> 1        TRUE               TRUE
+#>   fe_ci_low fe_ci_high significant highly_significant
+#> 1  3.628932   10.29109        TRUE               TRUE
 #> 
 ```

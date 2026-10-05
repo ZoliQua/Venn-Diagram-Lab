@@ -533,6 +533,8 @@ calculations outside of
   : One-sided hypergeometric p-value (over-representation)
 - [`fold_enrichment()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/fold_enrichment.md)
   : Fold enrichment (observed / expected ratio)
+- [`fold_enrichment_ci()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/fold_enrichment_ci.md)
+  : Approximate 95% confidence interval for the fold enrichment
 - [`bh_fdr()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/bh_fdr.md)
   : Benjamini-Hochberg FDR adjustment
 - [`compute_pairwise()`](https://zoliqua.github.io/Venn-Diagram-Lab/r/reference/compute_pairwise.md)

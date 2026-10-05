@@ -146,9 +146,8 @@ DOI.
 
 ### E. CRAN submission
 
-The recommended path is
-[`devtools::release()`](https://devtools.r-lib.org/reference/release.html)
-— interactive, walks through all checks + uploads via the CRAN web form.
+The recommended path is `devtools::release()` — interactive, walks
+through all checks + uploads via the CRAN web form.
 
 ``` bash
 cd /Users/Zoli/Code/Orthologs/2-venn-diagram
@@ -189,8 +188,7 @@ asking to confirm the submission.
     should be fine)
   - Adjust `Authors@R` cre vs aut roles
 - For each review feedback round: address in code, bump to v2.0.X+1,
-  push, re-run
-  [`devtools::release()`](https://devtools.r-lib.org/reference/release.html).
+  push, re-run `devtools::release()`.
 - On acceptance: package live on
   <https://cran.r-project.org/package=vennDiagramLab> within 1-2 days,
   mirrored worldwide.

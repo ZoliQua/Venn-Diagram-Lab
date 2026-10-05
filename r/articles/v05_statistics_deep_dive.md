@@ -84,13 +84,13 @@ head(stats@hypergeometric)
 #> 4 4.050920e-183 6.751534e-184     0.18145970       0.2471993   0.2984018
 #> 5 2.768110e-170 4.613517e-171     0.16148266       0.2218030   0.2707664
 #> 6 1.878627e-150 3.131045e-151     0.08988361       0.1241868   0.1624396
-#>   dice_ci_high significant highly_significant
-#> 1    0.6849796        TRUE               TRUE
-#> 2    0.6927402        TRUE               TRUE
-#> 3    0.5523979        TRUE               TRUE
-#> 4    0.4094753        TRUE               TRUE
-#> 5    0.3741177        TRUE               TRUE
-#> 6    0.2248469        TRUE               TRUE
+#>   dice_ci_high fe_ci_low fe_ci_high significant highly_significant
+#> 1    0.6849796  15.31594   17.23623        TRUE               TRUE
+#> 2    0.6927402  19.82816   22.44030        TRUE               TRUE
+#> 3    0.5523979  11.70315   12.79409        TRUE               TRUE
+#> 4    0.4094753  27.00011   36.75119        TRUE               TRUE
+#> 5    0.3741177  24.09893   33.07193        TRUE               TRUE
+#> 6    0.2248469  13.16167   18.18114        TRUE               TRUE
 ```
 
 ### BH-FDR adjustment
