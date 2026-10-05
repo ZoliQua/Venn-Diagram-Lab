@@ -19,6 +19,9 @@ summarises the Python-only changes.
 * Version lockstep with the web tool (2.5.0 → 2.9.0 also covers the v2.7.0
   binary-loader dedupe parity fix and the v2.8.0 custom-universe support via
   `Dataset.universe_size`).
+* Lint config: `PLR0917` (too many positional arguments, stabilised in ruff
+  0.16) is ignored alongside `PLR0913` — the render / CLI signatures are
+  intentional. Fixes the Python CI job under unpinned ruff.
 
 ## v2.4.1 — 2026-06-09 — PyPI metadata + README link fixes
 

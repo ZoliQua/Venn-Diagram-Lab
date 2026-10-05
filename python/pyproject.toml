@@ -112,7 +112,10 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "N", "PL", "RUF"]
-ignore = ["PLR0913"]  # too many arguments in function definition (acceptable for render APIs)
+# PLR0913 / PLR0917: too many (positional) arguments in function definition —
+# acceptable for the render / CLI APIs, which mirror the webapp option surface.
+# PLR0917 was stabilised in ruff 0.16 and flags the same signatures as PLR0913.
+ignore = ["PLR0913", "PLR0917"]
 
 [tool.ruff.lint.per-file-ignores]
 # Notebook builder scripts embed verbatim markdown tables / decision matrices
