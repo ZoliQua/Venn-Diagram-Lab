@@ -200,6 +200,23 @@ def _enumerate_regions(dataset: Dataset) -> dict[int, RegionData]:
 # ---------------------------------------------------------------------------
 
 _MIN_SETS_FOR_STATISTICS = 2
+
+_FDR_TRIPLE_STAR = 0.001
+_FDR_DOUBLE_STAR = 0.01
+_FDR_SINGLE_STAR = 0.05
+
+
+def _significance_label(fdr: float) -> str:
+    """Map an FDR-adjusted p-value to the webapp's significance marker."""
+    if fdr < _FDR_TRIPLE_STAR:
+        return "***"
+    if fdr < _FDR_DOUBLE_STAR:
+        return "**"
+    if fdr < _FDR_SINGLE_STAR:
+        return "*"
+    return "ns"
+
+
 _MAX_ALTERNATIVES_IN_MESSAGE = 5
 _PROPORTIONAL_APPROXIMATE_SET_COUNT = 3
 
@@ -472,7 +489,7 @@ class RegionResult:
         Columns: Set_A, Set_B, Name_A, Name_B, Size_A, Size_B, Intersection, Union,
         Jaccard, Overlap_Coeff, Dice, Expected, Fold_Enrichment, P_value, FDR,
         Bonferroni, P_two_sided, Jaccard_CI_low, Jaccard_CI_high, Dice_CI_low,
-        Dice_CI_high, Significant.
+        Dice_CI_high, FE_CI_low, FE_CI_high, Significant.
 
         Float formatting mirrors the webapp byte-for-byte:
         * Jaccard / Overlap_Coeff / Dice: 4 decimals
@@ -480,7 +497,7 @@ class RegionResult:
         * Fold_Enrichment: 3 decimals
         * P_value / FDR / Bonferroni / P_two_sided: scientific (JS style) if < 0.001,
           else 6 decimals
-        * Jaccard_CI_low/high, Dice_CI_low/high: 4 decimals
+        * Jaccard_CI_low/high, Dice_CI_low/high, FE_CI_low/high: 4 decimals
         * Significant: one of "***", "**", "*", "ns"
 
         Rows are sorted by P_value ascending (matches statistics.hypergeometric ordering).
@@ -504,12 +521,10 @@ class RegionResult:
             "Expected", "Fold_Enrichment", "P_value", "FDR",
             "Bonferroni", "P_two_sided",
             "Jaccard_CI_low", "Jaccard_CI_high", "Dice_CI_low", "Dice_CI_high",
+            "FE_CI_low", "FE_CI_high",
             "Significant",
         ])
         _p_scientific_threshold = 0.001
-        _fdr_triple_star = 0.001
-        _fdr_double_star = 0.01
-        _fdr_single_star = 0.05
 
         n = len(self.dataset.set_names)
         if n < _MIN_SETS_FOR_STATISTICS:
@@ -547,15 +562,10 @@ class RegionResult:
             jaccard_ci_high = float(row["jaccard_ci_high"])
             dice_ci_low = float(row["dice_ci_low"])
             dice_ci_high = float(row["dice_ci_high"])
+            fe_ci_low = float(row["fe_ci_low"])
+            fe_ci_high = float(row["fe_ci_high"])
 
-            if fdr < _fdr_triple_star:
-                sig_label = "***"
-            elif fdr < _fdr_double_star:
-                sig_label = "**"
-            elif fdr < _fdr_single_star:
-                sig_label = "*"
-            else:
-                sig_label = "ns"
+            sig_label = _significance_label(fdr)
 
             line = "\t".join([
                 a_letter, b_letter, a_name, b_name,
@@ -567,6 +577,7 @@ class RegionResult:
                 fmt_p(bonferroni), fmt_p(p_two_sided),
                 js_to_fixed(jaccard_ci_low, 4), js_to_fixed(jaccard_ci_high, 4),
                 js_to_fixed(dice_ci_low, 4), js_to_fixed(dice_ci_high, 4),
+                js_to_fixed(fe_ci_low, 4), js_to_fixed(fe_ci_high, 4),
                 sig_label,
             ])
             rows.append((p_val, line))
@@ -612,9 +623,6 @@ class RegionResult:
             "Fold_Enrichment", "P_value", "FDR", "Bonferroni", "Significant",
         ])
         _p_scientific_threshold = 0.001
-        _fdr_triple_star = 0.001
-        _fdr_double_star = 0.01
-        _fdr_single_star = 0.05
 
         n = len(self.dataset.set_names)
         if n < _MIN_SETS_FOR_STATISTICS:
@@ -656,14 +664,7 @@ class RegionResult:
             fdr = float(row["p_adjusted"])
             bonferroni = float(row["p_bonferroni"])
 
-            if fdr < _fdr_triple_star:
-                sig_label = "***"
-            elif fdr < _fdr_double_star:
-                sig_label = "**"
-            elif fdr < _fdr_single_star:
-                sig_label = "*"
-            else:
-                sig_label = "ns"
+            sig_label = _significance_label(fdr)
 
             line = "\t".join([
                 letter, name, str(size), str(rest_size), str(inter),
@@ -816,9 +817,6 @@ class RegionResult:
             overlap_coefficient,
         )
 
-        _fdr_triple_star = 0.001
-        _fdr_double_star = 0.01
-        _fdr_single_star = 0.05
 
         universe = self.effective_universe()
         stats_table = self.statistics.hypergeometric  # already sorted by p_value asc
@@ -836,14 +834,7 @@ class RegionResult:
             fdr = float(row["p_adjusted"])
             p_val = float(row["p_value"])
 
-            if fdr < _fdr_triple_star:
-                sig_label = "***"
-            elif fdr < _fdr_double_star:
-                sig_label = "**"
-            elif fdr < _fdr_single_star:
-                sig_label = "*"
-            else:
-                sig_label = "ns"
+            sig_label = _significance_label(fdr)
 
             stat = {
                 "a": a_letter,

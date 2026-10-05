@@ -102,6 +102,27 @@ def fold_enrichment(N: int, K: int, n: int, k: int) -> float:  # noqa: N803
     return (k * N) / (K * n)
 
 
+def fold_enrichment_ci(N: int, K: int, n: int, k: int) -> tuple[float, float]:  # noqa: N803
+    """Approximate 95% CI for the fold enrichment (log-scale Wald).
+
+    Only k is random — K/N is the fixed population fraction — so with
+    p_hat = k/n: SE(log FE) = SE(log p_hat) ≈ sqrt(1/k - 1/n) (delta method).
+    A Jeffreys-style continuity correction (k+0.5 successes, n+1 trials)
+    keeps the interval finite at k = 0. Bounds are exponentiated back.
+
+    Byte-parity port of the TypeScript ``foldEnrichmentCI`` (statistics.ts).
+    Coverage is validated by Monte Carlo under the null in
+    scripts/bio_validation.py.
+    """
+    if N == 0 or K == 0 or n == 0:
+        return (0.0, 0.0)
+    kc = k + 0.5
+    nc = n + 1
+    center = math.log(kc / nc) - math.log(K / N)
+    se = math.sqrt(max(0.0, 1.0 / kc - 1.0 / nc))
+    return (math.exp(center - Z * se), math.exp(center + Z * se))
+
+
 def two_sided_fisher(N: int, K: int, n: int, k: int) -> float:  # noqa: N803
     """Two-sided Fisher's exact test for the 2x2 table derived from (N, K, n, k).
 
@@ -282,6 +303,7 @@ def compute_pairwise(
         union = ka + kb - inter
         jac_lo, jac_hi = jaccard_ci(inter, union)
         dice_lo, dice_hi = dice_ci(inter, ka, kb)
+        fe_lo, fe_hi = fold_enrichment_ci(universe_size, ka, kb, inter)
 
         rows.append({
             "set_a": a,
@@ -294,6 +316,8 @@ def compute_pairwise(
             "jaccard_ci_high": jac_hi,
             "dice_ci_low": dice_lo,
             "dice_ci_high": dice_hi,
+            "fe_ci_low": fe_lo,
+            "fe_ci_high": fe_hi,
         })
 
     # BH-FDR (per-pair) + Bonferroni FWER control (m = number of pairwise tests).
@@ -318,6 +342,8 @@ def compute_pairwise(
         "jaccard_ci_high": "float64",
         "dice_ci_low": "float64",
         "dice_ci_high": "float64",
+        "fe_ci_low": "float64",
+        "fe_ci_high": "float64",
         "significant": "bool",
         "highly_significant": "bool",
     }

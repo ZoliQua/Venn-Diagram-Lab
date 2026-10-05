@@ -13,21 +13,17 @@ Two layers of comparison:
 Fixtures are regenerated via `npm run fixtures:parity` from the repo root;
 see scripts/generate-parity-fixtures.mts.
 
-Known divergence
-----------------
+Historical note
+---------------
 
-``dataset_mock_streaming_platforms`` is marked ``xfail(strict=True)`` for all
-three kinds. The source CSV contains two rows with the same Title
-("Dark Matter" — one Series on Apple TV+, one Movie on
-Netflix/HBO/Disney/Amazon). The webapp's binary loader treats each *row* as
-a distinct item (so the same title shows up in two disjoint exclusive
-regions, technically violating Venn semantics). The Python loader uses a
-set-based data model where ``items: dict[str, set[str]]`` deduplicates by
-identifier, producing a single Dark Matter item in one region. Reconciling
-these would require either changing the Python data model (large refactor
-that breaks the public set API) or fixing the source data — both
-out-of-scope for the parity test task. Documented here so the divergence is
-explicit.
+``dataset_mock_streaming_platforms`` used to be ``xfail(strict=True)``: the
+source CSV contains two rows with the same Title ("Dark Matter" — one Series
+on Apple TV+, one Movie on Netflix/HBO/Disney/Amazon), and the webapp's
+binary loader treated each *row* as a distinct item while Python's set-based
+loader deduplicated by identifier. Since v2.7.0 the webapp loader also
+merges repeated identifiers (OR semantics across the selected sets) and skips
+blank-identifier rows, so all implementations agree and the sample is a
+regular parity case again.
 """
 
 from __future__ import annotations
@@ -61,28 +57,6 @@ WRITER_BY_KIND = {
     "one_vs_rest":    "to_one_vs_rest_tsv",
 }
 
-# Samples whose webapp output cannot be reproduced byte-for-byte under the
-# Python set-based item model — see module docstring.
-_DUPLICATE_TITLE_SAMPLES = frozenset({"dataset_mock_streaming_platforms"})
-
-
-def _maybe_xfail(sample_name: str) -> None:
-    """Convert known data-model divergences into ``xfail(strict=True)``.
-
-    Strict so that, if a future change to the Python data model or the
-    source data resolves the divergence, the suddenly-passing test will
-    flip to ``XPASS`` and force someone to remove the marker (rather than
-    silently masking a real regression in the opposite direction).
-    """
-    if sample_name in _DUPLICATE_TITLE_SAMPLES:
-        pytest.xfail(
-            "Webapp's row-based binary loader vs Python's set-based loader "
-            "diverge when the source CSV contains rows with duplicate "
-            "identifiers (e.g. two 'Dark Matter' titles in "
-            f"{sample_name}). See module docstring."
-        )
-
-
 @pytest.fixture(scope="module")
 def results_by_sample() -> dict[str, object]:
     """Compute analyze() once per sample so 3 kinds x 5 samples don't re-load."""
@@ -113,7 +87,6 @@ def test_python_matches_webapp_dataframe(
 
     actual_path = tmp_path / fixture.name
     _write_python_tsv(results_by_sample[sample_name], kind, actual_path)
-    _maybe_xfail(sample_name)
 
     expected_df = pd.read_csv(fixture, sep="\t", dtype=str, keep_default_na=False)
     actual_df = pd.read_csv(actual_path, sep="\t", dtype=str, keep_default_na=False)
@@ -139,7 +112,6 @@ def test_python_matches_webapp_bytes(
     fixture = FIXTURES_DIR / f"{sample_name}__{model}__{kind}.tsv"
     actual_path = tmp_path / fixture.name
     _write_python_tsv(results_by_sample[sample_name], kind, actual_path)
-    _maybe_xfail(sample_name)
 
     expected_bytes = fixture.read_bytes()
     actual_bytes = actual_path.read_bytes()

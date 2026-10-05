@@ -7,6 +7,19 @@ summarises the Python-only changes.
 
 [root]: https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/CHANGELOG.md
 
+## v2.9.0 — 2026-10-05 — FE confidence interval
+
+* **New `fold_enrichment_ci(N, K, n, k)`** in `venn_diagram_lab.statistics`:
+  approximate 95% CI for the fold enrichment (log-scale Wald with
+  Jeffreys-style continuity correction), byte-identical to the TypeScript and
+  R implementations. The hypergeometric long-form table gains `fe_ci_low` /
+  `fe_ci_high` columns, and the statistics TSV gains `FE_CI_low` / `FE_CI_high`
+  (24 columns). Monte Carlo null coverage: 95.6% over 20,000 trials
+  (`scripts/bio_validation.py`, section F).
+* Version lockstep with the web tool (2.5.0 → 2.9.0 also covers the v2.7.0
+  binary-loader dedupe parity fix and the v2.8.0 custom-universe support via
+  `Dataset.universe_size`).
+
 ## v2.4.1 — 2026-06-09 — PyPI metadata + README link fixes
 
 Patch release. No library / CLI behaviour change.

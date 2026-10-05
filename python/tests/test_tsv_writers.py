@@ -154,6 +154,7 @@ class TestStatisticsTsv:
             "Expected\tFold_Enrichment\tP_value\tFDR\t"
             "Bonferroni\tP_two_sided\t"
             "Jaccard_CI_low\tJaccard_CI_high\tDice_CI_low\tDice_CI_high\t"
+            "FE_CI_low\tFE_CI_high\t"
             "Significant"
         )
 
@@ -194,8 +195,8 @@ class TestStatisticsTsv:
         # Find the S1/S2 row (A\tB prefix).
         ab = next(r for r in out.read_text("utf-8").split("\n")[1:] if r.startswith("A\tB\t"))
         cells = ab.split("\t")
-        # Significant is now the last (22nd) column -> index 21.
-        assert cells[21] in {"***", "**", "*"}
+        # Significant is now the last (24th) column -> index 23.
+        assert cells[23] in {"***", "**", "*"}
         # P_value column (cells[13]) must use JS-style scientific notation (p << 0.001).
         assert "e-" in cells[13] or "e+" in cells[13]
         # Bonferroni (cells[15]) and P_two_sided (cells[16]) columns exist and are p-like.

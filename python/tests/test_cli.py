@@ -177,6 +177,7 @@ class TestCliStatisticsTsvFormat:
             "Expected\tFold_Enrichment\tP_value\tFDR\t"
             "Bonferroni\tP_two_sided\t"
             "Jaccard_CI_low\tJaccard_CI_high\tDice_CI_low\tDice_CI_high\t"
+            "FE_CI_low\tFE_CI_high\t"
             "Significant"
         )
 

@@ -184,6 +184,7 @@ class TestComputePairwise:
             "set_a", "set_b", "intersection", "expected",
             "p_value", "p_two_sided",
             "jaccard_ci_low", "jaccard_ci_high", "dice_ci_low", "dice_ci_high",
+            "fe_ci_low", "fe_ci_high",
             "p_adjusted", "p_bonferroni", "significant", "highly_significant",
         ]
         assert len(df) == 1  # C(2, 2) = 1 pair
