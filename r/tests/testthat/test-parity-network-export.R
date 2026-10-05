@@ -7,11 +7,9 @@
 # and this file asserts the R package does too. Each golden filename encodes
 # the sample and the model: "<sample>__<model>__network.<ext>".
 #
-# dataset_mock_streaming_platforms is the pre-existing xfail: the webapp's
-# row-based loader treats duplicate "Dark Matter" rows as 2 distinct items,
-# but the R/Python set-based loader dedupes to 1 (documented in
-# test-parity-with-webapp.R / test-parity-json.R). We assert the R output
-# does NOT match its golden.
+# dataset_mock_streaming_platforms used to be the documented divergence
+# (duplicate "Dark Matter" rows); since v2.7.0 the webapp loader dedupes by
+# identifier too, so the golden matches everywhere.
 
 .fixtures_dir <- function() {
     here <- testthat::test_path()
@@ -24,8 +22,6 @@
     }
     NULL
 }
-
-DUPLICATE_TITLE_SAMPLES <- "dataset_mock_streaming_platforms"
 
 # Parse "<sample>__<model>__network.<ext>" -> list(sample, model).
 .parse_network_fixture <- function(fname, ext) {
@@ -57,7 +53,6 @@ for (gname in graphml_goldens) {
         sample <- parsed$sample
         model  <- parsed$model
         golden <- file.path(fixtures_dir, gname)
-        is_xfail <- sample %in% DUPLICATE_TITLE_SAMPLES
 
         test_that(sprintf("network GraphML parity (bytes): %s [%s]", sample, model), {
             skip_on_cran()
@@ -65,11 +60,7 @@ for (gname in graphml_goldens) {
             res <- analyze(load_sample(sample), model = model)
             actual <- .network_graphml_string(.build_network_data(res))
             expected <- .read_golden_bytes(golden)
-            if (is_xfail) {
-                expect_failure(expect_identical(actual, expected))
-            } else {
-                expect_identical(actual, expected)
-            }
+            expect_identical(actual, expected)
         })
     })
 }
@@ -80,7 +71,6 @@ for (gname in sif_goldens) {
         sample <- parsed$sample
         model  <- parsed$model
         golden <- file.path(fixtures_dir, gname)
-        is_xfail <- sample %in% DUPLICATE_TITLE_SAMPLES
 
         test_that(sprintf("network SIF parity (bytes): %s [%s]", sample, model), {
             skip_on_cran()
@@ -88,11 +78,7 @@ for (gname in sif_goldens) {
             res <- analyze(load_sample(sample), model = model)
             actual <- .network_sif_string(.build_network_data(res))
             expected <- .read_golden_bytes(golden)
-            if (is_xfail) {
-                expect_failure(expect_identical(actual, expected))
-            } else {
-                expect_identical(actual, expected)
-            }
+            expect_identical(actual, expected)
         })
     })
 }

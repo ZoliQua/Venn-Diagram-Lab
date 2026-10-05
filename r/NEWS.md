@@ -1,5 +1,18 @@
 # vennDiagramLab — NEWS
 
+## v2.9.0 — 2026-10-05 — FE confidence interval
+
+* **New exported `fold_enrichment_ci(N, K, n, k)`**: approximate 95% CI for
+  the fold enrichment (log-scale Wald with Jeffreys-style continuity
+  correction), byte-identical to the TypeScript and Python implementations.
+  The hypergeometric long-form table gains `fe_ci_low` / `fe_ci_high` columns,
+  and `to_statistics_tsv()` gains `FE_CI_low` / `FE_CI_high` (24 columns).
+  Monte Carlo null coverage: 95.6% over 20,000 trials
+  (`scripts/bio_validation.py`, section F).
+* Version lockstep with the web tool (2.5.0 → 2.9.0 also covers the v2.7.0
+  binary-loader dedupe parity fix and the v2.8.0 custom-universe support via
+  the `universe_size` slot).
+
 ## v2.4.2 — 2026-06-10 — CRAN checktime fix (faster delimited-file loader)
 
 Maintenance release addressing the CRAN incoming-pretest checktime NOTE

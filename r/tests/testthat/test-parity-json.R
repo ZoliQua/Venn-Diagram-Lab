@@ -6,10 +6,10 @@
 # this file asserts the R package does too. Each golden filename encodes the
 # sample and the model: "<sample>__<model>__result.json".
 #
-# dataset_mock_streaming_platforms is the pre-existing xfail: the webapp's
-# row-based loader treats duplicate "Dark Matter" rows as 2 distinct items,
-# but the R/Python set-based loader dedupes to 1 (documented in
-# test-parity-with-webapp.R). We assert the R output does NOT match its golden.
+# dataset_mock_streaming_platforms used to be the documented divergence: the
+# webapp's row-based loader treated duplicate "Dark Matter" rows as 2 distinct
+# items while R/Python dedupe to 1. Since v2.7.0 the webapp loader dedupes too,
+# so the golden matches everywhere.
 
 .fixtures_dir <- function() {
     here <- testthat::test_path()
@@ -22,8 +22,6 @@
     }
     NULL
 }
-
-DUPLICATE_TITLE_SAMPLES <- "dataset_mock_streaming_platforms"
 
 # Parse "<sample>__<model>__result.json" -> list(sample, model).
 .parse_result_fixture <- function(fname) {
@@ -46,7 +44,6 @@ for (gname in result_goldens) {
         sample <- parsed$sample
         model  <- parsed$model
         golden <- file.path(fixtures_dir, gname)
-        is_xfail <- sample %in% DUPLICATE_TITLE_SAMPLES
 
         test_that(sprintf("result JSON parity (bytes): %s [%s]", sample, model), {
             skip_on_cran()
@@ -54,11 +51,7 @@ for (gname in result_goldens) {
             res <- analyze(load_sample(sample), model = model)
             actual <- .result_json_string(res)
             expected <- readChar(golden, file.info(golden)$size, useBytes = TRUE)
-            if (is_xfail) {
-                expect_failure(expect_identical(actual, expected))
-            } else {
-                expect_identical(actual, expected)
-            }
+            expect_identical(actual, expected)
         })
     })
 }

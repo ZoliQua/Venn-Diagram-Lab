@@ -91,6 +91,30 @@ fold_enrichment <- function(N, K, n, k) {
     (k * N) / (K * n)
 }
 
+#' Approximate 95% CI for the fold enrichment (log-scale Wald)
+#'
+#' Only k is random — K/N is the fixed population fraction — so with
+#' p_hat = k/n: SE(log FE) ≈ sqrt(1/k − 1/n) (delta method). A Jeffreys-style
+#' continuity correction (k+0.5 successes, n+1 trials) keeps the interval
+#' finite at k = 0. Bounds are exponentiated back. Byte-parity port of the
+#' TypeScript `foldEnrichmentCI` (packages/core/src/statistics.ts); coverage
+#' is validated by Monte Carlo under the null in scripts/bio_validation.py.
+#'
+#' @param N Universe size. @param K Size of set A. @param n Size of set B.
+#' @param k Observed intersection.
+#' @return Numeric length-2 vector `c(low, high)` (>= 0).
+#' @export
+#' @examples
+#' fold_enrichment_ci(20000, 138, 581, 126)
+fold_enrichment_ci <- function(N, K, n, k) {
+    if (N == 0 || K == 0 || n == 0) return(c(0, 0))
+    kc <- k + 0.5
+    nc <- n + 1
+    center <- log(kc / nc) - log(K / N)
+    se <- sqrt(max(0, 1 / kc - 1 / nc))
+    c(exp(center - .Z_WILSON * se), exp(center + .Z_WILSON * se))
+}
+
 #' Benjamini-Hochberg FDR adjustment
 #'
 #' Wraps `stats::p.adjust(p, method = "BH")`. Returns adjusted p-values in the
@@ -346,6 +370,8 @@ compute_pairwise <- function(set_names, inclusive_sizes, pairwise_intersections,
     rows_jaccard_ci_high <- numeric()
     rows_dice_ci_low     <- numeric()
     rows_dice_ci_high    <- numeric()
+    rows_fe_ci_low       <- numeric()
+    rows_fe_ci_high      <- numeric()
 
     pairs <- utils::combn(set_names, 2, simplify = FALSE)
     for (pair in pairs) {
@@ -372,6 +398,7 @@ compute_pairwise <- function(set_names, inclusive_sizes, pairwise_intersections,
         union_size <- ka + kb - inter
         jac_ci  <- .jaccard_ci(inter, union_size)
         dice_ci <- .dice_ci(inter, ka, kb)
+        fe_ci   <- fold_enrichment_ci(universe_size, ka, kb, inter)
 
         rows_set_a           <- c(rows_set_a, a)
         rows_set_b           <- c(rows_set_b, b)
@@ -383,6 +410,8 @@ compute_pairwise <- function(set_names, inclusive_sizes, pairwise_intersections,
         rows_jaccard_ci_high <- c(rows_jaccard_ci_high, jac_ci[2L])
         rows_dice_ci_low     <- c(rows_dice_ci_low, dice_ci[1L])
         rows_dice_ci_high    <- c(rows_dice_ci_high, dice_ci[2L])
+        rows_fe_ci_low       <- c(rows_fe_ci_low, fe_ci[1L])
+        rows_fe_ci_high      <- c(rows_fe_ci_high, fe_ci[2L])
     }
 
     adjusted <- bh_fdr(rows_p_value)
@@ -405,6 +434,8 @@ compute_pairwise <- function(set_names, inclusive_sizes, pairwise_intersections,
         jaccard_ci_high    = rows_jaccard_ci_high,
         dice_ci_low        = rows_dice_ci_low,
         dice_ci_high       = rows_dice_ci_high,
+        fe_ci_low          = rows_fe_ci_low,
+        fe_ci_high         = rows_fe_ci_high,
         significant        = significant,
         highly_significant = highly_significant,
         stringsAsFactors   = FALSE

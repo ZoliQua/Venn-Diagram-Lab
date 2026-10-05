@@ -170,7 +170,7 @@ test_that("to_matrix_tsv escapes formula-leading set names + items", {
     expect_match(lines[2L], "^'=evil\\t",  perl = TRUE)        # item escaped in row
 })
 
-test_that("to_statistics_tsv writes the 22-column header", {
+test_that("to_statistics_tsv writes the 24-column header", {
     ds <- methods::new("VennDataset",
         set_names = c("A", "B"),
         items = list(A = c("g1", "g2"), B = c("g2", "g3")),
@@ -191,6 +191,7 @@ test_that("to_statistics_tsv writes the 22-column header", {
         "Expected", "Fold_Enrichment", "P_value", "FDR",
         "Bonferroni", "P_two_sided",
         "Jaccard_CI_low", "Jaccard_CI_high", "Dice_CI_low", "Dice_CI_high",
+        "FE_CI_low", "FE_CI_high",
         "Significant"
     ), collapse = "\t"))
     # 1 pair = 1 data row
@@ -243,6 +244,8 @@ test_that("to_statistics_tsv formats float columns with JS-style precision", {
     expect_match(fields[19L], "^[0-9]+\\.[0-9]{4}$")   # Jaccard_CI_high
     expect_match(fields[20L], "^[0-9]+\\.[0-9]{4}$")   # Dice_CI_low
     expect_match(fields[21L], "^[0-9]+\\.[0-9]{4}$")   # Dice_CI_high
+    expect_match(fields[22L], "^[0-9]+\\.[0-9]{4}$")   # FE_CI_low
+    expect_match(fields[23L], "^[0-9]+\\.[0-9]{4}$")   # FE_CI_high
     # Significant (now last column) in {***, **, *, ns}
-    expect_true(fields[22L] %in% c("***", "**", "*", "ns"))
+    expect_true(fields[24L] %in% c("***", "**", "*", "ns"))
 })

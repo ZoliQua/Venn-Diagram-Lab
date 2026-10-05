@@ -3,9 +3,8 @@
 # synced into r/tests/testthat/fixtures/parity/*__ovr.tsv by r/data-raw/sync_data.R.
 #
 # Mirrors the structure of test-parity-with-webapp.R (dataframe + strict byte
-# modes; dataset_mock_streaming_platforms is xfail-strict for the same
-# duplicate-title-row reason documented there and in the Python module
-# docstring).
+# modes; dataset_mock_streaming_platforms used to be xfail for the
+# duplicate-title-row divergence, resolved in v2.7.0 — now a regular case).
 
 PAIRS <- list(
     list(sample = "dataset_real_cancer_drivers_4",        model = "venn-4-set"),
@@ -14,8 +13,6 @@ PAIRS <- list(
     list(sample = "dataset_mock_gene_sets",               model = "venn-6-set"),
     list(sample = "dataset_mock_streaming_platforms",     model = "venn-8-set")
 )
-
-DUPLICATE_TITLE_SAMPLES <- "dataset_mock_streaming_platforms"
 
 .parity_fixture_dir <- function() {
     testthat::test_path("fixtures", "parity")
@@ -50,7 +47,6 @@ for (pair in PAIRS) {
     local({
         sample <- pair$sample
         model  <- pair$model
-        is_xfail <- sample %in% DUPLICATE_TITLE_SAMPLES
 
         test_that(sprintf("one_vs_rest parity (dataframe): %s", sample), {
             skip_on_cran()
@@ -68,11 +64,7 @@ for (pair in PAIRS) {
                                        quote = "", colClasses = "character", check.names = FALSE))
             expected_df <- suppressWarnings(read.delim(fixture, sep = "\t", stringsAsFactors = FALSE,
                                        quote = "", colClasses = "character", check.names = FALSE))
-            if (is_xfail) {
-                expect_failure(expect_equal(actual_df, expected_df))
-            } else {
-                expect_equal(actual_df, expected_df)
-            }
+            expect_equal(actual_df, expected_df)
         })
 
         test_that(sprintf("one_vs_rest parity (bytes): %s", sample), {
@@ -85,12 +77,8 @@ for (pair in PAIRS) {
             to_one_vs_rest_tsv(res, tmp)
             actual_bytes   <- readBin(tmp,     "raw", n = file.info(tmp)$size)
             expected_bytes <- readBin(fixture, "raw", n = file.info(fixture)$size)
-            if (is_xfail) {
-                expect_failure(expect_equal(actual_bytes, expected_bytes))
-            } else {
-                expect_equal(actual_bytes, expected_bytes,
-                             info = sprintf("Byte mismatch for %s/one_vs_rest", sample))
-            }
+            expect_equal(actual_bytes, expected_bytes,
+                         info = sprintf("Byte mismatch for %s/one_vs_rest", sample))
         })
     })
 }

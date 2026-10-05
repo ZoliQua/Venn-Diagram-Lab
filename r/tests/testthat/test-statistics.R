@@ -83,6 +83,7 @@ test_that("compute_pairwise produces all 5 metric tables for 3 sets", {
                       "p_value", "p_adjusted", "p_bonferroni", "p_two_sided",
                       "jaccard_ci_low", "jaccard_ci_high",
                       "dice_ci_low", "dice_ci_high",
+                      "fe_ci_low", "fe_ci_high",
                       "significant", "highly_significant"))
 })
 

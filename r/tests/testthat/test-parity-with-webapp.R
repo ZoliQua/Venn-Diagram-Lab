@@ -5,10 +5,9 @@
 # Strategy mirrors python/tests/test_parity_with_webapp.py:
 # * 5 datasets x 3 export kinds (region_summary, matrix, statistics) = 15 fixtures
 # * 2 modes: structural (read.delim cell-by-cell) + strict byte-for-byte
-# * dataset_mock_streaming_platforms is xfail-strict (R uses expect_failure):
-#   the webapp's row-based loader treats duplicate "Dark Matter" rows as 2
-#   distinct items, but the R/Python set-based loader dedupes to 1. Documented
-#   in the Python module docstring; out-of-scope to reconcile.
+# * dataset_mock_streaming_platforms used to be xfail (duplicate "Dark Matter"
+#   rows: row-based webapp loader vs set-based R/Python loader). Since v2.7.0
+#   the webapp loader also dedupes by identifier, so it is a regular case.
 
 PAIRS <- list(
     list(sample = "dataset_real_cancer_drivers_4",        model = "venn-4-set"),
@@ -17,8 +16,6 @@ PAIRS <- list(
     list(sample = "dataset_mock_gene_sets",               model = "venn-6-set"),
     list(sample = "dataset_mock_streaming_platforms",     model = "venn-8-set")
 )
-
-DUPLICATE_TITLE_SAMPLES <- "dataset_mock_streaming_platforms"
 
 WRITER_BY_KIND <- list(
     region_summary = "to_region_summary_tsv",
@@ -80,7 +77,6 @@ for (pair in PAIRS) {
     local({
         sample <- pair$sample
         model  <- pair$model
-        is_xfail <- sample %in% DUPLICATE_TITLE_SAMPLES
 
         test_that(sprintf("region_summary parity (dataframe): %s", sample), {
             skip_on_cran()
@@ -94,11 +90,7 @@ for (pair in PAIRS) {
                                        quote = "", colClasses = "character", check.names = FALSE)
             expected_df <- read.delim(fixture, sep = "\t", stringsAsFactors = FALSE,
                                        quote = "", colClasses = "character", check.names = FALSE)
-            if (is_xfail) {
-                expect_failure(expect_equal(actual_df, expected_df))
-            } else {
-                expect_equal(actual_df, expected_df)
-            }
+            expect_equal(actual_df, expected_df)
         })
 
         test_that(sprintf("region_summary parity (bytes): %s", sample), {
@@ -111,12 +103,8 @@ for (pair in PAIRS) {
             .write_actual(res, "region_summary", tmp)
             actual_bytes   <- readBin(tmp,     "raw", n = file.info(tmp)$size)
             expected_bytes <- readBin(fixture, "raw", n = file.info(fixture)$size)
-            if (is_xfail) {
-                expect_failure(expect_equal(actual_bytes, expected_bytes))
-            } else {
-                expect_equal(actual_bytes, expected_bytes,
-                             info = sprintf("Byte mismatch for %s/region_summary", sample))
-            }
+            expect_equal(actual_bytes, expected_bytes,
+                         info = sprintf("Byte mismatch for %s/region_summary", sample))
         })
     })
 }
@@ -127,7 +115,6 @@ for (pair in PAIRS) {
     local({
         sample <- pair$sample
         model  <- pair$model
-        is_xfail <- sample %in% DUPLICATE_TITLE_SAMPLES
 
         test_that(sprintf("matrix parity (dataframe): %s", sample), {
             skip_on_cran()
@@ -141,11 +128,7 @@ for (pair in PAIRS) {
                                        quote = "", colClasses = "character", check.names = FALSE)
             expected_df <- read.delim(fixture, sep = "\t", stringsAsFactors = FALSE,
                                        quote = "", colClasses = "character", check.names = FALSE)
-            if (is_xfail) {
-                expect_failure(expect_equal(actual_df, expected_df))
-            } else {
-                expect_equal(actual_df, expected_df)
-            }
+            expect_equal(actual_df, expected_df)
         })
 
         test_that(sprintf("matrix parity (bytes): %s", sample), {
@@ -158,12 +141,8 @@ for (pair in PAIRS) {
             .write_actual(res, "matrix", tmp)
             actual_bytes   <- readBin(tmp,     "raw", n = file.info(tmp)$size)
             expected_bytes <- readBin(fixture, "raw", n = file.info(fixture)$size)
-            if (is_xfail) {
-                expect_failure(expect_equal(actual_bytes, expected_bytes))
-            } else {
-                expect_equal(actual_bytes, expected_bytes,
-                             info = sprintf("Byte mismatch for %s/matrix", sample))
-            }
+            expect_equal(actual_bytes, expected_bytes,
+                         info = sprintf("Byte mismatch for %s/matrix", sample))
         })
     })
 }
@@ -174,7 +153,6 @@ for (pair in PAIRS) {
     local({
         sample <- pair$sample
         model  <- pair$model
-        is_xfail <- sample %in% DUPLICATE_TITLE_SAMPLES
 
         test_that(sprintf("statistics parity (dataframe): %s", sample), {
             skip_on_cran()
@@ -188,11 +166,7 @@ for (pair in PAIRS) {
                                        quote = "", colClasses = "character", check.names = FALSE)
             expected_df <- read.delim(fixture, sep = "\t", stringsAsFactors = FALSE,
                                        quote = "", colClasses = "character", check.names = FALSE)
-            if (is_xfail) {
-                expect_failure(expect_equal(actual_df, expected_df))
-            } else {
-                expect_equal(actual_df, expected_df)
-            }
+            expect_equal(actual_df, expected_df)
         })
 
         test_that(sprintf("statistics parity (bytes): %s", sample), {
@@ -205,12 +179,8 @@ for (pair in PAIRS) {
             .write_actual(res, "statistics", tmp)
             actual_bytes   <- readBin(tmp,     "raw", n = file.info(tmp)$size)
             expected_bytes <- readBin(fixture, "raw", n = file.info(fixture)$size)
-            if (is_xfail) {
-                expect_failure(expect_equal(actual_bytes, expected_bytes))
-            } else {
-                expect_equal(actual_bytes, expected_bytes,
-                             info = sprintf("Byte mismatch for %s/statistics", sample))
-            }
+            expect_equal(actual_bytes, expected_bytes,
+                         info = sprintf("Byte mismatch for %s/statistics", sample))
         })
     })
 }

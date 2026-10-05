@@ -219,14 +219,14 @@ setMethod("to_matrix_tsv", "RegionResult", function(result, path) {
 #' Columns: Set_A, Set_B, Name_A, Name_B, Size_A, Size_B, Intersection, Union,
 #' Jaccard, Overlap_Coeff, Dice, Expected, Fold_Enrichment, P_value, FDR,
 #' Bonferroni, P_two_sided, Jaccard_CI_low, Jaccard_CI_high, Dice_CI_low,
-#' Dice_CI_high, Significant.
+#' Dice_CI_high, FE_CI_low, FE_CI_high, Significant.
 #' Float formatting:
 #' * Jaccard / Overlap_Coeff / Dice: 4 decimals via [.js_to_fixed()]
 #' * Expected: 2 decimals
 #' * Fold_Enrichment: 3 decimals
 #' * P_value / FDR / Bonferroni / P_two_sided: scientific (JS toExponential(2))
 #'   if `< 0.001`, else 6 decimals
-#' * Jaccard_CI_low/high, Dice_CI_low/high: 4 decimals
+#' * Jaccard_CI_low/high, Dice_CI_low/high, FE_CI_low/high: 4 decimals
 #' * Significant: one of `"***"`, `"**"`, `"*"`, `"ns"` keyed off FDR thresholds
 #'   (0.001, 0.01, 0.05).
 #'
@@ -259,6 +259,7 @@ setMethod("to_statistics_tsv", "RegionResult", function(result, path) {
         "Expected", "Fold_Enrichment", "P_value", "FDR",
         "Bonferroni", "P_two_sided",
         "Jaccard_CI_low", "Jaccard_CI_high", "Dice_CI_low", "Dice_CI_high",
+        "FE_CI_low", "FE_CI_high",
         "Significant"
     ), collapse = "\t")
 
@@ -302,6 +303,8 @@ setMethod("to_statistics_tsv", "RegionResult", function(result, path) {
         jaccard_ci_high <- as.numeric(row$jaccard_ci_high)
         dice_ci_low <- as.numeric(row$dice_ci_low)
         dice_ci_high <- as.numeric(row$dice_ci_high)
+        fe_ci_low <- as.numeric(row$fe_ci_low)
+        fe_ci_high <- as.numeric(row$fe_ci_high)
 
         sig_label <- if (fdr < 0.001) "***"
                      else if (fdr < 0.01) "**"
@@ -318,6 +321,7 @@ setMethod("to_statistics_tsv", "RegionResult", function(result, path) {
             fmt_p(bonferroni), fmt_p(p_two_sided),
             .js_to_fixed(jaccard_ci_low, 4), .js_to_fixed(jaccard_ci_high, 4),
             .js_to_fixed(dice_ci_low, 4), .js_to_fixed(dice_ci_high, 4),
+            .js_to_fixed(fe_ci_low, 4), .js_to_fixed(fe_ci_high, 4),
             sig_label,
             sep = "\t"
         ))
