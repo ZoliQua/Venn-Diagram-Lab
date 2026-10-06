@@ -65,7 +65,7 @@ Python package down to the byte.
 
 ### 2.1. From CRAN (recommended)
 
-`vennDiagramLab` is on CRAN (current version: **2.4.2**):
+`vennDiagramLab` is on CRAN (current version: **2.9.0**):
 
 ``` r
 
