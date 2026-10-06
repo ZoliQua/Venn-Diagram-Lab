@@ -109,7 +109,7 @@ file.size(png_path)
 pdf_path <- tempfile(fileext = ".pdf")
 rsvg::rsvg_pdf(charToRaw(svg), pdf_path)
 file.size(pdf_path)
-#> [1] 31925
+#> [1] 31926
 ```
 
 For a multi-page composite report (venn + upset + statistics + network +

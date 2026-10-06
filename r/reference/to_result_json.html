@@ -69,27 +69,27 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Schema (key order PINNED):
-“`
-
+    <p>Schema (key order PINNED):</p><div class="sourceCode"><pre><code>
+{
   "schemaVersion": "1",
   "model": "&lt;model id&gt;",
-  "setNames":  "A": "...", ... ,
+  "setNames": { "A": "...", ... },
   "universeSize": &lt;int&gt;,
   "regions": [
-     "label", "sets": [...], "depth": &lt;int&gt;,
+    { "label", "sets": [...], "depth": &lt;int&gt;,
       "exclusiveCount": &lt;int&gt;, "inclusiveCount": &lt;int&gt;,
-      "exclusiveItems": [...] , ...
+      "exclusiveItems": [...] }, ...
   ],
-  "setSizes":  "A": &lt;int&gt;, ... ,
+  "setSizes": { "A": &lt;int&gt;, ... },
   "statistics": [
-     "a", "b", "jaccard", "dice", "overlapCoeff",
+    { "a", "b", "jaccard", "dice", "overlapCoeff",
       "intersection", "union", "expected", "foldEnrichment",
       "pValue", "fdr", "bonferroni", "pTwoSided",
-      "significant": "***" | "**" | "*" | "ns" , ...
+      "significant": "***" | "**" | "*" | "ns" }, ...
   ]
+}
+</code></pre></div>
 
-“`</p>
 <p>`regions` covers all `2^n - 1` non-empty subsets, sorted by depth ascending
 then label ascending (ASCII); `exclusiveItems` preserves the dataset item
 order. `statistics` is sorted by p-value ascending, with `significant`

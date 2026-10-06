@@ -29,14 +29,27 @@ Invisibly returns \`path\`.
 
 ## Details
 
-Schema (key order PINNED): “\` "schemaVersion": "1", "model": "\<model
-id\>", "setNames": "A": "...", ... , "universeSize": \<int\>, "regions":
-\[ "label", "sets": \[...\], "depth": \<int\>, "exclusiveCount":
-\<int\>, "inclusiveCount": \<int\>, "exclusiveItems": \[...\] , ... \],
-"setSizes": "A": \<int\>, ... , "statistics": \[ "a", "b", "jaccard",
-"dice", "overlapCoeff", "intersection", "union", "expected",
-"foldEnrichment", "pValue", "fdr", "bonferroni", "pTwoSided",
-"significant": "\*\*\*" \| "\*\*" \| "\*" \| "ns" , ... \] “\`
+Schema (key order PINNED):
+
+
+    {
+      "schemaVersion": "1",
+      "model": "<model id>",
+      "setNames": { "A": "...", ... },
+      "universeSize": <int>,
+      "regions": [
+        { "label", "sets": [...], "depth": <int>,
+          "exclusiveCount": <int>, "inclusiveCount": <int>,
+          "exclusiveItems": [...] }, ...
+      ],
+      "setSizes": { "A": <int>, ... },
+      "statistics": [
+        { "a", "b", "jaccard", "dice", "overlapCoeff",
+          "intersection", "union", "expected", "foldEnrichment",
+          "pValue", "fdr", "bonferroni", "pTwoSided",
+          "significant": "***" | "**" | "*" | "ns" }, ...
+      ]
+    }
 
 \`regions\` covers all \`2^n - 1\` non-empty subsets, sorted by depth
 ascending then label ascending (ASCII); \`exclusiveItems\` preserves the
