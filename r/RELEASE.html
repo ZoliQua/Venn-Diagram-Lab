@@ -149,6 +149,10 @@
 <p>The recommended path is <code>devtools::release()</code> — interactive, walks through all checks + uploads via the CRAN web form.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="bu">cd</span> /Users/Zoli/Code/Orthologs/2-venn-diagram</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'devtools::release(pkg = "r")'</span></span></code></pre></div>
+<p>Non-interactive equivalent (used for 2.9.0 on 2026-10-06): build the tarball from the committed <code>r/</code> tree and call the uploader directly — it POSTs the same CRAN form (<code>https://xmpalantir.wu.ac.at/cransubmit/</code>) with the maintainer name/email from DESCRIPTION and the text of <code>r/cran-comments.md</code> as the comment, then you still have to click the confirmation link that CRAN emails to the maintainer address:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ex">R</span> CMD build r                                   <span class="co"># -&gt; vennDiagramLab_X.Y.Z.tar.gz</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'devtools:::upload_cran(pkg = "r", built_path = "vennDiagramLab_X.Y.Z.tar.gz")'</span></span></code></pre></div>
+<p><code>r/cran-comments.md</code> holds ONLY the current submission (earlier sections are in <code>r/cran-comments-archive.md</code>), because the whole file is sent to CRAN.</p>
 <p>The interactive prompts (paraphrased):</p>
 <pre><code>Have you checked for spelling errors (with spelling::spell_check_package())?
 &gt; y
