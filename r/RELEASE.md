@@ -144,6 +144,21 @@ cd /Users/Zoli/Code/Orthologs/2-venn-diagram
 Rscript -e 'devtools::release(pkg = "r")'
 ```
 
+Non-interactive equivalent (used for 2.9.0 on 2026-10-06): build the tarball
+from the committed `r/` tree and call the uploader directly — it POSTs the
+same CRAN form (`https://xmpalantir.wu.ac.at/cransubmit/`) with the
+maintainer name/email from DESCRIPTION and the text of `r/cran-comments.md`
+as the comment, then you still have to click the confirmation link that
+CRAN emails to the maintainer address:
+
+```bash
+R CMD build r                                   # -> vennDiagramLab_X.Y.Z.tar.gz
+Rscript -e 'devtools:::upload_cran(pkg = "r", built_path = "vennDiagramLab_X.Y.Z.tar.gz")'
+```
+
+`r/cran-comments.md` holds ONLY the current submission (earlier sections are
+in `r/cran-comments-archive.md`), because the whole file is sent to CRAN.
+
 The interactive prompts (paraphrased):
 
 ```

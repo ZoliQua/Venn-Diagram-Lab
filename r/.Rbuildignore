@@ -12,3 +12,4 @@
 ^\.R\.Rout$
 ^RELEASE\.md$
 ^user-guide$
+^cran-comments-archive\.md$
