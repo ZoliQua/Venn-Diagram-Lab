@@ -24,26 +24,26 @@ Mirrors the React webapp's "Full Result (JSON)" export
 }
 \details{
 Schema (key order PINNED):
-```
-{
+\preformatted{
+\{
   "schemaVersion": "1",
   "model": "<model id>",
-  "setNames": { "A": "...", ... },
+  "setNames": \{ "A": "...", ... \},
   "universeSize": <int>,
   "regions": [
-    { "label", "sets": [...], "depth": <int>,
+    \{ "label", "sets": [...], "depth": <int>,
       "exclusiveCount": <int>, "inclusiveCount": <int>,
-      "exclusiveItems": [...] }, ...
+      "exclusiveItems": [...] \}, ...
   ],
-  "setSizes": { "A": <int>, ... },
+  "setSizes": \{ "A": <int>, ... \},
   "statistics": [
-    { "a", "b", "jaccard", "dice", "overlapCoeff",
+    \{ "a", "b", "jaccard", "dice", "overlapCoeff",
       "intersection", "union", "expected", "foldEnrichment",
       "pValue", "fdr", "bonferroni", "pTwoSided",
-      "significant": "***" | "**" | "*" | "ns" }, ...
+      "significant": "***" | "**" | "*" | "ns" \}, ...
   ]
+\}
 }
-```
 
 `regions` covers all `2^n - 1` non-empty subsets, sorted by depth ascending
 then label ascending (ASCII); `exclusiveItems` preserves the dataset item

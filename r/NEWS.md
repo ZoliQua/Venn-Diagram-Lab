@@ -1,17 +1,53 @@
 # vennDiagramLab — NEWS
 
-## v2.9.0 — 2026-10-05 — FE confidence interval
+## v2.9.0 — 2026-10-05 — Extended statistics, JSON / Cytoscape exports, data-quality report, FE confidence interval
 
-* **New exported `fold_enrichment_ci(N, K, n, k)`**: approximate 95% CI for
-  the fold enrichment (log-scale Wald with Jeffreys-style continuity
-  correction), byte-identical to the TypeScript and Python implementations.
-  The hypergeometric long-form table gains `fe_ci_low` / `fe_ci_high` columns,
-  and `to_statistics_tsv()` gains `FE_CI_low` / `FE_CI_high` (24 columns).
-  Monte Carlo null coverage: 95.6% over 20,000 trials
+Feature release following CRAN 2.4.2. The version numbers 2.5.0–2.8.0 were
+lockstep bumps shared with the web tool and were never submitted to CRAN;
+everything below is new relative to 2.4.2. All changes are additive — no
+removed or changed APIs, no new dependencies. Every TSV / JSON / network
+output is byte-identical to the web tool and the Python / npm companions
+(parity goldens regenerated; `tests/testthat/test-parity-*.R`).
+
+### Statistics
+* `fold_enrichment_ci(N, K, n, k)` (new export): approximate 95% CI for the
+  fold enrichment (log-scale Wald with Jeffreys-style continuity correction,
+  finite at k = 0). Monte Carlo null coverage: 95.6% over 20,000 trials
   (`scripts/bio_validation.py`, section F).
-* Version lockstep with the web tool (2.5.0 → 2.9.0 also covers the v2.7.0
-  binary-loader dedupe parity fix and the v2.8.0 custom-universe support via
-  the `universe_size` slot).
+* `one_vs_rest_enrichment()` (new export): each set tested against the union
+  of all other sets (hypergeometric P, BH-FDR, Bonferroni, fold enrichment).
+* `compute_pairwise()` / the hypergeometric long-form table gain
+  `p_bonferroni`, `p_two_sided` (two-sided Fisher's exact, log-space
+  point-mass sum), `jaccard_ci_low/high`, `dice_ci_low/high` (Wilson score
+  intervals) and `fe_ci_low/high` columns.
+* Display formatters floor underflowed p-values to `< 1e-300`.
+
+### Export
+* `to_statistics_tsv()` now writes 24 columns (`Bonferroni`, `P_two_sided`,
+  `Jaccard_CI_low/high`, `Dice_CI_low/high`, `FE_CI_low/high` added).
+* `to_one_vs_rest_tsv()` (new export).
+* `to_result_json()` (new export): full region result + statistics as JSON,
+  6-decimal rounding, `-0` normalised, regions radix-sorted.
+* `to_network_graphml()` / `to_network_sif()` (new exports): Cytoscape-ready
+  set-relationship network (nodes = sets, edges = all pairwise overlaps
+  weighted by intersection size and carrying jaccard, foldEnrichment,
+  overlapCoeff, dice, pValue, fdr and significant attributes), using the
+  same background N as every other output.
+
+### Data quality
+* `analyze_data_quality()` and `validate_dataset()` (new exports): duplicate
+  identifiers, empty / whitespace cells and case-only collisions are reported
+  via `warning()` without changing any identifier.
+
+### Documentation / infrastructure
+* pkgdown reference index lists all new functions; `fold_enrichment_ci()`
+  man page and the Rd text of the data-quality / SIF helpers are ASCII-clean
+  and pass `R CMD check` on R release, devel and oldrel-1 (Linux, macOS,
+  Windows).
+* `to_result_json()` man page: the JSON schema block is now a `\preformatted{}`
+  section with escaped braces (clears a `checkRd` "Lost braces" NOTE).
+* PDF report Credits & Cite section lists the npm companion package.
+* DESCRIPTION Date 2026-10-05.
 
 ## v2.4.2 — 2026-06-10 — CRAN checktime fix (faster delimited-file loader)
 

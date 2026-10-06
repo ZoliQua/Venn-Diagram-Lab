@@ -7,21 +7,33 @@ summarises the Python-only changes.
 
 [root]: https://github.com/ZoliQua/Venn-Diagram-Lab/blob/main/CHANGELOG.md
 
-## v2.9.0 — 2026-10-05 — FE confidence interval
+## v2.9.0 — 2026-10-05 — Extended statistics, JSON / Cytoscape exports, data-quality report, FE confidence interval
 
-* **New `fold_enrichment_ci(N, K, n, k)`** in `venn_diagram_lab.statistics`:
-  approximate 95% CI for the fold enrichment (log-scale Wald with
-  Jeffreys-style continuity correction), byte-identical to the TypeScript and
-  R implementations. The hypergeometric long-form table gains `fe_ci_low` /
-  `fe_ci_high` columns, and the statistics TSV gains `FE_CI_low` / `FE_CI_high`
-  (24 columns). Monte Carlo null coverage: 95.6% over 20,000 trials
-  (`scripts/bio_validation.py`, section F).
-* Version lockstep with the web tool (2.5.0 → 2.9.0 also covers the v2.7.0
-  binary-loader dedupe parity fix and the v2.8.0 custom-universe support via
-  `Dataset.universe_size`).
-* Lint config: `PLR0917` (too many positional arguments, stabilised in ruff
-  0.16) is ignored alongside `PLR0913` — the render / CLI signatures are
-  intentional. Fixes the Python CI job under unpinned ruff.
+Second feature release after 2.4.1. The intermediate version numbers 2.5.0–2.8.0 were lockstep bumps shared with the web tool and were never published to PyPI; everything below is new relative to 2.4.1. All TSV / JSON / network outputs remain byte-identical to the web tool, the npm package and the R package (parity goldens regenerated; `tests/test_parity_*.py`).
+
+### Statistics (`venn_diagram_lab.statistics`)
+- `two_sided_fisher(N, K, n, k)` — two-sided Fisher's exact P (log-space point-mass sum, cross-language byte parity).
+- `wilson_interval(k, n)`, `jaccard_ci(...)`, `dice_ci(...)` — analytic Wilson score 95% intervals for the two ratio-type coefficients.
+- `fold_enrichment_ci(N, K, n, k)` — approximate 95% CI for the fold enrichment (log-scale Wald with Jeffreys-style continuity correction, finite at k = 0). Monte Carlo null coverage: 95.6% over 20,000 trials (`scripts/bio_validation.py`, section F).
+- `one_vs_rest_enrichment(...)` — each set tested against the union of all other sets (hypergeometric P, BH-FDR, Bonferroni, fold enrichment).
+- `compute_pairwise` / the hypergeometric long-form table gain `p_bonferroni`, `p_two_sided`, `jaccard_ci_low/high`, `dice_ci_low/high`, `fe_ci_low/high` columns.
+- Display formatters floor underflowed p-values to `< 1e-300`.
+
+### Exports (`RegionResult` methods + `vdl export`)
+- `to_statistics_tsv()` now writes 24 columns (`Bonferroni`, `P_two_sided`, `Jaccard_CI_low/high`, `Dice_CI_low/high`, `FE_CI_low/high` added).
+- `to_one_vs_rest_tsv(path)` and `vdl export one-vs-rest`.
+- `to_json(path)` / `to_json_str()` and `vdl export json` — full region result + statistics, 6-decimal rounding.
+- `to_network_graphml(path, metric=...)`, `to_network_sif(path, metric=...)` (+ `_str` variants) and `vdl export graphml|sif --metric intersection|jaccard|foldEnrichment|overlapCoeff` — Cytoscape-ready set-relationship network using the same background N as every other output.
+
+### Data quality
+- `analyze_data_quality(...)` — duplicate identifiers, empty / whitespace cells, case-only collisions, reported without changing any identifier. `vdl data validate` prints the warnings; `--strict` promotes them to errors.
+
+### Reference set
+- `Dataset.universe_size` is honoured by every statistic and export (`RegionResult.effective_universe()`), matching the web tool's custom background selector; validated against an independent reference in `scripts/bio_validation.py` (section E).
+
+### CLI / docs
+- `vdl credits` lists the npm package alongside PyPI and CRAN; the PDF report's Credits & Cite section does the same.
+- Lint config: `PLR0917` (stabilised in ruff 0.16) ignored alongside `PLR0913` — render / CLI signatures are intentional. Fixes the Python CI job under unpinned ruff.
 
 ## v2.4.1 — 2026-06-09 — PyPI metadata + README link fixes
 
