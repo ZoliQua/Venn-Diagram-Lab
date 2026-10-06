@@ -7,11 +7,11 @@ step.
 
 The parallel doc for Python is `../python/RELEASE.md`.
 
-## Current release status — 2026-05-18
+## Current release status — 2026-10-06
 
 | Channel | Latest version | Status |
 |----|----|----|
-| **CRAN** | `vennDiagramLab 2.0.5` | ✓ live on CRAN since 2026-05-18 — `install.packages("vennDiagramLab")` |
+| **CRAN** | `vennDiagramLab 2.9.0` | ✓ live on CRAN since 2026-10-06 (pretest OK on both flavours, accepted within minutes) — `install.packages("vennDiagramLab")` |
 | **Bioconductor** | n/a | issue \#4289 — awaiting moderation |
 | **GitHub release** | `r-v2.0.5` | tagged + pushed; Zenodo concept DOI: `10.5281/zenodo.19510813` |
 
@@ -26,6 +26,7 @@ combined pretest gauntlet:
 | v2.0.4 | 2026-05-12 | DESCRIPTION single-quoting per reviewer feedback |
 | v2.0.5 | 2026-05-12 | `inst/CITATION` pre-install NA crash + finish vignette skip |
 | v2.4.2 | 2026-06-10 | Checktime NOTE again (23 min on r-devel-windows): vectorised the quadratic CSV/TSV loader + `skip_on_cran()` on heavy PDF tests |
+| v2.9.0 | 2026-10-06 | Feature release (CIs, one-vs-rest, JSON/GraphML/SIF, data quality); submitted non-interactively, accepted first pass |
 
 The Bioc track runs independently via the `r/` subtree mirror at
 [`ZoliQua/vennDiagramLab`](https://github.com/ZoliQua/vennDiagramLab),
