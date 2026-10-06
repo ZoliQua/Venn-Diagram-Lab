@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { COMPANION_VERSIONS, RELEASE_TAG } from '../version.ts';
 import {
   COMPANION_CARD_PANELS,
   COMPANION_DETAIL_PANELS,
@@ -533,7 +534,7 @@ source .venv/bin/activate          # Linux / macOS
           <div className="companion-install-step-body">
             <div className="companion-install-step-title">Verify the install</div>
             <CodeBlock label="Shell">{`python -c "import venn_diagram_lab as vdl; print(vdl.__version__)"
-# 2.0.3`}</CodeBlock>
+# ${COMPANION_VERSIONS.python}`}</CodeBlock>
           </div>
         </div>
 
@@ -671,7 +672,7 @@ function PythonContent({ activeTab, onOpen }: { activeTab: TabId; onOpen: OpenPa
         </div>
 
         <div className="companion-badges">
-          <span className="companion-badge companion-badge-stable">Stable · v2.0.3</span>
+          <span className="companion-badge companion-badge-stable">Stable · v{COMPANION_VERSIONS.python}</span>
           <span className="companion-badge">Python ≥ 3.10</span>
           <span className="companion-badge">12 example notebooks</span>
           <span className="companion-badge">MIT License</span>
@@ -846,7 +847,7 @@ function RInstallTab() {
     <div className="companion-section">
       <div className="companion-install-intro">
         <p className="companion-paragraph">
-          <strong>vennDiagramLab 2.0.5 is on CRAN</strong> — just <code>install.packages("vennDiagramLab")</code>
+          <strong>vennDiagramLab {COMPANION_VERSIONS.r} is on CRAN</strong> — just <code>install.packages("vennDiagramLab")</code>
           and you are ready to go. The Bioconductor submission is in
           moderation; CRAN is the recommended install channel.
           The GitHub install path remains available for the development HEAD.
@@ -919,7 +920,7 @@ sudo apt install r-base`}</CodeBlock>
                 <CodeBlock label="R Console · CRAN">{`install.packages("vennDiagramLab")`}</CodeBlock>
                 <p className="companion-note">
                   Live on CRAN as of <strong>2026-05-18</strong> (current
-                  version: <strong>2.0.5</strong>). Pre-built binaries are
+                  version: <strong>{COMPANION_VERSIONS.r}</strong>). Pre-built binaries are
                   available for the three current major Windows / macOS / Linux
                   R versions; pass <code>type = "source"</code> for the source
                   tarball. CRAN-minted DOI:{' '}
@@ -939,7 +940,7 @@ remotes::install_github(
                 <p className="companion-note">
                   Pulls the current <code>main</code> branch HEAD — useful if
                   you need a fix that has not made it into a CRAN release yet.
-                  Pin a release tag with <code>ref = "r-v2.0.5"</code> for
+                  Pin a release tag with <code>ref = "{RELEASE_TAG}"</code> for
                   reproducibility.
                 </p>
               </>
@@ -970,10 +971,10 @@ BiocManager::install("vennDiagramLab")`}</code></pre>
             <div className="companion-install-step-title">Verify the install</div>
             <CodeBlock label="R Console">{`library(vennDiagramLab)
 packageVersion("vennDiagramLab")
-# [1] '2.0.5'
+# [1] '${COMPANION_VERSIONS.r}'
 
 vdl_version()
-# [1] "2.0.5"`}</CodeBlock>
+# [1] "${COMPANION_VERSIONS.r}"`}</CodeBlock>
           </div>
         </div>
 
@@ -1087,7 +1088,7 @@ augment(result)   # item-level membership matrix`}</CodeBlock>
       </div>
 
       <div className="companion-callout">
-        <strong>Release status:</strong> <code>vennDiagramLab 2.0.5</code> is
+        <strong>Release status:</strong> <code>vennDiagramLab {COMPANION_VERSIONS.r}</code> is
         on CRAN (published 2026-05-18) and is the recommended install
         channel. The Bioconductor submission is still in moderation on the{' '}
         <a href="https://github.com/Bioconductor/Contributions/issues" target="_blank" rel="noopener noreferrer" className="companion-link">
@@ -1153,7 +1154,7 @@ function RContent({ activeTab, onOpen }: { activeTab: TabId; onOpen: OpenPanel }
         </div>
 
         <div className="companion-badges">
-          <span className="companion-badge companion-badge-stable">On CRAN · v2.0.5</span>
+          <span className="companion-badge companion-badge-stable">On CRAN · v{COMPANION_VERSIONS.r}</span>
           <span className="companion-badge companion-badge-pending">Bioconductor in moderation</span>
           <span className="companion-badge">R ≥ 4.2</span>
           <span className="companion-badge">8 vignettes</span>
@@ -1311,10 +1312,10 @@ function RContent({ activeTab, onOpen }: { activeTab: TabId; onOpen: OpenPanel }
         />
         <LinkCard
           icon={'\u{1F516}'}
-          title="Release tag r-v2.0.5"
+          title={`Release tag ${RELEASE_TAG}`}
           subtitle="GitHub release notes"
           cta="Release"
-          href={`${REPO_BASE}/releases/tag/r-v2.0.5`}
+          href={`${REPO_BASE}/releases/tag/${RELEASE_TAG}`}
         />
         <LinkCard
           icon={'\u{1F41B}'}
@@ -1360,7 +1361,7 @@ function NodeInstallTab() {
           <div className="companion-install-step-body">
             <div className="companion-install-step-title">Verify the install</div>
             <CodeBlock label="Shell">{`npx vdl --version
-# 2.4.0`}</CodeBlock>
+# ${COMPANION_VERSIONS.node}`}</CodeBlock>
           </div>
         </div>
 
@@ -1513,7 +1514,7 @@ function NodeContent({ activeTab, onOpen }: { activeTab: TabId; onOpen: OpenPane
         </div>
 
         <div className="companion-badges">
-          <span className="companion-badge companion-badge-stable">Stable · v2.4.0</span>
+          <span className="companion-badge companion-badge-stable">Stable · v{COMPANION_VERSIONS.node}</span>
           <span className="companion-badge">Node ≥ 18</span>
           <span className="companion-badge">ESM + CJS + TS types</span>
           <span className="companion-badge">MIT License</span>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { APP_VERSION } from '../version.ts';
+import { APP_VERSION, COMPANION_VERSIONS } from '../version.ts';
 
 interface CitationDialogProps {
   isOpen: boolean;
@@ -27,8 +27,8 @@ const CRAN_R_URL = `https://doi.org/${CRAN_R_DOI}`;
 // cited with the PyPI URL and the project's Zenodo concept DOI as the
 // archival identifier.
 const PYPI_URL = 'https://pypi.org/project/venn-diagram-lab/';
-const PY_PACKAGE_VERSION = '2.0.3';
-const R_PACKAGE_VERSION  = '2.0.5';
+const PY_PACKAGE_VERSION = COMPANION_VERSIONS.python;
+const R_PACKAGE_VERSION  = COMPANION_VERSIONS.r;
 const TARGET_JOURNAL = 'BMC Bioinformatics';
 
 const MANUSCRIPT_APA = `${AUTHORS_APA} (2026). ${PAPER_TITLE}. Manuscript submitted for publication, ${TARGET_JOURNAL}.`;
