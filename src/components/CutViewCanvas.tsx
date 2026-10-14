@@ -132,7 +132,12 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick,
         if (x > maxX) maxX = x; if (y > maxY) maxY = y;
       }
     }
-    return { x: minX - margin, y: minY - margin, w: (maxX - minX) + margin * 2, h: (maxY - minY) + margin * 2 };
+    // Region and curve paths are stored in the generator's Y-up convention
+    // ([-50, 50], Y flipped; see generate_region_json.py and
+    // proportionalRegions.ts). They are drawn inside a scale(1,-1) group so the
+    // Cut View has the same orientation as the Layer View, and the viewBox is
+    // expressed in that flipped (SVG, Y-down) space.
+    return { x: minX - margin, y: -maxY - margin, w: (maxX - minX) + margin * 2, h: (maxY - minY) + margin * 2 };
   }, [regions]);
 
   const displaySize = 700 * scale;
@@ -189,6 +194,7 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick,
         onMouseLeave={handleLeave}
         onClick={(e) => { if (e.target === e.currentTarget) onBackgroundClick?.(); }}
       >
+        <g transform="scale(1,-1)">
         {sortedIndices.map(index => {
           const d = regions[index];
           if (!d) return null;
@@ -237,6 +243,7 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick,
             style={{ pointerEvents: 'none', transition: 'opacity 0.12s' }}
           />
         ))}
+        </g>
 
         {activeIndex !== null && regions[activeIndex] && (() => {
           const d = regions[activeIndex];
@@ -254,7 +261,7 @@ export function CutViewCanvas({ regionData, scale, onRegionHover, onRegionClick,
           const fontSize = label.length <= 2 ? 5 : label.length <= 4 ? 3.5 : 2.5;
           return (
             <text
-              x={cx} y={cy}
+              x={cx} y={-cy}
               fill="#ffffff"
               fontSize={fontSize}
               fontWeight="bold"
